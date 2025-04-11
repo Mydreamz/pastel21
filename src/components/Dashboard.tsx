@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DollarSign, MessageSquare, TrendingUp, Users } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -14,8 +14,56 @@ const data = [
 ];
 
 const Dashboard = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [movement, setMovement] = useState({ x: 0, y: 0 });
+  
+  // Effect to track mouse position
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Calculate mouse position as percentage of window width/height
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      
+      setMousePosition({ x, y });
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
+  // Effect to calculate smooth movement
+  useEffect(() => {
+    // Calculate movement values - the multiplier controls the intensity
+    // Subtracting 0.5 centers the effect around the middle of the screen
+    const newX = (mousePosition.x - 0.5) * -15; // negative to move opposite to mouse
+    const newY = (mousePosition.y - 0.5) * -10;
+    
+    // Animate the movement with a slight delay for smoothness
+    const animateMovement = () => {
+      setMovement({
+        x: newX,
+        y: newY,
+      });
+    };
+    
+    const animationId = requestAnimationFrame(animateMovement);
+    return () => cancelAnimationFrame(animationId);
+  }, [mousePosition]);
+  
+  // Apply transform style with movement
+  const parallaxStyle = {
+    transform: `translate(${movement.x}px, ${movement.y}px)`,
+    transition: 'transform 0.2s ease-out',
+  };
+  
   return (
-    <div className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow">
+    <div 
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow"
+      style={parallaxStyle}
+    >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-white">Dashboard</h3>
         <div className="flex gap-2">
