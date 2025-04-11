@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { DollarSign, MessageSquare, TrendingUp, Users } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -16,47 +16,114 @@ const data = [
 const Dashboard = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [movement, setMovement] = useState({ x: 0, y: 0 });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
-  // Effect to track mouse position
+  // Check for reduced motion preference and device type
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      // Calculate mouse position as percentage of window width/height
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-      
-      setMousePosition({ x, y });
+    // Check if user prefers reduced motion
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(motionQuery.matches);
+    
+    // Listen for changes in motion preference
+    const handleMotionChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+    motionQuery.addEventListener('change', handleMotionChange);
+    
+    // Check for mobile/touch devices
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
     };
     
-    window.addEventListener('mousemove', handleMouseMove);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      motionQuery.removeEventListener('change', handleMotionChange);
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
   
-  // Effect to calculate smooth movement
-  useEffect(() => {
-    // Calculate movement values - the multiplier controls the intensity
-    // Subtracting 0.5 centers the effect around the middle of the screen
-    const newX = (mousePosition.x - 0.5) * -15; // negative to move opposite to mouse
-    const newY = (mousePosition.y - 0.5) * -10;
+  // Debounced mouse move handler
+  const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
+    // Skip if user prefers reduced motion
+    if (prefersReducedMotion) return;
     
-    // Animate the movement with a slight delay for smoothness
+    let clientX, clientY;
+    
+    // Handle both mouse and touch events
+    if ('touches' in e) {
+      clientX = (e as TouchEvent).touches[0].clientX;
+      clientY = (e as TouchEvent).touches[0].clientY;
+    } else {
+      clientX = (e as MouseEvent).clientX;
+      clientY = (e as MouseEvent).clientY;
+    }
+    
+    // Calculate mouse position as percentage of window width/height
+    const x = clientX / window.innerWidth;
+    const y = clientY / window.innerHeight;
+    
+    setMousePosition({ x, y });
+  }, [prefersReducedMotion]);
+  
+  // Throttled handle mouse move with requestAnimationFrame
+  useEffect(() => {
+    if (prefersReducedMotion || isMobile) return;
+    
+    let ticking = false;
+    const handleMouseMoveRAF = (e: MouseEvent | TouchEvent) => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleMouseMove(e);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    
+    window.addEventListener('mousemove', handleMouseMoveRAF);
+    window.addEventListener('touchmove', handleMouseMoveRAF, { passive: true });
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMoveRAF);
+      window.removeEventListener('touchmove', handleMouseMoveRAF);
+    };
+  }, [handleMouseMove, prefersReducedMotion, isMobile]);
+  
+  // Effect to calculate smooth movement - optimized with adjustable intensity based on screen size
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      // Reset movement if reduced motion is preferred
+      setMovement({ x: 0, y: 0 });
+      return;
+    }
+    
+    // Calculate intensity based on screen size
+    const baseIntensity = Math.min(window.innerWidth, 1200) / 1200;
+    
+    // Calculate movement values - adjust intensity based on screen size
+    const newX = (mousePosition.x - 0.5) * -15 * baseIntensity;
+    const newY = (mousePosition.y - 0.5) * -10 * baseIntensity;
+    
+    // Use spring physics for smoother movement
     const animateMovement = () => {
-      setMovement({
-        x: newX,
-        y: newY,
-      });
+      setMovement(prev => ({
+        x: prev.x + (newX - prev.x) * 0.1, // Spring effect with damping
+        y: prev.y + (newY - prev.y) * 0.1,
+      }));
     };
     
     const animationId = requestAnimationFrame(animateMovement);
     return () => cancelAnimationFrame(animationId);
-  }, [mousePosition]);
+  }, [mousePosition, prefersReducedMotion]);
   
-  // Apply transform style with movement
+  // Apply transform style with movement and hardware acceleration
   const parallaxStyle = {
-    transform: `translate(${movement.x}px, ${movement.y}px)`,
-    transition: 'transform 0.2s ease-out',
+    transform: `translate3d(${movement.x}px, ${movement.y}px, 0)`,
+    transition: prefersReducedMotion ? 'none' : 'transform 0.1s cubic-bezier(0.33, 1, 0.68, 1)',
+    willChange: prefersReducedMotion ? 'auto' : 'transform',
   };
   
   return (
