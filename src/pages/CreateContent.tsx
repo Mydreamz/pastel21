@@ -154,7 +154,7 @@ const CreateContent = () => {
                   )}
                 />
                 
-                <div className="space-y-3">
+                <div className="space-y-4 sm:space-y-3">
                   <h3 className="text-lg font-medium flex items-center gap-2">
                     <Lock className="h-4 w-4" /> Locked Content
                   </h3>
@@ -165,7 +165,7 @@ const CreateContent = () => {
                     onValueChange={setSelectedContentType}
                     className="w-full"
                   >
-                    <TabsList className={`grid ${isMobile ? 'grid-cols-2 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
+                    <TabsList className={`grid ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
                       {contentTypes.map((type) => (
                         <TabsTrigger 
                           key={type.id} 
@@ -178,74 +178,76 @@ const CreateContent = () => {
                       ))}
                     </TabsList>
                     
-                    <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Write your premium content here" 
-                                className="h-40 bg-white/5 border-white/10 text-white" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="link" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input 
-                                placeholder="https://example.com/your-premium-link" 
-                                className="bg-white/5 border-white/10 text-white" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormDescription className="text-gray-400">
-                              Enter the URL you want to share with paying users
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </TabsContent>
-                    
-                    <TabsContent value="image" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                        <Image className="h-10 w-10 text-gray-400 mb-2" />
-                        <p className="text-gray-400">Drag & drop image or <span className="text-emerald-500">browse</span></p>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                        <FileVideo className="h-10 w-10 text-gray-400 mb-2" />
-                        <p className="text-gray-400">Drag & drop video or <span className="text-emerald-500">browse</span></p>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                        <FileAudio className="h-10 w-10 text-gray-400 mb-2" />
-                        <p className="text-gray-400">Drag & drop audio or <span className="text-emerald-500">browse</span></p>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="document" className="p-4 bg-white/5 border border-white/10 rounded-md mt-2">
-                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                        <FileText className="h-10 w-10 text-gray-400 mb-2" />
-                        <p className="text-gray-400">Drag & drop document or <span className="text-emerald-500">browse</span></p>
-                      </div>
-                    </TabsContent>
+                    <div className="mt-4 sm:mt-2">
+                      <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <FormField
+                          control={form.control}
+                          name="content"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea 
+                                  placeholder="Write your premium content here" 
+                                  className="h-40 bg-white/5 border-white/10 text-white" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                      
+                      <TabsContent value="link" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <FormField
+                          control={form.control}
+                          name="content"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input 
+                                  placeholder="https://example.com/your-premium-link" 
+                                  className="bg-white/5 border-white/10 text-white" 
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormDescription className="text-gray-400">
+                                Enter the URL you want to share with paying users
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TabsContent>
+                      
+                      <TabsContent value="image" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
+                          <Image className="h-10 w-10 text-gray-400 mb-2" />
+                          <p className="text-gray-400">Drag & drop image or <span className="text-emerald-500">browse</span></p>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
+                          <FileVideo className="h-10 w-10 text-gray-400 mb-2" />
+                          <p className="text-gray-400">Drag & drop video or <span className="text-emerald-500">browse</span></p>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
+                          <FileAudio className="h-10 w-10 text-gray-400 mb-2" />
+                          <p className="text-gray-400">Drag & drop audio or <span className="text-emerald-500">browse</span></p>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="document" className="p-4 bg-white/5 border border-white/10 rounded-md">
+                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
+                          <FileText className="h-10 w-10 text-gray-400 mb-2" />
+                          <p className="text-gray-400">Drag & drop document or <span className="text-emerald-500">browse</span></p>
+                        </div>
+                      </TabsContent>
+                    </div>
                   </Tabs>
                 </div>
                 
