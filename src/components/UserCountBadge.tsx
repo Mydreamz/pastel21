@@ -54,7 +54,7 @@ const UserCountBadge: React.FC<UserCountBadgeProps> = ({ count }) => {
               </div>
             ))}
             <p className="text-xs text-emerald-500 font-medium pt-1">
-              And {count.toLocaleString() - users.length}+ others
+              And {count - users.length}+ others
             </p>
           </div>
         </div>
