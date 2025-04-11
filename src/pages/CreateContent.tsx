@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import StarsBackground from '@/components/StarsBackground';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const contentFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,6 +40,7 @@ const CreateContent = () => {
   const navigate = useNavigate();
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const isMobile = useIsMobile();
   
   const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
@@ -163,15 +165,15 @@ const CreateContent = () => {
                     onValueChange={setSelectedContentType}
                     className="w-full"
                   >
-                    <TabsList className="grid grid-cols-3 md:grid-cols-6 bg-white/5 border border-white/10 p-1">
+                    <TabsList className={`grid ${isMobile ? 'grid-cols-2 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
                       {contentTypes.map((type) => (
                         <TabsTrigger 
                           key={type.id} 
                           value={type.id}
-                          className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white"
+                          className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white flex items-center justify-center h-10 px-2 text-xs sm:text-sm"
                         >
-                          <type.icon className="h-4 w-4 mr-2" />
-                          <span className="hidden md:inline">{type.label}</span>
+                          <type.icon className="h-4 w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate">{type.label}</span>
                         </TabsTrigger>
                       ))}
                     </TabsList>
