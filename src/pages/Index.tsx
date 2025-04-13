@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
@@ -28,8 +29,10 @@ const Index = () => {
           </nav>
           
           <div className="flex items-center gap-4">
-            <a href="#" className="hidden sm:inline-flex text-gray-300 hover:text-white transition-colors">Sign in</a>
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full">Get Started</Button>
+            <Link to="/auth" className="hidden sm:inline-flex text-gray-300 hover:text-white transition-colors">Sign in</Link>
+            <Link to="/auth">
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full">Get Started</Button>
+            </Link>
           </div>
         </div>
       </header>

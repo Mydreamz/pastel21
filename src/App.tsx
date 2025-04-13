@@ -10,6 +10,7 @@ import BrowseContent from "./pages/BrowseContent";
 import ContentSuccess from "./pages/ContentSuccess";
 import ViewContent from "./pages/ViewContent";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/browse" element={<BrowseContent />} />
           <Route path="/content/:contentId" element={<ViewContent />} />
           <Route path="/success/:contentId" element={<ContentSuccess />} />
+          <Route path="/auth" element={<Auth />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
