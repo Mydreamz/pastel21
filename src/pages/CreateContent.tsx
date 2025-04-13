@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StarsBackground from '@/components/StarsBackground';
-import ContentForm, { ContentFormValues } from '@/components/content/ContentForm';
+import ContentForm from '@/components/content/ContentForm';
+import { ContentFormValues } from '@/components/content/form/ContentFormProvider';
 import { toast } from 'sonner';
 
 const CreateContent = () => {
