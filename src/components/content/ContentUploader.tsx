@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ContentType } from './ContentTypeSelector';
 import { Image, FileVideo, FileAudio, FileText, Upload } from 'lucide-react';
 import { Control } from 'react-hook-form';
-import { ContentFormValues } from './ContentForm';
+import { ContentFormValues } from './form/ContentFormProvider';
 import { Button } from "@/components/ui/button";
 
 interface ContentUploaderProps {
