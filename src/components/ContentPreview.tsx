@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Lock, DollarSign, Info, FileText, Image, Video, Music, File } from 'lucide-react';
 
 interface ContentPreviewProps {
   title: string;
@@ -11,6 +11,7 @@ interface ContentPreviewProps {
   price: number;
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiryDate?: string;
+  onUnlock?: () => void;
 }
 
 const ContentPreview: React.FC<ContentPreviewProps> = ({
@@ -18,7 +19,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   teaser,
   price,
   type,
-  expiryDate
+  expiryDate,
+  onUnlock
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
@@ -37,6 +39,30 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   
   const formattedExpiry = formatExpiryDate(expiryDate);
   
+  const handleUnlock = () => {
+    setShowPaymentDialog(false);
+    if (onUnlock) {
+      onUnlock();
+    }
+  };
+  
+  const getContentTypeIcon = () => {
+    switch (type) {
+      case 'text':
+        return <FileText className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+      case 'image':
+        return <Image className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+      case 'video':
+        return <Video className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+      case 'audio':
+        return <Music className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+      case 'document':
+        return <File className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+      default:
+        return <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+    }
+  };
+  
   return (
     <Card className="glass-card border-white/10 text-white overflow-hidden">
       <CardHeader>
@@ -53,7 +79,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
         <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
           <div className="absolute inset-0 bg-black/50"></div>
           <div className="relative z-10 text-center p-6">
-            <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />
+            {getContentTypeIcon()}
             <p className="text-white font-semibold">This content is locked</p>
             <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
           </div>
@@ -113,7 +139,10 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
             >
               Cancel
             </Button>
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+            <Button 
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              onClick={handleUnlock}
+            >
               Pay ${price.toFixed(2)}
             </Button>
           </DialogFooter>

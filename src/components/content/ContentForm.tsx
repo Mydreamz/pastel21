@@ -20,6 +20,7 @@ export const contentFormSchema = z.object({
     message: "Price must be a positive number"
   }),
   content: z.string().min(1, "Content is required"),
+  contentType: z.enum(['text', 'link', 'image', 'video', 'audio', 'document'] as const).default('text'),
   expiry: z.string().optional()
 });
 
@@ -41,9 +42,15 @@ const ContentForm: React.FC<ContentFormProps> = ({ onSubmit, onCancel }) => {
       teaser: "",
       price: "0",
       content: "",
+      contentType: 'text',
       expiry: ""
     }
   });
+  
+  // Update contentType field when selector changes
+  React.useEffect(() => {
+    form.setValue('contentType', selectedContentType);
+  }, [selectedContentType, form]);
   
   return (
     <Form {...form}>

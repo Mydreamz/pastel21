@@ -5,16 +5,37 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import StarsBackground from '@/components/StarsBackground';
 import ContentForm, { ContentFormValues } from '@/components/content/ContentForm';
+import { toast } from 'sonner';
 
 const CreateContent = () => {
   const navigate = useNavigate();
   
   const onSubmit = (values: ContentFormValues) => {
     console.log("Form submitted with values:", values);
-    // Here you would typically save the content to your backend
     
-    // After saving, navigate back to home
-    navigate('/');
+    // Generate a unique content ID (in a real app this would come from a backend)
+    const contentId = crypto.randomUUID();
+    
+    // In a real app, this is where you would save the content to your backend
+    const contentData = {
+      id: contentId,
+      title: values.title,
+      teaser: values.teaser,
+      price: parseFloat(values.price),
+      content: values.content,
+      type: values.contentType || 'text',
+      expiry: values.expiry || null,
+      createdAt: new Date().toISOString()
+    };
+    
+    // Store content in localStorage for demo purposes (in a real app, use a database)
+    const existingContents = JSON.parse(localStorage.getItem('lockedContents') || '[]');
+    localStorage.setItem('lockedContents', JSON.stringify([...existingContents, contentData]));
+    
+    toast.success('Content created successfully!');
+    
+    // Navigate to the success page with the content ID
+    navigate(`/success/${contentId}`);
   };
   
   return (
