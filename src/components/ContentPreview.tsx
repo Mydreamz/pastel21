@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info, FileText, Image, Video, Music, File } from 'lucide-react';
+import { Lock, DollarSign, Info, FileText, Image, Video, Music, File, Loader2 } from 'lucide-react';
 
 interface ContentPreviewProps {
   title: string;
@@ -23,6 +23,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   onUnlock
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -39,11 +40,17 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   
   const formattedExpiry = formatExpiryDate(expiryDate);
   
-  const handleUnlock = () => {
-    setShowPaymentDialog(false);
+  const handleUnlock = async () => {
+    setIsProcessing(true);
+    
     if (onUnlock) {
-      onUnlock();
+      // In a real app with a payment processor, this would process the payment
+      // and then call onUnlock() when successful
+      await onUnlock();
     }
+    
+    setIsProcessing(false);
+    setShowPaymentDialog(false);
   };
   
   const getContentTypeIcon = () => {
@@ -123,7 +130,14 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
                 <span>Content Price</span>
                 <span className="font-semibold">${price.toFixed(2)}</span>
               </div>
-              {/* Payment method would be integrated here */}
+              <div className="text-sm text-gray-400 mt-2">
+                Payment Methods:
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">Visa</div>
+                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">MC</div>
+                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">PayP</div>
+                </div>
+              </div>
             </div>
             
             <p className="text-xs text-gray-400">
@@ -136,14 +150,23 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
               variant="outline" 
               onClick={() => setShowPaymentDialog(false)}
               className="border-gray-700 hover:border-gray-600 text-gray-300"
+              disabled={isProcessing}
             >
               Cancel
             </Button>
             <Button 
               className="bg-emerald-500 hover:bg-emerald-600 text-white"
               onClick={handleUnlock}
+              disabled={isProcessing}
             >
-              Pay ${price.toFixed(2)}
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>Pay ${price.toFixed(2)}</>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

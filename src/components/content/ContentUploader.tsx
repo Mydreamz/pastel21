@@ -1,14 +1,15 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { TabsContent } from "@/components/ui/tabs";
 import { FormField, FormItem, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { ContentType } from './ContentTypeSelector';
-import { Image, FileVideo, FileAudio, FileText, Upload } from 'lucide-react';
+import { Image, FileVideo, FileAudio, FileText, Upload, CheckCircle } from 'lucide-react';
 import { Control } from 'react-hook-form';
 import { ContentFormValues } from './form/ContentFormProvider';
 import { Button } from "@/components/ui/button";
+import { toast } from 'sonner';
 
 interface ContentUploaderProps {
   selectedContentType: ContentType;
@@ -25,14 +26,59 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({
   const audioInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
   
+  // State to track uploaded files
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    image?: File;
+    video?: File;
+    audio?: File;
+    document?: File;
+  }>({});
+  
   // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, contentType: ContentType) => {
     const file = event.target.files?.[0];
     if (file) {
       console.log(`Selected ${contentType} file:`, file);
-      // Here you would typically handle the file, e.g., upload it to a server
-      // and then update the form with the file URL or ID
+
+      // Update the form with file info (in a real app, you'd upload to storage and get a URL)
+      setUploadedFiles(prev => ({ ...prev, [contentType]: file }));
+      
+      // In a real app with a backend, you would:
+      // 1. Upload the file to storage (e.g., Supabase Storage, AWS S3)
+      // 2. Get back a URL
+      // 3. Set that URL in the form
+      
+      // For now, we'll just update the form with the file name as a placeholder
+      const fileInfo = `[FILE] ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+      setFieldValue('content', fileInfo, control);
+      
+      toast.success(`${contentType} file selected: ${file.name}`);
     }
+  };
+
+  // Helper to set field value programmatically
+  const setFieldValue = (
+    name: keyof ContentFormValues, 
+    value: string, 
+    control: Control<ContentFormValues>
+  ) => {
+    control._formValues[name] = value;
+    // This is a simple approach - in a real app with a backend, you'd use setValue from react-hook-form
+  };
+  
+  // Render preview for uploaded files
+  const renderFilePreview = (contentType: ContentType) => {
+    const file = uploadedFiles[contentType as keyof typeof uploadedFiles];
+    
+    if (!file) return null;
+    
+    return (
+      <div className="mt-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-md flex items-center gap-2">
+        <CheckCircle className="h-4 w-4 text-emerald-500" />
+        <span className="text-sm text-emerald-300 truncate">{file.name}</span>
+        <span className="text-xs text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
+      </div>
+    );
   };
   
   return (
@@ -108,6 +154,7 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({
             Choose Image
           </Button>
         </div>
+        {renderFilePreview('image')}
       </TabsContent>
       
       <TabsContent value="video" className="p-3 bg-white/5 border border-white/10 rounded-md">
@@ -140,6 +187,7 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({
             Choose Video
           </Button>
         </div>
+        {renderFilePreview('video')}
       </TabsContent>
       
       <TabsContent value="audio" className="p-3 bg-white/5 border border-white/10 rounded-md">
@@ -172,6 +220,7 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({
             Choose Audio
           </Button>
         </div>
+        {renderFilePreview('audio')}
       </TabsContent>
       
       <TabsContent value="document" className="p-3 bg-white/5 border border-white/10 rounded-md">
@@ -204,6 +253,7 @@ const ContentUploader: React.FC<ContentUploaderProps> = ({
             Choose Document
           </Button>
         </div>
+        {renderFilePreview('document')}
       </TabsContent>
     </div>
   );
