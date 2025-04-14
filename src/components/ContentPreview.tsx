@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info, FileText, Image, Video, Music, File, Loader2 } from 'lucide-react';
+import { Lock, DollarSign, Info, FileText, Image, Video, Music, File, Loader2, CreditCard } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ContentPreviewProps {
   title: string;
@@ -12,6 +14,7 @@ interface ContentPreviewProps {
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiryDate?: string;
   onUnlock?: () => void;
+  contentId?: string; // Add contentId for redirection after payment
 }
 
 const ContentPreview: React.FC<ContentPreviewProps> = ({
@@ -20,10 +23,12 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   price,
   type,
   expiryDate,
-  onUnlock
+  onUnlock,
+  contentId
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'details' | 'processing' | 'complete'>('details');
+  const navigate = useNavigate();
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -41,16 +46,28 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   const formattedExpiry = formatExpiryDate(expiryDate);
   
   const handleUnlock = async () => {
-    setIsProcessing(true);
+    // Simulate payment processing
+    setPaymentStep('processing');
     
-    if (onUnlock) {
-      // In a real app with a payment processor, this would process the payment
-      // and then call onUnlock() when successful
-      await onUnlock();
-    }
-    
-    setIsProcessing(false);
-    setShowPaymentDialog(false);
+    // Simulate API delay
+    setTimeout(() => {
+      setPaymentStep('complete');
+      
+      // After 1.5 seconds of showing success, close dialog and unlock content
+      setTimeout(() => {
+        if (onUnlock) {
+          onUnlock();
+        }
+        
+        setShowPaymentDialog(false);
+        
+        // Navigate to content view page after successful payment if contentId is provided
+        if (contentId) {
+          toast.success('Payment successful! Redirecting to content...');
+          navigate(`/content/${contentId}`);
+        }
+      }, 1500);
+    }, 2000);
   };
   
   const getContentTypeIcon = () => {
@@ -67,6 +84,97 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
         return <File className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
       default:
         return <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />;
+    }
+  };
+  
+  const renderPaymentStepContent = () => {
+    switch (paymentStep) {
+      case 'processing':
+        return (
+          <div className="py-8 flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 text-emerald-500 animate-spin mb-4" />
+            <p className="text-center font-medium text-lg">Processing Payment...</p>
+            <p className="text-gray-300 text-sm mt-2">Please wait while we confirm your payment</p>
+          </div>
+        );
+      
+      case 'complete':
+        return (
+          <div className="py-8 flex flex-col items-center justify-center">
+            <div className="h-12 w-12 bg-emerald-500 rounded-full flex items-center justify-center mb-4">
+              <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-center font-medium text-lg">Payment Successful!</p>
+            <p className="text-gray-300 text-sm mt-2">Redirecting you to the content...</p>
+          </div>
+        );
+      
+      default:
+        return (
+          <>
+            <div className="py-4">
+              <div className="mb-4 p-4 bg-white/5 rounded-md">
+                <div className="flex justify-between items-center mb-4">
+                  <span>Content Price</span>
+                  <span className="font-semibold">${price.toFixed(2)}</span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      className="w-full rounded bg-white/10 p-2 pl-9 text-white border border-white/20"
+                      placeholder="Card Number" 
+                      defaultValue="4242 4242 4242 4242" 
+                    />
+                    <CreditCard className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <input 
+                      type="text" 
+                      className="rounded bg-white/10 p-2 text-white border border-white/20"
+                      placeholder="MM/YY" 
+                      defaultValue="12/25" 
+                    />
+                    <input 
+                      type="text" 
+                      className="rounded bg-white/10 p-2 text-white border border-white/20"
+                      placeholder="CVC" 
+                      defaultValue="123" 
+                    />
+                  </div>
+                </div>
+                
+                <div className="text-sm text-gray-400 mt-4">
+                  Test Card: 4242 4242 4242 4242 (Any future date, any CVC)
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-400">
+                By proceeding with payment, you agree to our terms of service and privacy policy.
+              </p>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowPaymentDialog(false)}
+                className="border-gray-700 hover:border-gray-600 text-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={handleUnlock}
+              >
+                Pay ${price.toFixed(2)}
+              </Button>
+            </DialogFooter>
+          </>
+        );
     }
   };
   
@@ -115,60 +223,33 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
         )}
       </CardFooter>
       
-      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+      <Dialog open={showPaymentDialog} onOpenChange={(open) => {
+        if (!open) {
+          // Only allow closing if not in processing state
+          if (paymentStep !== 'processing') {
+            setShowPaymentDialog(false);
+            // Reset payment step when dialog is closed
+            setPaymentStep('details');
+          }
+        } else {
+          setShowPaymentDialog(open);
+        }
+      }}>
         <DialogContent className="glass-card border-white/10 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Unlock Premium Content</DialogTitle>
+            <DialogTitle>
+              {paymentStep === 'details' && 'Unlock Premium Content'}
+              {paymentStep === 'processing' && 'Processing Payment'}
+              {paymentStep === 'complete' && 'Payment Successful!'}
+            </DialogTitle>
             <DialogDescription className="text-gray-300">
-              Complete your payment to access "{title}"
+              {paymentStep === 'details' && `Complete your payment to access "${title}"`}
+              {paymentStep === 'processing' && 'Please wait while we process your payment'}
+              {paymentStep === 'complete' && 'Your content is now being unlocked'}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4">
-            <div className="mb-4 p-4 bg-white/5 rounded-md">
-              <div className="flex justify-between items-center mb-2">
-                <span>Content Price</span>
-                <span className="font-semibold">${price.toFixed(2)}</span>
-              </div>
-              <div className="text-sm text-gray-400 mt-2">
-                Payment Methods:
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">Visa</div>
-                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">MC</div>
-                  <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center">PayP</div>
-                </div>
-              </div>
-            </div>
-            
-            <p className="text-xs text-gray-400">
-              By proceeding with payment, you agree to our terms of service and privacy policy.
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowPaymentDialog(false)}
-              className="border-gray-700 hover:border-gray-600 text-gray-300"
-              disabled={isProcessing}
-            >
-              Cancel
-            </Button>
-            <Button 
-              className="bg-emerald-500 hover:bg-emerald-600 text-white"
-              onClick={handleUnlock}
-              disabled={isProcessing}
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>Pay ${price.toFixed(2)}</>
-              )}
-            </Button>
-          </DialogFooter>
+          {renderPaymentStepContent()}
         </DialogContent>
       </Dialog>
     </Card>

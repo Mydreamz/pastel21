@@ -74,7 +74,6 @@ const ViewContent = () => {
       const unlockedContents = JSON.parse(localStorage.getItem('unlockedContents') || '[]');
       localStorage.setItem('unlockedContents', JSON.stringify([...unlockedContents, contentId]));
       
-      toast.success('Payment successful! Content unlocked');
       setIsUnlocked(true);
     } catch (error) {
       toast.error('Payment failed. Please try again.');
@@ -111,12 +110,25 @@ const ViewContent = () => {
         // In a real app, this would be an actual image URL
         return (
           <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
-            <ImageIcon className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <p className="text-white text-center">
-              {content.content.startsWith('[FILE]') 
-                ? `Image file: ${content.content.replace('[FILE] ', '')}`
-                : 'Your premium image is available'}
-            </p>
+            {content.content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4">
+                  <img 
+                    src={`/placeholder.svg`} 
+                    alt={content.title} 
+                    className="w-full h-auto"
+                  />
+                </div>
+                <p className="text-white text-center">
+                  Image file: {content.content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <ImageIcon className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium image is available</p>
+              </>
+            )}
           </div>
         );
       case 'video':
@@ -128,6 +140,9 @@ const ViewContent = () => {
                 ? `Video file: ${content.content.replace('[FILE] ', '')}`
                 : 'Your premium video is available'}
             </p>
+            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
+              <p className="text-gray-400 text-center">Video player would appear here</p>
+            </div>
           </div>
         );
       case 'audio':
@@ -139,6 +154,9 @@ const ViewContent = () => {
                 ? `Audio file: ${content.content.replace('[FILE] ', '')}`
                 : 'Your premium audio is available'}
             </p>
+            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
+              <p className="text-gray-400 text-center">Audio player would appear here</p>
+            </div>
           </div>
         );
       case 'document':
@@ -150,6 +168,14 @@ const ViewContent = () => {
                 ? `Document file: ${content.content.replace('[FILE] ', '')}`
                 : 'Your premium document is available'}
             </p>
+            <Button 
+              className="mt-4 bg-emerald-500 hover:bg-emerald-600"
+              onClick={() => {
+                toast.info('Document would open or download here');
+              }}
+            >
+              Download Document
+            </Button>
           </div>
         );
       default:
@@ -215,6 +241,7 @@ const ViewContent = () => {
             price={content.price}
             type={content.type}
             expiryDate={content.expiry}
+            contentId={content.id}
             onUnlock={() => handlePayment(content.id)}
           />
         ) : (
