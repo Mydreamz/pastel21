@@ -145,8 +145,8 @@ const ContentSuccess = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4 space-y-4">
-            <div className="flex flex-col gap-2">
+          <div className="py-4 space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
               <p className="text-sm font-medium">Content Link</p>
               <div className="flex items-center gap-2">
                 <div className="bg-black/30 text-gray-200 py-2 px-3 rounded text-xs sm:text-sm overflow-hidden text-ellipsis flex-1">
@@ -163,8 +163,8 @@ const ContentSuccess = () => {
               </div>
             </div>
             
-            <div className="flex flex-col gap-2 items-center justify-center pt-2">
-              <p className="text-sm font-medium">QR Code</p>
+            <div className="flex flex-col items-center justify-center">
+              <p className="text-sm font-medium mb-2">QR Code</p>
               <div className="h-32 w-32 flex items-center justify-center bg-white rounded-md">
                 <QrCode className="h-16 w-16 text-black" />
               </div>
@@ -173,9 +173,9 @@ const ContentSuccess = () => {
               </p>
             </div>
             
-            <div className="flex flex-col gap-2 mt-4">
-              <p className="text-sm font-medium">Share on Social Media</p>
-              <div className="flex justify-center gap-3">
+            <div className="col-span-full">
+              <p className="text-sm font-medium mb-2">Share on Social Media</p>
+              <div className="grid grid-cols-3 gap-3">
                 <Button variant="outline" className="w-full">Twitter</Button>
                 <Button variant="outline" className="w-full">Facebook</Button>
                 <Button variant="outline" className="w-full">Email</Button>
