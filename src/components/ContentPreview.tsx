@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info, FileText, Image, Video, Music, File, Loader2, CreditCard } from 'lucide-react';
+import { Lock, DollarSign, Info, FileText, Image, Video, Music, File, Loader2, CreditCard, ExternalLink, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ContentPreviewProps {
@@ -14,7 +13,8 @@ interface ContentPreviewProps {
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiryDate?: string;
   onUnlock?: () => void;
-  contentId?: string; // Add contentId for redirection after payment
+  contentId?: string;
+  content?: string;
 }
 
 const ContentPreview: React.FC<ContentPreviewProps> = ({
@@ -24,10 +24,12 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   type,
   expiryDate,
   onUnlock,
-  contentId
+  contentId,
+  content
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'details' | 'processing' | 'complete'>('details');
+  const [contentUnlocked, setContentUnlocked] = useState(false);
   const navigate = useNavigate();
   
   const formatExpiryDate = (dateString?: string) => {
@@ -43,31 +45,21 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
     });
   };
   
-  const formattedExpiry = formatExpiryDate(expiryDate);
-  
   const handleUnlock = async () => {
-    // Simulate payment processing
     setPaymentStep('processing');
     
-    // Simulate API delay
     setTimeout(() => {
-      setPaymentStep('complete');
+      if (onUnlock) {
+        onUnlock();
+      }
       
-      // After 1.5 seconds of showing success, close dialog and unlock content
-      setTimeout(() => {
-        if (onUnlock) {
-          onUnlock();
-        }
-        
-        setShowPaymentDialog(false);
-        
-        // Navigate to content view page after successful payment if contentId is provided
-        if (contentId) {
-          toast.success('Payment successful! Redirecting to content...');
-          navigate(`/content/${contentId}`);
-        }
-      }, 1500);
-    }, 2000);
+      setShowPaymentDialog(false);
+      setContentUnlocked(true);
+      
+      if (contentId) {
+        toast.success('Payment successful! Enjoying your content!');
+      }
+    }, 1500);
   };
   
   const getContentTypeIcon = () => {
@@ -178,11 +170,118 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
     }
   };
   
+  const renderUnlockedContent = () => {
+    if (!content) return null;
+    
+    switch (type) {
+      case 'text':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10">
+            <p className="text-white whitespace-pre-wrap">{content}</p>
+          </div>
+        );
+      case 'link':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
+            <p className="text-white mb-4">Your premium content is ready:</p>
+            <Button 
+              onClick={() => window.open(content, '_blank')}
+              className="bg-emerald-500 hover:bg-emerald-600"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Open Content
+            </Button>
+          </div>
+        );
+      case 'image':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
+            {content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4">
+                  <img 
+                    src={`/placeholder.svg`} 
+                    alt={title} 
+                    className="w-full h-auto"
+                  />
+                </div>
+                <p className="text-white text-center">
+                  Image file: {content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <Image className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium image is available</p>
+              </>
+            )}
+          </div>
+        );
+      case 'video':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
+            <Video className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+            <p className="text-white text-center">
+              {content.startsWith('[FILE]') 
+                ? `Video file: ${content.replace('[FILE] ', '')}`
+                : 'Your premium video is available'}
+            </p>
+            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
+              <p className="text-gray-400 text-center">Video player would appear here</p>
+            </div>
+          </div>
+        );
+      case 'audio':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
+            <Music className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+            <p className="text-white text-center">
+              {content.startsWith('[FILE]') 
+                ? `Audio file: ${content.replace('[FILE] ', '')}`
+                : 'Your premium audio is available'}
+            </p>
+            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
+              <p className="text-gray-400 text-center">Audio player would appear here</p>
+            </div>
+          </div>
+        );
+      case 'document':
+        return (
+          <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
+            <FileText className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+            <p className="text-white text-center">
+              {content.startsWith('[FILE]') 
+                ? `Document file: ${content.replace('[FILE] ', '')}`
+                : 'Your premium document is available'}
+            </p>
+            <Button 
+              className="mt-4 bg-emerald-500 hover:bg-emerald-600"
+              onClick={() => {
+                toast.info('Document would open or download here');
+              }}
+            >
+              Download Document
+            </Button>
+          </div>
+        );
+      default:
+        return <p className="text-white">Content type not supported</p>;
+    }
+  };
+  
   return (
     <Card className="glass-card border-white/10 text-white overflow-hidden">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
-          <Lock className="h-5 w-5 text-emerald-500" /> {title}
+          {contentUnlocked ? (
+            <>
+              <Eye className="h-5 w-5 text-emerald-500" /> {title}
+            </>
+          ) : (
+            <>
+              <Lock className="h-5 w-5 text-emerald-500" /> {title}
+            </>
+          )}
         </CardTitle>
         <CardDescription className="text-gray-300">
           {teaser}
@@ -190,45 +289,58 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       </CardHeader>
       
       <CardContent className="relative">
-        {/* Blurred preview */}
-        <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="relative z-10 text-center p-6">
-            {getContentTypeIcon()}
-            <p className="text-white font-semibold">This content is locked</p>
-            <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
+        {contentUnlocked ? (
+          <div className="rounded-md overflow-hidden">
+            {renderUnlockedContent()}
           </div>
-        </div>
+        ) : (
+          <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="relative z-10 text-center p-6">
+              {getContentTypeIcon()}
+              <p className="text-white font-semibold">This content is locked</p>
+              <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
+            </div>
+          </div>
+        )}
         
-        {/* Price tag */}
-        <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-          <DollarSign className="h-3 w-3" />
-          {price.toFixed(2)}
-        </div>
+        {!contentUnlocked && (
+          <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+            <DollarSign className="h-3 w-3" />
+            {price.toFixed(2)}
+          </div>
+        )}
       </CardContent>
       
       <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <Button 
-          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
-          onClick={() => setShowPaymentDialog(true)}
-        >
-          Unlock Now
-        </Button>
-        
-        {formattedExpiry && (
-          <div className="text-xs text-gray-400 flex items-center gap-1">
-            <Info className="h-3 w-3" />
-            Expires: {formattedExpiry}
+        {!contentUnlocked ? (
+          <>
+            <Button 
+              className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
+              onClick={() => setShowPaymentDialog(true)}
+            >
+              Unlock Now
+            </Button>
+            
+            {expiryDate && (
+              <div className="text-xs text-gray-400 flex items-center gap-1">
+                <Info className="h-3 w-3" />
+                Expires: {formatExpiryDate(expiryDate)}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="w-full text-center text-xs text-emerald-400 flex items-center justify-center gap-1">
+            <Eye className="h-3 w-3" />
+            Content successfully unlocked
           </div>
         )}
       </CardFooter>
       
       <Dialog open={showPaymentDialog} onOpenChange={(open) => {
         if (!open) {
-          // Only allow closing if not in processing state
           if (paymentStep !== 'processing') {
             setShowPaymentDialog(false);
-            // Reset payment step when dialog is closed
             setPaymentStep('details');
           }
         } else {

@@ -243,6 +243,7 @@ const ViewContent = () => {
             expiryDate={content.expiry}
             contentId={content.id}
             onUnlock={() => handlePayment(content.id)}
+            content={content.content} // Pass the content even when locked
           />
         ) : (
           <Card className="glass-card border-white/10 text-white overflow-hidden">
