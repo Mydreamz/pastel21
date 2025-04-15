@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,8 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import StarsBackground from '@/components/StarsBackground';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from 'uuid';
+import { useToast } from '@/hooks/use-toast';
 
 const contentFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -37,12 +36,12 @@ const contentTypes = [
   { id: 'document', label: 'Document', icon: FileText }
 ];
 
-const CreateContent = () => {
+const EditContent = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
@@ -58,72 +57,93 @@ const CreateContent = () => {
   });
 
   useEffect(() => {
-    // Check if user is logged in
-    const auth = localStorage.getItem('auth');
-    if (auth) {
+    const loadContent = () => {
       try {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          setIsAuthenticated(true);
-          setUserData(parsedAuth.user);
+        const storedContents = JSON.parse(localStorage.getItem('contents') || '[]');
+        const content = storedContents.find((item: any) => item.id === id);
+        
+        if (content) {
+          form.reset({
+            title: content.title,
+            teaser: content.teaser,
+            price: content.price.toString(),
+            content: content.content,
+            expiry: content.expiry || ""
+          });
+          
+          setSelectedContentType(content.contentType || 'text');
+          if (content.expiry) {
+            setShowAdvanced(true);
+          }
+        } else {
+          toast({
+            title: "Content not found",
+            description: "The content you're trying to edit couldn't be found.",
+            variant: "destructive"
+          });
+          navigate('/');
         }
-      } catch (e) {
-        console.error("Auth parsing error", e);
+      } catch (error) {
+        console.error("Error loading content:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load content data.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, []);
+    };
+
+    loadContent();
+  }, [id, form, navigate, toast]);
 
   const onSubmit = (values: ContentFormValues) => {
-    console.log("Form submitted with values:", values);
-    
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to create content",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
-      // Create new content object
-      const newContent = {
-        id: uuidv4(),
-        title: values.title,
-        teaser: values.teaser,
-        price: values.price,
-        content: values.content,
-        contentType: selectedContentType,
-        creatorId: userData.id,
-        creatorName: userData.name,
-        expiry: values.expiry || null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
+      const storedContents = JSON.parse(localStorage.getItem('contents') || '[]');
+      const contentIndex = storedContents.findIndex((item: any) => item.id === id);
       
-      // Get existing contents array or create empty one
-      const existingContents = JSON.parse(localStorage.getItem('contents') || '[]');
-      existingContents.push(newContent);
-      
-      // Save back to local storage
-      localStorage.setItem('contents', JSON.stringify(existingContents));
-      
-      toast({
-        title: "Content created successfully",
-        description: "Your content has been published"
-      });
-      
-      // Navigate to success page with content data
-      navigate('/success', { state: { content: newContent } });
+      if (contentIndex !== -1) {
+        // Update existing content
+        storedContents[contentIndex] = {
+          ...storedContents[contentIndex],
+          title: values.title,
+          teaser: values.teaser,
+          price: values.price,
+          content: values.content,
+          contentType: selectedContentType,
+          expiry: values.expiry || null,
+          updatedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('contents', JSON.stringify(storedContents));
+        
+        toast({
+          title: "Content updated",
+          description: "Your content has been successfully updated.",
+        });
+        
+        navigate('/');
+      } else {
+        toast({
+          title: "Update failed",
+          description: "Content not found in storage.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
-      console.error("Error saving content:", error);
+      console.error("Error updating content:", error);
       toast({
-        title: "Error creating content",
-        description: "There was a problem saving your content",
+        title: "Update failed",
+        description: "An error occurred while updating your content.",
         variant: "destructive"
       });
     }
   };
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Loading content...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
@@ -139,9 +159,9 @@ const CreateContent = () => {
         
         <Card className="glass-card border-white/10 text-white">
           <CardHeader>
-            <CardTitle className="text-2xl md:text-3xl font-bold">Create Locked Content</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl font-bold">Edit Content</CardTitle>
             <CardDescription className="text-gray-300">
-              Share and monetize your content with a secure paywall
+              Update your content details
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -192,7 +212,7 @@ const CreateContent = () => {
                     <Lock className="h-4 w-4" /> Locked Content
                   </h3>
                   
-                  <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full pt-13">
+                  <Tabs value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
                     <TabsList className={`grid ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
                       {contentTypes.map(type => (
                         <TabsTrigger key={type.id} value={type.id} className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white flex items-center justify-center h-10 px-2 text-xs sm:text-sm">
@@ -235,14 +255,14 @@ const CreateContent = () => {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md px-[28px] py-[35px] mt-16">
+                      <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md">
                         <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
                           <FileVideo className="h-10 w-10 text-gray-400 mb-2" />
                           <p className="text-gray-400">Drag & drop video or <span className="text-emerald-500">browse</span></p>
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md mt-16">
+                      <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md">
                         <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
                           <FileAudio className="h-10 w-10 text-gray-400 mb-2" />
                           <p className="text-gray-400">Drag & drop audio or <span className="text-emerald-500">browse</span></p>
@@ -289,7 +309,7 @@ const CreateContent = () => {
                     Cancel
                   </Button>
                   <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                    Create Content
+                    Update Content
                   </Button>
                 </div>
               </form>
@@ -301,4 +321,4 @@ const CreateContent = () => {
   );
 };
 
-export default CreateContent;
+export default EditContent;
