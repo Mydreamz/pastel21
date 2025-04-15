@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FormField, FormItem, FormControl, FormDescription, FormMessage, FormLabel } from "@/components/ui/form";
@@ -32,22 +31,52 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-4 sm:space-y-3">
+    <div className="space-y-6 sm:space-y-4 w-full">
       <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
       
-      <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full pt-13">
-        <TabsList className={`grid ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
+      <Tabs 
+        defaultValue="text" 
+        value={selectedContentType} 
+        onValueChange={setSelectedContentType} 
+        className="w-full"
+      >
+        <TabsList className={`
+          grid 
+          ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
+          bg-white/5 
+          border 
+          border-white/10 
+          p-1 
+          rounded-md
+        `}>
           {contentTypes.map(type => (
-            <TabsTrigger key={type.id} value={type.id} className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white flex items-center justify-center h-10 px-2 text-xs sm:text-sm">
+            <TabsTrigger 
+              key={type.id} 
+              value={type.id} 
+              className="
+                data-[state=active]:bg-emerald-500 
+                data-[state=active]:text-white 
+                flex 
+                items-center 
+                justify-center 
+                h-10 
+                px-2 
+                text-xs 
+                sm:text-sm 
+                rounded-sm
+                transition-colors
+                hover:bg-white/10
+              "
+            >
               <type.icon className="h-4 w-4 mr-1 flex-shrink-0" />
               <span className="truncate">{type.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
         
-        <div className="mt-4 sm:mt-2">
+        <div className="mt-4 sm:mt-3 space-y-4">
           <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
             <FormField control={form.control} name="content" render={({ field }) => (
               <FormItem>
