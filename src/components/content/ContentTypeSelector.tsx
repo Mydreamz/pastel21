@@ -31,7 +31,7 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-6 sm:space-y-4 w-full">
+    <div className="space-y-4 sm:space-y-3 w-full">
       <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
@@ -44,7 +44,7 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
       >
         <TabsList className={`
           grid 
-          ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
+          ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
           bg-white/5 
           border 
           border-white/10 
@@ -76,7 +76,7 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
           ))}
         </TabsList>
         
-        <div className="mt-4 sm:mt-3 space-y-4">
+        <div className="mt-2 sm:mt-2 space-y-2">
           <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
             <FormField control={form.control} name="content" render={({ field }) => (
               <FormItem>
