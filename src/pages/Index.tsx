@@ -1,10 +1,10 @@
-
 import React from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const Index = () => {
   return (
