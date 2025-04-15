@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormDescription, FormMessage, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, LinkIcon, Image, FileVideo, FileAudio, Lock } from 'lucide-react';
@@ -31,8 +31,8 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="w-full">
-      <h3 className="text-sm font-medium flex items-center gap-2 mb-2 text-gray-400">
+    <div className="space-y-4 sm:space-y-3 w-full">
+      <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
       
@@ -43,74 +43,67 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
         className="w-full"
       >
         <TabsList className={`
-          grid w-full
-          ${isMobile ? 'grid-cols-3' : 'grid-cols-6'} 
-          gap-1
-          bg-transparent
-          p-0
-          mb-2
+          grid 
+          ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
+          bg-white/5 
+          border 
+          border-white/10 
+          p-1 
+          rounded-md
         `}>
           {contentTypes.map(type => (
             <TabsTrigger 
               key={type.id} 
               value={type.id} 
               className="
-                data-[state=active]:bg-emerald-500
+                data-[state=active]:bg-emerald-500 
                 data-[state=active]:text-white 
-                bg-white/5
-                hover:bg-white/10
-                border
-                border-white/10
                 flex 
                 items-center 
-                gap-2
                 justify-center 
                 h-10 
-                px-4
-                text-sm
-                rounded-md
+                px-2 
+                text-xs 
+                sm:text-sm 
+                rounded-sm
                 transition-colors
+                hover:bg-white/10
               "
             >
-              <type.icon className="h-4 w-4 flex-shrink-0" />
-              <span className="hidden md:inline">{type.label}</span>
+              <type.icon className="h-4 w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{type.label}</span>
             </TabsTrigger>
           ))}
         </TabsList>
         
-        <div className="space-y-2">
-          <TabsContent value="text" className="p-0">
+        <div className="mt-2 sm:mt-2 space-y-2">
+          <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
             <FormField control={form.control} name="content" render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Write your premium content here" 
-                    className="min-h-[200px] bg-white/5 border-white/10 text-white resize-none rounded-md" 
-                    {...field} 
-                  />
+                  <Textarea placeholder="Write your premium content here" className="h-40 bg-white/5 border-white/10 text-white" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
           </TabsContent>
           
-          <TabsContent value="link" className="p-0">
+          <TabsContent value="link" className="p-4 bg-white/5 border border-white/10 rounded-md">
             <FormField control={form.control} name="content" render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <Input 
-                    placeholder="https://example.com/your-premium-link" 
-                    className="bg-white/5 border-white/10 text-white" 
-                    {...field} 
-                  />
+                  <Input placeholder="https://example.com/your-premium-link" className="bg-white/5 border-white/10 text-white" {...field} />
                 </FormControl>
+                <FormDescription className="text-gray-400">
+                  Enter the URL you want to share with paying users
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )} />
           </TabsContent>
           
-          <TabsContent value="image" className="p-0">
-            <div className="space-y-2">
+          <TabsContent value="image" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
               {props.setSelectedFile && (
                 <FileUpload 
                   type="image"
@@ -121,11 +114,11 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
               
               <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-400 text-xs">Image caption/description (optional)</FormLabel>
+                  <FormLabel className="text-gray-400 text-sm">Image caption/description (optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Add a description for your image..." 
-                      className="bg-white/5 border-white/10 text-white h-16 resize-none rounded-md" 
+                      className="bg-white/5 border-white/10 text-white h-16" 
                       {...field} 
                     />
                   </FormControl>
@@ -134,8 +127,8 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
             </div>
           </TabsContent>
           
-          <TabsContent value="video" className="p-0">
-            <div className="space-y-2">
+          <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
               {props.setSelectedFile && (
                 <FileUpload 
                   type="video"
@@ -146,11 +139,11 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
               
               <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-400 text-xs">Video title/description (optional)</FormLabel>
+                  <FormLabel className="text-gray-400 text-sm">Video title/description (optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Add a description for your video..." 
-                      className="bg-white/5 border-white/10 text-white h-16 resize-none rounded-md" 
+                      className="bg-white/5 border-white/10 text-white h-16" 
                       {...field} 
                     />
                   </FormControl>
@@ -159,8 +152,8 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
             </div>
           </TabsContent>
           
-          <TabsContent value="audio" className="p-0">
-            <div className="space-y-2">
+          <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
               {props.setSelectedFile && (
                 <FileUpload 
                   type="audio"
@@ -171,11 +164,11 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
               
               <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-400 text-xs">Audio title/description (optional)</FormLabel>
+                  <FormLabel className="text-gray-400 text-sm">Audio title/description (optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Add a description for your audio..." 
-                      className="bg-white/5 border-white/10 text-white h-16 resize-none rounded-md" 
+                      className="bg-white/5 border-white/10 text-white h-16" 
                       {...field} 
                     />
                   </FormControl>
@@ -184,8 +177,8 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
             </div>
           </TabsContent>
           
-          <TabsContent value="document" className="p-0">
-            <div className="space-y-2">
+          <TabsContent value="document" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
               {props.setSelectedFile && (
                 <FileUpload 
                   type="document"
@@ -196,11 +189,11 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
               
               <FormField control={form.control} name="content" render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-400 text-xs">Document description (optional)</FormLabel>
+                  <FormLabel className="text-gray-400 text-sm">Document description (optional)</FormLabel>
                   <FormControl>
                     <Textarea 
                       placeholder="Add a description for your document..." 
-                      className="bg-white/5 border-white/10 text-white h-16 resize-none rounded-md" 
+                      className="bg-white/5 border-white/10 text-white h-16" 
                       {...field} 
                     />
                   </FormControl>
