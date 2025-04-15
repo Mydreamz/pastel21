@@ -15,6 +15,8 @@ export const useContentForm = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
   const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
     defaultValues: {
@@ -22,7 +24,8 @@ export const useContentForm = () => {
       teaser: "",
       price: "0",
       content: "",
-      expiry: ""
+      expiry: "",
+      file: null
     }
   });
 
@@ -53,13 +56,13 @@ export const useContentForm = () => {
     }
 
     try {
-      // Create new content object
-      const newContent = {
+      // Create new content object with proper typing
+      const newContent: any = {
         id: uuidv4(),
         title: values.title,
         teaser: values.teaser,
         price: values.price,
-        content: values.content,
+        content: "", // Default empty content
         contentType: selectedContentType,
         creatorId: userData.id,
         creatorName: userData.name,
@@ -67,6 +70,30 @@ export const useContentForm = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+
+      // Handle different content types
+      if (selectedContentType === 'text' || selectedContentType === 'link') {
+        newContent.content = values.content || '';
+      } else if (selectedFile) {
+        // For file-based content, store file metadata
+        // In a real app, you'd upload the file to storage and store the URL
+        // Here we'll create an object URL for preview purposes
+        const fileUrl = URL.createObjectURL(selectedFile);
+        newContent.fileUrl = fileUrl;
+        newContent.fileName = selectedFile.name;
+        newContent.fileType = selectedFile.type;
+        newContent.fileSize = selectedFile.size;
+        
+        // We also store a reference to the content for description
+        newContent.content = values.content || '';
+      } else if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
+        toast({
+          title: "File required",
+          description: `Please select a ${selectedContentType} file to upload`,
+          variant: "destructive"
+        });
+        return;
+      }
       
       // Get existing contents array or create empty one
       const existingContents = JSON.parse(localStorage.getItem('contents') || '[]');
@@ -97,6 +124,8 @@ export const useContentForm = () => {
     onSubmit,
     selectedContentType,
     setSelectedContentType,
+    selectedFile,
+    setSelectedFile,
     showAdvanced,
     setShowAdvanced,
     isAuthenticated,

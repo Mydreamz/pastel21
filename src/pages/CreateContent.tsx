@@ -18,6 +18,8 @@ const CreateContent = () => {
     onSubmit, 
     selectedContentType, 
     setSelectedContentType, 
+    selectedFile,
+    setSelectedFile,
     showAdvanced, 
     setShowAdvanced,
     isAuthenticated
@@ -51,6 +53,8 @@ const CreateContent = () => {
                   form={form}
                   selectedContentType={selectedContentType}
                   setSelectedContentType={setSelectedContentType}
+                  selectedFile={selectedFile}
+                  setSelectedFile={setSelectedFile}
                 />
                 
                 <AdvancedSettings 

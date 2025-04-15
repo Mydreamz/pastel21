@@ -8,12 +8,14 @@ export const contentFormSchema = z.object({
   price: z.string().refine(val => !isNaN(Number(val)) && Number(val) >= 0, {
     message: "Price must be a positive number"
   }),
-  content: z.string().min(1, "Content is required"),
+  content: z.string().min(1, "Content is required when using text or link").optional(),
   expiry: z.string().optional()
 });
 
 // Type derived from schema
-export type ContentFormValues = z.infer<typeof contentFormSchema>;
+export type ContentFormValues = z.infer<typeof contentFormSchema> & {
+  file?: File | null;
+};
 
 // Content type with additional fields
 export type Content = ContentFormValues & {
@@ -21,6 +23,10 @@ export type Content = ContentFormValues & {
   contentType: string;
   creatorId: string;
   creatorName: string;
+  fileUrl?: string; // URL for uploaded files (used in storage)
+  fileName?: string; // Name of the uploaded file
+  fileType?: string; // MIME type of the uploaded file
+  fileSize?: number; // Size of the uploaded file in bytes
   createdAt: string;
   updatedAt: string;
 };

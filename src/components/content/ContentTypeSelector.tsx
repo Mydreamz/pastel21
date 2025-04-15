@@ -1,18 +1,21 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FormField, FormItem, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormControl, FormDescription, FormMessage, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, LinkIcon, Image, FileVideo, FileAudio, Lock } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UseFormReturn } from 'react-hook-form';
 import { ContentFormValues } from '@/types/content';
+import { FileUpload } from "@/components/ui/file-upload";
 
 type ContentTypeSelectorProps = {
   form: UseFormReturn<ContentFormValues>;
   selectedContentType: string;
   setSelectedContentType: (type: string) => void;
+  selectedFile?: File | null;
+  setSelectedFile?: (file: File | null) => void;
 };
 
 const contentTypes = [
@@ -24,7 +27,8 @@ const contentTypes = [
   { id: 'document', label: 'Document', icon: FileText }
 ];
 
-const ContentTypeSelector = ({ form, selectedContentType, setSelectedContentType }: ContentTypeSelectorProps) => {
+const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
+  const { form, selectedContentType, setSelectedContentType } = props;
   const isMobile = useIsMobile();
 
   return (
@@ -70,30 +74,102 @@ const ContentTypeSelector = ({ form, selectedContentType, setSelectedContentType
           </TabsContent>
           
           <TabsContent value="image" className="p-4 bg-white/5 border border-white/10 rounded-md">
-            <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-              <Image className="h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-gray-400">Drag & drop image or <span className="text-emerald-500">browse</span></p>
+            <div className="space-y-4">
+              {props.setSelectedFile && (
+                <FileUpload 
+                  type="image"
+                  value={props.selectedFile || null}
+                  onChange={(file) => props.setSelectedFile && props.setSelectedFile(file)}
+                />
+              )}
+              
+              <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-400 text-sm">Image caption/description (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add a description for your image..." 
+                      className="bg-white/5 border-white/10 text-white h-16" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
             </div>
           </TabsContent>
           
-          <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md px-[28px] py-[35px] mt-16">
-            <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-              <FileVideo className="h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-gray-400">Drag & drop video or <span className="text-emerald-500">browse</span></p>
+          <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
+              {props.setSelectedFile && (
+                <FileUpload 
+                  type="video"
+                  value={props.selectedFile || null}
+                  onChange={(file) => props.setSelectedFile && props.setSelectedFile(file)}
+                />
+              )}
+              
+              <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-400 text-sm">Video title/description (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add a description for your video..." 
+                      className="bg-white/5 border-white/10 text-white h-16" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
             </div>
           </TabsContent>
           
-          <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md mt-16">
-            <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-              <FileAudio className="h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-gray-400">Drag & drop audio or <span className="text-emerald-500">browse</span></p>
+          <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md">
+            <div className="space-y-4">
+              {props.setSelectedFile && (
+                <FileUpload 
+                  type="audio"
+                  value={props.selectedFile || null}
+                  onChange={(file) => props.setSelectedFile && props.setSelectedFile(file)}
+                />
+              )}
+              
+              <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-400 text-sm">Audio title/description (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add a description for your audio..." 
+                      className="bg-white/5 border-white/10 text-white h-16" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
             </div>
           </TabsContent>
           
           <TabsContent value="document" className="p-4 bg-white/5 border border-white/10 rounded-md">
-            <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-              <FileText className="h-10 w-10 text-gray-400 mb-2" />
-              <p className="text-gray-400">Drag & drop document or <span className="text-emerald-500">browse</span></p>
+            <div className="space-y-4">
+              {props.setSelectedFile && (
+                <FileUpload 
+                  type="document"
+                  value={props.selectedFile || null}
+                  onChange={(file) => props.setSelectedFile && props.setSelectedFile(file)}
+                />
+              )}
+              
+              <FormField control={form.control} name="content" render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-400 text-sm">Document description (optional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Add a description for your document..." 
+                      className="bg-white/5 border-white/10 text-white h-16" 
+                      {...field} 
+                    />
+                  </FormControl>
+                </FormItem>
+              )} />
             </div>
           </TabsContent>
         </div>

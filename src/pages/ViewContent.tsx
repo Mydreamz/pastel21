@@ -3,14 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import StarsBackground from '@/components/StarsBackground';
 import ContentPreview from '@/components/ContentPreview';
+import FilePreview from '@/components/content/FilePreview';
 
 const ViewContent = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [content, setContent] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
     // Fetch content from localStorage
@@ -22,6 +25,15 @@ const ViewContent = () => {
         
         if (foundContent) {
           setContent(foundContent);
+          
+          // Check if current user is the creator
+          const auth = localStorage.getItem('auth');
+          if (auth) {
+            const parsedAuth = JSON.parse(auth);
+            if (parsedAuth?.user?.id === foundContent.creatorId) {
+              setIsCreator(true);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching content:", error);
@@ -64,14 +76,72 @@ const ViewContent = () => {
           Back to Home
         </button>
         
-        <div className="max-w-xl mx-auto">
-          <ContentPreview 
-            title={content.title}
-            teaser={content.teaser}
-            price={parseFloat(content.price)}
-            type={content.contentType || 'text'}
-            expiryDate={content.expiry || undefined}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {isCreator && (
+            <Card className="glass-card border-white/10 text-white">
+              <CardHeader>
+                <CardTitle className="text-xl">Creator View</CardTitle>
+                <CardDescription className="text-gray-300">
+                  You created this content on {new Date(content.createdAt).toLocaleDateString()}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* File preview for creator */}
+                {content.fileUrl && ['image', 'video', 'audio', 'document'].includes(content.contentType) && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Content Preview (Only visible to you)</h3>
+                    <FilePreview 
+                      fileUrl={content.fileUrl}
+                      fileName={content.fileName}
+                      fileType={content.fileType}
+                      contentType={content.contentType}
+                    />
+                    
+                    {content.content && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium text-gray-300">Description</h4>
+                        <p className="text-white mt-1">{content.content}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {(content.contentType === 'text' || content.contentType === 'link') && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Content Preview</h3>
+                    <div className="bg-white/5 p-4 rounded-md border border-white/10">
+                      {content.contentType === 'link' ? (
+                        <a href={content.content} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline break-all">
+                          {content.content}
+                        </a>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{content.content}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    onClick={() => navigate(`/edit/${content.id}`)} 
+                    className="bg-emerald-500 hover:bg-emerald-600"
+                  >
+                    Edit Content
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          <div className={isCreator ? "lg:col-start-2" : "max-w-xl mx-auto w-full"}>
+            <ContentPreview 
+              title={content.title}
+              teaser={content.teaser}
+              price={parseFloat(content.price)}
+              type={content.contentType || 'text'}
+              expiryDate={content.expiry || undefined}
+            />
+          </div>
         </div>
       </div>
     </div>
