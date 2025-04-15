@@ -68,7 +68,7 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
             </TabsTrigger>)}
         </TabsList>
         
-        <div className="mt-2 sm:mt-2 space-y-2">
+        <div className="mt-2 sm:mt-2 space-y-2 top-16">
           <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
             <FormField control={form.control} name="content" render={({
             field
