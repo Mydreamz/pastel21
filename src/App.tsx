@@ -9,6 +9,8 @@ import CreateContent from "./pages/CreateContent";
 import BrowseContent from "./pages/BrowseContent";
 import ContentSuccess from "./pages/ContentSuccess";
 import ViewContent from "./pages/ViewContent";
+import EditContent from "./pages/EditContent";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
@@ -25,8 +27,10 @@ const App = () => (
           <Route path="/create" element={<CreateContent />} />
           <Route path="/browse" element={<BrowseContent />} />
           <Route path="/content/:contentId" element={<ViewContent />} />
+          <Route path="/edit-content/:contentId" element={<EditContent />} />
           <Route path="/success/:contentId" element={<ContentSuccess />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

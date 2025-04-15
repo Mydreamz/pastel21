@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +11,27 @@ import { toast } from 'sonner';
 const CreateContent = () => {
   const navigate = useNavigate();
   
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      toast.error('You must be logged in to create content');
+      navigate('/auth');
+    }
+  }, [navigate]);
+  
   const onSubmit = (values: ContentFormValues) => {
     console.log("Form submitted with values:", values);
+    
+    // Get current user
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      toast.error('You must be logged in to create content');
+      navigate('/auth');
+      return;
+    }
+    
+    const user = JSON.parse(userData);
     
     // Generate a unique content ID (in a real app this would come from a backend)
     const contentId = crypto.randomUUID();
@@ -26,7 +45,8 @@ const CreateContent = () => {
       content: values.content,
       type: values.contentType || 'text',
       expiry: values.expiry || null,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      ownerId: user.id // Associate content with creator
     };
     
     // Store content in localStorage for demo purposes (in a real app, use a database)

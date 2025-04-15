@@ -17,6 +17,16 @@ interface ContentData {
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiry?: string;
   createdAt: string;
+  ownerId?: string;
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  balance: number;
+  createdAt: string;
 }
 
 const ViewContent = () => {
@@ -26,6 +36,7 @@ const ViewContent = () => {
   const [loading, setLoading] = useState(true);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   
   useEffect(() => {
     // In a real app, fetch content data from API
@@ -42,6 +53,16 @@ const ViewContent = () => {
         const unlockedContents = JSON.parse(localStorage.getItem('unlockedContents') || '[]');
         if (unlockedContents.includes(contentId)) {
           setIsUnlocked(true);
+        }
+        
+        // Check if current user is the owner
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const user = JSON.parse(userData);
+          if (foundContent.ownerId === user.id) {
+            setIsOwner(true);
+            setIsUnlocked(true); // Owners can view their own content
+          }
         }
       } else {
         toast.error('Content not found');
@@ -67,12 +88,38 @@ const ViewContent = () => {
     // For demo purposes, we'll simulate a payment process
     
     try {
+      // Get current user data
+      const userData = localStorage.getItem('userData');
+      if (!userData) {
+        toast.error('You must be logged in to purchase content');
+        navigate('/auth');
+        return;
+      }
+      
+      const user: UserData = JSON.parse(userData);
+      
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Save contentId to localStorage as 'unlocked'
       const unlockedContents = JSON.parse(localStorage.getItem('unlockedContents') || '[]');
       localStorage.setItem('unlockedContents', JSON.stringify([...unlockedContents, contentId]));
+      
+      // Add payment to content owner's balance
+      if (content?.ownerId && content.price) {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const updatedUsers = users.map((u: UserData) => {
+          if (u.id === content.ownerId) {
+            return {
+              ...u,
+              balance: u.balance + content.price
+            };
+          }
+          return u;
+        });
+        
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+      }
       
       setIsUnlocked(true);
     } catch (error) {
@@ -114,7 +161,7 @@ const ViewContent = () => {
               <>
                 <div className="w-full max-w-md rounded overflow-hidden my-4">
                   <img 
-                    src={`/placeholder.svg`} 
+                    src="/placeholder.svg" 
                     alt={content.title} 
                     className="w-full h-auto"
                   />
@@ -134,29 +181,62 @@ const ViewContent = () => {
       case 'video':
         return (
           <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
-            <FileVideo className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <p className="text-white text-center">
-              {content.content.startsWith('[FILE]') 
-                ? `Video file: ${content.content.replace('[FILE] ', '')}`
-                : 'Your premium video is available'}
-            </p>
-            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
-              <p className="text-gray-400 text-center">Video player would appear here</p>
-            </div>
+            {content.content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4 bg-black">
+                  <div className="aspect-video w-full flex items-center justify-center bg-black">
+                    <video
+                      controls
+                      className="w-full h-auto max-h-[400px]"
+                      poster="/placeholder.svg"
+                    >
+                      <source src="" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </div>
+                <p className="text-white text-center">
+                  Video file: {content.content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <FileVideo className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium video is available</p>
+                <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Video player would appear here</p>
+                </div>
+              </>
+            )}
           </div>
         );
       case 'audio':
         return (
           <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
-            <FileAudio className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <p className="text-white text-center">
-              {content.content.startsWith('[FILE]') 
-                ? `Audio file: ${content.content.replace('[FILE] ', '')}`
-                : 'Your premium audio is available'}
-            </p>
-            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
-              <p className="text-gray-400 text-center">Audio player would appear here</p>
-            </div>
+            {content.content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4">
+                  <audio
+                    controls
+                    className="w-full"
+                  >
+                    <source src="" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+                <p className="text-white text-center">
+                  Audio file: {content.content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <FileAudio className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium audio is available</p>
+                <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Audio player would appear here</p>
+                </div>
+              </>
+            )}
           </div>
         );
       case 'document':
@@ -174,7 +254,7 @@ const ViewContent = () => {
                 toast.info('Document would open or download here');
               }}
             >
-              Download Document
+              View Document
             </Button>
           </div>
         );
@@ -252,7 +332,7 @@ const ViewContent = () => {
                 <CardTitle className="text-xl">{content.title}</CardTitle>
                 <div className="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
                   <Eye className="h-3 w-3 mr-1" />
-                  Unlocked
+                  {isOwner ? 'Your Content' : 'Unlocked'}
                 </div>
               </div>
               <CardDescription className="text-gray-300">
@@ -273,6 +353,16 @@ const ViewContent = () => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Home
               </Button>
+              
+              {isOwner && (
+                <Button 
+                  onClick={() => navigate(`/edit-content/${content.id}`)} 
+                  className="w-full sm:w-auto"
+                  variant="outline"
+                >
+                  Edit Content
+                </Button>
+              )}
               
               <Button 
                 onClick={() => navigate('/browse')} 

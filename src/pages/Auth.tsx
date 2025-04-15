@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, User, Lock, Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,15 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import StarsBackground from '@/components/StarsBackground';
 import { toast } from 'sonner';
+
+interface UserData {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  balance: number;
+  createdAt: string;
+}
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -26,30 +35,97 @@ const Auth = () => {
   const [signUpPhone, setSignUpPhone] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   
+  // Check if user is already logged in
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      // Already logged in, redirect to home
+      navigate('/');
+    }
+  }, [navigate]);
+  
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
+    
     // In a real app, this would authenticate via a backend
-    console.log('Signing in with:', { signInEmail, signInPassword });
-    toast.success('Signed in successfully!');
-    navigate('/');
+    // For demo, check if user exists in localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const user = users.find((u: UserData) => 
+      (u.email === signInEmail || u.phone === signInEmail) && signInPassword === 'password'
+    );
+    
+    if (user) {
+      // Store current user data in localStorage
+      localStorage.setItem('userData', JSON.stringify(user));
+      toast.success('Signed in successfully!');
+      navigate('/');
+    } else {
+      toast.error('Invalid credentials. Please try again or sign up.');
+    }
   };
   
   const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would register the user via a backend
-    const signUpData = isPhoneSignUp 
-      ? { name: signUpName, phone: signUpPhone, password: signUpPassword }
-      : { name: signUpName, email: signUpEmail, password: signUpPassword };
     
-    console.log('Signing up with:', signUpData);
+    // Create new user object
+    const newUser: UserData = {
+      id: crypto.randomUUID(),
+      name: signUpName,
+      balance: 0,
+      createdAt: new Date().toISOString()
+    };
+    
+    if (isPhoneSignUp) {
+      newUser.phone = signUpPhone;
+    } else {
+      newUser.email = signUpEmail;
+    }
+    
+    // Get existing users or initialize empty array
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Check if user already exists
+    const userExists = existingUsers.some((user: UserData) => 
+      (user.email === signUpEmail) || (user.phone === signUpPhone)
+    );
+    
+    if (userExists) {
+      toast.error('User already exists with this email or phone');
+      return;
+    }
+    
+    // Add new user to users array
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    
+    // Auto sign in the new user
+    localStorage.setItem('userData', JSON.stringify(newUser));
+    
     toast.success('Account created successfully!');
     navigate('/');
   };
   
   const handleGoogleAuth = () => {
     // In a real app, this would initiate Google OAuth
-    console.log('Authenticating with Google');
-    toast.success('Google authentication initiated!');
+    // For demo, create a demo Google user
+    const googleUser: UserData = {
+      id: crypto.randomUUID(),
+      name: 'Google User',
+      email: 'google@example.com',
+      balance: 0,
+      createdAt: new Date().toISOString()
+    };
+    
+    localStorage.setItem('userData', JSON.stringify(googleUser));
+    
+    // Add to users array if not already there
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    if (!existingUsers.some((u: UserData) => u.email === googleUser.email)) {
+      localStorage.setItem('users', JSON.stringify([...existingUsers, googleUser]));
+    }
+    
+    toast.success('Google authentication successful!');
+    navigate('/');
   };
   
   const togglePasswordVisibility = () => {

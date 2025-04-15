@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,6 +32,21 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   const [paymentStep, setPaymentStep] = useState<'details' | 'processing' | 'complete'>('details');
   const [contentUnlocked, setContentUnlocked] = useState(false);
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    // Check if user is logged in
+    const userData = localStorage.getItem('userData');
+    setIsLoggedIn(!!userData);
+    
+    // Check if content is already unlocked
+    if (contentId) {
+      const unlockedContents = JSON.parse(localStorage.getItem('unlockedContents') || '[]');
+      if (unlockedContents.includes(contentId)) {
+        setContentUnlocked(true);
+      }
+    }
+  }, [contentId]);
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -46,6 +62,12 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   };
   
   const handleUnlock = async () => {
+    if (!isLoggedIn) {
+      toast.error('Please sign in to unlock this content');
+      navigate('/auth');
+      return;
+    }
+    
     setPaymentStep('processing');
     
     setTimeout(() => {
@@ -200,9 +222,9 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
               <>
                 <div className="w-full max-w-md rounded overflow-hidden my-4">
                   <img 
-                    src={`/placeholder.svg`} 
+                    src="/placeholder.svg" 
                     alt={title} 
-                    className="w-full h-auto"
+                    className="w-full h-auto max-h-[400px] object-contain"
                   />
                 </div>
                 <p className="text-white text-center">
@@ -220,29 +242,62 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       case 'video':
         return (
           <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
-            <Video className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <p className="text-white text-center">
-              {content.startsWith('[FILE]') 
-                ? `Video file: ${content.replace('[FILE] ', '')}`
-                : 'Your premium video is available'}
-            </p>
-            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
-              <p className="text-gray-400 text-center">Video player would appear here</p>
-            </div>
+            {content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4 bg-black">
+                  <div className="aspect-video w-full flex items-center justify-center bg-black">
+                    <video
+                      controls
+                      className="w-full h-auto max-h-[400px]"
+                      poster="/placeholder.svg"
+                    >
+                      <source src="" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </div>
+                <p className="text-white text-center">
+                  Video file: {content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <Video className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium video is available</p>
+                <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-8 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Video player would appear here</p>
+                </div>
+              </>
+            )}
           </div>
         );
       case 'audio':
         return (
           <div className="p-4 bg-white/5 rounded-md border border-white/10 flex flex-col items-center">
-            <Music className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
-            <p className="text-white text-center">
-              {content.startsWith('[FILE]') 
-                ? `Audio file: ${content.replace('[FILE] ', '')}`
-                : 'Your premium audio is available'}
-            </p>
-            <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
-              <p className="text-gray-400 text-center">Audio player would appear here</p>
-            </div>
+            {content.startsWith('[FILE]') ? (
+              <>
+                <div className="w-full max-w-md rounded overflow-hidden my-4">
+                  <audio
+                    controls
+                    className="w-full"
+                  >
+                    <source src="" type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+                <p className="text-white text-center">
+                  Audio file: {content.replace('[FILE] ', '')}
+                </p>
+              </>
+            ) : (
+              <>
+                <Music className="h-12 w-12 text-emerald-500 mx-auto mb-4" />
+                <p className="text-white text-center">Your premium audio is available</p>
+                <div className="w-full max-w-md bg-black/30 rounded-md mt-4 p-4 flex items-center justify-center">
+                  <p className="text-gray-400 text-center">Audio player would appear here</p>
+                </div>
+              </>
+            )}
           </div>
         );
       case 'document':
@@ -260,7 +315,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
                 toast.info('Document would open or download here');
               }}
             >
-              Download Document
+              View Document
             </Button>
           </div>
         );
@@ -317,7 +372,14 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           <>
             <Button 
               className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
-              onClick={() => setShowPaymentDialog(true)}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  toast.error('Please sign in to unlock content');
+                  navigate('/auth');
+                  return;
+                }
+                setShowPaymentDialog(true);
+              }}
             >
               Unlock Now
             </Button>
