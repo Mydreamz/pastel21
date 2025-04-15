@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -10,23 +9,20 @@ import { useContentForm } from '@/hooks/useContentForm';
 import BasicInfoFields from '@/components/content/BasicInfoFields';
 import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import AdvancedSettings from '@/components/content/AdvancedSettings';
-
 const CreateContent = () => {
   const navigate = useNavigate();
-  const { 
-    form, 
-    onSubmit, 
-    selectedContentType, 
-    setSelectedContentType, 
+  const {
+    form,
+    onSubmit,
+    selectedContentType,
+    setSelectedContentType,
     selectedFile,
     setSelectedFile,
-    showAdvanced, 
+    showAdvanced,
     setShowAdvanced,
     isAuthenticated
   } = useContentForm();
-
-  return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
+  return <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
       {/* Background elements */}
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
@@ -49,21 +45,11 @@ const CreateContent = () => {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <BasicInfoFields form={form} />
                 
-                <ContentTypeSelector 
-                  form={form}
-                  selectedContentType={selectedContentType}
-                  setSelectedContentType={setSelectedContentType}
-                  selectedFile={selectedFile}
-                  setSelectedFile={setSelectedFile}
-                />
+                <ContentTypeSelector form={form} selectedContentType={selectedContentType} setSelectedContentType={setSelectedContentType} selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
                 
-                <AdvancedSettings 
-                  form={form}
-                  showAdvanced={showAdvanced}
-                  setShowAdvanced={setShowAdvanced}
-                />
+                <AdvancedSettings form={form} showAdvanced={showAdvanced} setShowAdvanced={setShowAdvanced} />
                 
-                <div className="flex justify-end gap-4 pt-4">
+                <div className="flex justify-end gap-4 pt-4 top-">
                   <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-gray-700 hover:border-gray-600 text-gray-300">
                     Cancel
                   </Button>
@@ -76,8 +62,6 @@ const CreateContent = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CreateContent;

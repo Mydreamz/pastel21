@@ -62,14 +62,14 @@ const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
           p-1 
           rounded-md
         `}>
-          {contentTypes.map(type => <TabsTrigger key={type.id} value={type.id} className="m-1\n">
+          {contentTypes.map(type => <TabsTrigger key={type.id} value={type.id} className="m-1\\n bottom-12">
               <type.icon className="h-4 w-4 mr-1 flex-shrink-0" />
               <span className="truncate">{type.label}</span>
             </TabsTrigger>)}
         </TabsList>
         
         <div className="mt-2 sm:mt-2 space-y-2 top-16">
-          <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md">
+          <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md top-10">
             <FormField control={form.control} name="content" render={({
             field
           }) => <FormItem>
