@@ -1,26 +1,45 @@
 
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
 
 interface ViewContentHeaderProps {
   title: string;
   creatorName: string;
   createdAt: string;
   price: string;
+  creatorId: string;
+  contentId: string;
 }
 
-const ViewContentHeader = ({ title, creatorName, createdAt, price }: ViewContentHeaderProps) => {
+const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, contentId }: ViewContentHeaderProps) => {
   const navigate = useNavigate();
+  const auth = localStorage.getItem('auth');
+  const userData = auth ? JSON.parse(auth).user : null;
+  const isCreator = userData && userData.id === creatorId;
 
   return (
     <>
-      <button 
-        onClick={() => navigate('/')} 
-        className="mb-6 flex items-center text-gray-300 hover:text-white transition-colors"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Home
-      </button>
+      <div className="flex justify-between items-start mb-6">
+        <button 
+          onClick={() => navigate('/')} 
+          className="flex items-center text-gray-300 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Home
+        </button>
+        
+        {isCreator && (
+          <Button
+            onClick={() => navigate(`/edit/${contentId}`)}
+            variant="outline"
+            className="border-white/10 hover:bg-white/10"
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Content
+          </Button>
+        )}
+      </div>
       
       <h1 className="text-2xl md:text-3xl font-bold mb-2">{title}</h1>
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-gray-400 mb-6">
