@@ -1,15 +1,17 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LogIn, User } from 'lucide-react';
+import { LogIn, User, AlertCircle } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -27,19 +29,19 @@ interface AuthDialogProps {
   setShowAuthDialog: (show: boolean) => void;
   authTab: 'login' | 'signup';
   setAuthTab: (tab: 'login' | 'signup') => void;
-  setIsAuthenticated: (isAuthenticated: boolean) => void;
-  setUserData: (userData: any) => void;
+  setIsAuthenticated?: (isAuthenticated: boolean) => void;
+  setUserData?: (userData: any) => void;
 }
 
 const AuthDialog = ({
   showAuthDialog,
   setShowAuthDialog,
   authTab,
-  setAuthTab,
-  setIsAuthenticated,
-  setUserData
+  setAuthTab
 }: AuthDialogProps) => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -58,106 +60,74 @@ const AuthDialog = ({
     }
   });
 
-  const handleLogin = (values: z.infer<typeof loginSchema>) => {
+  const handleLogin = async (values: z.infer<typeof loginSchema>) => {
+    setIsLoading(true);
+    setAuthError(null);
+    
     try {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find((u: any) => 
-        u.email.toLowerCase() === values.email.toLowerCase()
-      );
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password
+      });
       
-      if (user && user.password === values.password) {
-        const authData = {
-          isAuthenticated: true,
-          token: `dummy-token-${Date.now()}`,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            createdAt: user.createdAt
-          }
-        };
-        
-        localStorage.setItem('auth', JSON.stringify(authData));
-        setIsAuthenticated(true);
-        setUserData(authData.user);
-        setShowAuthDialog(false);
-        
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${user.name}!`
-        });
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password",
-          variant: "destructive"
-        });
+      if (error) {
+        throw error;
       }
-    } catch (error) {
+      
+      setShowAuthDialog(false);
+      toast({
+        title: "Login successful",
+        description: "Welcome back!"
+      });
+      
+    } catch (error: any) {
       console.error("Login error:", error);
+      setAuthError(error.message || "Invalid email or password");
       toast({
         title: "Login failed",
-        description: "An unexpected error occurred",
+        description: error.message || "Invalid email or password",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSignup = (values: z.infer<typeof signupSchema>) => {
+  const handleSignup = async (values: z.infer<typeof signupSchema>) => {
+    setIsLoading(true);
+    setAuthError(null);
+    
     try {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      
-      const existingUser = users.find((u: any) => 
-        u.email.toLowerCase() === values.email.toLowerCase()
-      );
-      
-      if (existingUser) {
-        toast({
-          title: "Signup failed",
-          description: "Email already in use",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      const newUser = {
-        id: uuidv4(),
-        name: values.name,
+      const { data, error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
-        createdAt: new Date().toISOString()
-      };
-      
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      const authData = {
-        isAuthenticated: true,
-        token: `dummy-token-${Date.now()}`,
-        user: {
-          id: newUser.id,
-          name: newUser.name,
-          email: newUser.email,
-          createdAt: newUser.createdAt
+        options: {
+          data: {
+            name: values.name
+          }
         }
-      };
+      });
       
-      localStorage.setItem('auth', JSON.stringify(authData));
-      setIsAuthenticated(true);
-      setUserData(authData.user);
+      if (error) {
+        throw error;
+      }
+      
       setShowAuthDialog(false);
-      
       toast({
         title: "Account created",
-        description: `Welcome, ${values.name}!`
+        description: "Your account has been created successfully!"
       });
-    } catch (error) {
+      
+    } catch (error: any) {
       console.error("Signup error:", error);
+      setAuthError(error.message || "Failed to create account");
       toast({
         title: "Signup failed",
-        description: "An unexpected error occurred",
+        description: error.message || "Failed to create account",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -171,9 +141,16 @@ const AuthDialog = ({
           <DialogDescription className="text-gray-300">
             {authTab === 'login' 
               ? 'Sign in to your account to access your dashboard'
-              : 'Create a new account to get started with ContentFlow'}
+              : 'Create a new account to get started with CreatorHub'}
           </DialogDescription>
         </DialogHeader>
+        
+        {authError && (
+          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-300">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
         
         <Tabs value={authTab} onValueChange={(value) => setAuthTab(value as 'login' | 'signup')} className="w-full">
           <TabsList className="grid grid-cols-2 bg-white/5 border border-white/10 p-1">
@@ -200,6 +177,7 @@ const AuthDialog = ({
                         <Input
                           placeholder="your@email.com"
                           className="bg-white/5 border-white/10 text-white"
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -219,6 +197,7 @@ const AuthDialog = ({
                           type="password"
                           placeholder="••••••••"
                           className="bg-white/5 border-white/10 text-white"
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -240,8 +219,17 @@ const AuthDialog = ({
                   </button>
                 </div>
 
-                <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
-                  Sign In
+                <Button 
+                  type="submit" 
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="animate-spin mr-2 inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                      Signing In...
+                    </>
+                  ) : "Sign In"}
                 </Button>
               </form>
             </Form>
@@ -272,6 +260,7 @@ const AuthDialog = ({
                         <Input
                           placeholder="John Doe"
                           className="bg-white/5 border-white/10 text-white"
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -290,6 +279,7 @@ const AuthDialog = ({
                         <Input
                           placeholder="your@email.com"
                           className="bg-white/5 border-white/10 text-white"
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -309,6 +299,7 @@ const AuthDialog = ({
                           type="password"
                           placeholder="••••••••"
                           className="bg-white/5 border-white/10 text-white"
+                          disabled={isLoading}
                           {...field}
                         />
                       </FormControl>
@@ -317,8 +308,17 @@ const AuthDialog = ({
                   )}
                 />
                 
-                <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
-                  Create Account
+                <Button 
+                  type="submit" 
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="animate-spin mr-2 inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                      Creating Account...
+                    </>
+                  ) : "Create Account"}
                 </Button>
               </form>
             </Form>

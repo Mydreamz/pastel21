@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
@@ -11,61 +11,29 @@ import RecentContent from '@/components/content/RecentContent';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '@/App';
 
 const Index = () => {
   const { toast } = useToast();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const { user, session } = useAuth();
   const [recentContents, setRecentContents] = useState<any[]>([]);
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const checkAuth = () => {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        try {
-          const parsedAuth = JSON.parse(auth);
-          if (parsedAuth && parsedAuth.user) {
-            setIsAuthenticated(true);
-            setUserData(parsedAuth.user);
-          }
-        } catch (e) {
-          console.error("Auth parsing error", e);
-        }
-      }
-    };
-    
+  React.useEffect(() => {
     // Load recent contents
-    const loadRecentContents = () => {
-      try {
-        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const sorted = contents
-          .sort((a: any, b: any) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-          .slice(0, 6);
-        setRecentContents(sorted);
-      } catch (e) {
-        console.error("Error loading recent contents", e);
-      }
-    };
-    
-    checkAuth();
-    loadRecentContents();
+    try {
+      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
+      const sorted = contents
+        .sort((a: any, b: any) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        .slice(0, 6);
+      setRecentContents(sorted);
+    } catch (e) {
+      console.error("Error loading recent contents", e);
+    }
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('auth');
-    setIsAuthenticated(false);
-    setUserData(null);
-    
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out"
-    });
-  };
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
@@ -77,12 +45,7 @@ const Index = () => {
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <MainNav 
-        isAuthenticated={isAuthenticated}
-        userData={userData}
-        handleLogout={handleLogout}
-        openAuthDialog={openAuthDialog}
-      />
+      <MainNav openAuthDialog={openAuthDialog} />
       
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 relative z-10">
         <section className="py-10 md:py-16 lg:py-20">
@@ -94,7 +57,7 @@ const Index = () => {
 
         <RecentContent 
           recentContents={recentContents}
-          isAuthenticated={isAuthenticated}
+          isAuthenticated={!!session}
           openAuthDialog={openAuthDialog}
         />
         
@@ -158,8 +121,7 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="glass-card p-6 rounded-xl border border-emerald
--500/20">
+              <div className="glass-card p-6 rounded-xl border border-emerald-500/20">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold">Pro Plan</h3>
                   <div className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-medium">Popular</div>
@@ -204,8 +166,8 @@ const Index = () => {
         setShowAuthDialog={setShowAuthDialog}
         authTab={authTab}
         setAuthTab={setAuthTab}
-        setIsAuthenticated={setIsAuthenticated}
-        setUserData={setUserData}
+        setIsAuthenticated={() => {}} // This is no longer needed as we're using global auth context
+        setUserData={() => {}} // This is no longer needed as we're using global auth context
       />
     </div>
   );

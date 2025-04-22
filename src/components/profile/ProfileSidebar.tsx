@@ -4,21 +4,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { User, Wallet } from 'lucide-react';
-import { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface ProfileSidebarProps {
-  userData: SupabaseUser;
+  userData: any;
   balance: number;
   onLogout: () => void;
 }
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
-  const userName = userData.user_metadata?.name || 
-                   userData.email?.split('@')[0] || 
+  const userName = userData?.user_metadata?.name || 
+                   userData?.email?.split('@')[0] || 
                    'User';
   
-  const userEmail = userData.email || '';
-  const createdAt = userData.created_at ? new Date(userData.created_at).toLocaleDateString() : 'Unknown';
+  const userEmail = userData?.email || '';
+  
+  // Format the created_at date nicely
+  const createdAt = userData?.created_at 
+    ? new Date(userData.created_at).toLocaleDateString() 
+    : 'Unknown';
   
   return (
     <Card className="glass-card border-white/10 text-white">

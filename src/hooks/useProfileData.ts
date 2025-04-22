@@ -1,58 +1,57 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/App';
 
 export const useProfileData = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const { user, session, isLoading } = useAuth();
   const [userContents, setUserContents] = useState<any[]>([]);
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    // Check if user is logged in
-    const checkAuth = async () => {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        try {
-          const parsedAuth = JSON.parse(auth);
-          if (parsedAuth && parsedAuth.user) {
-            setIsAuthenticated(true);
-            setUserData(parsedAuth.user);
+    // Get user contents and transactions only if user is authenticated
+    const fetchUserData = async () => {
+      if (!user) return;
+      
+      try {
+        // Get user contents from Supabase
+        const { data: contents } = await supabase
+          .from('contents')
+          .select('*')
+          .eq('creator_id', user.id);
+        setUserContents(contents || []);
 
-            // Get user contents from Supabase
-            const { data: contents } = await supabase
-              .from('contents')
-              .select('*')
-              .eq('creator_id', parsedAuth.user.id);
-            setUserContents(contents || []);
+        // Calculate balance from unlocked content (transactions)
+        const { data: transactions } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('creator_id', user.id);
 
-            // Calculate balance from unlocked content (transactions)
-            const { data: transactions } = await supabase
-              .from('transactions')
-              .select('*')
-              .eq('creator_id', parsedAuth.user.id);
+        const userEarnings = (transactions || [])
+          .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
 
-            const userEarnings = (transactions || [])
-              .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
-
-            setBalance(userEarnings);
-          } else {
-            redirectToHome();
-          }
-        } catch (e) {
-          console.error("Auth parsing error", e);
-          redirectToHome();
-        }
-      } else {
-        redirectToHome();
+        setBalance(userEarnings);
+      } catch (e) {
+        console.error("Error fetching user data:", e);
+        toast({
+          title: "Error loading profile data",
+          description: "Failed to load your profile information",
+          variant: "destructive"
+        });
       }
     };
 
-    checkAuth();
-  }, [navigate]);
+    if (user) {
+      fetchUserData();
+    } else if (!isLoading) {
+      // Only redirect if we've checked auth status and user is not logged in
+      redirectToHome();
+    }
+  }, [user, navigate, toast, isLoading]);
   
   const redirectToHome = () => {
     toast({
@@ -63,8 +62,8 @@ export const useProfileData = () => {
     navigate('/');
   };
   
-  const handleLogout = () => {
-    localStorage.removeItem('auth');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast({
       title: "Logged out successfully"
     });
@@ -98,8 +97,8 @@ export const useProfileData = () => {
   };
 
   return {
-    isAuthenticated,
-    userData,
+    isAuthenticated: !!user,
+    userData: user,
     userContents,
     balance,
     handleLogout,

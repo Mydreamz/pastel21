@@ -7,6 +7,7 @@ import MainNav from '@/components/navigation/MainNav';
 import Footer from '@/components/navigation/Footer';
 import AuthDialog from '@/components/auth/AuthDialog';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/App';
 import { Tag, Tags } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -17,27 +18,10 @@ const Search = () => {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [popularTags, setPopularTags] = useState<string[]>(["Photography", "Article", "Tutorial", "Design", "Programming"]);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
+  const { user, session } = useAuth();
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Check if user is already logged in
-    const auth = localStorage.getItem('auth');
-    if (auth) {
-      try {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          setIsAuthenticated(true);
-          setUserData(parsedAuth.user);
-        }
-      } catch (e) {
-        console.error("Auth parsing error", e);
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (initialQuery) {
@@ -95,17 +79,6 @@ const Search = () => {
     searchContent(tag);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('auth');
-    setIsAuthenticated(false);
-    setUserData(null);
-    
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out"
-    });
-  };
-
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
     setShowAuthDialog(true);
@@ -113,12 +86,7 @@ const Search = () => {
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white">
-      <MainNav 
-        isAuthenticated={isAuthenticated}
-        userData={userData}
-        handleLogout={handleLogout}
-        openAuthDialog={openAuthDialog}
-      />
+      <MainNav openAuthDialog={openAuthDialog} />
       
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-12">
@@ -158,8 +126,8 @@ const Search = () => {
         setShowAuthDialog={setShowAuthDialog}
         authTab={authTab}
         setAuthTab={setAuthTab}
-        setIsAuthenticated={setIsAuthenticated}
-        setUserData={setUserData}
+        setIsAuthenticated={() => {}} // This is no longer needed as we're using global auth context
+        setUserData={() => {}} // This is no longer needed as we're using global auth context
       />
     </div>
   );
