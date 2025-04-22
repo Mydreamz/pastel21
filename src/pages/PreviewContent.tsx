@@ -6,8 +6,9 @@ import ContentPreview from '@/components/ContentPreview';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
 import LockedContent from '@/components/content/LockedContent';
+import ContentActions from '@/components/content/ContentActions';
 import { useViewContent } from '@/hooks/useViewContent';
-import { Share, DollarSign, Clock, Eye } from 'lucide-react';
+import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
@@ -21,6 +22,7 @@ const PreviewContent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
+  const [shareUrl, setShareUrl] = useState('');
 
   // Add debug logging for this component
   console.log("PreviewContent: Content ID:", id);
@@ -39,6 +41,9 @@ const PreviewContent = () => {
         console.error("Auth parsing error", e);
       }
     }
+    
+    // Set share URL
+    setShareUrl(window.location.href);
     
     // Load related content if content is available
     if (content) {
@@ -60,7 +65,7 @@ const PreviewContent = () => {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       toast({
         title: "Link copied!",
         description: "Content preview link has been copied to your clipboard",
@@ -111,6 +116,23 @@ const PreviewContent = () => {
     return previewWords.join(' ') + '...';
   };
 
+  const getContentTypeIcon = () => {
+    if (!content) return <FileText className="h-5 w-5" />;
+    
+    switch (content.contentType) {
+      case 'text':
+        return <FileText className="h-5 w-5 text-blue-400" />;
+      case 'image':
+        return <Image className="h-5 w-5 text-purple-400" />;
+      case 'video':
+        return <Video className="h-5 w-5 text-red-400" />;
+      case 'link':
+        return <LinkIcon className="h-5 w-5 text-yellow-400" />;
+      default:
+        return <FileText className="h-5 w-5 text-blue-400" />;
+    }
+  };
+
   if (loading) {
     return <ContentLoader />;
   }
@@ -146,8 +168,20 @@ const PreviewContent = () => {
                   Free
                 </Badge>
               )}
+              <Badge variant="outline" className="bg-gray-500/20 text-gray-300 border-gray-500/30 flex items-center">
+                {getContentTypeIcon()}
+                <span className="ml-1">{content.contentType.charAt(0).toUpperCase() + content.contentType.slice(1)}</span>
+              </Badge>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-1">
+                <User className="h-4 w-4" />
+                <span>{content.creatorName}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>{new Date(content.createdAt).toLocaleDateString()}</span>
+              </div>
               <div className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />
                 <span>{Math.floor(Math.random() * 100) + 5} views</span>
@@ -171,16 +205,12 @@ const PreviewContent = () => {
             />
           </div>
           
-          <div className="mt-6 flex justify-end">
-            <Button
-              onClick={handleShare}
-              variant="outline"
-              className="border-gray-700 hover:border-emerald-500 text-gray-300"
-            >
-              <Share className="mr-2 h-4 w-4" />
-              Share
-            </Button>
-          </div>
+          <ContentActions
+            onShare={handleShare}
+            shareUrl={shareUrl}
+            contentTitle={content.title}
+            isCreator={false}
+          />
           
           <div className="mt-8">
             <ContentPreview
@@ -202,11 +232,30 @@ const PreviewContent = () => {
                 {relatedContent.map((item: any) => (
                   <div key={item.id} className="glass-card p-4 rounded-lg cursor-pointer hover:border-emerald-500/30 transition-colors border border-white/10" 
                        onClick={() => navigate(`/preview/${item.id}`)}>
+                    <div className="flex items-center justify-between mb-2">
+                      {(() => {
+                        switch (item.contentType) {
+                          case 'text':
+                            return <FileText className="h-4 w-4 text-blue-400" />;
+                          case 'image':
+                            return <Image className="h-4 w-4 text-purple-400" />;
+                          case 'video':
+                            return <Video className="h-4 w-4 text-red-400" />;
+                          case 'link':
+                            return <LinkIcon className="h-4 w-4 text-yellow-400" />;
+                          default:
+                            return <FileText className="h-4 w-4 text-blue-400" />;
+                        }
+                      })()}
+                      {parseFloat(item.price) > 0 && (
+                        <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 flex items-center">
+                          <DollarSign className="h-3 w-3 mr-1" />
+                          {parseFloat(item.price).toFixed(2)}
+                        </Badge>
+                      )}
+                    </div>
                     <h4 className="font-medium text-emerald-300 mb-1">{item.title}</h4>
                     <p className="text-sm text-gray-400 line-clamp-2">{item.teaser}</p>
-                    {parseFloat(item.price) > 0 && (
-                      <div className="mt-2 text-xs text-emerald-400">${parseFloat(item.price).toFixed(2)}</div>
-                    )}
                   </div>
                 ))}
               </div>

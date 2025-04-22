@@ -10,7 +10,9 @@ import PaymentFlow from '@/components/content/PaymentFlow';
 import ContentDisplay from '@/components/content/ContentDisplay';
 import ContentActions from '@/components/content/ContentActions';
 import CreatorControls from '@/components/content/CreatorControls';
-import { useState, useEffect } from 'react';
+import RelatedContent from '@/components/content/RelatedContent';
+import ReadingProgress from '@/components/content/ReadingProgress';
+import { useState, useEffect, useRef } from 'react';
 import { useViewContent } from '@/hooks/useViewContent';
 import { useToast } from "@/hooks/use-toast";
 import { useContentAnalytics } from '@/hooks/useContentAnalytics';
@@ -23,9 +25,37 @@ const ViewContent = () => {
   const [isCreator, setIsCreator] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [readingProgress, setReadingProgress] = useState(0);
+  const [relatedContents, setRelatedContents] = useState<any[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
   const { totalViews } = useContentAnalytics(id);
   
   useViewTracking();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contentRef.current) {
+        const element = contentRef.current;
+        const totalHeight = element.scrollHeight - element.clientHeight;
+        const scrollPosition = element.scrollTop;
+        
+        if (totalHeight > 0) {
+          setReadingProgress((scrollPosition / totalHeight) * 100);
+        }
+      }
+    };
+
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      contentElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      if (contentElement) {
+        contentElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
   
   useEffect(() => {
     if (content) {
@@ -53,6 +83,21 @@ const ViewContent = () => {
         setShareUrl(`${window.location.origin}/preview/${id}`);
       } else {
         setShareUrl(`${window.location.origin}/view/${id}`);
+      }
+
+      // Load related content
+      try {
+        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
+        const related = contents
+          .filter((item: any) => 
+            item.id !== id && 
+            (item.creatorId === content.creatorId || 
+             item.contentType === content.contentType)
+          )
+          .slice(0, 3);
+        setRelatedContents(related);
+      } catch (e) {
+        console.error("Error loading related content", e);
       }
     }
   }, [content, id]);
@@ -120,7 +165,8 @@ const ViewContent = () => {
   return (
     <ViewContentContainer>
       <div className="glass-card border border-white/10 rounded-xl overflow-hidden">
-        <div className="p-6 md:p-8">
+        <ReadingProgress progress={readingProgress} />
+        <div className="p-6 md:p-8" ref={contentRef}>
           <ViewContentHeader
             title={content.title}
             creatorName={content.creatorName}
@@ -160,6 +206,10 @@ const ViewContent = () => {
           )}
         </div>
       </div>
+
+      {relatedContents.length > 0 && (
+        <RelatedContent relatedContents={relatedContents} />
+      )}
       
       {(isUnlocked || isCreator) && content && (
         <CommentSection contentId={id || ''} creatorId={content.creatorId} />

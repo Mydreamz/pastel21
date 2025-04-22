@@ -6,7 +6,9 @@ import {
   Twitter, 
   Facebook, 
   Linkedin, 
-  Mail 
+  Mail,
+  MessageCircle,
+  Instagram 
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +16,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
 interface ContentActionsProps {
@@ -68,6 +71,21 @@ const ContentActions = ({ onShare, shareUrl, contentTitle, isCreator, children }
     window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
   };
 
+  const shareToWhatsApp = () => {
+    const text = `Check out "${contentTitle}" ${shareUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
+  const shareToInstagram = () => {
+    // Instagram doesn't have a direct share URL like other platforms
+    // So we'll copy the link and notify the user to paste in Instagram
+    navigator.clipboard.writeText(shareUrl);
+    toast({
+      title: "Link copied for Instagram",
+      description: "Link copied! You can now paste it in your Instagram story or message",
+    });
+  };
+
   return (
     <div className="mt-4 flex justify-end gap-2">
       <DropdownMenu>
@@ -85,6 +103,7 @@ const ContentActions = ({ onShare, shareUrl, contentTitle, isCreator, children }
             <Copy className="mr-2 h-4 w-4" />
             <span>Copy link</span>
           </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-gray-800" />
           <DropdownMenuItem onClick={shareToTwitter} className="cursor-pointer hover:bg-gray-800">
             <Twitter className="mr-2 h-4 w-4" />
             <span>Twitter</span>
@@ -96,6 +115,14 @@ const ContentActions = ({ onShare, shareUrl, contentTitle, isCreator, children }
           <DropdownMenuItem onClick={shareToLinkedIn} className="cursor-pointer hover:bg-gray-800">
             <Linkedin className="mr-2 h-4 w-4" />
             <span>LinkedIn</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={shareToWhatsApp} className="cursor-pointer hover:bg-gray-800">
+            <MessageCircle className="mr-2 h-4 w-4" />
+            <span>WhatsApp</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={shareToInstagram} className="cursor-pointer hover:bg-gray-800">
+            <Instagram className="mr-2 h-4 w-4" />
+            <span>Instagram</span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={shareByEmail} className="cursor-pointer hover:bg-gray-800">
             <Mail className="mr-2 h-4 w-4" />
