@@ -31,6 +31,18 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
 
     setIsProcessing(true);
     
+    // Check if user is authenticated before proceeding with payment
+    const auth = localStorage.getItem('auth');
+    if (!auth) {
+      setIsProcessing(false);
+      toast({
+        title: "Authentication Required",
+        description: "You need to sign in to purchase this content",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Simulate payment process for demonstration
     setTimeout(() => {
       try {

@@ -42,7 +42,17 @@ export const useViewContent = (id: string | undefined) => {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
+      // Use Supabase's built-in method to check auth rather than localStorage
+      const { data } = await supabase.auth.getSession();
+      
+      if (data.session) {
+        setIsAuthenticated(true);
+        setUserData(data.session.user);
+        return data.session.user;
+      }
+      
+      // Fallback to localStorage for backward compatibility
       const auth = localStorage.getItem('auth');
       if (auth) {
         try {
@@ -56,6 +66,7 @@ export const useViewContent = (id: string | undefined) => {
           console.error("Auth parsing error", e);
         }
       }
+      
       return null;
     };
 
@@ -82,7 +93,7 @@ export const useViewContent = (id: string | undefined) => {
         if (foundContent) {
           const mapped = supabaseToContent(foundContent);
           setContent(mapped);
-          const user = checkAuth();
+          const user = await checkAuth();
 
           if (user) {
             // Query for transactions
@@ -96,6 +107,7 @@ export const useViewContent = (id: string | undefined) => {
 
             const isCreator = mapped.creatorId === user.id;
 
+            // Only unlock content if it's free, the user is the creator, or they've purchased it
             if (
               parseFloat(mapped.price) === 0 ||
               isCreator ||
@@ -103,12 +115,14 @@ export const useViewContent = (id: string | undefined) => {
             ) {
               setIsUnlocked(true);
             } else if (window.location.pathname.startsWith('/view/')) {
+              // Redirect to preview page if paid content
               navigate(`/preview/${id}`);
             }
           } else if (
             window.location.pathname.startsWith('/view/') &&
             parseFloat(foundContent.price) > 0
           ) {
+            // Redirect to preview page if user is not authenticated and content is paid
             navigate(`/preview/${id}`);
           }
         } else {

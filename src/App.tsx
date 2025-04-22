@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -59,11 +58,9 @@ const App = () => {
       if (hash && hash.includes('access_token')) {
         try {
           // Process the hash fragment containing the access token
-          const { data, error } = await supabase.auth.getSessionFromUrl();
+          const { data } = await supabase.auth.getSession();
           
-          if (error) {
-            console.error("Error processing authentication URL:", error);
-          } else if (data?.session) {
+          if (data?.session) {
             console.log("Successfully authenticated from URL");
             setSession(data.session);
             setUser(data.session.user);
