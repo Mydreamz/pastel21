@@ -1,0 +1,38 @@
+
+import React from 'react';
+
+const Footer = () => {
+  const footerLinks = {
+    Product: ["Features", "Pricing", "Integrations", "Updates"],
+    Company: ["About", "Blog", "Careers", "Contact"],
+    Resources: ["Documentation", "Guides", "Support", "API"],
+    Legal: ["Privacy", "Terms", "Security", "Cookies"]
+  };
+
+  return (
+    <footer className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-12 border-t border-gray-800">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {Object.entries(footerLinks).map(([category, links]) => (
+          <div key={category}>
+            <h4 className="font-bold mb-4">{category}</h4>
+            <ul className="space-y-2">
+              {links.map((link) => (
+                <li key={link}>
+                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                    {link}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      
+      <div className="mt-12 text-center text-gray-500 text-sm">
+        © 2025 ContentFlow. All rights reserved.
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
