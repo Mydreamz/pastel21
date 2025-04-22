@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import { Lock } from 'lucide-react';
@@ -10,7 +9,6 @@ import ContentTypeTab from './ContentTypeTab';
 import TextContentForm from './content-forms/TextContentForm';
 import LinkContentForm from './content-forms/LinkContentForm';
 import MediaContentForm from './content-forms/MediaContentForm';
-
 type ContentTypeSelectorProps = {
   form: UseFormReturn<ContentFormValues>;
   selectedContentType: string;
@@ -18,7 +16,6 @@ type ContentTypeSelectorProps = {
   selectedFile?: File | null;
   setSelectedFile?: (file: File | null) => void;
 };
-
 const ContentTypeSelector = ({
   form,
   selectedContentType,
@@ -27,9 +24,7 @@ const ContentTypeSelector = ({
   setSelectedFile
 }: ContentTypeSelectorProps) => {
   const isMobile = useIsMobile();
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
@@ -46,13 +41,11 @@ const ContentTypeSelector = ({
           backdrop-blur-sm
           mb-2
         `}>
-          {contentTypes.map(type => (
-            <ContentTypeTab key={type.id} contentType={type} />
-          ))}
+          {contentTypes.map(type => <ContentTypeTab key={type.id} contentType={type} />)}
         </TabsList>
         
         <div className="mt-4 space-y-4">
-          <TabsContent value="text" className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm">
+          <TabsContent value="text" className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm mx-0 my-[112px]">
             <TextContentForm form={form} />
           </TabsContent>
           
@@ -60,24 +53,11 @@ const ContentTypeSelector = ({
             <LinkContentForm form={form} />
           </TabsContent>
           
-          {['image', 'video', 'audio', 'document'].map((type) => (
-            <TabsContent
-              key={type}
-              value={type}
-              className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm"
-            >
-              <MediaContentForm
-                form={form}
-                type={type as 'image' | 'video' | 'audio' | 'document'}
-                selectedFile={selectedFile}
-                setSelectedFile={setSelectedFile}
-              />
-            </TabsContent>
-          ))}
+          {['image', 'video', 'audio', 'document'].map(type => <TabsContent key={type} value={type} className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm">
+              <MediaContentForm form={form} type={type as 'image' | 'video' | 'audio' | 'document'} selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
+            </TabsContent>)}
         </div>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
-
 export default ContentTypeSelector;
