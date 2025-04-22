@@ -13,10 +13,10 @@ const ContentTypeTab = ({ contentType }: ContentTypeTabProps) => {
   return (
     <TabsTrigger 
       value={contentType.id} 
-      className="flex items-center justify-center gap-2 px-2 py-1.5 relative min-h-[40px]"
+      className="flex flex-col items-center justify-center gap-1 px-2 py-2 relative min-h-[60px] md:min-h-[40px] md:flex-row"
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
-      <span className="md:inline truncate text-sm absolute md:static top-[calc(100%+2px)] md:top-auto left-1/2 md:left-auto -translate-x-1/2 md:translate-x-0 whitespace-nowrap bg-background/80 md:bg-transparent px-2 md:px-0 rounded">
+      <Icon className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+      <span className="text-[11px] md:text-sm font-medium">
         {contentType.label}
       </span>
     </TabsTrigger>
@@ -24,3 +24,4 @@ const ContentTypeTab = ({ contentType }: ContentTypeTabProps) => {
 };
 
 export default ContentTypeTab;
+
