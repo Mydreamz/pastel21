@@ -106,6 +106,7 @@ const CreateContent = () => {
                       variant="outline" 
                       onClick={() => setShowScheduler(true)}
                       className="border-gray-700 hover:border-gray-600 text-gray-300"
+                      disabled={!isAuthenticated}
                     >
                       Schedule
                     </Button>

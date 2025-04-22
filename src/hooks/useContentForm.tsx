@@ -89,18 +89,22 @@ export const useContentForm = () => {
       }
 
       // Check the current session with Supabase
-      const { data: sessionData } = await supabase.auth.getSession();
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       // If there's no active session, we'll redirect to login
       if (!sessionData.session) {
         console.error("No active Supabase session found");
         toast({
-          title: "Session expired",
-          description: "Please sign in again to create content",
+          title: "Authentication required",
+          description: "Please sign in to create content",
           variant: "destructive"
         });
         navigate('/');
         return;
+      }
+
+      if (sessionError) {
+        throw new Error(`Session error: ${sessionError.message}`);
       }
 
       // Map properties for Supabase and convert dates to strings
