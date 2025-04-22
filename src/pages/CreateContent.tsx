@@ -41,22 +41,29 @@ const CreateContent = () => {
         const { data, error } = await supabase.auth.getSession();
         
         // If there's an error or no session and we're not still checking auth
-        if ((error || !data.session) && !isAuthChecking && !isAuthenticated) {
+        if ((error || !data.session) && !isAuthChecking) {
           console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
           toast({
             title: "Authentication required",
             description: "Please sign in to create content",
             variant: "destructive"
           });
-          navigate('/');
+          // Add a slight delay to ensure the toast is visible before redirecting
+          setTimeout(() => navigate('/'), 1500);
         }
       } catch (e) {
         console.error("Auth verification error in CreateContent:", e);
+        toast({
+          title: "Authentication error",
+          description: "There was a problem verifying your authentication. Please sign in again.",
+          variant: "destructive"
+        });
+        setTimeout(() => navigate('/'), 1500);
       }
     };
 
     // Only run this verification if auth checking is complete
-    if (!isAuthChecking) {
+    if (!isAuthChecking && !isAuthenticated) {
       verifyAuth();
     }
   }, [isAuthenticated, isAuthChecking, navigate, toast]);

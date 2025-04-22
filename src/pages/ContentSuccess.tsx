@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
-import ContentActions from '@/components/content/ContentActions'; // Add import
+import ContentActions from '@/components/content/ContentActions';
 
 const ContentSuccess = () => {
   const location = useLocation();
@@ -43,13 +43,14 @@ const ContentSuccess = () => {
               <p className="text-lg mb-2">Your content has been {content.status === 'scheduled' ? 'scheduled' : 'published'}!</p>
               {content.status === 'scheduled' && (
                 <p className="text-gray-400">
-                  Your content will be published on {new Date(content.scheduledFor).toLocaleDateString()} at {content.scheduledTime}
+                  Your content will be published on {new Date(content.scheduled_for).toLocaleDateString()} at {content.scheduled_time}
                 </p>
               )}
             </div>
 
-            {/* Share button options */}
-            <div className="flex justify-center">
+            {/* Share button options with clear emphasis */}
+            <div className="flex flex-col items-center mt-6 mb-6">
+              <h3 className="text-lg font-medium mb-3">Share your content</h3>
               <ContentActions 
                 onShare={() => {}} // No-op; handled inside ContentActions
                 shareUrl={shareUrl}

@@ -36,7 +36,15 @@ export const useContentForm = () => {
     const checkAuth = async () => {
       setIsAuthChecking(true);
       try {
-        // First, get the current session from Supabase
+        // Set up auth state listener FIRST for real-time auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Auth state changed:", event, session?.user?.id);
+          setIsAuthenticated(!!session);
+          setUserData(session?.user || null);
+          setIsAuthChecking(false);
+        });
+
+        // THEN check for existing session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -49,8 +57,6 @@ export const useContentForm = () => {
           console.log("Active session found:", sessionData.session.user.id);
           setIsAuthenticated(true);
           setUserData(sessionData.session.user);
-          setIsAuthChecking(false);
-          return;
         } else {
           console.log("No active session found");
           setIsAuthenticated(false);
@@ -63,17 +69,7 @@ export const useContentForm = () => {
       }
     };
 
-    // Set up auth state listener for real-time auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      setIsAuthenticated(!!session);
-      setUserData(session?.user || null);
-      setIsAuthChecking(false);
-    });
-
     checkAuth();
-
-    return () => subscription.unsubscribe();
   }, []);
 
   const onSubmit = async (values: ContentFormValues) => {
