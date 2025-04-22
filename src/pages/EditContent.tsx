@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/App';
 import { ContentType } from '@/types/content';
+import { FileUpload } from "@/components/ui/file-upload";
+import MediaContentForm from '@/components/content/content-forms/MediaContentForm';
 
 const contentFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -43,6 +45,7 @@ const EditContent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [selectedContentType, setSelectedContentType] = useState<ContentType>('text');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
@@ -97,6 +100,12 @@ const EditContent = () => {
           if (content.expiry) {
             setShowAdvanced(true);
           }
+          
+          // If there's a file_url stored, we should try to fetch that file
+          if (content.file_url) {
+            console.log("File URL exists:", content.file_url);
+            // Here we would load the file if possible
+          }
         } else {
           toast({
             title: "Content not found",
@@ -132,6 +141,38 @@ const EditContent = () => {
     }
 
     try {
+      // For media content types, we need to validate that we have a file
+      if (['image', 'video', 'audio', 'document'].includes(selectedContentType) && !selectedFile) {
+        toast({
+          title: "File required",
+          description: `Please select a ${selectedContentType} file to upload.`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      let fileUrl = null;
+      let fileName = null;
+      let fileType = null;
+      let fileSize = null;
+      
+      // Handle file upload if needed
+      if (selectedFile && ['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
+        // For this example, we'll create a local object URL
+        // In a real app, you would upload to storage and get a URL
+        fileUrl = URL.createObjectURL(selectedFile);
+        fileName = selectedFile.name;
+        fileType = selectedFile.type;
+        fileSize = selectedFile.size;
+        
+        console.log("Prepared file for submission:", {
+          fileName, 
+          fileType,
+          fileSize,
+          fileUrl
+        });
+      }
+      
       const updates = {
         title: values.title,
         teaser: values.teaser,
@@ -139,8 +180,17 @@ const EditContent = () => {
         content: values.content,
         content_type: selectedContentType,
         expiry: values.expiry || null,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Add file information if we have a file
+        ...(fileUrl && {
+          file_url: fileUrl,
+          file_name: fileName,
+          file_type: fileType,
+          file_size: fileSize
+        })
       };
+      
+      console.log("Updating content with:", updates);
       
       const { error } = await supabase
         .from('contents')
@@ -279,31 +329,39 @@ const EditContent = () => {
                       </TabsContent>
                       
                       <TabsContent value="image" className="p-4 bg-white/5 border border-white/10 rounded-md">
-                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                          <Image className="h-10 w-10 text-gray-400 mb-2" />
-                          <p className="text-gray-400">Drag & drop image or <span className="text-emerald-500">browse</span></p>
-                        </div>
+                        <MediaContentForm 
+                          form={form} 
+                          type="image" 
+                          selectedFile={selectedFile} 
+                          setSelectedFile={setSelectedFile} 
+                        />
                       </TabsContent>
                       
                       <TabsContent value="video" className="p-4 bg-white/5 border border-white/10 rounded-md">
-                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                          <FileVideo className="h-10 w-10 text-gray-400 mb-2" />
-                          <p className="text-gray-400">Drag & drop video or <span className="text-emerald-500">browse</span></p>
-                        </div>
+                        <MediaContentForm 
+                          form={form} 
+                          type="video" 
+                          selectedFile={selectedFile} 
+                          setSelectedFile={setSelectedFile} 
+                        />
                       </TabsContent>
                       
                       <TabsContent value="audio" className="p-4 bg-white/5 border border-white/10 rounded-md">
-                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                          <FileAudio className="h-10 w-10 text-gray-400 mb-2" />
-                          <p className="text-gray-400">Drag & drop audio or <span className="text-emerald-500">browse</span></p>
-                        </div>
+                        <MediaContentForm 
+                          form={form} 
+                          type="audio" 
+                          selectedFile={selectedFile} 
+                          setSelectedFile={setSelectedFile} 
+                        />
                       </TabsContent>
                       
                       <TabsContent value="document" className="p-4 bg-white/5 border border-white/10 rounded-md">
-                        <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed border-white/20 rounded-md">
-                          <FileText className="h-10 w-10 text-gray-400 mb-2" />
-                          <p className="text-gray-400">Drag & drop document or <span className="text-emerald-500">browse</span></p>
-                        </div>
+                        <MediaContentForm 
+                          form={form} 
+                          type="document" 
+                          selectedFile={selectedFile} 
+                          setSelectedFile={setSelectedFile} 
+                        />
                       </TabsContent>
                     </div>
                   </Tabs>
