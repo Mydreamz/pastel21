@@ -39,14 +39,14 @@ export const useViewContent = (id: string | undefined) => {
           setContent(foundContent);
           
           const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-          const hasTransaction = transactions.some(
+          const userHasTransaction = transactions.some(
             (tx: any) => tx.contentId === id && tx.userId === (userData?.id || '')
           );
           
           if (
             parseFloat(foundContent.price) === 0 || 
             foundContent.creatorId === userData?.id ||
-            hasTransaction
+            userHasTransaction
           ) {
             setIsUnlocked(true);
           }
