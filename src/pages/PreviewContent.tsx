@@ -65,6 +65,7 @@ const PreviewContent = () => {
 
     if (handleUnlock) {
       handleUnlock();
+      handleSuccessfulPayment();
     }
   };
 
@@ -112,6 +113,7 @@ const PreviewContent = () => {
               type={content.contentType}
               onPaymentSuccess={handleSuccessfulPayment}
               contentId={content.id}
+              onPurchase={handlePurchase}
             />
           </div>
         </div>

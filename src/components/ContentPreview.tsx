@@ -15,6 +15,7 @@ interface ContentPreviewProps {
   scheduledFor?: Date;
   onPaymentSuccess?: () => void;
   contentId?: string;
+  onPurchase?: () => void;
 }
 
 const ContentPreview: React.FC<ContentPreviewProps> = ({
@@ -25,7 +26,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   expiryDate,
   scheduledFor,
   onPaymentSuccess,
-  contentId
+  contentId,
+  onPurchase
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -76,6 +78,14 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       });
     }, 1500);
   };
+
+  const handleDirectPurchase = () => {
+    if (onPurchase) {
+      onPurchase();
+    } else {
+      setShowPaymentDialog(true);
+    }
+  };
   
   return (
     <Card className="glass-card border-white/10 text-white overflow-hidden">
@@ -114,7 +124,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <Button 
           className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
-          onClick={() => setShowPaymentDialog(true)}
+          onClick={handleDirectPurchase}
         >
           Unlock Now
         </Button>
