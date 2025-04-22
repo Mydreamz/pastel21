@@ -11,6 +11,7 @@ export const useProfileData = () => {
   const { user, session, isLoading } = useAuth();
   const [userContents, setUserContents] = useState<any[]>([]);
   const [balance, setBalance] = useState(0);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
     // Get user contents and transactions only if user is authenticated
@@ -18,6 +19,8 @@ export const useProfileData = () => {
       if (!user) return;
       
       try {
+        setIsLoadingData(true);
+        
         // Get user contents from Supabase
         const { data: contents, error: contentsError } = await supabase
           .from('contents')
@@ -46,6 +49,8 @@ export const useProfileData = () => {
           description: "Failed to load your profile information",
           variant: "destructive"
         });
+      } finally {
+        setIsLoadingData(false);
       }
     };
 
@@ -120,6 +125,7 @@ export const useProfileData = () => {
     userData: user,
     userContents,
     balance,
+    isLoading: isLoadingData,
     handleLogout,
     handleEditContent,
     handleDeleteContent

@@ -18,22 +18,6 @@ const Index = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { user, session } = useAuth();
-  const [recentContents, setRecentContents] = useState<any[]>([]);
-
-  React.useEffect(() => {
-    // Load recent contents
-    try {
-      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-      const sorted = contents
-        .sort((a: any, b: any) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        .slice(0, 6);
-      setRecentContents(sorted);
-    } catch (e) {
-      console.error("Error loading recent contents", e);
-    }
-  }, []);
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
@@ -56,7 +40,6 @@ const Index = () => {
         </section>
 
         <RecentContent 
-          recentContents={recentContents}
           isAuthenticated={!!session}
           openAuthDialog={openAuthDialog}
         />

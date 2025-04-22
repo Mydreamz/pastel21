@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Content, ContentType } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/App';
 
 const supabaseToContent = (row: any): Content => ({
   id: row.id,
@@ -37,39 +38,10 @@ export const useViewContent = (id: string | undefined) => {
   const [content, setContent] = useState<Content | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const { user, session } = useAuth(); // Use global auth context
 
   useEffect(() => {
-    const checkAuth = async () => {
-      // Use Supabase's built-in method to check auth rather than localStorage
-      const { data } = await supabase.auth.getSession();
-      
-      if (data.session) {
-        setIsAuthenticated(true);
-        setUserData(data.session.user);
-        return data.session.user;
-      }
-      
-      // Fallback to localStorage for backward compatibility
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        try {
-          const parsedAuth = JSON.parse(auth);
-          if (parsedAuth && parsedAuth.user) {
-            setIsAuthenticated(true);
-            setUserData(parsedAuth.user);
-            return parsedAuth.user;
-          }
-        } catch (e) {
-          console.error("Auth parsing error", e);
-        }
-      }
-      
-      return null;
-    };
-
     const loadContent = async () => {
       if (!id) {
         setError("No content ID provided");
@@ -93,7 +65,6 @@ export const useViewContent = (id: string | undefined) => {
         if (foundContent) {
           const mapped = supabaseToContent(foundContent);
           setContent(mapped);
-          const user = await checkAuth();
 
           if (user) {
             // Query for transactions
@@ -104,7 +75,6 @@ export const useViewContent = (id: string | undefined) => {
               .eq('user_id', user.id);
 
             const userHasTransaction = (transactions && transactions.length > 0);
-
             const isCreator = mapped.creatorId === user.id;
 
             // Only unlock content if it's free, the user is the creator, or they've purchased it
@@ -115,7 +85,7 @@ export const useViewContent = (id: string | undefined) => {
             ) {
               setIsUnlocked(true);
             } else if (window.location.pathname.startsWith('/view/')) {
-              // Redirect to preview page if paid content
+              // Redirect to preview page if paid content that user hasn't purchased
               navigate(`/preview/${id}`);
             }
           } else if (
@@ -124,6 +94,9 @@ export const useViewContent = (id: string | undefined) => {
           ) {
             // Redirect to preview page if user is not authenticated and content is paid
             navigate(`/preview/${id}`);
+          } else if (parseFloat(foundContent.price) === 0) {
+            // Free content is always unlocked
+            setIsUnlocked(true);
           }
         } else {
           setError("Content not found");
@@ -138,10 +111,10 @@ export const useViewContent = (id: string | undefined) => {
 
     loadContent();
     // eslint-disable-next-line
-  }, [id]);
+  }, [id, user, session]);
 
   const handleUnlock = async () => {
-    if (!isAuthenticated) {
+    if (!session || !user) {
       toast({
         title: "Authentication required",
         description: "Please sign in to unlock this content",
@@ -156,7 +129,7 @@ export const useViewContent = (id: string | undefined) => {
       // Insert transaction
       const { error: transactionError } = await supabase.from('transactions').insert([{
         content_id: id,
-        user_id: userData.id,
+        user_id: user.id,
         creator_id: content.creatorId,
         amount: content.price,
         timestamp: new Date().toISOString()
@@ -175,10 +148,10 @@ export const useViewContent = (id: string | undefined) => {
 
       navigate(`/view/${id}`);
 
-      if (content && userData) {
+      if (content && user) {
         addNotification({
           title: "New Purchase",
-          message: `${userData.name} purchased your content "${content.title}" for $${parseFloat(content.price).toFixed(2)}`,
+          message: `${user.user_metadata?.name || user.email} purchased your content "${content.title}" for $${parseFloat(content.price).toFixed(2)}`,
           type: 'content',
           link: `/profile`
         });
@@ -199,6 +172,6 @@ export const useViewContent = (id: string | undefined) => {
     error,
     isUnlocked,
     handleUnlock,
-    isAuthenticated
+    isAuthenticated: !!session
   };
 };

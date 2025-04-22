@@ -14,6 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import StarsBackground from '@/components/StarsBackground';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/App';
+import { ContentType } from '@/types/content';
 
 const contentFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -39,11 +42,12 @@ const contentTypes = [
 const EditContent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [selectedContentType, setSelectedContentType] = useState<string>('text');
+  const [selectedContentType, setSelectedContentType] = useState<ContentType>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { user, session } = useAuth();
 
   const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
@@ -57,92 +61,118 @@ const EditContent = () => {
   });
 
   useEffect(() => {
-    const loadContent = () => {
+    const loadContent = async () => {
+      if (!session || !user) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to edit content",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
+      }
+
       try {
-        const storedContents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const content = storedContents.find((item: any) => item.id === id);
+        setIsLoading(true);
+        
+        const { data: content, error } = await supabase
+          .from('contents')
+          .select('*')
+          .eq('id', id)
+          .eq('creator_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
         
         if (content) {
           form.reset({
             title: content.title,
             teaser: content.teaser,
             price: content.price.toString(),
-            content: content.content,
+            content: content.content || '',
             expiry: content.expiry || ""
           });
           
-          setSelectedContentType(content.contentType || 'text');
+          setSelectedContentType(content.content_type as ContentType);
           if (content.expiry) {
             setShowAdvanced(true);
           }
         } else {
           toast({
             title: "Content not found",
-            description: "The content you're trying to edit couldn't be found.",
+            description: "The content you're trying to edit couldn't be found or you don't have permission to edit it.",
             variant: "destructive"
           });
           navigate('/');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading content:", error);
         toast({
           title: "Error",
-          description: "Failed to load content data.",
+          description: "Failed to load content data: " + error.message,
           variant: "destructive"
         });
+        navigate('/');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadContent();
-  }, [id, form, navigate, toast]);
+  }, [id, form, navigate, toast, user, session]);
 
-  const onSubmit = (values: ContentFormValues) => {
+  const onSubmit = async (values: ContentFormValues) => {
+    if (!session || !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to edit content",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      const storedContents = JSON.parse(localStorage.getItem('contents') || '[]');
-      const contentIndex = storedContents.findIndex((item: any) => item.id === id);
+      const updates = {
+        title: values.title,
+        teaser: values.teaser,
+        price: values.price,
+        content: values.content,
+        content_type: selectedContentType,
+        expiry: values.expiry || null,
+        updated_at: new Date().toISOString()
+      };
       
-      if (contentIndex !== -1) {
-        // Update existing content
-        storedContents[contentIndex] = {
-          ...storedContents[contentIndex],
-          title: values.title,
-          teaser: values.teaser,
-          price: values.price,
-          content: values.content,
-          contentType: selectedContentType,
-          expiry: values.expiry || null,
-          updatedAt: new Date().toISOString()
-        };
+      const { error } = await supabase
+        .from('contents')
+        .update(updates)
+        .eq('id', id)
+        .eq('creator_id', user.id);
         
-        localStorage.setItem('contents', JSON.stringify(storedContents));
-        
-        toast({
-          title: "Content updated",
-          description: "Your content has been successfully updated.",
-        });
-        
-        navigate('/');
-      } else {
-        toast({
-          title: "Update failed",
-          description: "Content not found in storage.",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
+      if (error) throw error;
+      
+      toast({
+        title: "Content updated",
+        description: "Your content has been successfully updated.",
+      });
+      
+      navigate('/profile');
+    } catch (error: any) {
       console.error("Error updating content:", error);
       toast({
         title: "Update failed",
-        description: "An error occurred while updating your content.",
+        description: error.message || "An error occurred while updating your content.",
         variant: "destructive"
       });
     }
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading content...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mr-3"></div>
+        Loading content...
+      </div>
+    );
   }
 
   return (
@@ -212,7 +242,7 @@ const EditContent = () => {
                     <Lock className="h-4 w-4" /> Locked Content
                   </h3>
                   
-                  <Tabs value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
+                  <Tabs value={selectedContentType} onValueChange={(value) => setSelectedContentType(value as ContentType)} className="w-full">
                     <TabsList className={`grid ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6'} bg-white/5 border border-white/10 p-1`}>
                       {contentTypes.map(type => (
                         <TabsTrigger key={type.id} value={type.id} className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white flex items-center justify-center h-10 px-2 text-xs sm:text-sm">
@@ -305,7 +335,7 @@ const EditContent = () => {
                 </div>
                 
                 <div className="flex justify-end gap-4 pt-4">
-                  <Button type="button" variant="outline" onClick={() => navigate('/')} className="border-gray-700 hover:border-gray-600 text-gray-300">
+                  <Button type="button" variant="outline" onClick={() => navigate('/profile')} className="border-gray-700 hover:border-gray-600 text-gray-300">
                     Cancel
                   </Button>
                   <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">

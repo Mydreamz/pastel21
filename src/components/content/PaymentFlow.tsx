@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
+import { useAuth } from '@/App';
 
 interface PaymentFlowProps {
   content: any;  // Replace 'any' with the actual content type from your types
@@ -12,6 +13,7 @@ interface PaymentFlowProps {
 const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator }) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { user, session } = useAuth();
 
   const handleUnlock = () => {
     if (isCreator) {
@@ -32,8 +34,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     setIsProcessing(true);
     
     // Check if user is authenticated before proceeding with payment
-    const auth = localStorage.getItem('auth');
-    if (!auth) {
+    if (!session || !user) {
       setIsProcessing(false);
       toast({
         title: "Authentication Required",

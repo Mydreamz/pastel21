@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Edit, FileText, Trash2 } from 'lucide-react';
+import { Edit, FileText, Trash2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface UserContentsListProps {
@@ -36,13 +36,31 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
             <div key={content.id} className="p-4 bg-white/5 border border-white/10 rounded-lg flex justify-between items-center">
               <div>
                 <h4 className="font-medium">{content.title}</h4>
-                <p className="text-sm text-gray-400">${parseFloat(content.price).toFixed(2)} • Created {new Date(content.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-gray-400">${parseFloat(content.price).toFixed(2)} • Created {new Date(content.created_at).toLocaleDateString()}</p>
               </div>
               <div className="flex space-x-2">
-                <Button onClick={() => onEditContent(content.id)} variant="outline" size="sm" className="border-white/10 hover:bg-white/10">
+                <Button 
+                  onClick={() => navigate(`/view/${content.id}`)} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/10 hover:bg-white/10"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button 
+                  onClick={() => onEditContent(content.id)} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/10 hover:bg-white/10"
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button onClick={() => onDeleteContent(content.id)} variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-red-500">
+                <Button 
+                  onClick={() => onDeleteContent(content.id)} 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-white/10 hover:bg-white/10 hover:text-red-500"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

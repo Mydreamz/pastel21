@@ -1,20 +1,52 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Edit, Lock, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/App';
+import { useToast } from '@/hooks/use-toast';
 
 interface RecentContentProps {
-  recentContents: any[];
   isAuthenticated: boolean;
   openAuthDialog: (tab: 'login' | 'signup') => void;
 }
 
-const RecentContent = ({ recentContents, isAuthenticated, openAuthDialog }: RecentContentProps) => {
+const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) => {
   const navigate = useNavigate();
-  const auth = localStorage.getItem('auth');
-  const userData = auth ? JSON.parse(auth).user : null;
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [recentContents, setRecentContents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentContent = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('contents')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        
+        setRecentContents(data || []);
+      } catch (error: any) {
+        console.error('Error fetching recent content:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load recent content',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentContent();
+  }, [toast]);
 
   return (
     <section className="py-16">
@@ -28,7 +60,11 @@ const RecentContent = ({ recentContents, isAuthenticated, openAuthDialog }: Rece
         )}
       </div>
       
-      {recentContents.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-10">
+          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full"></div>
+        </div>
+      ) : recentContents.length === 0 ? (
         <Card className="glass-card border-white/10 text-center p-8">
           <p className="text-gray-400">No content available yet</p>
         </Card>
@@ -52,7 +88,7 @@ const RecentContent = ({ recentContents, isAuthenticated, openAuthDialog }: Rece
                   )}
                 </div>
                 <div className="flex gap-2">
-                  {userData && content.creatorId === userData.id && (
+                  {user && content.creator_id === user.id && (
                     <Button 
                       variant="outline" 
                       size="sm" 
