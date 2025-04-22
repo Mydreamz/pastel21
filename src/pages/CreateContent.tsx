@@ -37,28 +37,43 @@ const CreateContent = () => {
 
   // Additional authentication check at component mount
   useEffect(() => {
+    let isMounted = true; // To prevent state updates after unmount
+    
     const verifyAuth = async () => {
+      if (!isMounted) return;
+      
+      setIsManuallyChecking(true);
+      
       try {
-        setIsManuallyChecking(true);
-        
         // Check if we have a valid session
         const { data, error } = await supabase.auth.getSession();
         
-        // If there's an error or no session and we're not still checking auth
+        if (!isMounted) return;
+        
+        // If there's an error or no session
         if (error || !data.session) {
           console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
+          
           setForceRedirect(true);
           toast({
             title: "Authentication required",
             description: "Please sign in to create content",
             variant: "destructive"
           });
+          
           // Add a slight delay to ensure the toast is visible before redirecting
-          setTimeout(() => navigate('/'), 1500);
+          setTimeout(() => {
+            if (isMounted) navigate('/');
+          }, 1500);
+          
+          setIsManuallyChecking(false);
+          return;
         }
-
+        
         setIsManuallyChecking(false);
       } catch (e) {
+        if (!isMounted) return;
+        
         console.error("Auth verification error in CreateContent:", e);
         setForceRedirect(true);
         toast({
@@ -66,7 +81,11 @@ const CreateContent = () => {
           description: "There was a problem verifying your authentication. Please sign in again.",
           variant: "destructive"
         });
-        setTimeout(() => navigate('/'), 1500);
+        
+        setTimeout(() => {
+          if (isMounted) navigate('/');
+        }, 1500);
+        
         setIsManuallyChecking(false);
       }
     };
@@ -75,19 +94,33 @@ const CreateContent = () => {
     if (!isAuthChecking) {
       verifyAuth();
     }
-  }, [isAuthenticated, isAuthChecking, navigate, toast]);
+    
+    return () => {
+      isMounted = false; // Prevent state updates after unmount
+    };
+  }, [isAuthChecking, navigate, toast]);
 
   // When auth checking completes and user is not authenticated, redirect
   useEffect(() => {
-    if (!isAuthChecking && !isAuthenticated && !isManuallyChecking) {
+    let isMounted = true;
+    
+    if (!isAuthChecking && !isAuthenticated && !isManuallyChecking && isMounted) {
+      console.log("User not authenticated after auth checks - redirecting");
       setForceRedirect(true);
       toast({
         title: "Authentication required", 
         description: "Please sign in to create content",
         variant: "destructive"
       });
-      setTimeout(() => navigate('/'), 1500);
+      
+      setTimeout(() => {
+        if (isMounted) navigate('/');
+      }, 1500);
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [isAuthenticated, isAuthChecking, isManuallyChecking, navigate, toast]);
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {

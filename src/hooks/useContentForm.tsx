@@ -35,21 +35,25 @@ export const useContentForm = () => {
   useEffect(() => {
     let subscription: any;
     
+    // Improved authentication checking function
     const checkAuth = async () => {
       setIsAuthChecking(true);
+      
       try {
-        // First check for existing session since it's more reliable
+        // Check existing session immediately
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error("Session error:", sessionError);
-          setIsAuthChecking(false);
           setIsAuthenticated(false);
+          setUserData(null);
+          setIsAuthChecking(false);
           return;
         }
         
+        // If session exists, update state
         if (sessionData.session) {
-          console.log("Active session found:", sessionData.session.user.id);
+          console.log("Active session found with ID:", sessionData.session.user.id);
           setIsAuthenticated(true);
           setUserData(sessionData.session.user);
         } else {
@@ -58,20 +62,22 @@ export const useContentForm = () => {
           setUserData(null);
         }
         
-        // Then set up auth state listener for real-time auth changes
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log("Auth state changed:", event, session?.user?.id);
-          setIsAuthenticated(!!session);
-          setUserData(session?.user || null);
+        // Set up auth state listener for real-time updates
+        // Using setTimeout to avoid potential race conditions
+        setTimeout(() => {
+          const { data } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth state changed:", event, session ? session.user.id : "undefined");
+            setIsAuthenticated(!!session);
+            setUserData(session?.user || null);
+          });
+          
+          subscription = data.subscription;
           setIsAuthChecking(false);
-        });
-        
-        subscription = data.subscription;
+        }, 0);
       } catch (e) {
         console.error("Authentication check failed:", e);
         setIsAuthenticated(false);
         setUserData(null);
-      } finally {
         setIsAuthChecking(false);
       }
     };
