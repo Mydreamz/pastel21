@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -12,6 +13,7 @@ import CreatorControls from '@/components/content/CreatorControls';
 import { useState, useEffect } from 'react';
 import { useViewContent } from '@/hooks/useViewContent';
 import { useToast } from "@/hooks/use-toast";
+import { useContentAnalytics } from '@/hooks/useContentAnalytics';
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +21,9 @@ const ViewContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
+  const [isPurchased, setIsPurchased] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const { totalViews } = useContentAnalytics(id);
   
   useViewTracking();
   
@@ -30,13 +35,27 @@ const ViewContent = () => {
           const parsedAuth = JSON.parse(auth);
           if (parsedAuth && parsedAuth.user) {
             setIsCreator(content.creatorId === parsedAuth.user.id);
+            
+            // Check if user has purchased this content
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const hasPurchased = transactions.some(
+              (tx: any) => tx.contentId === id && tx.userId === parsedAuth.user.id
+            );
+            setIsPurchased(hasPurchased);
           }
         } catch (e) {
           console.error("Auth parsing error", e);
         }
       }
+      
+      // Set share URL based on content price
+      if (parseFloat(content.price) > 0) {
+        setShareUrl(`${window.location.origin}/preview/${id}`);
+      } else {
+        setShareUrl(`${window.location.origin}/view/${id}`);
+      }
     }
-  }, [content]);
+  }, [content, id]);
 
   const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
     try {
@@ -71,10 +90,6 @@ const ViewContent = () => {
 
   const handleShare = async () => {
     try {
-      const shareUrl = content && parseFloat(content.price) > 0 ? 
-        `${window.location.origin}/preview/${id}` : 
-        window.location.href;
-        
       await navigator.clipboard.writeText(shareUrl);
       toast({
         title: "Link copied!",
@@ -115,7 +130,12 @@ const ViewContent = () => {
             contentId={content.id}
           />
           
-          <ContentActions onShare={handleShare} isCreator={isCreator}>
+          <ContentActions 
+            onShare={handleShare} 
+            shareUrl={shareUrl}
+            contentTitle={content.title}
+            isCreator={isCreator}
+          >
             {isCreator && (
               <CreatorControls
                 contentId={content.id}
@@ -132,7 +152,11 @@ const ViewContent = () => {
           />
 
           {(isUnlocked || isCreator) && (
-            <ContentDisplay content={content} />
+            <ContentDisplay 
+              content={content} 
+              isCreator={isCreator}
+              isPurchased={isPurchased}
+            />
           )}
         </div>
       </div>

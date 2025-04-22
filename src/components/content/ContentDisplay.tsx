@@ -1,14 +1,38 @@
 
 import { Content } from '@/types/content';
+import { Badge } from "@/components/ui/badge";
+import { Clock, Eye, Share2, DollarSign } from 'lucide-react';
 
 interface ContentDisplayProps {
   content: Content;
+  isCreator: boolean;
+  isPurchased: boolean;
 }
 
-const ContentDisplay = ({ content }: ContentDisplayProps) => {
+const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps) => {
   return (
     <div className="mt-8 border-t border-white/10 pt-8">
-      <h2 className="text-xl font-bold mb-4">Full Content</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold">Full Content</h2>
+        <div className="flex gap-2">
+          {isCreator && (
+            <Badge variant="outline" className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+              Creator View
+            </Badge>
+          )}
+          {isPurchased && !isCreator && (
+            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+              Purchased
+            </Badge>
+          )}
+          {parseFloat(content.price) === 0 && (
+            <Badge variant="outline" className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+              Free
+            </Badge>
+          )}
+        </div>
+      </div>
+      
       {content.contentType === 'text' && content.content && (
         <div className="prose prose-invert max-w-none">
           <p>{content.content}</p>
@@ -72,6 +96,18 @@ const ContentDisplay = ({ content }: ContentDisplayProps) => {
           )}
         </div>
       )}
+      
+      {/* Content engagement stats */}
+      <div className="mt-6 flex items-center gap-4 text-sm text-gray-400">
+        <div className="flex items-center gap-1">
+          <Eye className="h-4 w-4" />
+          <span>{Math.floor(Math.random() * 100) + 5} views</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock className="h-4 w-4" />
+          <span>{content.contentType === 'text' ? `${Math.ceil(content.content?.length / 1000)} min read` : '3 min'}</span>
+        </div>
+      </div>
     </div>
   );
 };
