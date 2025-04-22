@@ -10,6 +10,7 @@ import { Share, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
+import LockedContent from '@/components/content/LockedContent';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -90,15 +91,21 @@ const PreviewContent = () => {
             contentId={content.id}
           />
           
-          <div className="mt-4 flex justify-between gap-2">
+          <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <h3 className="text-lg font-semibold text-emerald-400 mb-2">Premium Content</h3>
+            <p className="text-gray-300 mb-4">{content.teaser}</p>
+            
             <Button
               onClick={handlePurchase}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              size="lg"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white w-full sm:w-auto"
             >
-              <DollarSign className="mr-2 h-4 w-4" />
-              Purchase (${parseFloat(content.price).toFixed(2)})
+              <DollarSign className="mr-2 h-5 w-5" />
+              Purchase Now (${parseFloat(content.price).toFixed(2)})
             </Button>
-            
+          </div>
+          
+          <div className="mt-6 flex justify-end">
             <Button
               onClick={handleShare}
               variant="outline"
@@ -109,11 +116,7 @@ const PreviewContent = () => {
             </Button>
           </div>
           
-          <div className="mb-6 mt-6">
-            <p className="text-gray-300">{content.teaser}</p>
-          </div>
-          
-          <div className="mt-4">
+          <div className="mt-8">
             <ContentPreview
               title={content.title}
               teaser={content.teaser}

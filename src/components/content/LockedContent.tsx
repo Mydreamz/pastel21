@@ -33,7 +33,8 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
       </p>
       <Button 
         onClick={handleUnlock} 
-        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 flex items-center justify-center"
+        size="lg"
+        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-6 flex items-center justify-center w-full md:w-auto"
         disabled={isProcessing}
       >
         {isProcessing ? (
@@ -43,8 +44,8 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
           </>
         ) : (
           <>
-            <DollarSign className="mr-2 h-4 w-4" />
-            Unlock Now
+            <DollarSign className="mr-2 h-5 w-5" />
+            Unlock Now - ${parseFloat(price).toFixed(2)}
           </>
         )}
       </Button>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,7 +125,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
           onClick={handleDirectPurchase}
         >
-          Unlock Now
+          <DollarSign className="mr-2 h-4 w-4" />
+          Unlock Now (${price.toFixed(2)})
         </Button>
         
         {formattedExpiry && (
@@ -182,7 +182,10 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
                   Processing...
                 </>
               ) : (
-                <>Pay ${price.toFixed(2)}</>
+                <>
+                  <DollarSign className="mr-2 h-4 w-4" />
+                  Pay ${price.toFixed(2)}
+                </>
               )}
             </Button>
           </DialogFooter>
