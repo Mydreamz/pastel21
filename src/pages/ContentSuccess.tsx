@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
+import ContentActions from '@/components/content/ContentActions'; // Add import
 
 const ContentSuccess = () => {
   const location = useLocation();
@@ -15,6 +16,10 @@ const ContentSuccess = () => {
     navigate('/');
     return null;
   }
+
+  // Construct the shareable URL
+  const shareUrl = `${window.location.origin}/view/${content.id}`;
+  const contentTitle = content.title;
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative">
@@ -41,6 +46,16 @@ const ContentSuccess = () => {
                   Your content will be published on {new Date(content.scheduledFor).toLocaleDateString()} at {content.scheduledTime}
                 </p>
               )}
+            </div>
+
+            {/* Share button options */}
+            <div className="flex justify-center">
+              <ContentActions 
+                onShare={() => {}} // No-op; handled inside ContentActions
+                shareUrl={shareUrl}
+                contentTitle={contentTitle}
+                isCreator={true}
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
