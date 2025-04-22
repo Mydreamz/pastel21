@@ -39,6 +39,39 @@ const ViewContent = () => {
   // Track view of this content
   useViewTracking();
 
+  const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
+    try {
+      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
+      const updatedContents = contents.map((item: any) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            scheduledFor: scheduleInfo.date.toISOString(),
+            scheduledTime: scheduleInfo.time,
+            status: 'scheduled'
+          };
+        }
+        return item;
+      });
+      
+      localStorage.setItem('contents', JSON.stringify(updatedContents));
+      
+      toast({
+        title: "Content scheduled",
+        description: `Content will be published on ${scheduleInfo.date.toLocaleDateString()} at ${scheduleInfo.time}`,
+      });
+      
+      setShowScheduler(false);
+    } catch (e) {
+      console.error("Error scheduling content:", e);
+      toast({
+        title: "Error",
+        description: "Failed to schedule content",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
