@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,6 @@ import { useToast } from "@/hooks/use-toast";
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
-  const [authChecking, setAuthChecking] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -30,23 +29,20 @@ const CreateContent = () => {
     setSelectedFile,
     showAdvanced,
     setShowAdvanced,
-    isAuthenticated
+    isAuthenticated,
+    isAuthChecking
   } = useContentForm();
 
-  // Additional authentication check, especially if the useContentForm hook's check fails
+  // Additional authentication check at component mount
   useEffect(() => {
-    const checkAuth = async () => {
+    const verifyAuth = async () => {
       try {
-        setAuthChecking(true);
+        // Check if we have a valid session
         const { data, error } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Auth check error:", error);
-        }
-        
-        // If no session is found and user is not authenticated, redirect to home
-        if (!data.session && !isAuthenticated) {
-          console.log("No valid session found, redirecting to home");
+        // If there's an error or no session and we're not still checking auth
+        if ((error || !data.session) && !isAuthChecking && !isAuthenticated) {
+          console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
           toast({
             title: "Authentication required",
             description: "Please sign in to create content",
@@ -55,14 +51,15 @@ const CreateContent = () => {
           navigate('/');
         }
       } catch (e) {
-        console.error("Authentication verification failed:", e);
-      } finally {
-        setAuthChecking(false);
+        console.error("Auth verification error in CreateContent:", e);
       }
     };
 
-    checkAuth();
-  }, [isAuthenticated, navigate, toast]);
+    // Only run this verification if auth checking is complete
+    if (!isAuthChecking) {
+      verifyAuth();
+    }
+  }, [isAuthenticated, isAuthChecking, navigate, toast]);
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
     const formData = form.getValues();
@@ -74,7 +71,7 @@ const CreateContent = () => {
     onSubmit(scheduled);
   };
 
-  if (authChecking) {
+  if (isAuthChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-white text-center">

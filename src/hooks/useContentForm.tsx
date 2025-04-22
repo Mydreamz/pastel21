@@ -15,6 +15,7 @@ export const useContentForm = () => {
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [userData, setUserData] = useState<any>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -33,12 +34,14 @@ export const useContentForm = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      setIsAuthChecking(true);
       try {
         // First, try to get the current session from Supabase
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Supabase session error:", error);
+          setIsAuthChecking(false);
           return;
         }
         
@@ -46,6 +49,7 @@ export const useContentForm = () => {
           console.log("Active Supabase session found:", data.session.user.id);
           setIsAuthenticated(true);
           setUserData(data.session.user);
+          setIsAuthChecking(false);
           return;
         }
         
@@ -65,10 +69,24 @@ export const useContentForm = () => {
         }
       } catch (e) {
         console.error("Authentication check failed:", e);
+      } finally {
+        setIsAuthChecking(false);
       }
     };
 
+    // Set up auth state listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
+      setIsAuthenticated(!!session);
+      setUserData(session?.user || null);
+      setIsAuthChecking(false);
+    });
+
     checkAuth();
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const onSubmit = async (values: ContentFormValues) => {
@@ -185,6 +203,7 @@ export const useContentForm = () => {
     showAdvanced,
     setShowAdvanced,
     isAuthenticated,
+    isAuthChecking,
     userData
   };
 };
