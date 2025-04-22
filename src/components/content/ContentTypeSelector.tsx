@@ -29,7 +29,7 @@ const ContentTypeSelector = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-4 sm:space-y-3 w-full">
+    <div className="space-y-6">
       <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
@@ -37,24 +37,25 @@ const ContentTypeSelector = ({
       <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
         <TabsList className={`
           grid 
-          ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
-          bg-white/5 
+          ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 md:grid-cols-6 gap-2'} 
+          bg-black/20 
           border 
           border-white/10 
-          p-1 
-          rounded-md
+          p-1.5 
+          rounded-lg
+          backdrop-blur-sm
         `}>
           {contentTypes.map(type => (
             <ContentTypeTab key={type.id} contentType={type} />
           ))}
         </TabsList>
         
-        <div className="mt-2 sm:mt-2 space-y-2 top-16">
-          <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md top-10">
+        <div className="mt-4 space-y-4">
+          <TabsContent value="text" className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm">
             <TextContentForm form={form} />
           </TabsContent>
           
-          <TabsContent value="link" className="p-4 bg-white/5 border border-white/10 rounded-md">
+          <TabsContent value="link" className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm">
             <LinkContentForm form={form} />
           </TabsContent>
           
@@ -62,7 +63,7 @@ const ContentTypeSelector = ({
             <TabsContent
               key={type}
               value={type}
-              className="p-4 bg-white/5 border border-white/10 rounded-md"
+              className="p-6 bg-black/20 border border-white/10 rounded-lg backdrop-blur-sm"
             >
               <MediaContentForm
                 form={form}
