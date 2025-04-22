@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +42,6 @@ export const useViewContent = (id: string | undefined) => {
       
       try {
         setLoading(true);
-        // Log the request ID to help with debugging
         console.log("useViewContent: Loading content with ID:", id);
         
         const contents = JSON.parse(localStorage.getItem('contents') || '[]');
@@ -60,20 +58,23 @@ export const useViewContent = (id: string | undefined) => {
               (tx: any) => tx.contentId === id && tx.userId === user.id
             );
             
-            // Log transaction status for debugging
             console.log("useViewContent: User has transaction:", userHasTransaction);
+            const isCreator = foundContent.creatorId === user.id;
             
             if (
               parseFloat(foundContent.price) === 0 || 
-              foundContent.creatorId === user.id ||
+              isCreator ||
               userHasTransaction
             ) {
               setIsUnlocked(true);
+            } else if (window.location.pathname.startsWith('/view/')) {
+              navigate(`/preview/${id}`);
             }
-          } else {
-            // Handle the case for non-authenticated users
-            // They can see preview but not unlocked content
-            setIsUnlocked(false);
+          } else if (
+            window.location.pathname.startsWith('/view/') && 
+            parseFloat(foundContent.price) > 0
+          ) {
+            navigate(`/preview/${id}`);
           }
         } else {
           console.error("Content not found for ID:", id);
@@ -89,7 +90,7 @@ export const useViewContent = (id: string | undefined) => {
     };
     
     loadContent();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleUnlock = () => {
     if (!isAuthenticated) {
@@ -124,7 +125,6 @@ export const useViewContent = (id: string | undefined) => {
         description: `Thank you for your purchase of $${content.price ? parseFloat(content.price).toFixed(2) : '0.00'}`
       });
       
-      // Redirect to full content view
       navigate(`/view/${id}`);
       
       if (content && userData) {

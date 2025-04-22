@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -21,17 +20,9 @@ const ViewContent = () => {
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
   
-  // Add debugging logs to understand component state
-  console.log('ViewContent: Content ID:', id);
-  console.log('ViewContent: Content loaded:', content);
-  console.log('ViewContent: Is content unlocked:', isUnlocked);
-  console.log('ViewContent: Is error:', error);
-
-  // Track view of this content
   useViewTracking();
   
   useEffect(() => {
-    // Check if user is the content creator
     if (content) {
       const auth = localStorage.getItem('auth');
       if (auth) {
@@ -80,7 +71,6 @@ const ViewContent = () => {
 
   const handleShare = async () => {
     try {
-      // Share the preview link for paid content, or direct link for free content
       const shareUrl = content && parseFloat(content.price) > 0 ? 
         `${window.location.origin}/preview/${id}` : 
         window.location.href;
@@ -99,20 +89,17 @@ const ViewContent = () => {
     }
   };
 
-  // Redirect to preview page if content is paid and not unlocked
-  useEffect(() => {
-    if (content && !isUnlocked && !isCreator && parseFloat(content.price) > 0) {
-      console.log("ViewContent: Redirecting to preview page...");
-      navigate(`/preview/${id}`);
-    }
-  }, [content, isUnlocked, isCreator, id, navigate]);
-
   if (loading) {
     return <ContentLoader />;
   }
 
   if (error || !content) {
     return <ContentError error={error} />;
+  }
+
+  if (!isUnlocked && !isCreator && parseFloat(content.price) > 0) {
+    navigate(`/preview/${id}`);
+    return null;
   }
 
   return (
@@ -138,7 +125,6 @@ const ViewContent = () => {
             )}
           </ContentActions>
           
-          {/* PaymentFlow component that handles unlocking content */}
           <PaymentFlow 
             content={content} 
             onUnlock={handleUnlock} 
