@@ -65,7 +65,7 @@ const CreateContent = () => {
     const formData = form.getValues();
     const scheduled = {
       ...formData,
-      scheduledFor: new Date(scheduleInfo.date),
+      scheduledFor: scheduleInfo.date,
       scheduledTime: scheduleInfo.time
     };
     onSubmit(scheduled);

@@ -36,36 +36,25 @@ export const useContentForm = () => {
     const checkAuth = async () => {
       setIsAuthChecking(true);
       try {
-        // First, try to get the current session from Supabase
-        const { data, error } = await supabase.auth.getSession();
+        // First, get the current session from Supabase
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error("Supabase session error:", error);
+        if (sessionError) {
+          console.error("Session error:", sessionError);
           setIsAuthChecking(false);
           return;
         }
         
-        if (data.session) {
-          console.log("Active Supabase session found:", data.session.user.id);
+        if (sessionData.session) {
+          console.log("Active session found:", sessionData.session.user.id);
           setIsAuthenticated(true);
-          setUserData(data.session.user);
+          setUserData(sessionData.session.user);
           setIsAuthChecking(false);
           return;
-        }
-        
-        // If no Supabase session, check local storage as fallback
-        const auth = localStorage.getItem('auth');
-        if (auth) {
-          try {
-            const parsedAuth = JSON.parse(auth);
-            if (parsedAuth && parsedAuth.user) {
-              setIsAuthenticated(true);
-              setUserData(parsedAuth.user);
-              console.log("Auth from localStorage:", parsedAuth.user.id);
-            }
-          } catch (e) {
-            console.error("Auth parsing error", e);
-          }
+        } else {
+          console.log("No active session found");
+          setIsAuthenticated(false);
+          setUserData(null);
         }
       } catch (e) {
         console.error("Authentication check failed:", e);
@@ -74,10 +63,8 @@ export const useContentForm = () => {
       }
     };
 
-    // Set up auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    // Set up auth state listener for real-time auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event, session?.user?.id);
       setIsAuthenticated(!!session);
       setUserData(session?.user || null);
@@ -90,18 +77,26 @@ export const useContentForm = () => {
   }, []);
 
   const onSubmit = async (values: ContentFormValues) => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to create content",
-        variant: "destructive"
-      });
-      navigate('/'); // Redirect to main page where auth dialog can be opened
-      return;
-    }
-
+    // Double-check authentication before proceeding
     try {
-      // FILE HANDLING
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error(`Session error: ${sessionError.message}`);
+      }
+      
+      if (!sessionData.session) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to create content",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
+      }
+
+      // Handle file upload if needed
       let fileUrl, fileName, fileType, fileSize;
       if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
         if (!selectedFile) {
@@ -117,26 +112,6 @@ export const useContentForm = () => {
         fileName = selectedFile.name;
         fileType = selectedFile.type;
         fileSize = selectedFile.size;
-      }
-
-      // Double-check authentication before proceeding
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw new Error(`Session error: ${sessionError.message}`);
-      }
-      
-      // If there's no active session, we'll redirect to login
-      if (!sessionData.session) {
-        console.error("No active Supabase session found");
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to create content",
-          variant: "destructive"
-        });
-        navigate('/');
-        return;
       }
 
       // Ensure we're using the most current user data
