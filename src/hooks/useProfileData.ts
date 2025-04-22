@@ -19,17 +19,21 @@ export const useProfileData = () => {
       
       try {
         // Get user contents from Supabase
-        const { data: contents } = await supabase
+        const { data: contents, error: contentsError } = await supabase
           .from('contents')
           .select('*')
           .eq('creator_id', user.id);
+          
+        if (contentsError) throw contentsError;
         setUserContents(contents || []);
 
         // Calculate balance from unlocked content (transactions)
-        const { data: transactions } = await supabase
+        const { data: transactions, error: transactionsError } = await supabase
           .from('transactions')
           .select('*')
           .eq('creator_id', user.id);
+          
+        if (transactionsError) throw transactionsError;
 
         const userEarnings = (transactions || [])
           .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
@@ -45,13 +49,13 @@ export const useProfileData = () => {
       }
     };
 
-    if (user) {
-      fetchUserData();
-    } else if (!isLoading) {
+    if (!session && !isLoading) {
       // Only redirect if we've checked auth status and user is not logged in
       redirectToHome();
+    } else if (session && user) {
+      fetchUserData();
     }
-  }, [user, navigate, toast, isLoading]);
+  }, [user, session, navigate, toast, isLoading]);
   
   const redirectToHome = () => {
     toast({
@@ -63,11 +67,24 @@ export const useProfileData = () => {
   };
   
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logged out successfully"
-    });
-    navigate('/');
+    try {
+      await supabase.auth.signOut();
+      
+      // Clear any auth-related data from localStorage
+      localStorage.removeItem('auth');
+      
+      toast({
+        title: "Logged out successfully"
+      });
+      navigate('/');
+    } catch (error: any) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout failed",
+        description: error.message || "An error occurred while logging out",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleEditContent = (contentId: string) => {
@@ -97,7 +114,7 @@ export const useProfileData = () => {
   };
 
   return {
-    isAuthenticated: !!user,
+    isAuthenticated: !!session,
     userData: user,
     userContents,
     balance,

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -71,6 +70,7 @@ const AuthDialog = ({
       });
       
       if (error) {
+        console.error("Login error:", error);
         throw error;
       }
       
@@ -109,13 +109,14 @@ const AuthDialog = ({
       });
       
       if (error) {
+        console.error("Signup error:", error);
         throw error;
       }
       
       setShowAuthDialog(false);
       toast({
         title: "Account created",
-        description: "Your account has been created successfully!"
+        description: "Your account has been created successfully! Please check your email to confirm your account."
       });
       
     } catch (error: any) {
