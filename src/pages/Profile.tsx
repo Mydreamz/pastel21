@@ -3,12 +3,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, FileText } from 'lucide-react';
+import { ArrowLeft, User, FileText, BarChart } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useProfileData } from '@/hooks/useProfileData';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
+import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -23,12 +24,11 @@ const Profile = () => {
   } = useProfileData();
 
   if (!isAuthenticated || !userData) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
-      {/* Background elements */}
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -39,7 +39,6 @@ const Profile = () => {
         </button>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Sidebar */}
           <div className="lg:col-span-1">
             <ProfileSidebar 
               userData={userData} 
@@ -48,27 +47,34 @@ const Profile = () => {
             />
           </div>
           
-          {/* Main Content */}
           <div className="lg:col-span-2">
             <Card className="glass-card border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Your Dashboard</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Manage your content and account settings
+                  Manage your content and view analytics
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="content">
-                  <TabsList className="grid grid-cols-2 bg-white/5 border border-white/10 p-1">
+                <Tabs defaultValue="analytics">
+                  <TabsList className="grid grid-cols-3 bg-white/5 border border-white/10 p-1">
+                    <TabsTrigger value="analytics" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+                      <BarChart className="h-4 w-4 mr-2" />
+                      Analytics
+                    </TabsTrigger>
                     <TabsTrigger value="content" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
                       <FileText className="h-4 w-4 mr-2" />
                       Your Content
                     </TabsTrigger>
                     <TabsTrigger value="settings" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
                       <User className="h-4 w-4 mr-2" />
-                      Account Settings
+                      Account
                     </TabsTrigger>
                   </TabsList>
+                  
+                  <TabsContent value="analytics">
+                    <AnalyticsDashboard />
+                  </TabsContent>
                   
                   <TabsContent value="content">
                     <UserContentsList 
