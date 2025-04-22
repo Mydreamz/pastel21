@@ -1,77 +1,114 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { User } from 'lucide-react';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
-interface MainNavProps {
+type MainNavProps = {
   isAuthenticated: boolean;
   userData: any;
   handleLogout: () => void;
   openAuthDialog: (tab: 'login' | 'signup') => void;
-}
+};
 
 const MainNav = ({ isAuthenticated, userData, handleLogout, openAuthDialog }: MainNavProps) => {
   const navigate = useNavigate();
   
   return (
-    <header className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-emerald-500 rounded-full"></div>
-          <span className="font-bold text-xl">contentflow</span>
+    <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
+      <div className="container flex h-16 items-center justify-between py-4">
+        <div className="flex items-center">
+          <Link to="/" className="text-2xl font-bold text-white">
+            Creator<span className="text-emerald-500">Hub</span>
+          </Link>
+          
+          <nav className="hidden md:flex items-center space-x-6 ml-10">
+            <Link to="/" className="text-gray-300 hover:text-white transition-colors">
+              Home
+            </Link>
+            <Link to="/#features" className="text-gray-300 hover:text-white transition-colors">
+              Features
+            </Link>
+            <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors">
+              Pricing
+            </Link>
+            <Link to="/#contents" className="text-gray-300 hover:text-white transition-colors">
+              Explore
+            </Link>
+          </nav>
         </div>
         
-        <nav className="hidden md:flex items-center gap-x-8">
-          <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
-          <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
-          {isAuthenticated && (
-            <>
-              <a href="#contents" className="text-gray-300 hover:text-white transition-colors">Contents</a>
-              <a href="#" onClick={() => navigate('/profile')} className="text-gray-300 hover:text-white transition-colors">Dashboard</a>
-            </>
-          )}
-        </nav>
-        
-        <div className="flex items-center gap-4">
+        <div className="flex items-center space-x-3">
           {isAuthenticated ? (
             <>
-              <Button 
-                variant="outline" 
-                className="hidden sm:flex items-center gap-2 border-white/10 hover:bg-white/10"
-                onClick={() => navigate('/profile')}
-              >
-                <User className="h-4 w-4" />
-                {userData?.name}
-              </Button>
+              <NotificationDropdown />
+              
               <Button 
                 onClick={() => navigate('/create')} 
-                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
+                className="hidden md:flex bg-emerald-500 hover:bg-emerald-600 text-white"
               >
                 Create Content
               </Button>
-              <Button 
-                variant="ghost" 
-                className="text-gray-300 hover:text-white"
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="relative h-9 w-9 rounded-full bg-white/5 border-white/10 hover:bg-white/10 p-0"
+                  >
+                    <User className="h-5 w-5 text-white" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-black/90 border border-white/10 text-white">
+                  <div className="px-3 py-2">
+                    <p className="font-medium">{userData.name}</p>
+                    <p className="text-sm text-gray-400">{userData.email}</p>
+                  </div>
+                  <DropdownMenuSeparator className="bg-white/10"/>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/profile')}
+                    className="cursor-pointer hover:bg-white/10"
+                  >
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => navigate('/create')}
+                    className="cursor-pointer hover:bg-white/10 md:hidden"
+                  >
+                    Create Content
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-white/10"/>
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
-              <Button 
-                variant="ghost" 
-                className="hidden sm:inline-flex text-gray-300 hover:text-white"
+              <Button
+                variant="outline"
                 onClick={() => openAuthDialog('login')}
+                className="border-gray-700 hover:border-emerald-500 hover:bg-emerald-500/10 text-white"
               >
-                Sign in
+                Sign In
               </Button>
-              <Button 
-                className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full"
+              <Button
                 onClick={() => openAuthDialog('signup')}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
               >
-                Get Started
+                Sign Up
               </Button>
             </>
           )}

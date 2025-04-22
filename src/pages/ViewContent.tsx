@@ -2,105 +2,160 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, FileText, LockIcon, MessageSquare } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import ContentPreview from '@/components/ContentPreview';
-import FilePreview from '@/components/content/FilePreview';
+import { useViewTracking } from '@/hooks/useViewTracking';
+import CommentSection from '@/components/content/CommentSection';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 const ViewContent = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [content, setContent] = useState<any | null>(null);
+  const { toast } = useToast();
+  const { addNotification } = useNotifications();
+  const [content, setContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isCreator, setIsCreator] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  // Track view of this content
+  useViewTracking(id);
 
   useEffect(() => {
-    // Fetch content from localStorage
-    const fetchContent = () => {
-      setLoading(true);
+    // Check if user is authenticated
+    const auth = localStorage.getItem('auth');
+    if (auth) {
       try {
-        const storedContents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const foundContent = storedContents.find((item: any) => item.id === id);
+        const parsedAuth = JSON.parse(auth);
+        if (parsedAuth && parsedAuth.user) {
+          setIsAuthenticated(true);
+          setUserData(parsedAuth.user);
+        }
+      } catch (e) {
+        console.error("Auth parsing error", e);
+      }
+    }
+    
+    // Fetch content data
+    if (id) {
+      try {
+        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
+        const foundContent = contents.find((item: any) => item.id === id);
         
         if (foundContent) {
           setContent(foundContent);
           
-          // Check if current user is the creator
-          const auth = localStorage.getItem('auth');
-          if (auth) {
-            const parsedAuth = JSON.parse(auth);
-            if (parsedAuth?.user?.id === foundContent.creatorId) {
-              setIsCreator(true);
-            }
-          }
-          
-          // Check if this content has been paid for
-          const paidContents = JSON.parse(localStorage.getItem('paidContents') || '[]');
-          const isPaidContent = paidContents.some((item: any) => 
-            item.contentId === id && 
-            (isCreator || (auth && JSON.parse(auth)?.user?.id === item.userId))
+          // Check if content is already unlocked
+          const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+          const hasTransaction = transactions.some(
+            (tx: any) => tx.contentId === id && tx.userId === (userData?.id || '')
           );
-          setIsPaid(isPaidContent);
+          
+          // Content is free or created by the user or already purchased
+          if (
+            parseFloat(foundContent.price) === 0 || 
+            foundContent.creatorId === userData?.id ||
+            hasTransaction
+          ) {
+            setIsUnlocked(true);
+          }
+        } else {
+          setError("Content not found");
         }
-      } catch (error) {
-        console.error("Error fetching content:", error);
-      } finally {
-        setLoading(false);
+      } catch (e) {
+        console.error("Error fetching content:", e);
+        setError("Error loading content");
       }
-    };
+      
+      setLoading(false);
+    }
+  }, [id, userData]);
 
-    fetchContent();
-  }, [id]);
-
-  // Function to handle successful payment
-  const handlePaymentSuccess = () => {
-    // Save this content ID as paid for the current user
+  const handleUnlock = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to unlock this content",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     try {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        const parsedAuth = JSON.parse(auth);
-        const userId = parsedAuth?.user?.id;
-        
-        if (userId) {
-          const paidContents = JSON.parse(localStorage.getItem('paidContents') || '[]');
-          paidContents.push({
-            contentId: id,
-            userId: userId,
-            paidAt: new Date().toISOString()
-          });
-          localStorage.setItem('paidContents', JSON.stringify(paidContents));
-          setIsPaid(true);
-        }
-      }
-    } catch (error) {
-      console.error("Error saving payment status:", error);
+      // Create transaction record
+      const transaction = {
+        id: crypto.randomUUID(),
+        contentId: id,
+        userId: userData.id,
+        creatorId: content.creatorId,
+        amount: content.price,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Save transaction
+      const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+      transactions.push(transaction);
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+      
+      // Unlock the content
+      setIsUnlocked(true);
+      
+      // Show success message
+      toast({
+        title: "Content unlocked",
+        description: `Thank you for your purchase of $${parseFloat(content.price).toFixed(2)}`
+      });
+      
+      // Notify the creator
+      addNotification({
+        title: "New Purchase",
+        message: `${userData.name} purchased your content "${content.title}" for $${parseFloat(content.price).toFixed(2)}`,
+        type: 'content',
+        link: `/profile`
+      });
+      
+    } catch (e) {
+      console.error("Error processing transaction:", e);
+      toast({
+        title: "Transaction failed",
+        description: "There was a problem processing your purchase",
+        variant: "destructive"
+      });
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading content...</div>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="animate-pulse w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+          <FileText className="h-6 w-6 text-emerald-500" />
+        </div>
+        <p className="mt-4 text-gray-400">Loading content...</p>
       </div>
     );
   }
 
-  if (!content) {
+  if (error || !content) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="text-white mb-4">Content not found</div>
-        <Button onClick={() => navigate('/')} className="bg-emerald-500 hover:bg-emerald-600">
-          Go back home
+        <div className="text-red-500 mb-4">
+          <FileText className="h-12 w-12" />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">Content Not Found</h1>
+        <p className="text-gray-400 mb-6">{error || "The content you are looking for does not exist."}</p>
+        <Button onClick={() => navigate('/')} variant="outline">
+          Return to Home
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
-      {/* Background elements */}
+    <div className="min-h-screen flex flex-col antialiased text-white relative">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -110,111 +165,54 @@ const ViewContent = () => {
           Back to Home
         </button>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Creator view - always show if user is creator */}
-          {isCreator && (
-            <Card className="glass-card border-white/10 text-white">
-              <CardHeader>
-                <CardTitle className="text-xl">Creator View</CardTitle>
-                <CardDescription className="text-gray-300">
-                  You created this content on {new Date(content.createdAt).toLocaleDateString()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* File preview for creator */}
-                {content.fileUrl && ['image', 'video', 'audio', 'document'].includes(content.contentType) && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Content Preview (Only visible to you)</h3>
-                    <FilePreview 
-                      fileUrl={content.fileUrl}
-                      fileName={content.fileName}
-                      fileType={content.fileType}
-                      contentType={content.contentType}
-                    />
-                    
-                    {content.content && (
-                      <div className="mt-4">
-                        <h4 className="text-sm font-medium text-gray-300">Description</h4>
-                        <p className="text-white mt-1">{content.content}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {(content.contentType === 'text' || content.contentType === 'link') && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Content Preview</h3>
-                    <div className="bg-white/5 p-4 rounded-md border border-white/10">
-                      {content.contentType === 'link' ? (
-                        <a href={content.content} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline break-all">
-                          {content.content}
-                        </a>
-                      ) : (
-                        <p className="whitespace-pre-wrap">{content.content}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex justify-end mt-4">
-                  <Button 
-                    onClick={() => navigate(`/edit/${content.id}`)} 
-                    className="bg-emerald-500 hover:bg-emerald-600"
-                  >
-                    Edit Content
-                  </Button>
+        <div className="glass-card border border-white/10 rounded-xl overflow-hidden">
+          <div className="p-6 md:p-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">{content.title}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-gray-400 mb-6">
+              <span>By {content.creatorName}</span>
+              <span className="hidden sm:block">•</span>
+              <span>Created {new Date(content.createdAt).toLocaleDateString()}</span>
+              {parseFloat(content.price) > 0 && (
+                <>
+                  <span className="hidden sm:block">•</span>
+                  <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs">
+                    ${parseFloat(content.price).toFixed(2)}
+                  </span>
+                </>
+              )}
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-300">{content.teaser}</p>
+            </div>
+            
+            {!isUnlocked ? (
+              <div className="bg-white/5 border border-white/10 rounded-lg p-8 text-center">
+                <div className="w-16 h-16 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
+                  <LockIcon className="h-8 w-8 text-emerald-500" />
                 </div>
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Content preview or full content based on payment status */}
-          <div className={isCreator ? "lg:col-start-2" : "max-w-xl mx-auto w-full"}>
-            {isPaid ? (
-              <Card className="glass-card border-white/10 text-white">
-                <CardHeader>
-                  <CardTitle className="text-xl">{content.title}</CardTitle>
-                  <CardDescription className="text-gray-300">
-                    {content.teaser}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Display unlocked content based on type */}
-                  {content.fileUrl && ['image', 'video', 'audio', 'document'].includes(content.contentType) && (
-                    <FilePreview 
-                      fileUrl={content.fileUrl}
-                      fileName={content.fileName}
-                      fileType={content.fileType}
-                      contentType={content.contentType}
-                    />
-                  )}
-                  
-                  {(content.contentType === 'text' || content.contentType === 'link') && (
-                    <div className="bg-white/5 p-4 rounded-md border border-white/10">
-                      {content.contentType === 'link' ? (
-                        <a href={content.content} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline break-all">
-                          {content.content}
-                        </a>
-                      ) : (
-                        <p className="whitespace-pre-wrap">{content.content}</p>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                <h2 className="text-xl font-bold mb-2">Premium Content</h2>
+                <p className="text-gray-400 mb-6">
+                  Unlock this content for ${parseFloat(content.price).toFixed(2)}
+                </p>
+                <Button 
+                  onClick={handleUnlock} 
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-8"
+                >
+                  Unlock Now
+                </Button>
+              </div>
             ) : (
-              <ContentPreview 
-                title={content.title}
-                teaser={content.teaser}
-                price={parseFloat(content.price)}
-                type={content.contentType || 'text'}
-                expiryDate={content.expiry || undefined}
-                onPaymentSuccess={handlePaymentSuccess}
-                contentId={content.id}
-              />
+              <div>
+                <ContentPreview content={content} />
+              </div>
             )}
           </div>
         </div>
+        
+        {isUnlocked && (
+          <CommentSection contentId={id || ''} creatorId={content.creatorId} />
+        )}
       </div>
     </div>
   );
