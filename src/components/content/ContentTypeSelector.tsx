@@ -29,7 +29,7 @@ const ContentTypeSelector = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <h3 className="text-lg font-medium flex items-center gap-2">
         <Lock className="h-4 w-4" /> Locked Content
       </h3>
@@ -37,13 +37,14 @@ const ContentTypeSelector = ({
       <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
         <TabsList className={`
           grid 
-          ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 md:grid-cols-6 gap-2'} 
+          ${isMobile ? 'grid-cols-3 gap-1.5' : 'grid-cols-3 md:grid-cols-6 gap-2'} 
           bg-black/20 
           border 
           border-white/10 
           p-1.5 
           rounded-lg
           backdrop-blur-sm
+          mb-2
         `}>
           {contentTypes.map(type => (
             <ContentTypeTab key={type.id} contentType={type} />
