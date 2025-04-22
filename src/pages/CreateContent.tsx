@@ -20,6 +20,7 @@ const CreateContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [forceRedirect, setForceRedirect] = useState(false);
+  const [isManuallyChecking, setIsManuallyChecking] = useState(true);
   
   const {
     form,
@@ -38,11 +39,13 @@ const CreateContent = () => {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
+        setIsManuallyChecking(true);
+        
         // Check if we have a valid session
         const { data, error } = await supabase.auth.getSession();
         
         // If there's an error or no session and we're not still checking auth
-        if ((error || !data.session) && !isAuthChecking) {
+        if (error || !data.session) {
           console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
           setForceRedirect(true);
           toast({
@@ -53,6 +56,8 @@ const CreateContent = () => {
           // Add a slight delay to ensure the toast is visible before redirecting
           setTimeout(() => navigate('/'), 1500);
         }
+
+        setIsManuallyChecking(false);
       } catch (e) {
         console.error("Auth verification error in CreateContent:", e);
         setForceRedirect(true);
@@ -62,14 +67,28 @@ const CreateContent = () => {
           variant: "destructive"
         });
         setTimeout(() => navigate('/'), 1500);
+        setIsManuallyChecking(false);
       }
     };
 
     // Only run this verification if auth checking is complete
-    if (!isAuthChecking && !isAuthenticated) {
+    if (!isAuthChecking) {
       verifyAuth();
     }
   }, [isAuthenticated, isAuthChecking, navigate, toast]);
+
+  // When auth checking completes and user is not authenticated, redirect
+  useEffect(() => {
+    if (!isAuthChecking && !isAuthenticated && !isManuallyChecking) {
+      setForceRedirect(true);
+      toast({
+        title: "Authentication required", 
+        description: "Please sign in to create content",
+        variant: "destructive"
+      });
+      setTimeout(() => navigate('/'), 1500);
+    }
+  }, [isAuthenticated, isAuthChecking, isManuallyChecking, navigate, toast]);
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
     const formData = form.getValues();
@@ -81,7 +100,7 @@ const CreateContent = () => {
     onSubmit(scheduled);
   };
 
-  if (isAuthChecking) {
+  if (isAuthChecking || isManuallyChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-white text-center">
@@ -92,7 +111,7 @@ const CreateContent = () => {
     );
   }
 
-  if (forceRedirect) {
+  if (forceRedirect || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-white text-center">

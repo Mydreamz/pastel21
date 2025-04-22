@@ -38,22 +38,13 @@ export const useContentForm = () => {
     const checkAuth = async () => {
       setIsAuthChecking(true);
       try {
-        // Set up auth state listener FIRST for real-time auth changes
-        const { data } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log("Auth state changed:", event, session?.user?.id);
-          setIsAuthenticated(!!session);
-          setUserData(session?.user || null);
-          setIsAuthChecking(false);
-        });
-        
-        subscription = data.subscription;
-
-        // THEN check for existing session
+        // First check for existing session since it's more reliable
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error("Session error:", sessionError);
           setIsAuthChecking(false);
+          setIsAuthenticated(false);
           return;
         }
         
@@ -66,8 +57,20 @@ export const useContentForm = () => {
           setIsAuthenticated(false);
           setUserData(null);
         }
+        
+        // Then set up auth state listener for real-time auth changes
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+          console.log("Auth state changed:", event, session?.user?.id);
+          setIsAuthenticated(!!session);
+          setUserData(session?.user || null);
+          setIsAuthChecking(false);
+        });
+        
+        subscription = data.subscription;
       } catch (e) {
         console.error("Authentication check failed:", e);
+        setIsAuthenticated(false);
+        setUserData(null);
       } finally {
         setIsAuthChecking(false);
       }
