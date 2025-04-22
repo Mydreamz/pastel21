@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 export const contentFormSchema = z.object({
@@ -17,9 +16,11 @@ export type ContentFormValues = z.infer<typeof contentFormSchema> & {
   file?: File | null;
 };
 
+export type ContentType = 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
+
 export type Content = ContentFormValues & {
   id: string;
-  contentType: string;
+  contentType: ContentType;
   creatorId: string;
   creatorName: string;
   fileUrl?: string;
