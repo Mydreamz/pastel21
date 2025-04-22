@@ -33,13 +33,23 @@ export const useContentForm = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Check for existing session
-      const { data } = await supabase.auth.getSession();
-      if (data.session) {
-        setIsAuthenticated(true);
-        setUserData(data.session.user);
-      } else {
-        // Check local storage as fallback
+      try {
+        // First, try to get the current session from Supabase
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Supabase session error:", error);
+          return;
+        }
+        
+        if (data.session) {
+          console.log("Active Supabase session found:", data.session.user.id);
+          setIsAuthenticated(true);
+          setUserData(data.session.user);
+          return;
+        }
+        
+        // If no Supabase session, check local storage as fallback
         const auth = localStorage.getItem('auth');
         if (auth) {
           try {
@@ -47,11 +57,14 @@ export const useContentForm = () => {
             if (parsedAuth && parsedAuth.user) {
               setIsAuthenticated(true);
               setUserData(parsedAuth.user);
+              console.log("Auth from localStorage:", parsedAuth.user.id);
             }
           } catch (e) {
             console.error("Auth parsing error", e);
           }
         }
+      } catch (e) {
+        console.error("Authentication check failed:", e);
       }
     };
 
@@ -88,8 +101,13 @@ export const useContentForm = () => {
         fileSize = selectedFile.size;
       }
 
-      // Check the current session with Supabase
+      // Double-check authentication before proceeding
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error(`Session error: ${sessionError.message}`);
+      }
       
       // If there's no active session, we'll redirect to login
       if (!sessionData.session) {
@@ -103,9 +121,11 @@ export const useContentForm = () => {
         return;
       }
 
-      if (sessionError) {
-        throw new Error(`Session error: ${sessionError.message}`);
-      }
+      // Ensure we're using the most current user data
+      const userId = sessionData.session.user.id;
+      const userName = sessionData.session.user.user_metadata?.name || 
+                       sessionData.session.user.email?.split('@')[0] || 
+                       'Anonymous';
 
       // Map properties for Supabase and convert dates to strings
       const payload: any = {
@@ -114,8 +134,8 @@ export const useContentForm = () => {
         price: values.price,
         content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
         content_type: selectedContentType,
-        creator_id: userData.id,
-        creator_name: userData.user_metadata?.name || userData.email.split('@')[0] || 'Anonymous',
+        creator_id: userId,
+        creator_name: userName,
         expiry: values.expiry || null,
         scheduled_for: values.scheduledFor ? (typeof values.scheduledFor === 'string' ? values.scheduledFor : values.scheduledFor.toISOString()) : null,
         scheduled_time: values.scheduledTime || null,

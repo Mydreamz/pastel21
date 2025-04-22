@@ -12,10 +12,15 @@ import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentScheduler from '@/components/content/ContentScheduler';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const {
     form,
     onSubmit,
@@ -28,12 +33,36 @@ const CreateContent = () => {
     isAuthenticated
   } = useContentForm();
 
+  // Additional authentication check, especially if the useContentForm hook's check fails
   useEffect(() => {
-    if (!isAuthenticated) {
-      // We'll show the auth warning in the UI, but we won't force redirect
-      // This allows users to see the content creation form and understand why they need to authenticate
-    }
-  }, [isAuthenticated, navigate]);
+    const checkAuth = async () => {
+      try {
+        setAuthChecking(true);
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Auth check error:", error);
+        }
+        
+        // If no session is found and user is not authenticated, redirect to home
+        if (!data.session && !isAuthenticated) {
+          console.log("No valid session found, redirecting to home");
+          toast({
+            title: "Authentication required",
+            description: "Please sign in to create content",
+            variant: "destructive"
+          });
+          navigate('/');
+        }
+      } catch (e) {
+        console.error("Authentication verification failed:", e);
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    checkAuth();
+  }, [isAuthenticated, navigate, toast]);
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
     const formData = form.getValues();
@@ -44,6 +73,17 @@ const CreateContent = () => {
     };
     onSubmit(scheduled);
   };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
