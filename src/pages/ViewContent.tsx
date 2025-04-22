@@ -14,6 +14,7 @@ const ViewContent = () => {
   const [content, setContent] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isCreator, setIsCreator] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
     // Fetch content from localStorage
@@ -34,6 +35,14 @@ const ViewContent = () => {
               setIsCreator(true);
             }
           }
+          
+          // Check if this content has been paid for
+          const paidContents = JSON.parse(localStorage.getItem('paidContents') || '[]');
+          const isPaidContent = paidContents.some((item: any) => 
+            item.contentId === id && 
+            (isCreator || (auth && JSON.parse(auth)?.user?.id === item.userId))
+          );
+          setIsPaid(isPaidContent);
         }
       } catch (error) {
         console.error("Error fetching content:", error);
@@ -44,6 +53,31 @@ const ViewContent = () => {
 
     fetchContent();
   }, [id]);
+
+  // Function to handle successful payment
+  const handlePaymentSuccess = () => {
+    // Save this content ID as paid for the current user
+    try {
+      const auth = localStorage.getItem('auth');
+      if (auth) {
+        const parsedAuth = JSON.parse(auth);
+        const userId = parsedAuth?.user?.id;
+        
+        if (userId) {
+          const paidContents = JSON.parse(localStorage.getItem('paidContents') || '[]');
+          paidContents.push({
+            contentId: id,
+            userId: userId,
+            paidAt: new Date().toISOString()
+          });
+          localStorage.setItem('paidContents', JSON.stringify(paidContents));
+          setIsPaid(true);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving payment status:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -77,6 +111,7 @@ const ViewContent = () => {
         </button>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Creator view - always show if user is creator */}
           {isCreator && (
             <Card className="glass-card border-white/10 text-white">
               <CardHeader>
@@ -133,14 +168,51 @@ const ViewContent = () => {
             </Card>
           )}
           
+          {/* Content preview or full content based on payment status */}
           <div className={isCreator ? "lg:col-start-2" : "max-w-xl mx-auto w-full"}>
-            <ContentPreview 
-              title={content.title}
-              teaser={content.teaser}
-              price={parseFloat(content.price)}
-              type={content.contentType || 'text'}
-              expiryDate={content.expiry || undefined}
-            />
+            {isPaid ? (
+              <Card className="glass-card border-white/10 text-white">
+                <CardHeader>
+                  <CardTitle className="text-xl">{content.title}</CardTitle>
+                  <CardDescription className="text-gray-300">
+                    {content.teaser}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Display unlocked content based on type */}
+                  {content.fileUrl && ['image', 'video', 'audio', 'document'].includes(content.contentType) && (
+                    <FilePreview 
+                      fileUrl={content.fileUrl}
+                      fileName={content.fileName}
+                      fileType={content.fileType}
+                      contentType={content.contentType}
+                    />
+                  )}
+                  
+                  {(content.contentType === 'text' || content.contentType === 'link') && (
+                    <div className="bg-white/5 p-4 rounded-md border border-white/10">
+                      {content.contentType === 'link' ? (
+                        <a href={content.content} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline break-all">
+                          {content.content}
+                        </a>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{content.content}</p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <ContentPreview 
+                title={content.title}
+                teaser={content.teaser}
+                price={parseFloat(content.price)}
+                type={content.contentType || 'text'}
+                expiryDate={content.expiry || undefined}
+                onPaymentSuccess={handlePaymentSuccess}
+                contentId={content.id}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info } from 'lucide-react';
+import { Lock, DollarSign, Info, Check } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 interface ContentPreviewProps {
   title: string;
@@ -11,6 +12,8 @@ interface ContentPreviewProps {
   price: number;
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiryDate?: string;
+  onPaymentSuccess?: () => void;
+  contentId?: string;
 }
 
 const ContentPreview: React.FC<ContentPreviewProps> = ({
@@ -18,9 +21,13 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   teaser,
   price,
   type,
-  expiryDate
+  expiryDate,
+  onPaymentSuccess,
+  contentId
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { toast } = useToast();
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -36,6 +43,37 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   };
   
   const formattedExpiry = formatExpiryDate(expiryDate);
+
+  const handlePayment = () => {
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      setShowPaymentDialog(false);
+      
+      // Check for auth
+      const auth = localStorage.getItem('auth');
+      if (!auth) {
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to purchase content",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Process successful payment
+      if (onPaymentSuccess) {
+        onPaymentSuccess();
+      }
+      
+      toast({
+        title: "Payment successful!",
+        description: "You now have access to the full content",
+      });
+    }, 1500);
+  };
   
   return (
     <Card className="glass-card border-white/10 text-white overflow-hidden">
@@ -97,7 +135,9 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
                 <span>Content Price</span>
                 <span className="font-semibold">${price.toFixed(2)}</span>
               </div>
-              {/* Payment method would be integrated here */}
+              <div className="text-xs text-gray-400 mt-2">
+                This is a simulated payment system. In a real application, this would connect to a payment provider like Stripe.
+              </div>
             </div>
             
             <p className="text-xs text-gray-400">
@@ -110,11 +150,23 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
               variant="outline" 
               onClick={() => setShowPaymentDialog(false)}
               className="border-gray-700 hover:border-gray-600 text-gray-300"
+              disabled={isProcessing}
             >
               Cancel
             </Button>
-            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-              Pay ${price.toFixed(2)}
+            <Button 
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              onClick={handlePayment}
+              disabled={isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <span className="animate-spin mr-2">●</span>
+                  Processing...
+                </>
+              ) : (
+                <>Pay ${price.toFixed(2)}</>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
