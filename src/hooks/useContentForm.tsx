@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +11,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 export const useContentForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { notifications, setNotifications } = useNotifications();
+  const { notifications, addNotification } = useNotifications();
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
