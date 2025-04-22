@@ -12,6 +12,7 @@ import EditContent from "./pages/EditContent";
 import Profile from "./pages/Profile";
 import ContentSuccess from "./pages/ContentSuccess";
 import NotFound from "./pages/NotFound";
+import PreviewContent from "./pages/PreviewContent";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/create" element={<CreateContent />} />
             <Route path="/view/:id" element={<ViewContent />} />
+            <Route path="/preview/:id" element={<PreviewContent />} />
             <Route path="/edit/:id" element={<EditContent />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/success" element={<ContentSuccess />} />

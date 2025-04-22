@@ -74,7 +74,12 @@ const ViewContent = () => {
 
   const handleShare = async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      // Share the preview link for paid content, or direct link for free content
+      const shareUrl = content && parseFloat(content.price) > 0 && !isCreator ? 
+        `${window.location.origin}/preview/${id}` : 
+        window.location.href;
+        
+      await navigator.clipboard.writeText(shareUrl);
       toast({
         title: "Link copied!",
         description: "Content link has been copied to your clipboard",

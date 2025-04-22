@@ -69,6 +69,7 @@ export const useViewContent = (id: string | undefined) => {
         description: "Please sign in to unlock this content",
         variant: "destructive"
       });
+      navigate(`/preview/${id}`);
       return;
     }
     
@@ -92,6 +93,9 @@ export const useViewContent = (id: string | undefined) => {
         title: "Content unlocked",
         description: `Thank you for your purchase of $${content?.price ? parseFloat(content.price).toFixed(2) : '0.00'}`
       });
+      
+      // Redirect to full content view
+      navigate(`/view/${id}`);
       
       if (content) {
         addNotification({
