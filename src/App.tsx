@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,7 @@ import ContentSuccess from "./pages/ContentSuccess";
 import NotFound from "./pages/NotFound";
 import PreviewContent from "./pages/PreviewContent";
 import Search from "./pages/Search";
+import ForgotPassword from "./pages/ForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +35,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/success" element={<ContentSuccess />} />
               <Route path="/search" element={<Search />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

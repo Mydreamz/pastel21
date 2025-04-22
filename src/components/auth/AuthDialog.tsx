@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -208,7 +207,7 @@ const AuthDialog = ({
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={loginForm.control}
                   name="password"
@@ -227,7 +226,20 @@ const AuthDialog = ({
                     </FormItem>
                   )}
                 />
-                
+
+                <div className="flex justify-end mb-2">
+                  <button
+                    type="button"
+                    className="text-sm text-emerald-400 hover:underline ml-auto"
+                    onClick={() => {
+                      setShowAuthDialog(false);
+                      window.location.href = "/forgot-password";
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+
                 <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
                   Sign In
                 </Button>
