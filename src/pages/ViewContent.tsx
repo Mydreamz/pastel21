@@ -8,14 +8,54 @@ import CommentSection from '@/components/content/CommentSection';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
 import LockedContent from '@/components/content/LockedContent';
+import { Button } from '@/components/ui/button';
+import { CalendarClock } from 'lucide-react';
+import ContentScheduler from '@/components/content/ContentScheduler';
+import { useState } from 'react';
 import { useViewContent } from '@/hooks/useViewContent';
+import { useToast } from "@/hooks/use-toast";
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
   const { content, loading, error, isUnlocked, handleUnlock } = useViewContent(id);
+  const [showScheduler, setShowScheduler] = useState(false);
+  const { toast } = useToast();
 
   // Track view of this content
   useViewTracking();
+
+  const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
+    try {
+      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
+      const updatedContents = contents.map((item: any) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            scheduledFor: scheduleInfo.date.toISOString(),
+            scheduledTime: scheduleInfo.time,
+            status: 'scheduled'
+          };
+        }
+        return item;
+      });
+      
+      localStorage.setItem('contents', JSON.stringify(updatedContents));
+      
+      toast({
+        title: "Content scheduled",
+        description: `Content will be published on ${scheduleInfo.date.toLocaleDateString()} at ${scheduleInfo.time}`,
+      });
+      
+      setShowScheduler(false);
+    } catch (e) {
+      console.error("Error scheduling content:", e);
+      toast({
+        title: "Error",
+        description: "Failed to schedule content",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (loading) {
     return <ContentLoader />;
@@ -37,6 +77,29 @@ const ViewContent = () => {
             creatorId={content.creatorId}
             contentId={content.id}
           />
+          
+          {content.creatorId === JSON.parse(localStorage.getItem('auth') || '{}')?.user?.id && (
+            <div className="mt-4 flex justify-end">
+              <Button
+                onClick={() => setShowScheduler(!showScheduler)}
+                variant="outline"
+                className="border-gray-700 hover:border-emerald-500 text-gray-300"
+              >
+                <CalendarClock className="mr-2 h-4 w-4" />
+                {showScheduler ? 'Hide Scheduler' : 'Schedule Content'}
+              </Button>
+            </div>
+          )}
+          
+          {showScheduler && (
+            <div className="mt-4">
+              <ContentScheduler
+                contentId={content.id}
+                contentTitle={content.title}
+                onSchedule={handleSchedule}
+              />
+            </div>
+          )}
           
           <div className="mb-6">
             <p className="text-gray-300">{content.teaser}</p>
