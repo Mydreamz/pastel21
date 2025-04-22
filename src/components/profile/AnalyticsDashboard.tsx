@@ -3,9 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useContentAnalytics } from '@/hooks/useContentAnalytics';
-import { Chart } from '@/components/ui/chart';
 import { ChartContainer } from '@/components/ui/chart';
-import { activity, barChart, users } from 'lucide-react';
+import { Activity, BarChart, Users } from 'lucide-react';
 
 const AnalyticsDashboard = () => {
   const { totalViews, uniqueViews, revenue, viewsOverTime } = useContentAnalytics();
@@ -14,19 +13,19 @@ const AnalyticsDashboard = () => {
     {
       title: "Total Views",
       value: totalViews,
-      icon: barChart,
+      icon: BarChart,
       description: "All-time content views"
     },
     {
       title: "Unique Viewers",
       value: uniqueViews,
-      icon: users,
+      icon: Users,
       description: "Individual viewers"
     },
     {
       title: "Total Revenue",
       value: `$${revenue.toFixed(2)}`,
-      icon: activity,
+      icon: Activity,
       description: "Earnings from content"
     }
   ];
