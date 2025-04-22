@@ -3,8 +3,32 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
-import { Content } from '@/types/content';
+import { Content, ContentType } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
+
+const supabaseToContent = (row: any): Content => ({
+  id: row.id,
+  title: row.title,
+  teaser: row.teaser,
+  price: row.price,
+  content: row.content,
+  contentType: row.content_type as ContentType,
+  creatorId: row.creator_id,
+  creatorName: row.creator_name,
+  expiry: row.expiry || undefined,
+  scheduledFor: row.scheduled_for || undefined,
+  scheduledTime: row.scheduled_time || undefined,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  status: row.status || 'published',
+  fileUrl: row.file_url || undefined,
+  fileName: row.file_name || undefined,
+  fileType: row.file_type || undefined,
+  fileSize: row.file_size || undefined,
+  tags: row.tags || [],
+  category: row.category || undefined,
+  views: row.views ?? undefined
+});
 
 export const useViewContent = (id: string | undefined) => {
   const navigate = useNavigate();
@@ -56,7 +80,8 @@ export const useViewContent = (id: string | undefined) => {
         }
 
         if (foundContent) {
-          setContent(foundContent as Content);
+          const mapped = supabaseToContent(foundContent);
+          setContent(mapped);
           const user = checkAuth();
 
           if (user) {
@@ -69,10 +94,10 @@ export const useViewContent = (id: string | undefined) => {
 
             const userHasTransaction = (transactions && transactions.length > 0);
 
-            const isCreator = foundContent.creator_id === user.id;
+            const isCreator = mapped.creatorId === user.id;
 
             if (
-              parseFloat(foundContent.price) === 0 ||
+              parseFloat(mapped.price) === 0 ||
               isCreator ||
               userHasTransaction
             ) {
@@ -118,7 +143,7 @@ export const useViewContent = (id: string | undefined) => {
       const { error: transactionError } = await supabase.from('transactions').insert([{
         content_id: id,
         user_id: userData.id,
-        creator_id: content.creator_id,
+        creator_id: content.creatorId,
         amount: content.price,
         timestamp: new Date().toISOString()
       }]);

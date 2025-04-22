@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,16 @@ interface CommentSectionProps {
   contentId: string;
   creatorId: string;
 }
+
+const supabaseToComment = (row: any): Comment => ({
+  id: row.id,
+  contentId: row.content_id ?? "",
+  userId: row.user_id ?? "",
+  userName: row.user_name ?? "",
+  text: row.text,
+  createdAt: row.created_at,
+  likes: 0, // Supabase doesn't have likes, use 0 for now.
+});
 
 const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -56,7 +67,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setComments(allComments || []);
+        setComments((allComments || []).map(supabaseToComment));
       } catch (e) {
         console.error("Error loading comments:", e);
       }
@@ -95,7 +106,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       const { data: inserted, error } = await supabase.from('comments').insert([commentData]).select().single();
       if (error) throw error;
 
-      setComments(prev => [inserted, ...prev]);
+      setComments(prev => [supabaseToComment(inserted), ...prev]);
       setNewComment('');
 
       if (userData.id !== creatorId) {
@@ -172,9 +183,9 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
                       <User className="h-4 w-4 text-emerald-500" />
                     </div>
                     <div>
-                      <div className="font-medium">{comment.user_name}</div>
+                      <div className="font-medium">{comment.userName}</div>
                       <div className="text-xs text-gray-400">
-                        {new Date(comment.created_at).toLocaleDateString()} at {new Date(comment.created_at).toLocaleTimeString()}
+                        {new Date(comment.createdAt).toLocaleDateString()} at {new Date(comment.createdAt).toLocaleTimeString()}
                       </div>
                     </div>
                   </div>

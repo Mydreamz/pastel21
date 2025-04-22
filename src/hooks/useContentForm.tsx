@@ -76,8 +76,8 @@ export const useContentForm = () => {
         fileSize = selectedFile.size;
       }
 
-      // Insert to Supabase
-      const { data, error } = await supabase.from('contents').insert([{
+      // --- Fix: Map properties for Supabase and convert dates to strings ---
+      const payload: any = {
         title: values.title,
         teaser: values.teaser,
         price: values.price,
@@ -86,8 +86,8 @@ export const useContentForm = () => {
         creator_id: userData.id,
         creator_name: userData.name,
         expiry: values.expiry || null,
-        scheduled_for: values.scheduledFor ?? null,
-        scheduled_time: values.scheduledTime ?? null,
+        scheduled_for: values.scheduledFor ? (typeof values.scheduledFor === 'string' ? values.scheduledFor : values.scheduledFor.toISOString()) : null,
+        scheduled_time: values.scheduledTime || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         status: values.scheduledFor ? 'scheduled' : 'published',
@@ -97,7 +97,9 @@ export const useContentForm = () => {
         file_size: fileSize,
         tags: values.tags || [],
         category: values.category || null
-      }]).select().single();
+      };
+
+      const { data, error } = await supabase.from('contents').insert([payload]).select().single();
 
       if (error) {
         throw error;
