@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ interface ContentPreviewProps {
   price: number;
   type: 'text' | 'link' | 'image' | 'video' | 'audio' | 'document';
   expiryDate?: string;
+  scheduledFor?: Date;
   onPaymentSuccess?: () => void;
   contentId?: string;
 }
@@ -22,6 +22,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   price,
   type,
   expiryDate,
+  scheduledFor,
   onPaymentSuccess,
   contentId
 }) => {
@@ -80,6 +81,11 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl">
           <Lock className="h-5 w-5 text-emerald-500" /> {title}
+          {scheduledFor && (
+            <span className="text-sm font-normal text-gray-400">
+              (Scheduled for {formatExpiryDate(scheduledFor.toISOString())})
+            </span>
+          )}
         </CardTitle>
         <CardDescription className="text-gray-300">
           {teaser}

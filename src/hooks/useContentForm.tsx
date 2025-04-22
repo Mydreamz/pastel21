@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,10 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { contentFormSchema, ContentFormValues } from '@/types/content';
+import { useNotifications } from '@/contexts/NotificationContext';
 
 export const useContentForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { notifications, setNotifications } = useNotifications();
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,7 +30,6 @@ export const useContentForm = () => {
     }
   });
 
-  // Check authentication status
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (auth) {
@@ -56,35 +56,31 @@ export const useContentForm = () => {
     }
 
     try {
-      // Create new content object with proper typing
       const newContent: any = {
         id: uuidv4(),
         title: values.title,
         teaser: values.teaser,
         price: values.price,
-        content: "", // Default empty content
+        content: "",
         contentType: selectedContentType,
         creatorId: userData.id,
         creatorName: userData.name,
         expiry: values.expiry || null,
+        scheduledFor: values.scheduledFor || null,
+        scheduledTime: values.scheduledTime || null,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        status: values.scheduledFor ? 'scheduled' : 'published'
       };
 
-      // Handle different content types
       if (selectedContentType === 'text' || selectedContentType === 'link') {
         newContent.content = values.content || '';
       } else if (selectedFile) {
-        // For file-based content, store file metadata
-        // In a real app, you'd upload the file to storage and store the URL
-        // Here we'll create an object URL for preview purposes
         const fileUrl = URL.createObjectURL(selectedFile);
         newContent.fileUrl = fileUrl;
         newContent.fileName = selectedFile.name;
         newContent.fileType = selectedFile.type;
         newContent.fileSize = selectedFile.size;
-        
-        // We also store a reference to the content for description
         newContent.content = values.content || '';
       } else if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
         toast({
@@ -95,19 +91,17 @@ export const useContentForm = () => {
         return;
       }
       
-      // Get existing contents array or create empty one
       const existingContents = JSON.parse(localStorage.getItem('contents') || '[]');
       existingContents.push(newContent);
-      
-      // Save back to local storage
       localStorage.setItem('contents', JSON.stringify(existingContents));
       
       toast({
-        title: "Content created successfully",
-        description: "Your content has been published"
+        title: values.scheduledFor ? "Content scheduled" : "Content created",
+        description: values.scheduledFor 
+          ? `Your content will be published on ${new Date(values.scheduledFor).toLocaleDateString()} at ${values.scheduledTime}`
+          : "Your content has been published"
       });
       
-      // Navigate to success page with content data
       navigate('/success', { state: { content: newContent } });
     } catch (error) {
       console.error("Error saving content:", error);

@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, FileText, LockIcon, MessageSquare } from 'lucide-react';
+import { ArrowLeft, FileText, Lock } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import ContentPreview from '@/components/ContentPreview';
 import { useViewTracking } from '@/hooks/useViewTracking';
@@ -23,7 +22,7 @@ const ViewContent = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   // Track view of this content
-  useViewTracking(id);
+  useViewTracking();
 
   useEffect(() => {
     // Check if user is authenticated
@@ -189,7 +188,7 @@ const ViewContent = () => {
             {!isUnlocked ? (
               <div className="bg-white/5 border border-white/10 rounded-lg p-8 text-center">
                 <div className="w-16 h-16 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
-                  <LockIcon className="h-8 w-8 text-emerald-500" />
+                  <Lock className="h-8 w-8 text-emerald-500" />
                 </div>
                 <h2 className="text-xl font-bold mb-2">Premium Content</h2>
                 <p className="text-gray-400 mb-6">
@@ -203,14 +202,20 @@ const ViewContent = () => {
                 </Button>
               </div>
             ) : (
-              <div>
-                <ContentPreview content={content} />
-              </div>
+              <ContentPreview 
+                title={content.title}
+                teaser={content.teaser}
+                price={parseFloat(content.price)}
+                type={content.contentType}
+                expiryDate={content.expiry}
+                onPaymentSuccess={handleUnlock}
+                contentId={content.id}
+              />
             )}
           </div>
         </div>
         
-        {isUnlocked && (
+        {isUnlocked && content && (
           <CommentSection contentId={id || ''} creatorId={content.creatorId} />
         )}
       </div>
