@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare, ThumbsUp, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { supabase } from '@/integrations/supabase/client';
 
 type Comment = {
   id: string;
@@ -31,7 +31,6 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   const { toast } = useToast();
   const { addNotification } = useNotifications();
 
-  // Check if user is authenticated
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (auth) {
@@ -47,22 +46,26 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
     }
   }, []);
 
-  // Load comments from localStorage
   useEffect(() => {
-    const loadComments = () => {
+    const loadComments = async () => {
       try {
-        const allComments = JSON.parse(localStorage.getItem('comments') || '[]');
-        const contentComments = allComments.filter((comment: Comment) => comment.contentId === contentId);
-        setComments(contentComments);
+        const { data: allComments, error } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('content_id', contentId)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setComments(allComments || []);
       } catch (e) {
         console.error("Error loading comments:", e);
       }
     };
-    
+
     loadComments();
   }, [contentId]);
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication required",
@@ -80,44 +83,30 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       return;
     }
 
-    const comment: Comment = {
-      id: crypto.randomUUID(),
-      contentId,
-      userId: userData.id,
-      userName: userData.name,
+    const commentData = {
+      content_id: contentId,
+      user_id: userData.id,
+      user_name: userData.name,
       text: newComment.trim(),
-      createdAt: new Date().toISOString(),
-      likes: 0
+      created_at: new Date().toISOString()
     };
 
-    // Add to local state
-    setComments(prev => [comment, ...prev]);
-    
-    // Save to localStorage
     try {
-      const allComments = JSON.parse(localStorage.getItem('comments') || '[]');
-      const updatedComments = [comment, ...allComments];
-      localStorage.setItem('comments', JSON.stringify(updatedComments));
-      
-      // Clear the textarea
+      const { data: inserted, error } = await supabase.from('comments').insert([commentData]).select().single();
+      if (error) throw error;
+
+      setComments(prev => [inserted, ...prev]);
       setNewComment('');
-      
-      // Notify the content creator if it's not their own comment
+
       if (userData.id !== creatorId) {
-        // Get the content title
-        const allContents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const content = allContents.find((c: any) => c.id === contentId);
-        
-        if (content) {
-          addNotification({
-            title: 'New Comment',
-            message: `${userData.name} commented on your content "${content.title}"`,
-            type: 'interaction',
-            link: `/view/${contentId}`
-          });
-        }
+        addNotification({
+          title: 'New Comment',
+          message: `${userData.name} commented on your content`,
+          type: 'interaction',
+          link: `/view/${contentId}`
+        });
       }
-      
+
       toast({
         title: "Comment posted"
       });
@@ -127,50 +116,6 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
         title: "Error posting comment",
         variant: "destructive"
       });
-    }
-  };
-
-  const handleLikeComment = (commentId: string) => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to like comments",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Update the comment in local state
-    setComments(prev => prev.map(comment => {
-      if (comment.id === commentId) {
-        const userLiked = comment.userLiked;
-        return {
-          ...comment,
-          likes: userLiked ? comment.likes - 1 : comment.likes + 1,
-          userLiked: !userLiked
-        };
-      }
-      return comment;
-    }));
-
-    // Update in localStorage
-    try {
-      const allComments = JSON.parse(localStorage.getItem('comments') || '[]');
-      const updatedComments = allComments.map((comment: Comment) => {
-        if (comment.id === commentId) {
-          const userLiked = comment.userLiked;
-          return {
-            ...comment,
-            likes: userLiked ? comment.likes - 1 : comment.likes + 1,
-            userLiked: !userLiked
-          };
-        }
-        return comment;
-      });
-      
-      localStorage.setItem('comments', JSON.stringify(updatedComments));
-    } catch (e) {
-      console.error("Error updating comment likes:", e);
     }
   };
 
@@ -227,21 +172,12 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
                       <User className="h-4 w-4 text-emerald-500" />
                     </div>
                     <div>
-                      <div className="font-medium">{comment.userName}</div>
+                      <div className="font-medium">{comment.user_name}</div>
                       <div className="text-xs text-gray-400">
-                        {new Date(comment.createdAt).toLocaleDateString()} at {new Date(comment.createdAt).toLocaleTimeString()}
+                        {new Date(comment.created_at).toLocaleDateString()} at {new Date(comment.created_at).toLocaleTimeString()}
                       </div>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`flex items-center gap-1 text-xs ${comment.userLiked ? 'text-emerald-500' : 'text-gray-400'}`}
-                    onClick={() => handleLikeComment(comment.id)}
-                  >
-                    <ThumbsUp className="h-3 w-3" />
-                    <span>{comment.likes}</span>
-                  </Button>
                 </div>
                 <p className="text-gray-200 pl-10">{comment.text}</p>
               </div>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { contentFormSchema, ContentFormValues } from '@/types/content';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useContentForm = () => {
   const navigate = useNavigate();
@@ -16,9 +17,9 @@ export const useContentForm = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState<any>(null);
-  
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  
+
   const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
     defaultValues: {
@@ -46,7 +47,7 @@ export const useContentForm = () => {
     }
   }, []);
 
-  const onSubmit = (values: ContentFormValues) => {
+  const onSubmit = async (values: ContentFormValues) => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication required",
@@ -57,58 +58,64 @@ export const useContentForm = () => {
     }
 
     try {
-      const newContent: any = {
-        id: uuidv4(),
+      // FILE HANDLING
+      let fileUrl, fileName, fileType, fileSize;
+      if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
+        if (!selectedFile) {
+          toast({
+            title: "File required",
+            description: `Please select a ${selectedContentType} file to upload`,
+            variant: "destructive"
+          });
+          return;
+        }
+        // For now, store file locally (todo: upload to Supabase Storage later)
+        fileUrl = URL.createObjectURL(selectedFile);
+        fileName = selectedFile.name;
+        fileType = selectedFile.type;
+        fileSize = selectedFile.size;
+      }
+
+      // Insert to Supabase
+      const { data, error } = await supabase.from('contents').insert([{
         title: values.title,
         teaser: values.teaser,
         price: values.price,
-        content: "",
-        contentType: selectedContentType,
-        creatorId: userData.id,
-        creatorName: userData.name,
+        content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
+        content_type: selectedContentType,
+        creator_id: userData.id,
+        creator_name: userData.name,
         expiry: values.expiry || null,
-        scheduledFor: values.scheduledFor || null,
-        scheduledTime: values.scheduledTime || null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: values.scheduledFor ? 'scheduled' : 'published'
-      };
+        scheduled_for: values.scheduledFor ?? null,
+        scheduled_time: values.scheduledTime ?? null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        status: values.scheduledFor ? 'scheduled' : 'published',
+        file_url: fileUrl,
+        file_name: fileName,
+        file_type: fileType,
+        file_size: fileSize,
+        tags: values.tags || [],
+        category: values.category || null
+      }]).select().single();
 
-      if (selectedContentType === 'text' || selectedContentType === 'link') {
-        newContent.content = values.content || '';
-      } else if (selectedFile) {
-        const fileUrl = URL.createObjectURL(selectedFile);
-        newContent.fileUrl = fileUrl;
-        newContent.fileName = selectedFile.name;
-        newContent.fileType = selectedFile.type;
-        newContent.fileSize = selectedFile.size;
-        newContent.content = values.content || '';
-      } else if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
-        toast({
-          title: "File required",
-          description: `Please select a ${selectedContentType} file to upload`,
-          variant: "destructive"
-        });
-        return;
+      if (error) {
+        throw error;
       }
-      
-      const existingContents = JSON.parse(localStorage.getItem('contents') || '[]');
-      existingContents.push(newContent);
-      localStorage.setItem('contents', JSON.stringify(existingContents));
-      
+
       toast({
         title: values.scheduledFor ? "Content scheduled" : "Content created",
-        description: values.scheduledFor 
+        description: values.scheduledFor
           ? `Your content will be published on ${new Date(values.scheduledFor).toLocaleDateString()} at ${values.scheduledTime}`
           : "Your content has been published"
       });
-      
-      navigate('/success', { state: { content: newContent } });
-    } catch (error) {
+
+      navigate('/success', { state: { content: data } });
+    } catch (error: any) {
       console.error("Error saving content:", error);
       toast({
         title: "Error creating content",
-        description: "There was a problem saving your content",
+        description: error.message || "There was a problem saving your content",
         variant: "destructive"
       });
     }

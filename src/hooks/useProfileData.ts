@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useProfileData = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ export const useProfileData = () => {
 
   useEffect(() => {
     // Check if user is logged in
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const auth = localStorage.getItem('auth');
       if (auth) {
         try {
@@ -21,18 +21,23 @@ export const useProfileData = () => {
           if (parsedAuth && parsedAuth.user) {
             setIsAuthenticated(true);
             setUserData(parsedAuth.user);
-            
-            // Get user contents
-            const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-            const userContents = contents.filter((content: any) => content.creatorId === parsedAuth.user.id);
-            setUserContents(userContents);
-            
-            // Calculate balance from unlocked content
-            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-            const userEarnings = transactions
-              .filter((tx: any) => tx.creatorId === parsedAuth.user.id)
+
+            // Get user contents from Supabase
+            const { data: contents } = await supabase
+              .from('contents')
+              .select('*')
+              .eq('creator_id', parsedAuth.user.id);
+            setUserContents(contents || []);
+
+            // Calculate balance from unlocked content (transactions)
+            const { data: transactions } = await supabase
+              .from('transactions')
+              .select('*')
+              .eq('creator_id', parsedAuth.user.id);
+
+            const userEarnings = (transactions || [])
               .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
-            
+
             setBalance(userEarnings);
           } else {
             redirectToHome();
@@ -45,7 +50,7 @@ export const useProfileData = () => {
         redirectToHome();
       }
     };
-    
+
     checkAuth();
   }, [navigate]);
   
@@ -70,23 +75,23 @@ export const useProfileData = () => {
     navigate(`/edit/${contentId}`);
   };
   
-  const handleDeleteContent = (contentId: string) => {
+  const handleDeleteContent = async (contentId: string) => {
     try {
-      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-      const updatedContents = contents.filter((content: any) => content.id !== contentId);
-      localStorage.setItem('contents', JSON.stringify(updatedContents));
-      
+      // Delete from Supabase
+      const { error } = await supabase.from('contents').delete().eq('id', contentId);
+      if (error) throw error;
+
       setUserContents(prevContents => prevContents.filter(content => content.id !== contentId));
-      
+
       toast({
         title: "Content deleted",
         description: "Your content has been successfully deleted."
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting content:", error);
       toast({
         title: "Delete failed",
-        description: "An error occurred while deleting your content.",
+        description: error.message || "An error occurred while deleting your content.",
         variant: "destructive"
       });
     }

@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Content } from '@/types/content';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useViewContent = (id: string | undefined) => {
   const navigate = useNavigate();
@@ -32,37 +34,45 @@ export const useViewContent = (id: string | undefined) => {
       }
       return null;
     };
-    
+
     const loadContent = async () => {
       if (!id) {
         setError("No content ID provided");
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
-        console.log("useViewContent: Loading content with ID:", id);
-        
-        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const foundContent = contents.find((item: any) => item.id === id);
-        
+        // Supabase query for the content
+        const { data: foundContent, error: contentError } = await supabase
+          .from('contents')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (contentError) {
+          throw contentError;
+        }
+
         if (foundContent) {
-          console.log("useViewContent: Found content:", foundContent);
-          setContent(foundContent);
+          setContent(foundContent as Content);
           const user = checkAuth();
-          
+
           if (user) {
-            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-            const userHasTransaction = transactions.some(
-              (tx: any) => tx.contentId === id && tx.userId === user.id
-            );
-            
-            console.log("useViewContent: User has transaction:", userHasTransaction);
-            const isCreator = foundContent.creatorId === user.id;
-            
+            // Query for transactions
+            const { data: transactions } = await supabase
+              .from('transactions')
+              .select('*')
+              .eq('content_id', id)
+              .eq('user_id', user.id);
+
+            const userHasTransaction = (transactions && transactions.length > 0);
+
+            const isCreator = foundContent.creator_id === user.id;
+
             if (
-              parseFloat(foundContent.price) === 0 || 
+              parseFloat(foundContent.price) === 0 ||
               isCreator ||
               userHasTransaction
             ) {
@@ -71,28 +81,27 @@ export const useViewContent = (id: string | undefined) => {
               navigate(`/preview/${id}`);
             }
           } else if (
-            window.location.pathname.startsWith('/view/') && 
+            window.location.pathname.startsWith('/view/') &&
             parseFloat(foundContent.price) > 0
           ) {
             navigate(`/preview/${id}`);
           }
         } else {
-          console.error("Content not found for ID:", id);
           setError("Content not found");
           setContent(null);
         }
-      } catch (e) {
-        console.error("Error fetching content:", e);
-        setError("Error loading content");
+      } catch (e: any) {
+        setError(e.message || "Error loading content");
       } finally {
         setLoading(false);
       }
     };
-    
-    loadContent();
-  }, [id, navigate]);
 
-  const handleUnlock = () => {
+    loadContent();
+    // eslint-disable-next-line
+  }, [id]);
+
+  const handleUnlock = async () => {
     if (!isAuthenticated) {
       toast({
         title: "Authentication required",
@@ -101,46 +110,45 @@ export const useViewContent = (id: string | undefined) => {
       });
       return;
     }
-    
+
     if (!content) return;
-    
+
     try {
-      const transaction = {
-        id: crypto.randomUUID(),
-        contentId: id,
-        userId: userData.id,
-        creatorId: content.creatorId,
+      // Insert transaction
+      const { error: transactionError } = await supabase.from('transactions').insert([{
+        content_id: id,
+        user_id: userData.id,
+        creator_id: content.creator_id,
         amount: content.price,
         timestamp: new Date().toISOString()
-      };
-      
-      const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-      transactions.push(transaction);
-      localStorage.setItem('transactions', JSON.stringify(transactions));
-      
+      }]);
+
+      if (transactionError) {
+        throw transactionError;
+      }
+
       setIsUnlocked(true);
-      
+
       toast({
         title: "Content unlocked",
-        description: `Thank you for your purchase of $${content.price ? parseFloat(content.price).toFixed(2) : '0.00'}`
+        description: `Thank you for your purchase of $${parseFloat(content.price).toFixed(2)}`
       });
-      
+
       navigate(`/view/${id}`);
-      
+
       if (content && userData) {
         addNotification({
           title: "New Purchase",
-          message: `${userData.name} purchased your content "${content.title}" for $${content.price ? parseFloat(content.price).toFixed(2) : '0.00'}`,
+          message: `${userData.name} purchased your content "${content.title}" for $${parseFloat(content.price).toFixed(2)}`,
           type: 'content',
           link: `/profile`
         });
       }
-      
-    } catch (e) {
-      console.error("Error processing transaction:", e);
+
+    } catch (e: any) {
       toast({
         title: "Transaction failed",
-        description: "There was a problem processing your purchase",
+        description: e.message || "There was a problem processing your purchase",
         variant: "destructive"
       });
     }
