@@ -2,7 +2,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
-import ContentPreview from '@/components/ContentPreview';
 import { useViewTracking } from '@/hooks/useViewTracking';
 import CommentSection from '@/components/content/CommentSection';
 import ContentLoader from '@/components/content/ContentLoader';
@@ -21,23 +20,38 @@ const ViewContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  // Check if user is the content creator
-  const isCreator = content?.creatorId === JSON.parse(localStorage.getItem('auth') || '{}')?.user?.id;
-
-  useEffect(() => {
-    // If content exists and has a price > 0 and user is not the creator and content is not unlocked
-    // Then redirect to preview
-    if (content && 
-        parseFloat(content.price) > 0 && 
-        !isCreator && 
-        !isUnlocked) {
-      navigate(`/preview/${id}`);
-    }
-  }, [content, isCreator, isUnlocked, id, navigate]);
+  const [isCreator, setIsCreator] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   // Track view of this content
   useViewTracking();
+  
+  useEffect(() => {
+    // Check if user is the content creator
+    if (content) {
+      const auth = localStorage.getItem('auth');
+      if (auth) {
+        try {
+          const parsedAuth = JSON.parse(auth);
+          if (parsedAuth && parsedAuth.user) {
+            setIsCreator(content.creatorId === parsedAuth.user.id);
+          }
+        } catch (e) {
+          console.error("Auth parsing error", e);
+        }
+      }
+      
+      // If content exists and has a price > 0 and user is not the creator and content is not unlocked
+      // Then redirect to preview
+      if (!redirecting && 
+          parseFloat(content.price) > 0 && 
+          !isCreator && 
+          !isUnlocked) {
+        setRedirecting(true);
+        navigate(`/preview/${id}`);
+      }
+    }
+  }, [content, isUnlocked, id, navigate, redirecting]);
 
   const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
     try {
@@ -201,7 +215,7 @@ const ViewContent = () => {
                     >
                       <source src={content.fileUrl} type={content.fileType} />
                       Your browser does not support the audio tag.
-                    </audio>
+                    </source>
                   )}
                   
                   {content.contentType === 'document' && (

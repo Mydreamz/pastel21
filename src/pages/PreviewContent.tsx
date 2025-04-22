@@ -9,12 +9,28 @@ import { useViewContent } from '@/hooks/useViewContent';
 import { Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
   const { content, loading, error, handleUnlock } = useViewContent(id);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (auth) {
+      try {
+        const parsedAuth = JSON.parse(auth);
+        if (parsedAuth && parsedAuth.user) {
+          setIsAuthenticated(true);
+        }
+      } catch (e) {
+        console.error("Auth parsing error", e);
+      }
+    }
+  }, []);
 
   const handleShare = async () => {
     try {
@@ -35,6 +51,21 @@ const PreviewContent = () => {
   const handleSuccessfulPayment = () => {
     // Redirect to full content view after successful payment
     navigate(`/view/${id}`);
+  };
+
+  const handlePurchase = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to purchase this content",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (handleUnlock) {
+      handleUnlock();
+    }
   };
 
   if (loading) {

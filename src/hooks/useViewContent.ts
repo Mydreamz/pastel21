@@ -17,38 +17,48 @@ export const useViewContent = (id: string | undefined) => {
   const [isUnlocked, setIsUnlocked] = useState(false);
 
   useEffect(() => {
-    const auth = localStorage.getItem('auth');
-    if (auth) {
-      try {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          setIsAuthenticated(true);
-          setUserData(parsedAuth.user);
+    const checkAuth = () => {
+      const auth = localStorage.getItem('auth');
+      if (auth) {
+        try {
+          const parsedAuth = JSON.parse(auth);
+          if (parsedAuth && parsedAuth.user) {
+            setIsAuthenticated(true);
+            setUserData(parsedAuth.user);
+            return parsedAuth.user;
+          }
+        } catch (e) {
+          console.error("Auth parsing error", e);
         }
-      } catch (e) {
-        console.error("Auth parsing error", e);
       }
-    }
+      return null;
+    };
     
-    if (id) {
+    const loadContent = async () => {
+      if (!id) return;
+      
       try {
+        setLoading(true);
         const contents = JSON.parse(localStorage.getItem('contents') || '[]');
         const foundContent = contents.find((item: any) => item.id === id);
         
         if (foundContent) {
           setContent(foundContent);
+          const user = checkAuth();
           
-          const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-          const userHasTransaction = transactions.some(
-            (tx: any) => tx.contentId === id && tx.userId === (userData?.id || '')
-          );
-          
-          if (
-            parseFloat(foundContent.price) === 0 || 
-            foundContent.creatorId === userData?.id ||
-            userHasTransaction
-          ) {
-            setIsUnlocked(true);
+          if (user) {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const userHasTransaction = transactions.some(
+              (tx: any) => tx.contentId === id && tx.userId === user.id
+            );
+            
+            if (
+              parseFloat(foundContent.price) === 0 || 
+              foundContent.creatorId === user.id ||
+              userHasTransaction
+            ) {
+              setIsUnlocked(true);
+            }
           }
         } else {
           setError("Content not found");
@@ -56,11 +66,13 @@ export const useViewContent = (id: string | undefined) => {
       } catch (e) {
         console.error("Error fetching content:", e);
         setError("Error loading content");
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
-    }
-  }, [id, userData]);
+    };
+    
+    loadContent();
+  }, [id]);
 
   const handleUnlock = () => {
     if (!isAuthenticated) {
@@ -69,17 +81,18 @@ export const useViewContent = (id: string | undefined) => {
         description: "Please sign in to unlock this content",
         variant: "destructive"
       });
-      navigate(`/preview/${id}`);
       return;
     }
+    
+    if (!content) return;
     
     try {
       const transaction = {
         id: crypto.randomUUID(),
         contentId: id,
         userId: userData.id,
-        creatorId: content?.creatorId,
-        amount: content?.price,
+        creatorId: content.creatorId,
+        amount: content.price,
         timestamp: new Date().toISOString()
       };
       
@@ -91,7 +104,7 @@ export const useViewContent = (id: string | undefined) => {
       
       toast({
         title: "Content unlocked",
-        description: `Thank you for your purchase of $${content?.price ? parseFloat(content.price).toFixed(2) : '0.00'}`
+        description: `Thank you for your purchase of $${content.price ? parseFloat(content.price).toFixed(2) : '0.00'}`
       });
       
       // Redirect to full content view
