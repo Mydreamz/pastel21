@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -6,7 +5,7 @@ import { useViewTracking } from '@/hooks/useViewTracking';
 import CommentSection from '@/components/content/CommentSection';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
-import LockedContent from '@/components/content/LockedContent';
+import PaymentFlow from '@/components/content/PaymentFlow';
 import ContentDisplay from '@/components/content/ContentDisplay';
 import ContentActions from '@/components/content/ContentActions';
 import CreatorControls from '@/components/content/CreatorControls';
@@ -20,7 +19,6 @@ const ViewContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
-  const [redirecting, setRedirecting] = useState(false);
 
   // Track view of this content
   useViewTracking();
@@ -39,11 +37,8 @@ const ViewContent = () => {
           console.error("Auth parsing error", e);
         }
       }
-      
-      // Remove the automatic redirect to prevent users from being unable to access the payment button
-      // Only redirect if specifically requested by user action
     }
-  }, [content, isUnlocked, id, navigate]);
+  }, [content]);
 
   const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
     try {
@@ -128,9 +123,13 @@ const ViewContent = () => {
             )}
           </ContentActions>
           
-          {!isUnlocked && !isCreator && parseFloat(content.price) > 0 ? (
-            <LockedContent price={content.price} onUnlock={handleUnlock} />
-          ) : (
+          <PaymentFlow 
+            content={content} 
+            onUnlock={handleUnlock} 
+            isCreator={isCreator} 
+          />
+
+          {(isUnlocked || isCreator) && (
             <ContentDisplay content={content} />
           )}
         </div>
