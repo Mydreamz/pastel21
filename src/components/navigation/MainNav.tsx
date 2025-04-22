@@ -12,16 +12,29 @@ import {
 import { Search, User } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import ThemeToggle from '@/components/navigation/ThemeToggle';
+import { useAuth } from '@/App';
+import { supabase } from '@/integrations/supabase/client';
 
 type MainNavProps = {
-  isAuthenticated: boolean;
-  userData: any;
-  handleLogout: () => void;
   openAuthDialog: (tab: 'login' | 'signup') => void;
 };
 
-const MainNav = ({ isAuthenticated, userData, handleLogout, openAuthDialog }: MainNavProps) => {
+const MainNav = ({ openAuthDialog }: MainNavProps) => {
   const navigate = useNavigate();
+  const { user, session } = useAuth();
+  
+  const isAuthenticated = !!session;
+  
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+  
+  const userName = user?.user_metadata?.name || 
+                   user?.email?.split('@')[0] || 
+                   'User';
+  
+  const userEmail = user?.email || '';
   
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
@@ -59,7 +72,7 @@ const MainNav = ({ isAuthenticated, userData, handleLogout, openAuthDialog }: Ma
             <Search className="h-4 w-4" />
           </Button>
           
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <>
               <NotificationDropdown />
               
@@ -81,8 +94,8 @@ const MainNav = ({ isAuthenticated, userData, handleLogout, openAuthDialog }: Ma
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-black/90 border border-white/10 text-white">
                   <div className="px-3 py-2">
-                    <p className="font-medium">{userData.name}</p>
-                    <p className="text-sm text-gray-400">{userData.email}</p>
+                    <p className="font-medium">{userName}</p>
+                    <p className="text-sm text-gray-400">{userEmail}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/10"/>
                   <DropdownMenuItem 

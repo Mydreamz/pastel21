@@ -1,10 +1,10 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { ArrowLeft, Lock, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useContentForm } from '@/hooks/useContentForm';
 import BasicInfoFields from '@/components/content/BasicInfoFields';
@@ -12,15 +12,12 @@ import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentScheduler from '@/components/content/ContentScheduler';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/App';
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [forceRedirect, setForceRedirect] = useState(false);
-  const [isManuallyChecking, setIsManuallyChecking] = useState(true);
+  const { user, isLoading } = useAuth();
   
   const {
     form,
@@ -35,94 +32,6 @@ const CreateContent = () => {
     isAuthChecking
   } = useContentForm();
 
-  // Additional authentication check at component mount
-  useEffect(() => {
-    let isMounted = true; // To prevent state updates after unmount
-    
-    const verifyAuth = async () => {
-      if (!isMounted) return;
-      
-      setIsManuallyChecking(true);
-      
-      try {
-        // Check if we have a valid session
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
-        // If there's an error or no session
-        if (error || !data.session) {
-          console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
-          
-          setForceRedirect(true);
-          toast({
-            title: "Authentication required",
-            description: "Please sign in to create content",
-            variant: "destructive"
-          });
-          
-          // Add a slight delay to ensure the toast is visible before redirecting
-          setTimeout(() => {
-            if (isMounted) navigate('/');
-          }, 1500);
-          
-          setIsManuallyChecking(false);
-          return;
-        }
-        
-        setIsManuallyChecking(false);
-      } catch (e) {
-        if (!isMounted) return;
-        
-        console.error("Auth verification error in CreateContent:", e);
-        setForceRedirect(true);
-        toast({
-          title: "Authentication error",
-          description: "There was a problem verifying your authentication. Please sign in again.",
-          variant: "destructive"
-        });
-        
-        setTimeout(() => {
-          if (isMounted) navigate('/');
-        }, 1500);
-        
-        setIsManuallyChecking(false);
-      }
-    };
-
-    // Only run this verification if auth checking is complete
-    if (!isAuthChecking) {
-      verifyAuth();
-    }
-    
-    return () => {
-      isMounted = false; // Prevent state updates after unmount
-    };
-  }, [isAuthChecking, navigate, toast]);
-
-  // When auth checking completes and user is not authenticated, redirect
-  useEffect(() => {
-    let isMounted = true;
-    
-    if (!isAuthChecking && !isAuthenticated && !isManuallyChecking && isMounted) {
-      console.log("User not authenticated after auth checks - redirecting");
-      setForceRedirect(true);
-      toast({
-        title: "Authentication required", 
-        description: "Please sign in to create content",
-        variant: "destructive"
-      });
-      
-      setTimeout(() => {
-        if (isMounted) navigate('/');
-      }, 1500);
-    }
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [isAuthenticated, isAuthChecking, isManuallyChecking, navigate, toast]);
-
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
     const formData = form.getValues();
     const scheduled = {
@@ -133,7 +42,8 @@ const CreateContent = () => {
     onSubmit(scheduled);
   };
 
-  if (isAuthChecking || isManuallyChecking) {
+  // Show loading state while checking auth
+  if (isAuthChecking || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-white text-center">
@@ -144,12 +54,20 @@ const CreateContent = () => {
     );
   }
 
-  if (forceRedirect || !isAuthenticated) {
+  // If not authenticated, show a message and redirect
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Redirecting to sign in...</p>
+        <div className="text-white text-center max-w-md p-8">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold mb-4">Authentication Required</h2>
+          <p className="mb-6">You need to be signed in to create content. You'll be redirected to the home page.</p>
+          <Button 
+            onClick={() => navigate('/')}
+            className="bg-emerald-500 hover:bg-emerald-600"
+          >
+            Go to Home Page
+          </Button>
         </div>
       </div>
     );
@@ -173,23 +91,6 @@ const CreateContent = () => {
               <CardDescription className="text-gray-300">
                 Share and monetize your content with a secure paywall
               </CardDescription>
-              
-              {!isAuthenticated && (
-                <Alert className="mt-4 bg-red-900/30 border-red-800 text-white">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Authentication required</AlertTitle>
-                  <AlertDescription>
-                    You need to sign in before creating content. Your work won't be saved until you sign in.
-                    <Button 
-                      className="bg-red-500 hover:bg-red-600 mt-2 text-white"
-                      size="sm"
-                      onClick={() => navigate('/')}
-                    >
-                      Go to sign in
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              )}
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -216,16 +117,14 @@ const CreateContent = () => {
                       variant="outline" 
                       onClick={() => setShowScheduler(true)}
                       className="border-gray-700 hover:border-gray-600 text-gray-300"
-                      disabled={!isAuthenticated}
                     >
                       Schedule
                     </Button>
                     <Button 
                       type="submit" 
                       className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                      disabled={!isAuthenticated}
                     >
-                      {isAuthenticated ? "Create Content" : "Sign in required"}
+                      Create Content
                     </Button>
                   </div>
                 </form>

@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { contentFormSchema, ContentFormValues } from '@/types/content';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/App';
 
 export const useContentForm = () => {
   const navigate = useNavigate();
@@ -14,10 +15,7 @@ export const useContentForm = () => {
   const { notifications, addNotification } = useNotifications();
   const [selectedContentType, setSelectedContentType] = useState<string>('text');
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
-
+  const { user, session, isLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const form = useForm<ContentFormValues>({
@@ -32,76 +30,10 @@ export const useContentForm = () => {
     }
   });
 
-  useEffect(() => {
-    let subscription: any;
-    
-    // Improved authentication checking function
-    const checkAuth = async () => {
-      setIsAuthChecking(true);
-      
-      try {
-        // Check existing session immediately
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          setIsAuthenticated(false);
-          setUserData(null);
-          setIsAuthChecking(false);
-          return;
-        }
-        
-        // If session exists, update state
-        if (sessionData.session) {
-          console.log("Active session found with ID:", sessionData.session.user.id);
-          setIsAuthenticated(true);
-          setUserData(sessionData.session.user);
-        } else {
-          console.log("No active session found");
-          setIsAuthenticated(false);
-          setUserData(null);
-        }
-        
-        // Set up auth state listener for real-time updates
-        // Using setTimeout to avoid potential race conditions
-        setTimeout(() => {
-          const { data } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log("Auth state changed:", event, session ? session.user.id : "undefined");
-            setIsAuthenticated(!!session);
-            setUserData(session?.user || null);
-          });
-          
-          subscription = data.subscription;
-          setIsAuthChecking(false);
-        }, 0);
-      } catch (e) {
-        console.error("Authentication check failed:", e);
-        setIsAuthenticated(false);
-        setUserData(null);
-        setIsAuthChecking(false);
-      }
-    };
-
-    checkAuth();
-    
-    return () => {
-      if (subscription) {
-        subscription.unsubscribe();
-      }
-    };
-  }, []);
-
   const onSubmit = async (values: ContentFormValues) => {
-    // Double-check authentication before proceeding
+    // Verify authentication before proceeding
     try {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw new Error(`Session error: ${sessionError.message}`);
-      }
-      
-      if (!sessionData.session) {
+      if (!session || !user) {
         toast({
           title: "Authentication required",
           description: "Please sign in to create content",
@@ -130,9 +62,9 @@ export const useContentForm = () => {
       }
 
       // Ensure we're using the most current user data
-      const userId = sessionData.session.user.id;
-      const userName = sessionData.session.user.user_metadata?.name || 
-                       sessionData.session.user.email?.split('@')[0] || 
+      const userId = user.id;
+      const userName = user.user_metadata?.name || 
+                       user.email?.split('@')[0] || 
                        'Anonymous';
 
       // Map properties for Supabase and convert dates to strings
@@ -192,8 +124,8 @@ export const useContentForm = () => {
     setSelectedFile,
     showAdvanced,
     setShowAdvanced,
-    isAuthenticated,
-    isAuthChecking,
-    userData
+    isAuthenticated: !!user,
+    isAuthChecking: isLoading,
+    userData: user
   };
 };
