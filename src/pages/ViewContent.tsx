@@ -40,17 +40,10 @@ const ViewContent = () => {
         }
       }
       
-      // If content exists and has a price > 0 and user is not the creator and content is not unlocked
-      // Then redirect to preview
-      if (!redirecting && 
-          parseFloat(content.price) > 0 && 
-          !isCreator && 
-          !isUnlocked) {
-        setRedirecting(true);
-        navigate(`/preview/${id}`);
-      }
+      // Remove the automatic redirect to prevent users from being unable to access the payment button
+      // Only redirect if specifically requested by user action
     }
-  }, [content, isUnlocked, id, navigate, redirecting]);
+  }, [content, isUnlocked, id, navigate]);
 
   const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
     try {
@@ -135,7 +128,7 @@ const ViewContent = () => {
             )}
           </ContentActions>
           
-          {!isUnlocked && !isCreator ? (
+          {!isUnlocked && !isCreator && parseFloat(content.price) > 0 ? (
             <LockedContent price={content.price} onUnlock={handleUnlock} />
           ) : (
             <ContentDisplay content={content} />

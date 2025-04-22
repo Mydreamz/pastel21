@@ -23,7 +23,7 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-lg p-8 text-center">
+    <div className="bg-white/5 border border-white/10 rounded-lg p-8 text-center my-8">
       <div className="w-16 h-16 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center mb-4">
         <Lock className="h-8 w-8 text-emerald-500" />
       </div>
@@ -34,7 +34,7 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
       <Button 
         onClick={handleUnlock} 
         size="lg"
-        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-6 flex items-center justify-center w-full md:w-auto"
+        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-6 flex items-center justify-center w-full md:w-auto mx-auto"
         disabled={isProcessing}
       >
         {isProcessing ? (
