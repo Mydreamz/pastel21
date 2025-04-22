@@ -49,11 +49,13 @@ export const useProfileData = () => {
       }
     };
 
-    if (!session && !isLoading) {
-      // Only redirect if we've checked auth status and user is not logged in
-      redirectToHome();
-    } else if (session && user) {
-      fetchUserData();
+    if (!isLoading) {
+      if (!session) {
+        // Only redirect if we've checked auth status and user is not logged in
+        redirectToHome();
+      } else if (session && user) {
+        fetchUserData();
+      }
     }
   }, [user, session, navigate, toast, isLoading]);
   

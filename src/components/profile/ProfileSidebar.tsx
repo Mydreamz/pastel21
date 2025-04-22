@@ -4,9 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { User, Wallet } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSidebarProps {
   userData: any;
@@ -15,9 +12,6 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
@@ -28,23 +22,6 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   const createdAt = userData?.created_at 
     ? new Date(userData.created_at).toLocaleDateString() 
     : 'Unknown';
-  
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully"
-      });
-      navigate('/');
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast({
-        title: "Logout failed",
-        description: "There was a problem logging out. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
   
   return (
     <Card className="glass-card border-white/10 text-white">
@@ -78,7 +55,7 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={handleLogout} variant="outline" className="w-full border-white/10 hover:bg-white/10">
+        <Button onClick={onLogout} variant="outline" className="w-full border-white/10 hover:bg-white/10">
           Logout
         </Button>
       </CardFooter>

@@ -50,6 +50,44 @@ const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   
+  // Handle access token in URL hash (for email confirmations)
+  useEffect(() => {
+    // This handles the redirect from email confirmation
+    const handleEmailConfirmation = async () => {
+      const hash = window.location.hash;
+      
+      if (hash && hash.includes('access_token')) {
+        try {
+          // Process the hash fragment containing the access token
+          const { data, error } = await supabase.auth.getSessionFromUrl();
+          
+          if (error) {
+            console.error("Error processing authentication URL:", error);
+          } else if (data?.session) {
+            console.log("Successfully authenticated from URL");
+            setSession(data.session);
+            setUser(data.session.user);
+            
+            // Store auth data in localStorage for backward compatibility
+            const authData = {
+              isAuthenticated: true,
+              token: data.session.access_token,
+              user: data.session.user,
+            };
+            localStorage.setItem('auth', JSON.stringify(authData));
+            
+            // Clear the hash fragment from the URL to avoid authentication on page refresh
+            window.location.hash = '';
+          }
+        } catch (error) {
+          console.error("Failed to process authentication URL:", error);
+        }
+      }
+    };
+    
+    handleEmailConfirmation();
+  }, []);
+  
   // Initialize Supabase auth listener at application startup
   useEffect(() => {
     console.log("App: Setting up auth state management");
