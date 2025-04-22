@@ -40,11 +40,39 @@ export const validateFile = (
   }
 
   // Check file type
-  if (acceptTypes && !file.type.match(acceptTypes.replace(/\*/g, '.*'))) {
-    return { 
-      isValid: false, 
-      error: `Invalid file type. Please upload a valid file.`
-    };
+  if (acceptTypes) {
+    const fileType = file.type;
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    
+    // Handle wildcards like 'image/*'
+    if (acceptTypes.includes('/*')) {
+      const acceptMainType = acceptTypes.split('/')[0];
+      const fileMainType = fileType.split('/')[0];
+      
+      if (acceptMainType !== fileMainType) {
+        return { 
+          isValid: false, 
+          error: `Invalid file type. Please upload a valid ${acceptMainType} file.`
+        };
+      }
+    } 
+    // Handle specific extensions like .pdf,.doc
+    else if (acceptTypes.includes(',') && acceptTypes.includes('.')) {
+      const allowedExtensions = acceptTypes.split(',');
+      if (!allowedExtensions.some(ext => fileExtension === ext || file.name.toLowerCase().endsWith(ext))) {
+        return { 
+          isValid: false, 
+          error: `Invalid file type. Allowed formats: ${acceptTypes.replace(/\./g, '').replace(/,/g, ', ')}`
+        };
+      }
+    }
+    // Handle specific MIME types
+    else if (!fileType.match(acceptTypes.replace(/\*/g, '.*'))) {
+      return { 
+        isValid: false, 
+        error: `Invalid file type. Please upload a valid file.`
+      };
+    }
   }
 
   // Check file size

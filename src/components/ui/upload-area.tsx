@@ -8,9 +8,10 @@ type UploadAreaProps = {
   type: 'image' | 'video' | 'audio' | 'document';
   isDragging: boolean;
   onButtonClick: () => void;
+  accept?: string;
 };
 
-const UploadArea = ({ type, isDragging, onButtonClick }: UploadAreaProps) => {
+const UploadArea = ({ type, isDragging, onButtonClick, accept }: UploadAreaProps) => {
   const FileIcon = getFileIcon(type);
   
   return (
@@ -29,6 +30,11 @@ const UploadArea = ({ type, isDragging, onButtonClick }: UploadAreaProps) => {
         <Upload className="mr-2 h-4 w-4" />
         Browse
       </Button>
+      {accept && (
+        <p className="text-xs text-gray-400 mt-2">
+          Accepted formats: {accept.replace(/\./g, '').replace(/,/g, ', ')}
+        </p>
+      )}
     </div>
   );
 };

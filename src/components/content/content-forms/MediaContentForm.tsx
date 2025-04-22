@@ -26,8 +26,11 @@ const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaCo
       {setSelectedFile && (
         <FileUpload
           type={type}
-          value={selectedFile || null}
-          onChange={file => setSelectedFile(file)}
+          value={selectedFile}
+          onChange={(file) => {
+            setSelectedFile(file);
+            // If a description field should be updated based on file name, add that logic here
+          }}
         />
       )}
       

@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { getAcceptString, validateFile } from "@/lib/fileUtils";
 import FilePreview from "./file-preview";
@@ -27,12 +27,25 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const acceptTypes = accept || getAcceptString(type);
 
+  // Reset file input when value is cleared
+  useEffect(() => {
+    if (!value && fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [value]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     validateAndSetFile(file);
   };
 
   const validateAndSetFile = (file: File | null) => {
+    if (!file) {
+      onChange(null);
+      setError(null);
+      return;
+    }
+
     const { isValid, error } = validateFile(file, acceptTypes, maxSize);
     
     if (!isValid) {
@@ -82,6 +95,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
             type={type}
             isDragging={isDragging}
             onButtonClick={handleButtonClick}
+            accept={acceptTypes}
           />
         ) : (
           <FilePreview
