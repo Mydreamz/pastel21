@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -19,6 +20,11 @@ const ViewContent = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
+  
+  // Debugging logs to understand component state
+  console.log('Content loaded:', content);
+  console.log('Is content unlocked:', isUnlocked);
+  console.log('Is creator:', isCreator);
 
   // Track view of this content
   useViewTracking();
@@ -123,6 +129,7 @@ const ViewContent = () => {
             )}
           </ContentActions>
           
+          {/* PaymentFlow component that handles unlocking content */}
           <PaymentFlow 
             content={content} 
             onUnlock={handleUnlock} 

@@ -31,40 +31,42 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
 
     setIsProcessing(true);
     
-    try {
-      // Trigger payment process
-      onUnlock();
-      
-      toast({
-        title: "Payment Successful",
-        description: `You've unlocked "${content.title}"`,
-        variant: "default"
-      });
-    } catch (error) {
-      toast({
-        title: "Payment Failed",
-        description: "Unable to process your payment. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+    // Simulate payment process for demonstration
+    setTimeout(() => {
+      try {
+        onUnlock();
+        
+        toast({
+          title: "Payment Successful",
+          description: `You've unlocked "${content.title}"`,
+          variant: "default"
+        });
+      } catch (error) {
+        toast({
+          title: "Payment Failed",
+          description: "Unable to process your payment. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 1500);
   };
 
-  // Only show locked content if:
-  // 1. Content has a price > 0
-  // 2. User is not the creator
+  // Return LockedContent if the content has a price > 0 and user is not the creator
+  // This ensures the payment button is always visible for paid content
   if (parseFloat(content.price) > 0 && !isCreator) {
     return (
       <LockedContent 
         price={content.price} 
         onUnlock={handleUnlock}
         contentTitle={content.title}
+        isProcessing={isProcessing}
       />
     );
   }
 
-  // If content is free or user is creator, show content directly
+  // Return null if content is free or user is creator
   return null;
 };
 
