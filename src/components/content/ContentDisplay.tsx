@@ -2,6 +2,7 @@
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, Share2, DollarSign } from 'lucide-react';
+import ContentTags from './ContentTags';
 
 interface ContentDisplayProps {
   content: Content;
@@ -32,6 +33,15 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
           )}
         </div>
       </div>
+      
+      {/* Display tags if available */}
+      {(content.tags?.length || content.category) && (
+        <ContentTags 
+          tags={content.tags} 
+          categories={content.category ? [content.category] : []} 
+          className="mb-4"
+        />
+      )}
       
       {content.contentType === 'text' && content.content && (
         <div className="prose prose-invert max-w-none">
@@ -101,7 +111,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
       <div className="mt-6 flex items-center gap-4 text-sm text-gray-400">
         <div className="flex items-center gap-1">
           <Eye className="h-4 w-4" />
-          <span>{Math.floor(Math.random() * 100) + 5} views</span>
+          <span>{content.views || Math.floor(Math.random() * 100) + 5} views</span>
         </div>
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4" />

@@ -9,8 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import ThemeToggle from '@/components/navigation/ThemeToggle';
 
 type MainNavProps = {
   isAuthenticated: boolean;
@@ -47,6 +48,17 @@ const MainNav = ({ isAuthenticated, userData, handleLogout, openAuthDialog }: Ma
         </div>
         
         <div className="flex items-center space-x-3">
+          <ThemeToggle />
+          
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="w-8 h-8 rounded-full border-none bg-white/5 hover:bg-white/10"
+            onClick={() => navigate('/search')}
+          >
+            <Search className="h-4 w-4" />
+          </Button>
+          
           {isAuthenticated ? (
             <>
               <NotificationDropdown />

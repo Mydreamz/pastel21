@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 
 export const contentFormSchema = z.object({
@@ -9,7 +10,9 @@ export const contentFormSchema = z.object({
   content: z.string().min(1, "Content is required when using text or link").optional(),
   expiry: z.string().optional(),
   scheduledFor: z.date().optional(),
-  scheduledTime: z.string().optional()
+  scheduledTime: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  category: z.string().optional()
 });
 
 export type ContentFormValues = z.infer<typeof contentFormSchema> & {
@@ -30,4 +33,7 @@ export type Content = ContentFormValues & {
   createdAt: string;
   updatedAt: string;
   status: 'draft' | 'scheduled' | 'published';
+  tags?: string[];
+  category?: string;
+  views?: number;
 };
