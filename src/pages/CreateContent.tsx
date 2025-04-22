@@ -19,6 +19,7 @@ const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [forceRedirect, setForceRedirect] = useState(false);
   
   const {
     form,
@@ -43,6 +44,7 @@ const CreateContent = () => {
         // If there's an error or no session and we're not still checking auth
         if ((error || !data.session) && !isAuthChecking) {
           console.log("No session found in CreateContent - redirecting", { error, hasSession: !!data.session });
+          setForceRedirect(true);
           toast({
             title: "Authentication required",
             description: "Please sign in to create content",
@@ -53,6 +55,7 @@ const CreateContent = () => {
         }
       } catch (e) {
         console.error("Auth verification error in CreateContent:", e);
+        setForceRedirect(true);
         toast({
           title: "Authentication error",
           description: "There was a problem verifying your authentication. Please sign in again.",
@@ -84,6 +87,17 @@ const CreateContent = () => {
         <div className="text-white text-center">
           <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
           <p>Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (forceRedirect) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Redirecting to sign in...</p>
         </div>
       </div>
     );

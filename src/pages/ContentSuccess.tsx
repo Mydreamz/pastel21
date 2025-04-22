@@ -21,6 +21,9 @@ const ContentSuccess = () => {
   const shareUrl = `${window.location.origin}/view/${content.id}`;
   const contentTitle = content.title;
 
+  // Debug the content object to ensure we have all necessary data
+  console.log("Content data in ContentSuccess:", content);
+
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative">
       <StarsBackground />
@@ -51,12 +54,14 @@ const ContentSuccess = () => {
             {/* Share button options with clear emphasis */}
             <div className="flex flex-col items-center mt-6 mb-6">
               <h3 className="text-lg font-medium mb-3">Share your content</h3>
-              <ContentActions 
-                onShare={() => {}} // No-op; handled inside ContentActions
-                shareUrl={shareUrl}
-                contentTitle={contentTitle}
-                isCreator={true}
-              />
+              <div className="w-full flex justify-center">
+                <ContentActions 
+                  onShare={() => {}} // No-op; handled inside ContentActions
+                  shareUrl={shareUrl}
+                  contentTitle={contentTitle}
+                  isCreator={true}
+                />
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">

@@ -33,16 +33,20 @@ export const useContentForm = () => {
   });
 
   useEffect(() => {
+    let subscription: any;
+    
     const checkAuth = async () => {
       setIsAuthChecking(true);
       try {
         // Set up auth state listener FIRST for real-time auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
           console.log("Auth state changed:", event, session?.user?.id);
           setIsAuthenticated(!!session);
           setUserData(session?.user || null);
           setIsAuthChecking(false);
         });
+        
+        subscription = data.subscription;
 
         // THEN check for existing session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -70,6 +74,12 @@ export const useContentForm = () => {
     };
 
     checkAuth();
+    
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, []);
 
   const onSubmit = async (values: ContentFormValues) => {
