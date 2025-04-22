@@ -32,18 +32,30 @@ export const useContentForm = () => {
   });
 
   useEffect(() => {
-    const auth = localStorage.getItem('auth');
-    if (auth) {
-      try {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          setIsAuthenticated(true);
-          setUserData(parsedAuth.user);
+    const checkAuth = async () => {
+      // Check for existing session
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        setIsAuthenticated(true);
+        setUserData(data.session.user);
+      } else {
+        // Check local storage as fallback
+        const auth = localStorage.getItem('auth');
+        if (auth) {
+          try {
+            const parsedAuth = JSON.parse(auth);
+            if (parsedAuth && parsedAuth.user) {
+              setIsAuthenticated(true);
+              setUserData(parsedAuth.user);
+            }
+          } catch (e) {
+            console.error("Auth parsing error", e);
+          }
         }
-      } catch (e) {
-        console.error("Auth parsing error", e);
       }
-    }
+    };
+
+    checkAuth();
   }, []);
 
   const onSubmit = async (values: ContentFormValues) => {
@@ -53,6 +65,7 @@ export const useContentForm = () => {
         description: "Please sign in to create content",
         variant: "destructive"
       });
+      navigate('/'); // Redirect to main page where auth dialog can be opened
       return;
     }
 
@@ -78,32 +91,16 @@ export const useContentForm = () => {
       // Check the current session with Supabase
       const { data: sessionData } = await supabase.auth.getSession();
       
-      // If there's no active session, we need to handle this
+      // If there's no active session, we'll redirect to login
       if (!sessionData.session) {
         console.error("No active Supabase session found");
-        
-        // We'll try to sign in the user with their stored credentials
-        // This is a workaround - in a production app, you'd implement proper auth flow
-        if (userData && userData.email && userData.password) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({
-            email: userData.email,
-            password: userData.password
-          });
-          
-          if (signInError) {
-            throw new Error("Authentication failed with Supabase: " + signInError.message);
-          }
-        } else {
-          // Create an anonymous session as a fallback
-          const { error: anonError } = await supabase.auth.signUp({
-            email: `guest_${Date.now()}@example.com`,
-            password: `password_${Date.now()}`
-          });
-          
-          if (anonError) {
-            throw new Error("Failed to create anonymous session: " + anonError.message);
-          }
-        }
+        toast({
+          title: "Session expired",
+          description: "Please sign in again to create content",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
       }
 
       // Map properties for Supabase and convert dates to strings
@@ -114,7 +111,7 @@ export const useContentForm = () => {
         content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
         content_type: selectedContentType,
         creator_id: userData.id,
-        creator_name: userData.name || 'Anonymous',
+        creator_name: userData.user_metadata?.name || userData.email.split('@')[0] || 'Anonymous',
         expiry: values.expiry || null,
         scheduled_for: values.scheduledFor ? (typeof values.scheduledFor === 'string' ? values.scheduledFor : values.scheduledFor.toISOString()) : null,
         scheduled_time: values.scheduledTime || null,

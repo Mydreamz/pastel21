@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useContentForm } from '@/hooks/useContentForm';
 import BasicInfoFields from '@/components/content/BasicInfoFields';
 import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentScheduler from '@/components/content/ContentScheduler';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
@@ -26,6 +27,13 @@ const CreateContent = () => {
     setShowAdvanced,
     isAuthenticated
   } = useContentForm();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      // We'll show the auth warning in the UI, but we won't force redirect
+      // This allows users to see the content creation form and understand why they need to authenticate
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
     const formData = form.getValues();
@@ -55,6 +63,23 @@ const CreateContent = () => {
               <CardDescription className="text-gray-300">
                 Share and monetize your content with a secure paywall
               </CardDescription>
+              
+              {!isAuthenticated && (
+                <Alert className="mt-4 bg-red-900/30 border-red-800 text-white">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Authentication required</AlertTitle>
+                  <AlertDescription>
+                    You need to sign in before creating content. Your work won't be saved until you sign in.
+                    <Button 
+                      className="bg-red-500 hover:bg-red-600 mt-2 text-white"
+                      size="sm"
+                      onClick={() => navigate('/')}
+                    >
+                      Go to sign in
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -87,8 +112,9 @@ const CreateContent = () => {
                     <Button 
                       type="submit" 
                       className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      disabled={!isAuthenticated}
                     >
-                      Create Content
+                      {isAuthenticated ? "Create Content" : "Sign in required"}
                     </Button>
                   </div>
                 </form>
