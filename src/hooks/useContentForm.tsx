@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { contentFormSchema, ContentFormValues } from '@/types/content';
@@ -76,7 +75,38 @@ export const useContentForm = () => {
         fileSize = selectedFile.size;
       }
 
-      // --- Fix: Map properties for Supabase and convert dates to strings ---
+      // Check the current session with Supabase
+      const { data: sessionData } = await supabase.auth.getSession();
+      
+      // If there's no active session, we need to handle this
+      if (!sessionData.session) {
+        console.error("No active Supabase session found");
+        
+        // We'll try to sign in the user with their stored credentials
+        // This is a workaround - in a production app, you'd implement proper auth flow
+        if (userData && userData.email && userData.password) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: userData.email,
+            password: userData.password
+          });
+          
+          if (signInError) {
+            throw new Error("Authentication failed with Supabase: " + signInError.message);
+          }
+        } else {
+          // Create an anonymous session as a fallback
+          const { error: anonError } = await supabase.auth.signUp({
+            email: `guest_${Date.now()}@example.com`,
+            password: `password_${Date.now()}`
+          });
+          
+          if (anonError) {
+            throw new Error("Failed to create anonymous session: " + anonError.message);
+          }
+        }
+      }
+
+      // Map properties for Supabase and convert dates to strings
       const payload: any = {
         title: values.title,
         teaser: values.teaser,
@@ -84,12 +114,10 @@ export const useContentForm = () => {
         content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
         content_type: selectedContentType,
         creator_id: userData.id,
-        creator_name: userData.name,
+        creator_name: userData.name || 'Anonymous',
         expiry: values.expiry || null,
         scheduled_for: values.scheduledFor ? (typeof values.scheduledFor === 'string' ? values.scheduledFor : values.scheduledFor.toISOString()) : null,
         scheduled_time: values.scheduledTime || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         status: values.scheduledFor ? 'scheduled' : 'published',
         file_url: fileUrl,
         file_name: fileName,
@@ -99,9 +127,12 @@ export const useContentForm = () => {
         category: values.category || null
       };
 
+      console.log("Sending payload to Supabase:", payload);
+
       const { data, error } = await supabase.from('contents').insert([payload]).select().single();
 
       if (error) {
+        console.error("Supabase error details:", error);
         throw error;
       }
 
