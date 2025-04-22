@@ -53,9 +53,9 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     }, 1500);
   };
 
-  // Return LockedContent if the content has a price > 0 and user is not the creator
-  // This ensures the payment button is always visible for paid content
+  // Show LockedContent component for paid content when not the creator
   if (parseFloat(content.price) > 0 && !isCreator) {
+    console.log("Showing payment button for content:", content.title);
     return (
       <LockedContent 
         price={content.price} 

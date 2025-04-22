@@ -5,12 +5,12 @@ import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentPreview from '@/components/ContentPreview';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
+import LockedContent from '@/components/content/LockedContent';
 import { useViewContent } from '@/hooks/useViewContent';
 import { Share, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
-import LockedContent from '@/components/content/LockedContent';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +18,7 @@ const PreviewContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -64,18 +65,29 @@ const PreviewContent = () => {
       return;
     }
 
-    if (handleUnlock) {
-      handleUnlock();
-      handleSuccessfulPayment();
-    }
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      if (handleUnlock) {
+        handleUnlock();
+        handleSuccessfulPayment();
+      }
+    }, 1500);
   };
+
+  // Add debug logs
+  console.log("Preview Content Loading:", loading);
+  console.log("Preview Content Error:", error);
+  console.log("Preview Content Data:", content);
 
   if (loading) {
     return <ContentLoader />;
   }
 
   if (error || !content) {
-    return <ContentError error={error} />;
+    return <ContentError error={error || "Content not available. The link might be invalid or the content was removed."} />;
   }
 
   return (
@@ -95,14 +107,12 @@ const PreviewContent = () => {
             <h3 className="text-lg font-semibold text-emerald-400 mb-2">Premium Content</h3>
             <p className="text-gray-300 mb-4">{content.teaser}</p>
             
-            <Button
-              onClick={handlePurchase}
-              size="lg"
-              className="bg-emerald-500 hover:bg-emerald-600 text-white w-full sm:w-auto"
-            >
-              <DollarSign className="mr-2 h-5 w-5" />
-              Purchase Now (${parseFloat(content.price).toFixed(2)})
-            </Button>
+            <LockedContent 
+              price={content.price}
+              onUnlock={handlePurchase}
+              contentTitle={content.title}
+              isProcessing={isProcessing}
+            />
           </div>
           
           <div className="mt-6 flex justify-end">

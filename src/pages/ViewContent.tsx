@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const { content, loading, error, isUnlocked, handleUnlock } = useViewContent(id);
+  const { content, loading, error, isUnlocked, handleUnlock, isAuthenticated } = useViewContent(id);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
@@ -25,6 +25,7 @@ const ViewContent = () => {
   console.log('Content loaded:', content);
   console.log('Is content unlocked:', isUnlocked);
   console.log('Is creator:', isCreator);
+  console.log('Is authenticated:', isAuthenticated);
 
   // Track view of this content
   useViewTracking();
@@ -97,6 +98,14 @@ const ViewContent = () => {
       });
     }
   };
+
+  // Redirect to preview page if content is paid and not unlocked
+  useEffect(() => {
+    if (content && !isUnlocked && !isCreator && parseFloat(content.price) > 0) {
+      console.log("Redirecting to preview page...");
+      navigate(`/preview/${id}`);
+    }
+  }, [content, isUnlocked, isCreator, id, navigate]);
 
   if (loading) {
     return <ContentLoader />;

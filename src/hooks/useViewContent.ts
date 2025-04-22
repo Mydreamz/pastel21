@@ -35,7 +35,11 @@ export const useViewContent = (id: string | undefined) => {
     };
     
     const loadContent = async () => {
-      if (!id) return;
+      if (!id) {
+        setError("No content ID provided");
+        setLoading(false);
+        return;
+      }
       
       try {
         setLoading(true);
@@ -43,6 +47,8 @@ export const useViewContent = (id: string | undefined) => {
         const foundContent = contents.find((item: any) => item.id === id);
         
         if (foundContent) {
+          // Log the content being loaded
+          console.log("Found content:", foundContent);
           setContent(foundContent);
           const user = checkAuth();
           
@@ -59,8 +65,13 @@ export const useViewContent = (id: string | undefined) => {
             ) {
               setIsUnlocked(true);
             }
+          } else {
+            // Handle the case for non-authenticated users
+            // They can see preview but not unlocked content
+            setIsUnlocked(false);
           }
         } else {
+          console.error("Content not found for ID:", id);
           setError("Content not found");
         }
       } catch (e) {
@@ -110,7 +121,7 @@ export const useViewContent = (id: string | undefined) => {
       // Redirect to full content view
       navigate(`/view/${id}`);
       
-      if (content) {
+      if (content && userData) {
         addNotification({
           title: "New Purchase",
           message: `${userData.name} purchased your content "${content.title}" for $${content.price ? parseFloat(content.price).toFixed(2) : '0.00'}`,
@@ -134,6 +145,7 @@ export const useViewContent = (id: string | undefined) => {
     loading,
     error,
     isUnlocked,
-    handleUnlock
+    handleUnlock,
+    isAuthenticated
   };
 };
