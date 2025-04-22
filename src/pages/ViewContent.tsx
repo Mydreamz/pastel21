@@ -1,5 +1,5 @@
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentPreview from '@/components/ContentPreview';
@@ -9,9 +9,9 @@ import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
 import LockedContent from '@/components/content/LockedContent';
 import { Button } from '@/components/ui/button';
-import { CalendarClock } from 'lucide-react';
+import { CalendarClock, Share } from 'lucide-react';
 import ContentScheduler from '@/components/content/ContentScheduler';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useViewContent } from '@/hooks/useViewContent';
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,38 +20,36 @@ const ViewContent = () => {
   const { content, loading, error, isUnlocked, handleUnlock } = useViewContent(id);
   const [showScheduler, setShowScheduler] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Check if user is the content creator
+  const isCreator = content?.creatorId === JSON.parse(localStorage.getItem('auth') || '{}')?.user?.id;
+
+  useEffect(() => {
+    // If content exists and has a price > 0 and user is not the creator and content is not unlocked
+    // Then redirect to preview
+    if (content && 
+        parseFloat(content.price) > 0 && 
+        !isCreator && 
+        !isUnlocked) {
+      navigate(`/preview/${id}`);
+    }
+  }, [content, isCreator, isUnlocked, id, navigate]);
 
   // Track view of this content
   useViewTracking();
 
-  const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
+  const handleShare = async () => {
     try {
-      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-      const updatedContents = contents.map((item: any) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            scheduledFor: scheduleInfo.date.toISOString(),
-            scheduledTime: scheduleInfo.time,
-            status: 'scheduled'
-          };
-        }
-        return item;
-      });
-      
-      localStorage.setItem('contents', JSON.stringify(updatedContents));
-      
+      await navigator.clipboard.writeText(window.location.href);
       toast({
-        title: "Content scheduled",
-        description: `Content will be published on ${scheduleInfo.date.toLocaleDateString()} at ${scheduleInfo.time}`,
+        title: "Link copied!",
+        description: "Content link has been copied to your clipboard",
       });
-      
-      setShowScheduler(false);
-    } catch (e) {
-      console.error("Error scheduling content:", e);
+    } catch (err) {
       toast({
-        title: "Error",
-        description: "Failed to schedule content",
+        title: "Failed to copy",
+        description: "Could not copy the link to clipboard",
         variant: "destructive"
       });
     }
@@ -78,8 +76,17 @@ const ViewContent = () => {
             contentId={content.id}
           />
           
-          {content.creatorId === JSON.parse(localStorage.getItem('auth') || '{}')?.user?.id && (
-            <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end gap-2">
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="border-gray-700 hover:border-emerald-500 text-gray-300"
+            >
+              <Share className="mr-2 h-4 w-4" />
+              Share
+            </Button>
+
+            {isCreator && (
               <Button
                 onClick={() => setShowScheduler(!showScheduler)}
                 variant="outline"
@@ -88,10 +95,10 @@ const ViewContent = () => {
                 <CalendarClock className="mr-2 h-4 w-4" />
                 {showScheduler ? 'Hide Scheduler' : 'Schedule Content'}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
           
-          {showScheduler && (
+          {showScheduler && isCreator && (
             <div className="mt-4">
               <ContentScheduler
                 contentId={content.id}
@@ -105,7 +112,7 @@ const ViewContent = () => {
             <p className="text-gray-300">{content.teaser}</p>
           </div>
           
-          {!isUnlocked ? (
+          {!isUnlocked && !isCreator ? (
             <LockedContent price={content.price} onUnlock={handleUnlock} />
           ) : (
             <div className="mt-8 border-t border-white/10 pt-8">
@@ -178,7 +185,7 @@ const ViewContent = () => {
         </div>
       </div>
       
-      {isUnlocked && content && (
+      {(isUnlocked || isCreator) && content && (
         <CommentSection contentId={id || ''} creatorId={content.creatorId} />
       )}
     </ViewContentContainer>
