@@ -43,12 +43,14 @@ export const useViewContent = (id: string | undefined) => {
       
       try {
         setLoading(true);
+        // Log the request ID to help with debugging
+        console.log("useViewContent: Loading content with ID:", id);
+        
         const contents = JSON.parse(localStorage.getItem('contents') || '[]');
         const foundContent = contents.find((item: any) => item.id === id);
         
         if (foundContent) {
-          // Log the content being loaded
-          console.log("Found content:", foundContent);
+          console.log("useViewContent: Found content:", foundContent);
           setContent(foundContent);
           const user = checkAuth();
           
@@ -57,6 +59,9 @@ export const useViewContent = (id: string | undefined) => {
             const userHasTransaction = transactions.some(
               (tx: any) => tx.contentId === id && tx.userId === user.id
             );
+            
+            // Log transaction status for debugging
+            console.log("useViewContent: User has transaction:", userHasTransaction);
             
             if (
               parseFloat(foundContent.price) === 0 || 
@@ -73,6 +78,7 @@ export const useViewContent = (id: string | undefined) => {
         } else {
           console.error("Content not found for ID:", id);
           setError("Content not found");
+          setContent(null);
         }
       } catch (e) {
         console.error("Error fetching content:", e);

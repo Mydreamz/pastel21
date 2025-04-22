@@ -20,6 +20,11 @@ const PreviewContent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Add debug logging for this component
+  console.log("PreviewContent: Content ID:", id);
+  console.log("PreviewContent: Content loaded:", content);
+  console.log("PreviewContent: Error state:", error);
+
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (auth) {
@@ -76,11 +81,6 @@ const PreviewContent = () => {
       }
     }, 1500);
   };
-
-  // Add debug logs
-  console.log("Preview Content Loading:", loading);
-  console.log("Preview Content Error:", error);
-  console.log("Preview Content Data:", content);
 
   if (loading) {
     return <ContentLoader />;

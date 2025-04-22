@@ -21,11 +21,11 @@ const ViewContent = () => {
   const navigate = useNavigate();
   const [isCreator, setIsCreator] = useState(false);
   
-  // Debugging logs to understand component state
-  console.log('Content loaded:', content);
-  console.log('Is content unlocked:', isUnlocked);
-  console.log('Is creator:', isCreator);
-  console.log('Is authenticated:', isAuthenticated);
+  // Add debugging logs to understand component state
+  console.log('ViewContent: Content ID:', id);
+  console.log('ViewContent: Content loaded:', content);
+  console.log('ViewContent: Is content unlocked:', isUnlocked);
+  console.log('ViewContent: Is error:', error);
 
   // Track view of this content
   useViewTracking();
@@ -81,7 +81,7 @@ const ViewContent = () => {
   const handleShare = async () => {
     try {
       // Share the preview link for paid content, or direct link for free content
-      const shareUrl = content && parseFloat(content.price) > 0 && !isCreator ? 
+      const shareUrl = content && parseFloat(content.price) > 0 ? 
         `${window.location.origin}/preview/${id}` : 
         window.location.href;
         
@@ -102,7 +102,7 @@ const ViewContent = () => {
   // Redirect to preview page if content is paid and not unlocked
   useEffect(() => {
     if (content && !isUnlocked && !isCreator && parseFloat(content.price) > 0) {
-      console.log("Redirecting to preview page...");
+      console.log("ViewContent: Redirecting to preview page...");
       navigate(`/preview/${id}`);
     }
   }, [content, isUnlocked, isCreator, id, navigate]);

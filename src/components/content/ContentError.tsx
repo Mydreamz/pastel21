@@ -11,13 +11,17 @@ const ContentError = ({ error }: ContentErrorProps) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   
+  // Add debugging to help understand the error
+  console.log("ContentError: Displayed with error:", error);
+  console.log("ContentError: Content ID from params:", id);
+  
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
       <div className="text-red-500 mb-4">
-        <FileText className="h-12 w-12" />
+        <FileText className="h-16 w-16" />
       </div>
       <h1 className="text-2xl font-bold text-white mb-2">Content Not Found</h1>
-      <p className="text-gray-400 mb-6">{error || "The content you are looking for does not exist."}</p>
+      <p className="text-gray-400 mb-6">{error || "The content you are looking for does not exist or might have been removed."}</p>
       
       <div className="flex flex-col sm:flex-row gap-3">
         <Button onClick={() => navigate('/')} variant="outline">
@@ -28,7 +32,7 @@ const ContentError = ({ error }: ContentErrorProps) => {
         {id && (
           <Button 
             onClick={() => navigate(`/preview/${id}`)} 
-            className="bg-emerald-500 hover:bg-emerald-600"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white"
           >
             <Eye className="mr-2 h-4 w-4" />
             Try Preview
