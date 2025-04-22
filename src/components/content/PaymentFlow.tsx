@@ -36,11 +36,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     // Check if user is authenticated before proceeding with payment
     if (!session || !user) {
       setIsProcessing(false);
-      toast({
-        title: "Authentication Required",
-        description: "You need to sign in to purchase this content",
-        variant: "destructive"
-      });
+      // The auth dialog will be shown by the LockedContent component
       return;
     }
     
@@ -66,10 +62,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     }, 1500);
   };
 
-  // Always show the LockedContent component for paid content when not unlocked
-  console.log("PaymentFlow: Content price:", content.price, "isCreator:", isCreator);
+  // Only show the LockedContent component for paid content when not unlocked
   if (parseFloat(content.price) > 0 && !isCreator) {
-    console.log("PaymentFlow: Showing payment button for content:", content.title);
     return (
       <LockedContent 
         price={content.price} 

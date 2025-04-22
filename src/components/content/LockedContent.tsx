@@ -1,6 +1,9 @@
 
 import { Lock, DollarSign, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/App';
+import AuthDialog from "../auth/AuthDialog";
+import { useState } from 'react';
 
 interface LockedContentProps {
   price: string;
@@ -11,6 +14,17 @@ interface LockedContentProps {
 
 const LockedContent = ({ price, onUnlock, contentTitle, isProcessing = false }: LockedContentProps) => {
   const basePrice = parseFloat(price);
+  const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('signup');
+
+  const handlePayClick = () => {
+    if (!user) {
+      setShowAuthDialog(true);
+    } else {
+      onUnlock();
+    }
+  };
 
   return (
     <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg p-4 sm:p-8 text-center my-8 space-y-4 shadow-lg max-w-full sm:max-w-lg mx-auto">
@@ -26,9 +40,9 @@ const LockedContent = ({ price, onUnlock, contentTitle, isProcessing = false }: 
       <div className="text-center">
         <div className="text-2xl sm:text-3xl font-bold text-white mb-3">${basePrice.toFixed(2)}</div>
         <Button
-          onClick={onUnlock}
+          onClick={handlePayClick}
           size="lg"
-          className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 sm:px-8 py-4 sm:py-6 rounded-lg flex items-center justify-center w-full max-w-xs sm:w-auto mx-auto mt-3 sm:mt-4 text-base sm:text-lg"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-lg flex items-center justify-center w-full sm:max-w-xs mx-auto mt-3 text-base sm:text-lg font-medium"
           disabled={isProcessing}
         >
           {isProcessing ? (
@@ -39,7 +53,7 @@ const LockedContent = ({ price, onUnlock, contentTitle, isProcessing = false }: 
           ) : (
             <>
               <DollarSign className="mr-2 h-5 w-5" />
-              Pay & Unlock (${basePrice.toFixed(2)})
+              Pay & Unlock
             </>
           )}
         </Button>
@@ -50,9 +64,16 @@ const LockedContent = ({ price, onUnlock, contentTitle, isProcessing = false }: 
           Secure payment powered by our platform
         </span>
       </div>
+      
+      {/* Authentication Dialog */}
+      <AuthDialog 
+        showAuthDialog={showAuthDialog}
+        setShowAuthDialog={setShowAuthDialog}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+      />
     </div>
   );
 };
 
 export default LockedContent;
-
