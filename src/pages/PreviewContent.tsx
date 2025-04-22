@@ -6,7 +6,7 @@ import ContentPreview from '@/components/ContentPreview';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
 import { useViewContent } from '@/hooks/useViewContent';
-import { Share } from 'lucide-react';
+import { Share, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
@@ -90,7 +90,15 @@ const PreviewContent = () => {
             contentId={content.id}
           />
           
-          <div className="mt-4 flex justify-end gap-2">
+          <div className="mt-4 flex justify-between gap-2">
+            <Button
+              onClick={handlePurchase}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            >
+              <DollarSign className="mr-2 h-4 w-4" />
+              Purchase (${parseFloat(content.price).toFixed(2)})
+            </Button>
+            
             <Button
               onClick={handleShare}
               variant="outline"
@@ -101,7 +109,7 @@ const PreviewContent = () => {
             </Button>
           </div>
           
-          <div className="mb-6">
+          <div className="mb-6 mt-6">
             <p className="text-gray-300">{content.teaser}</p>
           </div>
           

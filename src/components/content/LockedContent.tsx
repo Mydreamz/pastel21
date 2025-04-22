@@ -1,5 +1,5 @@
 
-import { Lock } from 'lucide-react';
+import { Lock, DollarSign } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 
@@ -33,7 +33,7 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
       </p>
       <Button 
         onClick={handleUnlock} 
-        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8"
+        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 flex items-center justify-center"
         disabled={isProcessing}
       >
         {isProcessing ? (
@@ -42,7 +42,10 @@ const LockedContent = ({ price, onUnlock }: LockedContentProps) => {
             Processing...
           </>
         ) : (
-          'Unlock Now'
+          <>
+            <DollarSign className="mr-2 h-4 w-4" />
+            Unlock Now
+          </>
         )}
       </Button>
     </div>
