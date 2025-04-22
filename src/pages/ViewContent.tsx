@@ -215,7 +215,7 @@ const ViewContent = () => {
                     >
                       <source src={content.fileUrl} type={content.fileType} />
                       Your browser does not support the audio tag.
-                    </source>
+                    </audio>
                   )}
                   
                   {content.contentType === 'document' && (
