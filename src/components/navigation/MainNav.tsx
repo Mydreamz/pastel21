@@ -1,15 +1,17 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Search, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
-import ThemeToggle from '@/components/navigation/ThemeToggle';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
+
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
 };
+
 const MainNav = ({
   openAuthDialog
 }: MainNavProps) => {
@@ -19,12 +21,15 @@ const MainNav = ({
     session
   } = useAuth();
   const isAuthenticated = !!session;
+  
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
+  
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const userEmail = user?.email || '';
+  
   return <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
@@ -49,10 +54,6 @@ const MainNav = ({
         </div>
         
         <div className="flex items-center space-x-3">
-          <ThemeToggle />
-          
-          
-          
           {isAuthenticated && user ? <>
               <NotificationDropdown />
               
@@ -96,4 +97,5 @@ const MainNav = ({
       </div>
     </header>;
 };
+
 export default MainNav;
