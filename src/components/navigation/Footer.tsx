@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Twitter, Linkedin, Instagram, MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   const footerLinks = {
@@ -10,10 +11,10 @@ const Footer = () => {
   };
 
   const socialLinks = [
-    { name: "Twitter", url: "https://twitter.com/monitizeclub" },
-    { name: "LinkedIn", url: "https://linkedin.com/company/monitizeclub" },
-    { name: "Instagram", url: "https://instagram.com/monitizeclub" },
-    { name: "Discord", url: "https://discord.gg/monitizeclub" }
+    { name: "Twitter", icon: <Twitter size={18} />, url: "https://twitter.com/monitizeclub" },
+    { name: "LinkedIn", icon: <Linkedin size={18} />, url: "https://linkedin.com/company/monitizeclub" },
+    { name: "Instagram", icon: <Instagram size={18} />, url: "https://instagram.com/monitizeclub" },
+    { name: "Discord", icon: <MessageCircle size={18} />, url: "https://discord.gg/monitizeclub" }
   ];
 
   return (
@@ -47,9 +48,10 @@ const Footer = () => {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-emerald-500 transition-colors"
+                className="text-gray-400 hover:text-emerald-500 transition-colors flex items-center"
+                aria-label={social.name}
               >
-                {social.name}
+                {social.icon}
               </a>
             ))}
           </div>
