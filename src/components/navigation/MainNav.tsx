@@ -38,6 +38,7 @@ const MainNav = ({
               src="/monitizelogo.jpg" 
               alt="Monitize.club Logo" 
               className="h-8 w-8 mr-2 rounded-full"
+              fetchPriority="high"
             />
             <span className="text-2xl font-bold text-white">
               Monitize<span className="text-emerald-500">.club</span>
@@ -106,4 +107,3 @@ const MainNav = ({
 };
 
 export default MainNav;
-

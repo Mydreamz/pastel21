@@ -18,94 +18,23 @@
       "src": "/api/(.*)",
       "dest": "/api/$1"
     },
-    {
-      "src": "/create",
-      "dest": "/index.html"
+    { 
+      "src": "/(.*\\.(js|css|jpg|jpeg|png|gif|svg|ico|json|webp|woff|woff2|ttf|otf)$)",
+      "headers": { 
+        "cache-control": "public, max-age=31536000, immutable" 
+      },
+      "dest": "/$1"
     },
     {
-      "src": "/view/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/preview/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/edit/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/profile",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/success",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/search",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/forgot-password",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/signup",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/features",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/pricing",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/settings",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/content/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/categories/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/tags/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/user/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1",
+      "src": "/(create|view/.*|preview/.*|edit/.*|profile|success|search|forgot-password|login|signup|settings|content/.*|categories/.*|tags/.*|user/.*|features|pricing|contact|about|faq|help|dashboard|library|analytics|notifications)",
       "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
+        "cache-control": "public, s-maxage=1, stale-while-revalidate=59"
+      },
+      "dest": "/index.html"
     },
     {
       "src": "/favicon.ico",
-      "dest": "/favicon.ico",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
+      "dest": "/favicon.ico"
     },
     {
       "src": "/sitemap.xml",
@@ -116,42 +45,10 @@
       "dest": "/robots.txt"
     },
     {
-      "src": "/(.*)\\.js",
-      "dest": "/$1.js",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)\\.css",
-      "dest": "/$1.css",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)\\.png",
-      "dest": "/$1.png",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)\\.jpg",
-      "dest": "/$1.jpg",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
-      "src": "/(.*)\\.svg",
-      "dest": "/$1.svg",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      }
-    },
-    {
       "src": "/(.*)",
+      "headers": {
+        "cache-control": "public, s-maxage=1, stale-while-revalidate=59"
+      },
       "dest": "/index.html"
     }
   ],
@@ -170,6 +67,19 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
