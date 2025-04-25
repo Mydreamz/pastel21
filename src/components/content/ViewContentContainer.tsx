@@ -1,5 +1,4 @@
 
-import React, { Suspense } from 'react';
 import StarsBackground from '@/components/StarsBackground';
 
 interface ViewContentContainerProps {
@@ -12,11 +11,7 @@ const ViewContentContainer = ({ children }: ViewContentContainerProps) => {
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-        <Suspense fallback={
-          <div className="w-full h-96 bg-white/5 rounded-lg animate-pulse" />
-        }>
-          {children}
-        </Suspense>
+        {children}
       </div>
     </div>
   );
