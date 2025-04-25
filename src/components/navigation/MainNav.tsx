@@ -33,8 +33,15 @@ const MainNav = ({
   return <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
-          <Link to="/" className="text-2xl font-bold text-white">
-            Monitize<span className="text-emerald-500">.club</span>
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/monitizelogo.jpg" 
+              alt="Monitize.club Logo" 
+              className="h-8 w-8 mr-2 rounded-full"
+            />
+            <span className="text-2xl font-bold text-white">
+              Monitize<span className="text-emerald-500">.club</span>
+            </span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6 ml-10">
@@ -99,3 +106,4 @@ const MainNav = ({
 };
 
 export default MainNav;
+
