@@ -29,3 +29,4 @@ Sitemap: https://monitize.club/sitemap.xml
 
 # Optimize crawl rate
 Crawl-delay: 1
+
