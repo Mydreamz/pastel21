@@ -1,18 +1,17 @@
-
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import Hero from '@/components/Hero';
-import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
 import { useToast } from "@/hooks/use-toast";
 import MainNav from '@/components/navigation/MainNav';
 import Footer from '@/components/navigation/Footer';
-import AuthDialog from '@/components/auth/AuthDialog';
-import RecentContent from '@/components/content/RecentContent';
-import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
-import { useAuth } from '@/App';
 import { BackToTop } from '@/components/ui/back-to-top';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, CheckCircle } from 'lucide-react';
+import { useAuth } from '@/App';
+
+const Dashboard = lazy(() => import('@/components/Dashboard'));
+const AuthDialog = lazy(() => import('@/components/auth/AuthDialog'));
+const RecentContent = lazy(() => import('@/components/content/RecentContent'));
 
 const Index = () => {
   const { toast } = useToast();
@@ -36,14 +35,18 @@ const Index = () => {
         <section className="py-10 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             <Hero />
-            <Dashboard />
+            <Suspense fallback={<div className="h-96 bg-white/5 rounded-lg animate-pulse" />}>
+              <Dashboard />
+            </Suspense>
           </div>
         </section>
 
-        <RecentContent 
-          isAuthenticated={!!session}
-          openAuthDialog={openAuthDialog}
-        />
+        <Suspense fallback={<div className="h-48 bg-white/5 rounded-lg animate-pulse" />}>
+          <RecentContent 
+            isAuthenticated={!!session}
+            openAuthDialog={openAuthDialog}
+          />
+        </Suspense>
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16">
@@ -146,14 +149,16 @@ const Index = () => {
       <Footer />
       <BackToTop />
       
-      <AuthDialog
-        showAuthDialog={showAuthDialog}
-        setShowAuthDialog={setShowAuthDialog}
-        authTab={authTab}
-        setAuthTab={setAuthTab}
-        setIsAuthenticated={() => {}}
-        setUserData={() => {}}
-      />
+      <Suspense fallback={null}>
+        <AuthDialog
+          showAuthDialog={showAuthDialog}
+          setShowAuthDialog={setShowAuthDialog}
+          authTab={authTab}
+          setAuthTab={setAuthTab}
+          setIsAuthenticated={() => {}}
+          setUserData={() => {}}
+        />
+      </Suspense>
     </div>
   );
 };

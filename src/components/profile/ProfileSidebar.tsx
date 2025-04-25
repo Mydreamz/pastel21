@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { User, Wallet } from 'lucide-react';
-import Logo from '@/components/ui/logo';
 
 interface ProfileSidebarProps {
   userData: any;

@@ -1,13 +1,13 @@
-
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, Wallet, LayoutDashboard, LogOut } from 'lucide-react';
-import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import { User } from 'lucide-react';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
-import Logo from '@/components/ui/logo';
+
+// Lazy load the notification dropdown
+const NotificationDropdown = lazy(() => import('@/components/notifications/NotificationDropdown'));
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -35,7 +35,14 @@ const MainNav = ({
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <Logo withText={true} />
+            <img 
+              src="/monitizelogo.jpg" 
+              alt="Monitize.club Logo" 
+              className="h-8 w-8 mr-2 rounded-full"
+            />
+            <span className="text-2xl font-bold text-white">
+              Monitize<span className="text-emerald-500">.club</span>
+            </span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6 ml-10">
@@ -56,7 +63,9 @@ const MainNav = ({
         
         <div className="flex items-center space-x-3">
           {isAuthenticated && user ? <>
-              <NotificationDropdown />
+              <Suspense fallback={<div className="w-9 h-9" />}>
+                <NotificationDropdown />
+              </Suspense>
               
               <Button onClick={() => navigate('/create')} className="hidden md:flex bg-emerald-500 hover:bg-emerald-600 text-white">
                 Create Content
@@ -75,16 +84,13 @@ const MainNav = ({
                   </div>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-white/10">
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-white/10 md:hidden">
-                    <Wallet className="h-4 w-4 mr-2" />
                     Create Content
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300">
-                    <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
