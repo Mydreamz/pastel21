@@ -1,12 +1,13 @@
-
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from 'lucide-react';
-import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
+
+// Lazy load the notification dropdown
+const NotificationDropdown = lazy(() => import('@/components/notifications/NotificationDropdown'));
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -62,7 +63,9 @@ const MainNav = ({
         
         <div className="flex items-center space-x-3">
           {isAuthenticated && user ? <>
-              <NotificationDropdown />
+              <Suspense fallback={<div className="w-9 h-9" />}>
+                <NotificationDropdown />
+              </Suspense>
               
               <Button onClick={() => navigate('/create')} className="hidden md:flex bg-emerald-500 hover:bg-emerald-600 text-white">
                 Create Content
@@ -106,4 +109,3 @@ const MainNav = ({
 };
 
 export default MainNav;
-
