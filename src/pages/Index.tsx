@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
@@ -11,6 +12,7 @@ import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useAuth } from '@/App';
+import { BackToTop } from '@/components/ui/back-to-top';
 
 const Index = () => {
   const { toast } = useToast();
@@ -142,14 +144,15 @@ const Index = () => {
       </main>
 
       <Footer />
+      <BackToTop />
       
       <AuthDialog
         showAuthDialog={showAuthDialog}
         setShowAuthDialog={setShowAuthDialog}
         authTab={authTab}
         setAuthTab={setAuthTab}
-        setIsAuthenticated={() => {}} // This is no longer needed as we're using global auth context
-        setUserData={() => {}} // This is no longer needed as we're using global auth context
+        setIsAuthenticated={() => {}}
+        setUserData={() => {}}
       />
     </div>
   );
