@@ -16,15 +16,15 @@
       "dest": "/index.html"
     },
     {
-      "src": "/view/.*",
+      "src": "/view/(.*)",
       "dest": "/index.html"
     },
     {
-      "src": "/preview/.*",
+      "src": "/preview/(.*)",
       "dest": "/index.html"
     },
     {
-      "src": "/edit/.*",
+      "src": "/edit/(.*)",
       "dest": "/index.html"
     },
     {
@@ -54,6 +54,14 @@
     {
       "src": "/favicon.ico",
       "dest": "/favicon.ico"
+    },
+    {
+      "src": "/sitemap.xml",
+      "dest": "/sitemap.xml"
+    },
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt"
     },
     {
       "src": "/(.*)",
