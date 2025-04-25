@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { DollarSign } from 'lucide-react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -13,17 +12,14 @@ const Logo = ({ size = 'md', withText = false }: LogoProps) => {
     md: 'h-9 w-9',
     lg: 'h-12 w-12',
   };
-
-  const iconSizes = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-7 w-7',
-  };
   
   return (
     <div className="flex items-center">
-      <div className={`flex items-center justify-center ${sizeClasses[size]} rounded-full bg-emerald-500`}>
-        <DollarSign className={`${iconSizes[size]} text-black`} />
+      <div className={`flex items-center justify-center ${sizeClasses[size]} rounded-full bg-emerald-500 overflow-hidden`}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-full h-full">
+          <path d="M170 160H220V352H290V160H340V352H290V160" stroke="#111111" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M170 256H340" stroke="#111111" strokeWidth="24" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </div>
       
       {withText && (

@@ -3,10 +3,11 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, Wallet, LayoutDashboard, LogOut, DollarSign } from 'lucide-react';
+import { User, Wallet, LayoutDashboard, LogOut } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
+import Logo from '@/components/ui/logo';
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -34,12 +35,7 @@ const MainNav = ({
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-emerald-500 mr-2">
-              <DollarSign className="h-5 w-5 text-black" />
-            </div>
-            <span className="text-2xl font-bold text-white">
-              Monitize<span className="text-emerald-500">.club</span>
-            </span>
+            <Logo withText={true} />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6 ml-10">
