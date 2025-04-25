@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User } from 'lucide-react';
+import { User, Wallet, LayoutDashboard, LogOut, DollarSign } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,11 +34,9 @@ const MainNav = ({
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <img 
-              src="/monitizelogo.jpg" 
-              alt="Monitize.club Logo" 
-              className="h-8 w-8 mr-2 rounded-full"
-            />
+            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-emerald-500 mr-2">
+              <DollarSign className="h-5 w-5 text-black" />
+            </div>
             <span className="text-2xl font-bold text-white">
               Monitize<span className="text-emerald-500">.club</span>
             </span>
@@ -81,13 +79,16 @@ const MainNav = ({
                   </div>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-white/10">
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
                     Dashboard
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-white/10 md:hidden">
+                    <Wallet className="h-4 w-4 mr-2" />
                     Create Content
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-white/10" />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                    <LogOut className="h-4 w-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -106,4 +107,3 @@ const MainNav = ({
 };
 
 export default MainNav;
-

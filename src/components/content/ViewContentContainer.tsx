@@ -1,5 +1,6 @@
 
 import StarsBackground from '@/components/StarsBackground';
+import Logo from '@/components/ui/logo';
 
 interface ViewContentContainerProps {
   children: React.ReactNode;
