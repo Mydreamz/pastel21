@@ -1,3 +1,4 @@
+
 {
   "version": 2,
   "builds": [
@@ -10,6 +11,50 @@
     }
   ],
   "routes": [
+    {
+      "src": "/create",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/view/.*",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/preview/.*",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/edit/.*",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/profile",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/success",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/search",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/forgot-password",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
