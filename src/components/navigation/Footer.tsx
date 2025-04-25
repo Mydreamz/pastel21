@@ -29,7 +29,7 @@ const Footer = () => {
       </div>
       
       <div className="mt-12 text-center text-gray-500 text-sm">
-        © 2025 ContentFlow. All rights reserved.
+        © 2025 Monitize.club. All rights reserved.
       </div>
     </footer>
   );

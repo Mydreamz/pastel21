@@ -34,7 +34,7 @@ const MainNav = ({
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to="/" className="text-2xl font-bold text-white">
-            Creator<span className="text-emerald-500">Hub</span>
+            Monitize<span className="text-emerald-500">.club</span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6 ml-10">

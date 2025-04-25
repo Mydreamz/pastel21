@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
@@ -46,7 +45,7 @@ const Index = () => {
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything creators need to succeed</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything creators need to monetize with Monitize.club</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
               All the tools you need to create, grow, and monetize your audience in one powerful platform.
             </p>
@@ -83,7 +82,7 @@ const Index = () => {
           <div className="glass-card p-8 md:p-12 rounded-2xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to start monetizing your content?</h2>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to start monetizing your content with Monitize.club?</h2>
                 <p className="text-gray-400 mb-6">Join thousands of creators who are earning more with our platform.</p>
                 
                 <ul className="space-y-3 mb-8">
