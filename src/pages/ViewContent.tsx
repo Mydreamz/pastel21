@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+
+import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -22,6 +23,7 @@ const ViewContent = () => {
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
   const navigate = useNavigate();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (content) {
@@ -58,14 +60,16 @@ const ViewContent = () => {
             isCreator={isCreator}
           />
 
-          <ContentDisplay 
-            content={content} 
-            isCreator={isCreator} 
-            isPurchased={isPurchased}
-          />
+          <div ref={contentRef} className="overflow-auto max-h-[600px]">
+            <ContentDisplay 
+              content={content} 
+              isCreator={isCreator} 
+              isPurchased={isPurchased}
+            />
+          </div>
 
           {content.contentType === 'text' && (
-            <ContentReadingProgress />
+            <ContentReadingProgress contentRef={contentRef} />
           )}
 
           {relatedContents.length > 0 && (
