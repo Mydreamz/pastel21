@@ -3,20 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText, Image, Video, Link as LinkIcon, DollarSign, Clock, User, Calendar } from 'lucide-react';
+import { Eye, FileText, Image, Video, Link as LinkIcon, DollarSign, Clock, User, Store } from 'lucide-react';
 
-interface PurchasedContentProps {
+interface MarketplaceContentProps {
   contents: any[];
   loading: boolean;
   filters: string[];
   searchQuery: string;
 }
 
-const PurchasedContent: React.FC<PurchasedContentProps> = ({ 
+const MarketplaceContent: React.FC<MarketplaceContentProps> = ({ 
   contents, 
   loading, 
   filters,
-  searchQuery 
+  searchQuery
 }) => {
   const navigate = useNavigate();
   
@@ -31,19 +31,14 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   if (!contents || contents.length === 0) {
     return (
       <div className="text-center py-12">
-        <DollarSign className="h-12 w-12 mx-auto mb-3 opacity-40" />
-        <h3 className="text-xl font-medium mb-1">No purchased content</h3>
-        <p className="text-gray-400 mb-4">Purchase content from other creators to see it here</p>
-        <Button 
-          onClick={() => navigate('/')} 
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
-        >
-          Explore Content
-        </Button>
+        <Store className="h-12 w-12 mx-auto mb-3 opacity-40" />
+        <h3 className="text-xl font-medium mb-1">No marketplace content available</h3>
+        <p className="text-gray-400">Check back soon for new content from other creators</p>
       </div>
     );
   }
   
+  // Filter by content type, price, and search query
   const filteredContents = contents.filter(content => {
     const contentType = content.content_type || content.contentType;
     const isPaid = parseFloat(content.price) > 0;
@@ -53,8 +48,10 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
        content.creator_name?.toLowerCase().includes(searchQuery.toLowerCase())) 
       : true;
     
+    // If no filters are active, show all items that match search
     if (filters.length === 0) return matchesSearch;
     
+    // Otherwise, check if content matches active filters
     const matchesTypeFilter = 
       filters.includes(contentType === 'text' ? 'Text' : '') ||
       filters.includes(contentType === 'image' ? 'Image' : '') ||
@@ -85,12 +82,11 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
         const price = content.price;
         const creatorName = content.creator_name || content.creatorName;
         const createdAt = new Date(content.created_at || content.createdAt).toLocaleDateString();
-        const purchaseDate = new Date().toLocaleDateString();
         const previewUrl = contentType === 'image' ? content.file_url : null;
         
         return (
           <Card key={contentId} className="overflow-hidden bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
-            {previewUrl ? (
+            {previewUrl && (
               <div className="aspect-video w-full overflow-hidden bg-white/5">
                 <img 
                   src={previewUrl} 
@@ -98,21 +94,6 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
                   className="w-full h-full object-cover"
                   loading="lazy" 
                 />
-              </div>
-            ) : (
-              <div className="aspect-video w-full flex items-center justify-center bg-white/5">
-                {(() => {
-                  switch (contentType) {
-                    case 'text':
-                      return <FileText className="h-12 w-12 text-blue-400 opacity-50" />;
-                    case 'video':
-                      return <Video className="h-12 w-12 text-red-400 opacity-50" />;
-                    case 'link':
-                      return <LinkIcon className="h-12 w-12 text-yellow-400 opacity-50" />;
-                    default:
-                      return <FileText className="h-12 w-12 text-gray-400 opacity-50" />;
-                  }
-                })()}
               </div>
             )}
             
@@ -157,21 +138,14 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
               
               <h3 className="font-medium text-lg mb-1 text-emerald-300 line-clamp-1">{title}</h3>
               
-              <div className="flex flex-col text-xs text-gray-400 mb-3 gap-1">
+              <div className="flex items-center text-xs text-gray-400 mb-3 gap-3">
                 <div className="flex items-center">
                   <User className="h-3 w-3 mr-1" />
                   {creatorName || "Unknown Creator"}
                 </div>
                 <div className="flex items-center">
                   <Clock className="h-3 w-3 mr-1" />
-                  Created: {createdAt}
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  Purchased: {purchaseDate}
-                </div>
-                <div className="mt-1 text-emerald-300 font-medium">
-                  Lifetime Access
+                  {createdAt}
                 </div>
               </div>
               
@@ -183,7 +157,7 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
                   className="border-white/10 hover:bg-white/10"
                 >
                   <Eye className="h-4 w-4 mr-1" />
-                  View Content
+                  View Details
                 </Button>
               </div>
             </div>
@@ -194,4 +168,4 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   );
 };
 
-export default PurchasedContent;
+export default MarketplaceContent;
