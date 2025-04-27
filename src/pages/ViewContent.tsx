@@ -11,96 +11,35 @@ import ContentDisplay from '@/components/content/ContentDisplay';
 import ContentActions from '@/components/content/ContentActions';
 import CreatorControls from '@/components/content/CreatorControls';
 import RelatedContent from '@/components/content/RelatedContent';
-import ReadingProgress from '@/components/content/ReadingProgress';
-import { useState, useEffect, useRef } from 'react';
+import ContentReadingProgress from '@/components/content/ContentReadingProgress';
+import { useRef } from 'react';
 import { useViewContent } from '@/hooks/useViewContent';
 import { useToast } from "@/hooks/use-toast";
 import { useContentAnalytics } from '@/hooks/useContentAnalytics';
+import { useContentSharing } from '@/hooks/useContentSharing';
+import { useContentPermissions } from '@/hooks/useContentPermissions';
+import { useRelatedContent } from '@/hooks/useRelatedContent';
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const { content, loading, error, isUnlocked, handleUnlock, isAuthenticated } = useViewContent(id);
+  const { content, loading, error, isUnlocked, handleUnlock } = useViewContent(id);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [isCreator, setIsCreator] = useState(false);
-  const [isPurchased, setIsPurchased] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [relatedContents, setRelatedContents] = useState<any[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   const { totalViews } = useContentAnalytics(id);
   
+  // Custom hooks
   useViewTracking();
+  const { isCreator, isPurchased } = useContentPermissions(content);
+  const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
+  const relatedContents = useRelatedContent(content, id || '');
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (contentRef.current) {
-        const element = contentRef.current;
-        const totalHeight = element.scrollHeight - element.clientHeight;
-        const scrollPosition = element.scrollTop;
-        
-        if (totalHeight > 0) {
-          setReadingProgress((scrollPosition / totalHeight) * 100);
-        }
-      }
-    };
-
-    const contentElement = contentRef.current;
-    if (contentElement) {
-      contentElement.addEventListener('scroll', handleScroll);
-    }
-
-    return () => {
-      if (contentElement) {
-        contentElement.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
-  
+  // Initialize share URL when content is loaded
   useEffect(() => {
     if (content) {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        try {
-          const parsedAuth = JSON.parse(auth);
-          if (parsedAuth && parsedAuth.user) {
-            setIsCreator(content.creatorId === parsedAuth.user.id);
-            
-            // Check if user has purchased this content
-            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-            const hasPurchased = transactions.some(
-              (tx: any) => tx.contentId === id && tx.userId === parsedAuth.user.id
-            );
-            setIsPurchased(hasPurchased);
-          }
-        } catch (e) {
-          console.error("Auth parsing error", e);
-        }
-      }
-      
-      // Set share URL based on content price
-      if (parseFloat(content.price) > 0) {
-        setShareUrl(`${window.location.origin}/preview/${id}`);
-      } else {
-        setShareUrl(`${window.location.origin}/view/${id}`);
-      }
-
-      // Load related content
-      try {
-        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const related = contents
-          .filter((item: any) => 
-            item.id !== id && 
-            (item.creatorId === content.creatorId || 
-             item.contentType === content.contentType)
-          )
-          .slice(0, 3);
-        setRelatedContents(related);
-      } catch (e) {
-        console.error("Error loading related content", e);
-      }
+      initializeShareUrl();
     }
-  }, [content, id]);
+  }, [content]);
 
   const handleSchedule = (scheduleInfo: { date: Date; time: string }) => {
     try {
@@ -133,30 +72,8 @@ const ViewContent = () => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Link copied!",
-        description: "Content link has been copied to your clipboard",
-      });
-    } catch (err) {
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy the link to clipboard",
-        variant: "destructive"
-      });
-    }
-  };
-
-  if (loading) {
-    return <ContentLoader />;
-  }
-
-  if (error || !content) {
-    return <ContentError error={error} />;
-  }
-
+  if (loading) return <ContentLoader />;
+  if (error || !content) return <ContentError error={error} />;
   if (!isUnlocked && !isCreator && parseFloat(content.price) > 0) {
     navigate(`/preview/${id}`);
     return null;
@@ -165,7 +82,7 @@ const ViewContent = () => {
   return (
     <ViewContentContainer>
       <div className="glass-card border border-white/10 rounded-xl overflow-hidden">
-        <ReadingProgress progress={readingProgress} />
+        <ContentReadingProgress contentRef={contentRef} />
         <div className="p-6 md:p-8" ref={contentRef}>
           <ViewContentHeader
             title={content.title}

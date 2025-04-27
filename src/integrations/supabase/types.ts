@@ -14,6 +14,7 @@ export type Database = {
           content_id: string | null
           created_at: string
           id: string
+          is_deleted: boolean
           text: string
           user_id: string | null
           user_name: string | null
@@ -22,6 +23,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string
           id?: string
+          is_deleted?: boolean
           text: string
           user_id?: string | null
           user_name?: string | null
@@ -30,6 +32,7 @@ export type Database = {
           content_id?: string | null
           created_at?: string
           id?: string
+          is_deleted?: boolean
           text?: string
           user_id?: string | null
           user_name?: string | null
@@ -87,6 +90,7 @@ export type Database = {
           file_type: string | null
           file_url: string | null
           id: string
+          is_deleted: boolean
           price: string
           scheduled_for: string | null
           scheduled_time: string | null
@@ -110,6 +114,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          is_deleted?: boolean
           price: string
           scheduled_for?: string | null
           scheduled_time?: string | null
@@ -133,6 +138,7 @@ export type Database = {
           file_type?: string | null
           file_url?: string | null
           id?: string
+          is_deleted?: boolean
           price?: string
           scheduled_for?: string | null
           scheduled_time?: string | null
@@ -151,6 +157,7 @@ export type Database = {
           content_id: string | null
           creator_id: string | null
           id: string
+          is_deleted: boolean
           timestamp: string
           user_id: string | null
         }
@@ -159,6 +166,7 @@ export type Database = {
           content_id?: string | null
           creator_id?: string | null
           id?: string
+          is_deleted?: boolean
           timestamp?: string
           user_id?: string | null
         }
@@ -167,6 +175,7 @@ export type Database = {
           content_id?: string | null
           creator_id?: string | null
           id?: string
+          is_deleted?: boolean
           timestamp?: string
           user_id?: string | null
         }
