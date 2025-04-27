@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,6 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   }
   
   const filteredContents = contents.filter(content => {
-    const contentType = content.content_type || content.contentType;
     const isPaid = parseFloat(content.price) > 0;
     const matchesSearch = searchQuery ? 
       (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -55,17 +53,11 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
     
     if (filters.length === 0) return matchesSearch;
     
-    const matchesTypeFilter = 
-      filters.includes(contentType === 'text' ? 'Text' : '') ||
-      filters.includes(contentType === 'image' ? 'Image' : '') ||
-      filters.includes(contentType === 'video' ? 'Video' : '') ||
-      filters.includes(contentType === 'link' ? 'Link' : '');
-      
     const matchesPriceFilter = 
       (filters.includes('Free') && !isPaid) ||
       (filters.includes('Paid') && isPaid);
       
-    return (matchesTypeFilter || matchesPriceFilter) && matchesSearch;
+    return matchesPriceFilter && matchesSearch;
   });
   
   if (filteredContents.length === 0) {

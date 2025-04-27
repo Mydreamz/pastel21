@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Store } from 'lucide-react';
 import ContentCard from './ContentCard';
@@ -35,7 +34,6 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   }
   
   const filteredContents = contents.filter(content => {
-    const contentType = content.content_type || content.contentType;
     const isPaid = parseFloat(content.price) > 0;
     const matchesSearch = searchQuery ? 
       (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -45,17 +43,11 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
     
     if (filters.length === 0) return matchesSearch;
     
-    const matchesTypeFilter = 
-      filters.includes(contentType === 'text' ? 'Text' : '') ||
-      filters.includes(contentType === 'image' ? 'Image' : '') ||
-      filters.includes(contentType === 'video' ? 'Video' : '') ||
-      filters.includes(contentType === 'link' ? 'Link' : '');
-      
     const matchesPriceFilter = 
       (filters.includes('Free') && !isPaid) ||
       (filters.includes('Paid') && isPaid);
       
-    return (matchesTypeFilter || matchesPriceFilter) && matchesSearch;
+    return matchesPriceFilter && matchesSearch;
   });
   
   if (filteredContents.length === 0) {

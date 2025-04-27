@@ -1,13 +1,9 @@
 
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { FileText, Image, Video, Link as LinkIcon, DollarSign } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 
 export const defaultTags = [
-  { name: 'Text', color: 'blue', icon: FileText },
-  { name: 'Image', color: 'purple', icon: Image },
-  { name: 'Video', color: 'red', icon: Video },
-  { name: 'Link', color: 'yellow', icon: LinkIcon },
   { name: 'Free', color: 'green', icon: null },
   { name: 'Paid', color: 'emerald', icon: DollarSign },
 ];
