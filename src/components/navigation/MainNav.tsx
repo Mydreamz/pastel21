@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User } from 'lucide-react';
+import { User, LayoutDashboard } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,6 +49,11 @@ const MainNav = ({
             <Link to="/" className="text-gray-300 hover:text-white transition-colors">
               Home
             </Link>
+            {isAuthenticated && (
+              <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors">
+                Dashboard
+              </Link>
+            )}
             <Link to="/#features" className="text-gray-300 hover:text-white transition-colors">
               Features
             </Link>
@@ -81,8 +86,13 @@ const MainNav = ({
                     <p className="text-sm text-gray-400">{userEmail}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-white/10" />
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-white/10">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-white/10">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-white/10">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-white/10 md:hidden">
                     Create Content

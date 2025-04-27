@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from '@supabase/supabase-js';
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
 import CreateContent from "./pages/CreateContent";
 import ViewContent from "./pages/ViewContent";
 import EditContent from "./pages/EditContent";
@@ -169,7 +171,8 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={session ? <Navigate to="/dashboard" /> : <Index />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/create" element={<CreateContent />} />
                   <Route path="/view/:id" element={<ViewContent />} />
                   <Route path="/preview/:id" element={<PreviewContent />} />
