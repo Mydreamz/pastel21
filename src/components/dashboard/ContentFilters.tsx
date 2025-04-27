@@ -18,7 +18,7 @@ interface ContentFiltersProps {
 
 const ContentFilters: React.FC<ContentFiltersProps> = ({ onFilter }) => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [customTags, setCustomTags] = useState<Array<{name: string, color: string}>>([]);
+  const [customTags, setCustomTags] = useState<Array<{name: string, color: string, icon?: React.ComponentType}>>([]);
   const [newTagName, setNewTagName] = useState('');
   const [selectedColor, setSelectedColor] = useState('blue');
   
