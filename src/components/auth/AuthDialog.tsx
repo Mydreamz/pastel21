@@ -108,10 +108,7 @@ const AuthDialog = ({
         }
       });
       
-      if (error) {
-        console.error("Signup error:", error);
-        throw error;
-      }
+      if (error) throw error;
       
       setShowAuthDialog(false);
       toast({

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +20,6 @@ import PreviewContent from "./pages/PreviewContent";
 import Search from "./pages/Search";
 import ForgotPassword from "./pages/ForgotPassword";
 
-// Create a new Query Client with proper settings
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -31,7 +29,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create auth context to manage auth state globally
 export type AuthContextType = {
   session: Session | null;
   user: User | null;
@@ -51,23 +48,19 @@ const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   
-  // Handle access token in URL hash (for email confirmations)
   useEffect(() => {
-    // This handles the redirect from email confirmation
     const handleEmailConfirmation = async () => {
       const hash = window.location.hash;
       
       if (hash && hash.includes('access_token')) {
         try {
-          // Process the hash fragment containing the access token
           const { data } = await supabase.auth.getSession();
           
           if (data?.session) {
-            console.log("Successfully authenticated from URL");
+            console.log("Successfully authenticated from email confirmation");
             setSession(data.session);
             setUser(data.session.user);
             
-            // Store auth data in localStorage for backward compatibility
             const authData = {
               isAuthenticated: true,
               token: data.session.access_token,
@@ -75,11 +68,10 @@ const App = () => {
             };
             localStorage.setItem('auth', JSON.stringify(authData));
             
-            // Clear the hash fragment from the URL to avoid authentication on page refresh
             window.location.hash = '';
           }
         } catch (error) {
-          console.error("Failed to process authentication URL:", error);
+          console.error("Failed to process email confirmation:", error);
         }
       }
     };
@@ -87,13 +79,11 @@ const App = () => {
     handleEmailConfirmation();
   }, []);
   
-  // Initialize Supabase auth listener at application startup
   useEffect(() => {
     console.log("App: Setting up auth state management");
     
     const initializeAuth = async () => {
       try {
-        // Set up auth state listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, newSession) => {
             console.log("App: Auth state changed:", event, newSession?.user?.id || "no user");
@@ -101,7 +91,6 @@ const App = () => {
             setSession(newSession);
             setUser(newSession?.user || null);
             
-            // Update local storage for backward compatibility with existing code
             if (newSession) {
               const authData = {
                 isAuthenticated: true,
@@ -117,15 +106,12 @@ const App = () => {
           }
         );
         
-        // Then check for existing session
         const { data } = await supabase.auth.getSession();
         console.log("App: Initial session check:", data.session ? `Session exists for ${data.session.user.id}` : "No session");
         
-        // Update state with initial session
         setSession(data.session);
         setUser(data.session?.user || null);
         
-        // Update local storage if session exists
         if (data.session) {
           const authData = {
             isAuthenticated: true,
