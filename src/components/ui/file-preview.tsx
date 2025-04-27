@@ -10,6 +10,8 @@ type FilePreviewProps = {
 };
 
 const FilePreview = ({ file, type, onRemove }: FilePreviewProps) => {
+  const fileUrl = URL.createObjectURL(file);
+  
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center">
       <Button
@@ -24,26 +26,33 @@ const FilePreview = ({ file, type, onRemove }: FilePreviewProps) => {
       
       {type === "image" && (
         <img 
-          src={URL.createObjectURL(file)} 
-          alt="Preview" 
+          src={fileUrl} 
+          alt={file.name}
           className="max-h-32 max-w-[90%] object-contain rounded"
+          loading="lazy"
         />
       )}
       
       {type === "video" && (
         <video 
-          src={URL.createObjectURL(file)} 
+          src={fileUrl} 
           controls 
+          preload="metadata"
           className="max-h-32 max-w-[90%] object-contain rounded"
-        />
+        >
+          <source src={fileUrl} type={file.type} />
+        </video>
       )}
       
       {type === "audio" && (
         <audio 
-          src={URL.createObjectURL(file)} 
+          src={fileUrl} 
           controls 
+          preload="metadata"
           className="max-w-[90%]"
-        />
+        >
+          <source src={fileUrl} type={file.type} />
+        </audio>
       )}
       
       {type === "document" && (
@@ -58,7 +67,7 @@ const FilePreview = ({ file, type, onRemove }: FilePreviewProps) => {
         </div>
       )}
       
-      <p className="text-xs text-gray-400 mt-2">
+      <p className="text-xs text-gray-400 mt-2 truncate max-w-[90%]">
         {file.name}
       </p>
     </div>

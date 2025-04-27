@@ -26,6 +26,7 @@ const FilePreview: React.FC<FilePreviewProps> = ({
             src={fileUrl} 
             alt={fileName || "Image preview"} 
             className="max-h-60 max-w-full rounded-md object-contain"
+            loading="lazy"
           />
         </div>
       );
@@ -37,8 +38,13 @@ const FilePreview: React.FC<FilePreviewProps> = ({
           <video 
             src={fileUrl} 
             controls 
+            preload="metadata"
+            poster={fileUrl + '?poster=true'}
             className="max-h-60 max-w-full rounded-md"
-          />
+          >
+            <source src={fileUrl} type={fileType} />
+            Your browser does not support the video tag.
+          </video>
         </div>
       );
     }
@@ -49,8 +55,12 @@ const FilePreview: React.FC<FilePreviewProps> = ({
           <audio 
             src={fileUrl} 
             controls 
+            preload="metadata"
             className="w-full"
-          />
+          >
+            <source src={fileUrl} type={fileType} />
+            Your browser does not support the audio tag.
+          </audio>
         </div>
       );
     }

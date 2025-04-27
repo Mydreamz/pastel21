@@ -65,31 +65,41 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
       {content.fileUrl && (
         <div className="mt-4">
           {content.contentType === 'image' && (
-            <img 
-              src={content.fileUrl} 
-              alt={content.title} 
-              className="max-w-full rounded-md"
-            />
+            <div className="overflow-hidden rounded-md bg-white/5 p-2 flex justify-center">
+              <img 
+                src={content.fileUrl} 
+                alt={content.title} 
+                className="max-w-full max-h-[600px] object-contain rounded-md"
+                loading="lazy"
+              />
+            </div>
           )}
           
           {content.contentType === 'video' && (
-            <video 
-              controls 
-              className="w-full rounded-md"
-            >
-              <source src={content.fileUrl} type={content.fileType} />
-              Your browser does not support the video tag.
-            </video>
+            <div className="overflow-hidden rounded-md bg-white/5 p-2">
+              <video 
+                controls
+                preload="metadata"
+                poster={content.fileUrl + '?poster=true'}
+                className="w-full rounded-md"
+              >
+                <source src={content.fileUrl} type={content.fileType} />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           )}
           
           {content.contentType === 'audio' && (
-            <audio 
-              controls 
-              className="w-full"
-            >
-              <source src={content.fileUrl} type={content.fileType} />
-              Your browser does not support the audio tag.
-            </audio>
+            <div className="bg-white/5 p-4 rounded-md">
+              <audio 
+                controls
+                preload="metadata"
+                className="w-full"
+              >
+                <source src={content.fileUrl} type={content.fileType} />
+                Your browser does not support the audio tag.
+              </audio>
+            </div>
           )}
           
           {content.contentType === 'document' && (
