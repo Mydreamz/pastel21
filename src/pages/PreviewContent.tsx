@@ -209,6 +209,7 @@ const PreviewContent = () => {
             onShare={handleShare}
             shareUrl={shareUrl}
             contentTitle={content.title}
+            contentId={content.id} 
             isCreator={false}
           />
           

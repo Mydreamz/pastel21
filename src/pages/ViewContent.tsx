@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -179,6 +180,7 @@ const ViewContent = () => {
             onShare={handleShare} 
             shareUrl={shareUrl}
             contentTitle={content.title}
+            contentId={content.id}
             isCreator={isCreator}
           >
             {isCreator && (
