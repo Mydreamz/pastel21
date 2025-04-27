@@ -87,21 +87,9 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
         const createdAt = new Date(content.created_at || content.createdAt).toLocaleDateString();
         const status = content.status || 'published';
         const views = content.views || 0;
-        const previewUrl = contentType === 'image' ? content.file_url : null;
         
         return (
-          <Card key={contentId} className="overflow-hidden bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
-            {previewUrl && (
-              <div className="aspect-video w-full overflow-hidden bg-white/5">
-                <img 
-                  src={previewUrl} 
-                  alt={title}
-                  className="w-full h-full object-cover"
-                  loading="lazy" 
-                />
-              </div>
-            )}
-            
+          <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
             <div className="p-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <div className="flex gap-2">

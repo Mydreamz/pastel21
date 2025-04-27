@@ -38,7 +38,6 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
     );
   }
   
-  // Filter by content type, price, and search query
   const filteredContents = contents.filter(content => {
     const contentType = content.content_type || content.contentType;
     const isPaid = parseFloat(content.price) > 0;
@@ -48,10 +47,8 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
        content.creator_name?.toLowerCase().includes(searchQuery.toLowerCase())) 
       : true;
     
-    // If no filters are active, show all items that match search
     if (filters.length === 0) return matchesSearch;
     
-    // Otherwise, check if content matches active filters
     const matchesTypeFilter = 
       filters.includes(contentType === 'text' ? 'Text' : '') ||
       filters.includes(contentType === 'image' ? 'Image' : '') ||
@@ -82,21 +79,9 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
         const price = content.price;
         const creatorName = content.creator_name || content.creatorName;
         const createdAt = new Date(content.created_at || content.createdAt).toLocaleDateString();
-        const previewUrl = contentType === 'image' ? content.file_url : null;
         
         return (
-          <Card key={contentId} className="overflow-hidden bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
-            {previewUrl && (
-              <div className="aspect-video w-full overflow-hidden bg-white/5">
-                <img 
-                  src={previewUrl} 
-                  alt={title}
-                  className="w-full h-full object-cover"
-                  loading="lazy" 
-                />
-              </div>
-            )}
-            
+          <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
             <div className="p-4">
               <div className="flex items-center justify-between mb-2">
                 {(() => {

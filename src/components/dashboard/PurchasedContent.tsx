@@ -86,36 +86,9 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
         const creatorName = content.creator_name || content.creatorName;
         const createdAt = new Date(content.created_at || content.createdAt).toLocaleDateString();
         const purchaseDate = new Date().toLocaleDateString();
-        const previewUrl = contentType === 'image' ? content.file_url : null;
         
         return (
-          <Card key={contentId} className="overflow-hidden bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
-            {previewUrl ? (
-              <div className="aspect-video w-full overflow-hidden bg-white/5">
-                <img 
-                  src={previewUrl} 
-                  alt={title}
-                  className="w-full h-full object-cover"
-                  loading="lazy" 
-                />
-              </div>
-            ) : (
-              <div className="aspect-video w-full flex items-center justify-center bg-white/5">
-                {(() => {
-                  switch (contentType) {
-                    case 'text':
-                      return <FileText className="h-12 w-12 text-blue-400 opacity-50" />;
-                    case 'video':
-                      return <Video className="h-12 w-12 text-red-400 opacity-50" />;
-                    case 'link':
-                      return <LinkIcon className="h-12 w-12 text-yellow-400 opacity-50" />;
-                    default:
-                      return <FileText className="h-12 w-12 text-gray-400 opacity-50" />;
-                  }
-                })()}
-              </div>
-            )}
-            
+          <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
             <div className="p-4">
               <div className="flex items-center justify-between mb-2">
                 {(() => {
