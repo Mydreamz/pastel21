@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";  // Add this import
 import { Filter, Plus, Tag } from 'lucide-react';
 import DefaultFilterTags, { defaultTags } from './filters/DefaultFilterTags';
 import CustomTagCreator from './filters/CustomTagCreator';
