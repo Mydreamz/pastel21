@@ -59,6 +59,7 @@ const ContentSuccess = () => {
                   onShare={() => {}} // No-op; handled inside ContentActions
                   shareUrl={shareUrl}
                   contentTitle={contentTitle}
+                  contentId={content.id}
                   isCreator={true}
                 />
               </div>
