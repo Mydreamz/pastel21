@@ -27,7 +27,8 @@ export const useContentForm = () => {
       content: "",
       expiry: "",
       file: null,
-      customTagsData: []
+      customTagsData: [],
+      tags: []
     }
   });
 

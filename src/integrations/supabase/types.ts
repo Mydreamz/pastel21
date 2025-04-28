@@ -84,6 +84,7 @@ export type Database = {
           created_at: string
           creator_id: string | null
           creator_name: string | null
+          custom_tags_data: Json | null
           expiry: string | null
           file_name: string | null
           file_size: number | null
@@ -108,6 +109,7 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           creator_name?: string | null
+          custom_tags_data?: Json | null
           expiry?: string | null
           file_name?: string | null
           file_size?: number | null
@@ -132,6 +134,7 @@ export type Database = {
           created_at?: string
           creator_id?: string | null
           creator_name?: string | null
+          custom_tags_data?: Json | null
           expiry?: string | null
           file_name?: string | null
           file_size?: number | null

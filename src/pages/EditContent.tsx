@@ -62,11 +62,13 @@ const EditContent = () => {
             teaser: content.teaser,
             price: content.price.toString(),
             content: content.content || '',
-            expiry: content.expiry || ""
+            expiry: content.expiry || "",
+            tags: content.tags || [],
+            customTagsData: content.custom_tags_data || []
           });
           
           setSelectedContentType(content.content_type);
-          if (content.expiry) {
+          if (content.expiry || (content.tags && content.tags.length > 0) || content.custom_tags_data) {
             setShowAdvanced(true);
           }
         } else {
