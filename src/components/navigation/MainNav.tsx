@@ -45,25 +45,22 @@ const MainNav = ({
             </span>
           </Link>
           
-          <nav className="hidden md:flex items-center space-x-6 ml-10">
-            <Link to="/" className="text-gray-300 hover:text-white transition-colors">
-              Home
-            </Link>
-            {isAuthenticated && (
-              <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors">
-                Dashboard
+          {!isAuthenticated && (
+            <nav className="hidden md:flex items-center space-x-6 ml-10">
+              <Link to="/" className="text-gray-300 hover:text-white transition-colors">
+                Home
               </Link>
-            )}
-            <Link to="/#features" className="text-gray-300 hover:text-white transition-colors">
-              Features
-            </Link>
-            <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors">
-              Pricing
-            </Link>
-            <Link to="/#contents" className="text-gray-300 hover:text-white transition-colors">
-              Explore
-            </Link>
-          </nav>
+              <Link to="/#features" className="text-gray-300 hover:text-white transition-colors">
+                Features
+              </Link>
+              <Link to="/#pricing" className="text-gray-300 hover:text-white transition-colors">
+                Pricing
+              </Link>
+              <Link to="/#contents" className="text-gray-300 hover:text-white transition-colors">
+                Explore
+              </Link>
+            </nav>
+          )}
         </div>
         
         <div className="flex items-center space-x-3">
