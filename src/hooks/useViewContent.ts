@@ -26,6 +26,7 @@ const supabaseToContent = (row: any): Content => ({
   fileName: row.file_name || undefined,
   fileType: row.file_type || undefined,
   fileSize: row.file_size || undefined,
+  filePath: row.file_path || undefined, // Include file_path in the mapping
   tags: row.tags || [],
   category: row.category || undefined,
   views: row.views ?? undefined

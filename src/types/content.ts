@@ -30,6 +30,7 @@ export type Content = ContentFormValues & {
   fileName?: string;
   fileType?: string;
   fileSize?: number;
+  filePath?: string; // Added filePath property
   createdAt: string;
   updatedAt: string;
   status: 'draft' | 'scheduled' | 'published';

@@ -87,6 +87,7 @@ export type Database = {
           custom_tags_data: Json | null
           expiry: string | null
           file_name: string | null
+          file_path: string | null
           file_size: number | null
           file_type: string | null
           file_url: string | null
@@ -112,6 +113,7 @@ export type Database = {
           custom_tags_data?: Json | null
           expiry?: string | null
           file_name?: string | null
+          file_path?: string | null
           file_size?: number | null
           file_type?: string | null
           file_url?: string | null
@@ -137,6 +139,7 @@ export type Database = {
           custom_tags_data?: Json | null
           expiry?: string | null
           file_name?: string | null
+          file_path?: string | null
           file_size?: number | null
           file_type?: string | null
           file_url?: string | null

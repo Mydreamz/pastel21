@@ -72,6 +72,7 @@ const EditContent = () => {
           });
           
           setSelectedContentType(content.content_type);
+          // Check for file_path in the content object
           if (content.file_path) {
             setOriginalFilePath(content.file_path);
           }
