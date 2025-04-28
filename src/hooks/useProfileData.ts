@@ -66,8 +66,8 @@ export const useProfileData = () => {
             if (error) {
               console.error("Error fetching profile:", error);
               // Fallback to direct query with type assertion
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
+              const { data: profileData, error: profileError } = await (supabase
+                .from('profiles') as any)
                 .select('*')
                 .eq('id', user.id)
                 .single();
@@ -175,8 +175,8 @@ export const useProfileData = () => {
         
       if (error) {
         // Fallback to direct update with type assertion
-        const { error: updateError } = await supabase
-          .from('profiles')
+        const { error: updateError } = await (supabase
+          .from('profiles') as any)
           .upsert({
             id: user.id,
             ...profileData,

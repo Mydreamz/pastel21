@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useProfileData, ProfileData } from '@/hooks/useProfileData';
+import { supabase } from "@/integrations/supabase/client";
 
 interface AccountSettingsProps {
   userData: any;
@@ -46,7 +47,6 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
     }
   });
 
-  // Update form when profile data changes
   useEffect(() => {
     if (profileData) {
       form.reset({
@@ -65,14 +65,12 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
     setIsSaving(true);
     
     try {
-      // Update user metadata in auth
       const { error: authError } = await supabase.auth.updateUser({
         data: { name: values.name }
       });
       
       if (authError) throw authError;
       
-      // Update profile using our custom hook
       const { error } = await updateProfile({
         name: values.name,
         bio: values.bio || null,
