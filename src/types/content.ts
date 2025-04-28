@@ -12,7 +12,13 @@ export const contentFormSchema = z.object({
   scheduledFor: z.date().optional(),
   scheduledTime: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  category: z.string().optional()
+  category: z.string().optional(),
+  customTagsData: z.array(
+    z.object({
+      name: z.string(),
+      color: z.string()
+    })
+  ).optional()
 });
 
 export type ContentFormValues = z.infer<typeof contentFormSchema> & {

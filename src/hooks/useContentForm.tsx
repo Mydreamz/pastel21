@@ -18,7 +18,7 @@ export const useContentForm = () => {
   const { user, session, isLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const form = useForm<ContentFormValues & { customTagsData?: Array<{name: string, color: string}> }>({
+  const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
     defaultValues: {
       title: "",
@@ -31,7 +31,7 @@ export const useContentForm = () => {
     }
   });
 
-  const onSubmit = async (values: ContentFormValues & { customTagsData?: Array<{name: string, color: string}> }) => {
+  const onSubmit = async (values: ContentFormValues) => {
     // Verify authentication before proceeding
     try {
       if (!session || !user) {

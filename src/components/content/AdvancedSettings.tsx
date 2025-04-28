@@ -21,29 +21,38 @@ interface AdvancedSettingsProps {
 const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSettingsProps) => {
   const [customTags, setCustomTags] = React.useState<Array<{name: string, color: string}>>([]);
 
+  React.useEffect(() => {
+    // Initialize customTags from form values if they exist
+    const existingCustomTags = form.getValues().customTagsData || [];
+    if (existingCustomTags.length > 0) {
+      setCustomTags(existingCustomTags);
+    }
+  }, [form]);
+
   const handleAddTag = (name: string, color: string) => {
     // Add new tag to customTags state
-    setCustomTags(prev => [...prev, { name, color }]);
+    const newCustomTags = [...customTags, { name, color }];
+    setCustomTags(newCustomTags);
     
     // Add tag to form values
     const currentTags = form.getValues('tags') || [];
-    form.setValue('tags', [...currentTags, name]);
+    form.setValue('tags', [...currentTags, name], { shouldValidate: true });
     
     // Store customTagsData in form
-    form.setValue('customTagsData', [...customTags, { name, color }]);
+    form.setValue('customTagsData', newCustomTags, { shouldValidate: true });
   };
 
   const removeTag = (tagToRemove: string) => {
     // Remove from form values
     const currentTags = form.getValues('tags') || [];
-    form.setValue('tags', currentTags.filter(tag => tag !== tagToRemove));
+    form.setValue('tags', currentTags.filter(tag => tag !== tagToRemove), { shouldValidate: true });
     
     // Remove from customTags state
     const updatedCustomTags = customTags.filter(tag => tag.name !== tagToRemove);
     setCustomTags(updatedCustomTags);
     
     // Update customTagsData in form
-    form.setValue('customTagsData', updatedCustomTags);
+    form.setValue('customTagsData', updatedCustomTags, { shouldValidate: true });
   };
 
   return (
