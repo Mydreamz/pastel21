@@ -157,6 +157,39 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          bio: string | null
+          github_url: string | null
+          id: string
+          linkedin_url: string | null
+          location: string | null
+          name: string | null
+          twitter_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bio?: string | null
+          github_url?: string | null
+          id: string
+          linkedin_url?: string | null
+          location?: string | null
+          name?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bio?: string | null
+          github_url?: string | null
+          id?: string
+          linkedin_url?: string | null
+          location?: string | null
+          name?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: string
@@ -200,7 +233,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_protected_file_url: {
+        Args: { content_id: string; file_path: string }
+        Returns: string
+      }
+      has_purchased_content: {
+        Args: { user_id: string; content_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

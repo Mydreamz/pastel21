@@ -26,7 +26,7 @@ const supabaseToContent = (row: any): Content => ({
   fileName: row.file_name || undefined,
   fileType: row.file_type || undefined,
   fileSize: row.file_size || undefined,
-  filePath: row.file_path || undefined, // Include file_path in the mapping
+  filePath: row.file_path || undefined,
   tags: row.tags || [],
   category: row.category || undefined,
   views: row.views ?? undefined
@@ -40,7 +40,31 @@ export const useViewContent = (id: string | undefined) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const { user, session } = useAuth(); // Use global auth context
+  const [secureFileUrl, setSecureFileUrl] = useState<string | null>(null);
+  const { user, session } = useAuth();
+
+  // Function to get secure URL for protected content
+  const getSecureFileUrl = async (contentId: string, filePath: string | undefined) => {
+    if (!filePath || !user) return null;
+    
+    try {
+      // For protected content, we need to get a signed URL
+      const { data, error } = await supabase.rpc(
+        'get_protected_file_url',
+        { content_id: contentId, file_path: filePath }
+      );
+
+      if (error) {
+        console.error('Error getting secure file URL:', error);
+        return null;
+      }
+
+      return data;
+    } catch (err) {
+      console.error('Failed to get secure file URL:', err);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const loadContent = async () => {
@@ -68,26 +92,39 @@ export const useViewContent = (id: string | undefined) => {
           setContent(mapped);
 
           if (user) {
-            // Query for transactions
-            const { data: transactions } = await supabase
-              .from('transactions')
-              .select('*')
-              .eq('content_id', id)
-              .eq('user_id', user.id);
-
-            const userHasTransaction = (transactions && transactions.length > 0);
+            // Check if user is creator or has purchased the content
             const isCreator = mapped.creatorId === user.id;
-
-            // Only unlock content if it's free, the user is the creator, or they've purchased it
-            if (
-              parseFloat(mapped.price) === 0 ||
-              isCreator ||
-              userHasTransaction
-            ) {
+            
+            if (isCreator) {
               setIsUnlocked(true);
-            } else if (window.location.pathname.startsWith('/view/')) {
-              // Redirect to preview page if paid content that user hasn't purchased
-              navigate(`/preview/${id}`);
+              
+              // If has file path, get secure URL
+              if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
+                const url = await getSecureFileUrl(id, mapped.filePath);
+                setSecureFileUrl(url);
+              }
+            } else {
+              // Check for transactions
+              const { data: transactions } = await supabase
+                .from('transactions')
+                .select('*')
+                .eq('content_id', id)
+                .eq('user_id', user.id);
+
+              const userHasTransaction = (transactions && transactions.length > 0);
+              
+              if (parseFloat(mapped.price) === 0 || userHasTransaction) {
+                setIsUnlocked(true);
+                
+                // If has file path, get secure URL
+                if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
+                  const url = await getSecureFileUrl(id, mapped.filePath);
+                  setSecureFileUrl(url);
+                }
+              } else if (window.location.pathname.startsWith('/view/')) {
+                // Redirect to preview page if paid content that user hasn't purchased
+                navigate(`/preview/${id}`);
+              }
             }
           } else if (
             window.location.pathname.startsWith('/view/') &&
@@ -96,7 +133,7 @@ export const useViewContent = (id: string | undefined) => {
             // Redirect to preview page if user is not authenticated and content is paid
             navigate(`/preview/${id}`);
           } else if (parseFloat(foundContent.price) === 0) {
-            // Free content is always unlocked
+            // Free content is still unlocked, but we need to handle the file URL differently
             setIsUnlocked(true);
           }
         } else {
@@ -142,6 +179,12 @@ export const useViewContent = (id: string | undefined) => {
 
       setIsUnlocked(true);
 
+      // After purchase, get secure URL for file if it exists
+      if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {
+        const url = await getSecureFileUrl(id!, content.filePath);
+        setSecureFileUrl(url);
+      }
+
       toast({
         title: "Content unlocked",
         description: `Thank you for your purchase of $${parseFloat(content.price).toFixed(2)}`
@@ -173,6 +216,7 @@ export const useViewContent = (id: string | undefined) => {
     error,
     isUnlocked,
     handleUnlock,
-    isAuthenticated: !!session
+    isAuthenticated: !!session,
+    secureFileUrl
   };
 };

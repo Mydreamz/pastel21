@@ -1,7 +1,7 @@
 
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Tag, AlertCircle } from 'lucide-react';
+import { Clock, Eye, Tag, AlertCircle, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -9,17 +9,24 @@ interface ContentDisplayProps {
   content: Content;
   isCreator: boolean;
   isPurchased: boolean;
+  secureFileUrl?: string | null;
 }
 
-const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps) => {
+const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: ContentDisplayProps) => {
   const [mediaError, setMediaError] = useState<string | null>(null);
   
+  // Determine which file URL to use (secure URL takes precedence)
+  const displayFileUrl = secureFileUrl || content.fileUrl;
+  
   // Check if file URL is valid (not a blob URL)
-  const isValidFileUrl = content.fileUrl && 
-    (content.fileUrl.startsWith('http') || content.fileUrl.startsWith('/'));
+  const isValidFileUrl = displayFileUrl && 
+    (displayFileUrl.startsWith('http') || displayFileUrl.startsWith('/'));
+  
+  const isMediaContent = ['image', 'video', 'audio', 'document'].includes(content.contentType || '');
+  const canAccessMedia = isCreator || isPurchased || parseFloat(content.price) === 0;
 
   const handleMediaError = () => {
-    setMediaError("The media file could not be loaded. It may have been stored using a temporary URL.");
+    setMediaError("The media file could not be loaded. It may have been stored using a temporary URL or you don't have access to it.");
   };
 
   return (
@@ -97,13 +104,23 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
         </Alert>
       )}
       
-      {content.fileUrl && (
+      {isMediaContent && (
         <div className="mt-4">
-          {content.contentType === 'image' && (
+          {!canAccessMedia && (
+            <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg p-6 text-center">
+              <Lock className="h-8 w-8 mx-auto mb-3 text-emerald-500/80" />
+              <p className="text-lg font-medium mb-1">Protected Content</p>
+              <p className="text-gray-400 text-sm">
+                This content requires purchase to view
+              </p>
+            </div>
+          )}
+          
+          {canAccessMedia && content.contentType === 'image' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2 flex justify-center">
               {isValidFileUrl ? (
                 <img 
-                  src={content.fileUrl} 
+                  src={displayFileUrl} 
                   alt={content.title} 
                   onError={handleMediaError}
                   className="max-w-full max-h-[600px] object-contain rounded-md"
@@ -118,17 +135,17 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
             </div>
           )}
           
-          {content.contentType === 'video' && (
+          {canAccessMedia && content.contentType === 'video' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2">
               {isValidFileUrl ? (
                 <video 
                   controls
                   preload="metadata"
-                  poster={content.fileUrl + '?poster=true'}
+                  poster={displayFileUrl + '?poster=true'}
                   onError={handleMediaError}
                   className="w-full rounded-md"
                 >
-                  <source src={content.fileUrl} type={content.fileType} />
+                  <source src={displayFileUrl} type={content.fileType} />
                   Your browser does not support the video tag.
                 </video>
               ) : (
@@ -140,7 +157,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
             </div>
           )}
           
-          {content.contentType === 'audio' && (
+          {canAccessMedia && content.contentType === 'audio' && (
             <div className="bg-white/5 p-4 rounded-md">
               {isValidFileUrl ? (
                 <audio 
@@ -149,7 +166,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
                   onError={handleMediaError}
                   className="w-full"
                 >
-                  <source src={content.fileUrl} type={content.fileType} />
+                  <source src={displayFileUrl} type={content.fileType} />
                   Your browser does not support the audio tag.
                 </audio>
               ) : (
@@ -161,11 +178,11 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
             </div>
           )}
           
-          {content.contentType === 'document' && (
+          {canAccessMedia && content.contentType === 'document' && (
             <div className="bg-white/5 p-4 rounded-md">
               {isValidFileUrl ? (
                 <a 
-                  href={content.fileUrl} 
+                  href={displayFileUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-emerald-400 hover:underline flex items-center"

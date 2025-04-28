@@ -1,3 +1,4 @@
+
 import { LucideIcon, FileText, Image, FileVideo, FileAudio } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -98,6 +99,7 @@ export const uploadFileToStorage = async (
     const fileName = `${uuidv4()}.${fileExt}`;
     const filePath = `${userId}/${fileName}`;
     
+    // Upload to the content-media bucket we created
     const { data, error } = await supabase.storage
       .from('content-media')
       .upload(filePath, file, {
@@ -110,14 +112,15 @@ export const uploadFileToStorage = async (
       throw error;
     }
     
-    // Get the public URL for the file
+    // We'll store the path and the URL separately
+    // The path will be used for generating signed URLs later
     const { data: { publicUrl } } = supabase.storage
       .from('content-media')
       .getPublicUrl(filePath);
       
     return {
       url: publicUrl,
-      path: data.path
+      path: filePath // Store the path for future signed URL generation
     };
   } catch (error) {
     console.error('File upload error:', error);
