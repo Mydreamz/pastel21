@@ -3,14 +3,13 @@ import React, { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Check, Tag } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 
 interface CustomTagCreatorProps {
-  customTags: Array<{name: string, color: string, icon?: React.ComponentType}>;
+  customTags: Array<{name: string, color: string}>;
   onAddTag: (name: string, color: string) => void;
 }
 
-// Color options for custom tags
 const tagColors = [
   'blue', 'purple', 'red', 'green', 'yellow', 
   'indigo', 'pink', 'emerald', 'amber', 'cyan'
@@ -22,16 +21,15 @@ const CustomTagCreator: React.FC<CustomTagCreatorProps> = ({ customTags, onAddTa
   
   const handleAddTag = () => {
     if (newTagName.trim() === '') return;
-    onAddTag(newTagName, selectedColor);
+    onAddTag(newTagName.trim(), selectedColor);
     setNewTagName('');
   };
 
   return (
     <div className="space-y-4">
-      <h4 className="font-medium">Create Custom Tag</h4>
       <div className="flex gap-2">
         <Input
-          placeholder="Tag name"
+          placeholder="Enter tag name"
           value={newTagName}
           onChange={(e) => setNewTagName(e.target.value)}
           className="bg-white/5 border-white/10 text-white"
@@ -47,7 +45,7 @@ const CustomTagCreator: React.FC<CustomTagCreatorProps> = ({ customTags, onAddTa
       </div>
       
       <div>
-        <h5 className="text-sm text-gray-400 mb-2">Choose Color</h5>
+        <h5 className="text-sm text-gray-400 mb-2">Select Color</h5>
         <div className="flex flex-wrap gap-2">
           {tagColors.map((color) => (
             <button
@@ -62,23 +60,6 @@ const CustomTagCreator: React.FC<CustomTagCreatorProps> = ({ customTags, onAddTa
           ))}
         </div>
       </div>
-      
-      {customTags.length > 0 && (
-        <div>
-          <h5 className="text-sm text-gray-400 mb-2">Your Custom Tags</h5>
-          <div className="flex flex-wrap gap-2">
-            {customTags.map((tag) => (
-              <Badge
-                key={tag.name}
-                variant="outline"
-                className={`border-${tag.color}-500/30 bg-${tag.color}-500/20 text-${tag.color}-300`}
-              >
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
