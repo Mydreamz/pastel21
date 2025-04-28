@@ -100,13 +100,24 @@ const Dashboard = () => {
       
       <MainNav openAuthDialog={() => {}} />
       
-      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col">
-        <div className="flex-none">
+      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
+        <div className="flex justify-between items-center mb-6">
           <DashboardHeader />
+          {isMobile && (
+            <Button
+              onClick={() => navigate('/marketplace')}
+              variant="outline"
+              size="sm"
+              className="border-white/10 hover:bg-white/5"
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Marketplace
+            </Button>
+          )}
         </div>
         
-        <Card className="glass-card border-white/10 text-white flex-1 mt-4">
-          <CardContent className="p-0 h-full">
+        <Card className="glass-card border-white/10 text-white mb-8">
+          <CardContent className="p-0">
             <DashboardSearch 
               onFilter={handleFilter}
               searchQuery={searchQuery}
