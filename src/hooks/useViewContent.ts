@@ -48,18 +48,24 @@ export const useViewContent = (id: string | undefined) => {
     if (!filePath || !user) return null;
     
     try {
-      // For protected content, we need to get a signed URL
-      const { data, error } = await supabase.rpc(
-        'get_protected_file_url',
-        { content_id: contentId, file_path: filePath }
-      );
+      console.log(`Getting secure URL for content ID: ${contentId}, file path: ${filePath}`);
+      
+      // Call the secure-media edge function directly
+      const { data, error } = await supabase.functions.invoke('secure-media', {
+        body: { 
+          contentId, 
+          filePath 
+        },
+        method: 'POST',
+      });
 
       if (error) {
         console.error('Error getting secure file URL:', error);
         return null;
       }
 
-      return data;
+      console.log('Secure URL retrieved successfully:', data?.secureUrl);
+      return data?.secureUrl;
     } catch (err) {
       console.error('Failed to get secure file URL:', err);
       return null;

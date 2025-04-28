@@ -234,11 +234,11 @@ export type Database = {
     }
     Functions: {
       get_protected_file_url: {
-        Args: { content_id: string; file_path: string }
+        Args: { content_id_param: string; file_path: string }
         Returns: string
       }
       has_purchased_content: {
-        Args: { user_id: string; content_id: string }
+        Args: { user_id_param: string; content_id_param: string }
         Returns: boolean
       }
     }

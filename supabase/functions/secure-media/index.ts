@@ -49,19 +49,32 @@ serve(async (req) => {
       )
     }
 
-    // Check if user has access to content
+    console.log(`Processing secure media request for content ID: ${contentId}, file path: ${filePath}`)
+
+    // Check if user has access to content using the updated database function
     const { data: contentData, error: contentError } = await supabaseClient
       .rpc('has_purchased_content', {
-        user_id: user.id,
-        content_id: contentId
+        user_id_param: user.id,
+        content_id_param: contentId
       })
 
-    if (contentError || !contentData) {
+    if (contentError) {
+      console.error('Error checking content access:', contentError)
+      return new Response(
+        JSON.stringify({ error: 'Access verification failed', details: contentError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      )
+    }
+
+    if (!contentData) {
+      console.log('Access denied: User does not have permission to access this content')
       return new Response(
         JSON.stringify({ error: 'Access denied to content' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       )
     }
+
+    console.log('Access granted: Creating signed URL')
 
     // Get signed URL with short expiry
     const { data: urlData, error: urlError } = await supabaseClient
@@ -70,17 +83,21 @@ serve(async (req) => {
       .createSignedUrl(filePath, 300) // 5 minutes
 
     if (urlError) {
+      console.error('Error generating signed URL:', urlError)
       return new Response(
-        JSON.stringify({ error: 'Failed to generate secure URL' }),
+        JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
+
+    console.log('Secure URL generated successfully')
 
     return new Response(
       JSON.stringify({ secureUrl: urlData.signedUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
+    console.error('Unexpected error in secure-media function:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
