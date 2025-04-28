@@ -63,6 +63,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
       if (!userData?.id) return;
       
       try {
+        // Use a custom query for now until TypeScript definitions are updated
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -75,14 +76,16 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
         }
         
         if (data) {
-          setProfileData(data);
+          // Type assertion to handle the profiles table
+          const profileData = data as unknown as ProfileData;
+          setProfileData(profileData);
           form.reset({
-            name: data.name || userName,
-            bio: data.bio || '',
-            location: data.location || '',
-            twitter_url: data.twitter_url || '',
-            linkedin_url: data.linkedin_url || '',
-            github_url: data.github_url || '',
+            name: profileData.name || userName,
+            bio: profileData.bio || '',
+            location: profileData.location || '',
+            twitter_url: profileData.twitter_url || '',
+            linkedin_url: profileData.linkedin_url || '',
+            github_url: profileData.github_url || '',
           });
         }
       } catch (error) {
@@ -122,14 +125,14 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
       if (profileError) throw profileError;
       
       setProfileData({
-        ...profileData,
+        id: userData.id,
         name: values.name,
         bio: values.bio,
         location: values.location,
         twitter_url: values.twitter_url,
         linkedin_url: values.linkedin_url,
         github_url: values.github_url,
-      } as ProfileData);
+      });
       
       toast({
         title: "Profile updated",

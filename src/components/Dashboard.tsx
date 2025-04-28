@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardChart from './dashboard/DashboardChart';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
