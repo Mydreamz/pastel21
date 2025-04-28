@@ -5,7 +5,7 @@ import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
 
 interface PaymentFlowProps {
-  content: any;  // Replace 'any' with the actual content type from your types
+  content: any;
   onUnlock: () => void;
   isCreator: boolean;
 }
@@ -15,7 +15,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
   const [isProcessing, setIsProcessing] = useState(false);
   const { user, session } = useAuth();
 
-  const handleUnlock = () => {
+  const handleUnlock = async () => {
     if (isCreator) {
       toast({
         title: "Creator Access",
@@ -40,26 +40,14 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
       return;
     }
     
-    // Simulate payment process for demonstration
-    setTimeout(() => {
-      try {
-        onUnlock();
-        
-        toast({
-          title: "Payment Successful",
-          description: `You've unlocked "${content.title}"`,
-          variant: "default"
-        });
-      } catch (error) {
-        toast({
-          title: "Payment Failed",
-          description: "Unable to process your payment. Please try again.",
-          variant: "destructive"
-        });
-      } finally {
-        setIsProcessing(false);
-      }
-    }, 1500);
+    try {
+      // Call the provided onUnlock function which will handle the transaction
+      await onUnlock();
+    } catch (error) {
+      // Error handling is done in the onUnlock function
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Only show the LockedContent component for paid content when not unlocked

@@ -1,6 +1,6 @@
 
-import { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentLoader from '@/components/content/ContentLoader';
@@ -14,31 +14,72 @@ import { useRelatedContent } from '@/hooks/useRelatedContent';
 import ContentReadingProgress from '@/components/content/ContentReadingProgress';
 import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import PaymentFlow from '@/components/content/PaymentFlow';
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [justPurchased, setJustPurchased] = useState(false);
+  
+  // Get the query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const fromPurchase = queryParams.get('purchased') === 'true';
+  
   const { 
     content, 
     loading, 
     error, 
     secureFileUrl, 
     secureFileLoading,
-    secureFileError 
+    secureFileError,
+    handleUnlock,
+    isUnlocked,
+    refetchContent
   } = useViewContent(id);
-  const { isCreator, isPurchased } = useContentPermissions(content);
+  
+  const { isCreator, isPurchased, isLoading: permissionsLoading } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
-  const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
 
+  // Handle case where user just purchased the content and was redirected here
+  useEffect(() => {
+    if (fromPurchase && !justPurchased) {
+      setJustPurchased(true);
+      
+      // Show a success toast
+      toast({
+        title: "Purchase successful",
+        description: "Thank you for your purchase. Enjoy the content!",
+      });
+      
+      // Clean up the URL to remove the query parameter
+      navigate(`/view/${id}`, { replace: true });
+      
+      // Refetch content to ensure we have the latest permissions
+      refetchContent();
+    }
+  }, [fromPurchase, id, navigate, toast, justPurchased, refetchContent]);
+
+  // Initialize share URL when content is loaded
   useEffect(() => {
     if (content) {
       initializeShareUrl();
     }
   }, [content, initializeShareUrl]);
 
-  if (loading) {
+  // Show payment flow if content is paid and user hasn't purchased it
+  const showPaymentFlow = content && 
+                          !loading && 
+                          !permissionsLoading && 
+                          !isCreator && 
+                          !isPurchased && 
+                          parseFloat(content.price) > 0;
+  
+  if (loading || permissionsLoading) {
     return <ContentLoader />;
   }
 
@@ -67,11 +108,19 @@ const ViewContent = () => {
             isCreator={isCreator}
           />
 
+          {showPaymentFlow && (
+            <PaymentFlow 
+              content={content} 
+              onUnlock={handleUnlock} 
+              isCreator={isCreator}
+            />
+          )}
+
           <div ref={contentRef} className="overflow-auto max-h-[600px]">
             <ContentDisplay 
               content={content} 
               isCreator={isCreator} 
-              isPurchased={isPurchased}
+              isPurchased={isPurchased || isUnlocked}
               secureFileUrl={secureFileUrl}
               secureFileLoading={secureFileLoading}
               secureFileError={secureFileError}
