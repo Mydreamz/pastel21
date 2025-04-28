@@ -12,12 +12,10 @@ import { useContentPermissions } from '@/hooks/useContentPermissions';
 import { useContentSharing } from '@/hooks/useContentSharing';
 import { useRelatedContent } from '@/hooks/useRelatedContent';
 import ContentReadingProgress from '@/components/content/ContentReadingProgress';
-import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import PaymentFlow from '@/components/content/PaymentFlow';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +23,6 @@ const ViewContent = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [justPurchased, setJustPurchased] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
   // Get the query parameters
   const queryParams = new URLSearchParams(location.search);
@@ -47,8 +44,7 @@ const ViewContent = () => {
     isCreator, 
     isPurchased, 
     isLoading: permissionsLoading,
-    refetchPermissions,
-    deletePurchase
+    refetchPermissions 
   } = useContentPermissions(content);
   
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
@@ -87,28 +83,6 @@ const ViewContent = () => {
       initializeShareUrl();
     }
   }, [content, initializeShareUrl]);
-  
-  // Handle removing the purchase
-  const handleRemovePurchase = async () => {
-    if (!deletePurchase) return;
-    
-    const result = await deletePurchase();
-    if (result.success) {
-      toast({
-        title: "Purchase removed",
-        description: "This content has been removed from your purchases",
-      });
-      // Redirect to dashboard after removing purchase
-      navigate('/dashboard', { replace: true });
-    } else {
-      toast({
-        title: "Error",
-        description: result.error || "Failed to remove purchase",
-        variant: "destructive"
-      });
-    }
-    setShowDeleteDialog(false);
-  };
 
   // Show payment flow if content is paid and user hasn't purchased it
   const showPaymentFlow = content && 
@@ -139,34 +113,19 @@ const ViewContent = () => {
             contentId={content.id}
           />
 
-          <div className="flex justify-between items-center">
-            <ContentActions
-              onShare={handleShare}
-              shareUrl={shareUrl}
-              contentTitle={content.title}
-              contentId={content.id}
-              isCreator={isCreator}
-            />
-            
-            {isPurchased && !isCreator && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="bg-white/5 hover:bg-red-900/20 border border-white/10 hover:border-red-500/50 text-white hover:text-red-300"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Remove Purchase
-              </Button>
-            )}
-          </div>
+          <ContentActions
+            onShare={handleShare}
+            shareUrl={shareUrl}
+            contentTitle={content.title}
+            contentId={content.id}
+            isCreator={isCreator}
+          />
 
           {showPaymentFlow && (
             <PaymentFlow 
               content={content} 
               onUnlock={handleUnlock} 
               isCreator={isCreator}
-              isPurchased={isPurchased}
               refetchPermissions={refetchPermissions}
             />
           )}
@@ -224,32 +183,6 @@ const ViewContent = () => {
           )}
         </div>
       </div>
-
-      {/* Delete Purchase Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="glass-card border-white/10 text-white">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-red-500" />
-              Remove Purchase
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
-              Are you sure you want to remove your purchase of "{content.title}"? You will no longer have access to this content.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-gray-700 hover:border-gray-600 text-gray-300">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleRemovePurchase}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              Remove Purchase
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </ViewContentContainer>
   );
 };

@@ -1,12 +1,8 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { DollarSign, Trash2 } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 import ContentCard from './ContentCard';
-import DeleteContentDialog from '../content/DeleteContentDialog';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 interface PurchasedContentProps {
   contents: any[];
@@ -22,46 +18,6 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   searchQuery 
 }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [selectedContent, setSelectedContent] = useState<any>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
-  const handleDeletePurchase = async () => {
-    if (!selectedContent) return;
-
-    try {
-      const { error } = await supabase
-        .from('transactions')
-        .update({ is_deleted: true })
-        .eq('content_id', selectedContent.id)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
-
-      if (error) {
-        toast({
-          title: "Error removing purchase",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Purchase removed",
-          description: "The content has been removed from your purchases"
-        });
-        // Force refresh by incrementing the trigger state
-        setRefreshTrigger(prev => prev + 1);
-      }
-    } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message || "An error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsDeleting(false);
-      setSelectedContent(null);
-    }
-  };
   
   if (loading) {
     return (
@@ -113,31 +69,11 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   }
   
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredContents.map((content) => (
-          <ContentCard 
-            key={`${content.id}-${refreshTrigger}`} 
-            content={content} 
-            showPurchaseDate 
-            onDelete={() => {
-              setSelectedContent(content);
-              setIsDeleting(true);
-            }}
-          />
-        ))}
-      </div>
-      
-      <DeleteContentDialog 
-        isOpen={isDeleting}
-        onClose={() => {
-          setIsDeleting(false);
-          setSelectedContent(null);
-        }}
-        onConfirm={handleDeletePurchase}
-        contentTitle={selectedContent?.title || "this content"}
-      />
-    </>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {filteredContents.map((content) => (
+        <ContentCard key={content.id} content={content} showPurchaseDate />
+      ))}
+    </div>
   );
 };
 

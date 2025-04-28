@@ -108,19 +108,6 @@ const ContentCard: React.FC<ContentCardProps> = ({
               </Button>
             </>
           )}
-          
-          {/* Add delete button for purchased content */}
-          {showPurchaseDate && onDelete && (
-            <Button 
-              onClick={() => onDelete(contentId)}
-              variant="outline" 
-              size="sm" 
-              className="border-white/10 hover:bg-white/10 hover:text-red-400 ml-auto"
-            >
-              <Trash2 className="h-4 w-4" />
-              Remove
-            </Button>
-          )}
         </div>
       </div>
     </Card>

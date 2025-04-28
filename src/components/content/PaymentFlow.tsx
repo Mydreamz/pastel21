@@ -8,7 +8,6 @@ interface PaymentFlowProps {
   content: any;
   onUnlock: () => void;
   isCreator: boolean;
-  isPurchased?: boolean;
   refetchPermissions?: () => Promise<void>;
 }
 
@@ -16,7 +15,6 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   content, 
   onUnlock, 
   isCreator,
-  isPurchased = false,
   refetchPermissions 
 }) => {
   const { toast } = useToast();
@@ -28,16 +26,6 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       toast({
         title: "Creator Access",
         description: "You have full access as the content creator",
-        variant: "default"
-      });
-      onUnlock();
-      return;
-    }
-    
-    if (isPurchased) {
-      toast({
-        title: "Already Purchased",
-        description: "You already have access to this content",
         variant: "default"
       });
       onUnlock();
@@ -74,7 +62,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   };
 
   // Only show the LockedContent component for paid content when not unlocked
-  if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
+  if (parseFloat(content.price) > 0 && !isCreator) {
     return (
       <LockedContent 
         price={content.price} 
@@ -85,7 +73,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
     );
   }
 
-  // Return null if content is free or user is creator or already purchased
+  // Return null if content is free or user is creator
   return null;
 };
 

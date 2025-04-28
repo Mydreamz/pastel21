@@ -212,44 +212,18 @@ export const useViewContent = (id: string | undefined) => {
     try {
       console.log(`User ${user.id} purchasing content ${id}`);
       
-      // First check if this user has already purchased this content (even if it's marked as deleted)
-      const { data: existingTransactions, error: checkError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('content_id', id)
-        .eq('user_id', user.id);
-      
-      if (checkError) {
-        console.error("Error checking existing transactions:", checkError);
-        throw checkError;
-      }
-      
-      // If a transaction exists, just mark it as not deleted (reactivate it)
-      if (existingTransactions && existingTransactions.length > 0) {
-        // Transaction already exists, update it to not be deleted
-        const { error: updateError } = await supabase
-          .from('transactions')
-          .update({ is_deleted: false })
-          .eq('id', existingTransactions[0].id);
-        
-        if (updateError) {
-          console.error("Error reactivating transaction:", updateError);
-          throw updateError;
-        }
-      } else {
-        // Insert new transaction
-        const { error: transactionError } = await supabase.from('transactions').insert([{
-          content_id: id,
-          user_id: user.id,
-          creator_id: content.creatorId,
-          amount: content.price,
-          timestamp: new Date().toISOString()
-        }]);
+      // Insert transaction
+      const { error: transactionError } = await supabase.from('transactions').insert([{
+        content_id: id,
+        user_id: user.id,
+        creator_id: content.creatorId,
+        amount: content.price,
+        timestamp: new Date().toISOString()
+      }]);
 
-        if (transactionError) {
-          console.error("Transaction error:", transactionError);
-          throw transactionError;
-        }
+      if (transactionError) {
+        console.error("Transaction error:", transactionError);
+        throw transactionError;
       }
 
       setIsUnlocked(true);
