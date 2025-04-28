@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2, Clock, Calendar, User, Star } from 'lucide-react';
+import { Eye, Edit, Trash2, Clock, Calendar, User } from 'lucide-react';
 import ContentTypeBadge from './ContentTypeBadge';
 import PriceBadge from './PriceBadge';
 
@@ -32,10 +32,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const views = content.views || 0;
   
   return (
-    <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors card-corner-cutout">
-      <div className="card-corner-icon">
-        <Star className="h-5 w-5 text-emerald-400" />
-      </div>
+    <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-2">
