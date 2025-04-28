@@ -50,6 +50,7 @@ const CustomTagCreator: React.FC<CustomTagCreatorProps> = ({ customTags, onAddTa
           {tagColors.map((color) => (
             <button
               key={color}
+              type="button" 
               className={`w-6 h-6 rounded-full bg-${color}-500 flex items-center justify-center`}
               onClick={() => setSelectedColor(color)}
             >
