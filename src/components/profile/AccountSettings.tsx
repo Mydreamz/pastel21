@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useProfileData, ProfileData } from '@/hooks/useProfileData';
+import { supabase } from "@/lib/supabaseClient";
+
 
 interface AccountSettingsProps {
   userData: any;
