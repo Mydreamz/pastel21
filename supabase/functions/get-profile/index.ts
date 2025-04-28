@@ -46,10 +46,11 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { action, profileData } = await req.json();
+    const requestData = await req.json();
+    const { action, profileData } = requestData;
     
     if (action === 'get') {
-      // Get profile data
+      // Get profile data - use the admin client to bypass RLS
       const { data, error } = await supabaseAdmin
         .from('profiles')
         .select('*')
@@ -57,9 +58,31 @@ serve(async (req) => {
         .single();
         
       if (error) {
+        console.error('Error fetching profile:', error);
+        // If the profile doesn't exist, create an empty one
+        if (error.code === 'PGRST116') {
+          const { data: newProfile, error: createError } = await supabaseAdmin
+            .from('profiles')
+            .insert([{ id: user.id, name: user.user_metadata?.name || '' }])
+            .select()
+            .single();
+            
+          if (createError) {
+            return new Response(
+              JSON.stringify({ error: createError.message }),
+              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+          
+          return new Response(
+            JSON.stringify({ data: newProfile }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
         return new Response(
           JSON.stringify({ error: error.message }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
@@ -80,7 +103,7 @@ serve(async (req) => {
       if (error) {
         return new Response(
           JSON.stringify({ error: error.message }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       
@@ -95,6 +118,7 @@ serve(async (req) => {
       );
     }
   } catch (error) {
+    console.error('Function error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

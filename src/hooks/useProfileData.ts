@@ -56,29 +56,21 @@ export const useProfileData = () => {
 
         setBalance(userEarnings);
         
-        // Fetch user profile data using a more generic approach
+        // Fetch user profile data using Edge Function
         if (user.id) {
           try {
-            // Use a more generic approach with any type
-            const { data, error } = await supabase
-              .rpc('get_profile_by_id', { user_id: user.id });
+            // Call the get-profile Edge Function with auth token
+            const { data, error } = await supabase.functions.invoke('get-profile', {
+              body: { action: 'get' },
+              headers: {
+                Authorization: `Bearer ${session?.access_token}`
+              }
+            });
             
             if (error) {
-              console.error("Error fetching profile:", error);
-              // Fallback to direct query with type assertion
-              const { data: profileData, error: profileError } = await (supabase
-                .from('profiles') as any)
-                .select('*')
-                .eq('id', user.id)
-                .single();
-              
-              if (profileError) {
-                console.error("Profile fetch fallback failed:", profileError);
-              } else if (profileData) {
-                setProfileData(profileData as unknown as ProfileData);
-              }
-            } else if (data) {
-              setProfileData(data as unknown as ProfileData);
+              console.error("Error calling get-profile function:", error);
+            } else if (data?.data) {
+              setProfileData(data.data as ProfileData);
             }
           } catch (profileError) {
             console.error("Error in profile fetch:", profileError);
@@ -163,29 +155,22 @@ export const useProfileData = () => {
   };
   
   const updateProfile = async (profileData: Partial<ProfileData>) => {
-    if (!user) return { error: new Error("User not authenticated") };
+    if (!user || !session) return { error: new Error("User not authenticated") };
     
     try {
-      // Use a more generic approach to update profile
-      const { error } = await supabase
-        .rpc('update_profile', {
-          user_id: user.id,
-          profile_data: profileData
-        });
-        
-      if (error) {
-        // Fallback to direct update with type assertion
-        const { error: updateError } = await (supabase
-          .from('profiles') as any)
-          .upsert({
-            id: user.id,
-            ...profileData,
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'id' });
-          
-        if (updateError) {
-          throw updateError;
+      // Call the Edge Function to update profile data
+      const { data, error } = await supabase.functions.invoke('get-profile', {
+        body: { 
+          action: 'update', 
+          profileData 
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
         }
+      });
+      
+      if (error) {
+        throw error;
       }
       
       return { success: true };
