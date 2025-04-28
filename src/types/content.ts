@@ -36,4 +36,5 @@ export type Content = ContentFormValues & {
   tags?: string[];
   category?: string;
   views?: number;
+  customTagsData?: Array<{name: string, color: string}>;
 };

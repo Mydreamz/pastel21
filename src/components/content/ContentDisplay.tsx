@@ -11,6 +11,9 @@ interface ContentDisplayProps {
 }
 
 const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps) => {
+  // Extract customTagsData from content if it exists
+  const customTagsData = content.customTagsData || [];
+
   return (
     <div className="mt-8 border-t border-white/10 pt-8">
       <div className="flex items-center justify-between mb-4">
@@ -34,12 +37,13 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
         </div>
       </div>
       
-      {/* Display tags if available */}
+      {/* Display tags if available with custom tag colors */}
       {(content.tags?.length || content.category) && (
         <ContentTags 
           tags={content.tags} 
           categories={content.category ? [content.category] : []} 
           className="mb-4"
+          customTagsData={customTagsData}
         />
       )}
       

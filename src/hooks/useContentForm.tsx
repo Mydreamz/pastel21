@@ -18,7 +18,7 @@ export const useContentForm = () => {
   const { user, session, isLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const form = useForm<ContentFormValues>({
+  const form = useForm<ContentFormValues & { customTagsData?: Array<{name: string, color: string}> }>({
     resolver: zodResolver(contentFormSchema),
     defaultValues: {
       title: "",
@@ -26,11 +26,12 @@ export const useContentForm = () => {
       price: "0",
       content: "",
       expiry: "",
-      file: null
+      file: null,
+      customTagsData: []
     }
   });
 
-  const onSubmit = async (values: ContentFormValues) => {
+  const onSubmit = async (values: ContentFormValues & { customTagsData?: Array<{name: string, color: string}> }) => {
     // Verify authentication before proceeding
     try {
       if (!session || !user) {
@@ -85,7 +86,8 @@ export const useContentForm = () => {
         file_type: fileType,
         file_size: fileSize,
         tags: values.tags || [],
-        category: values.category || null
+        category: values.category || null,
+        custom_tags_data: values.customTagsData || []  // Store the custom tag data
       };
 
       console.log("Sending payload to Supabase:", payload);

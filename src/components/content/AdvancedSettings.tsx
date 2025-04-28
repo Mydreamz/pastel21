@@ -28,6 +28,9 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
     // Add tag to form values
     const currentTags = form.getValues('tags') || [];
     form.setValue('tags', [...currentTags, name]);
+    
+    // Store customTagsData in form
+    form.setValue('customTagsData', [...customTags, { name, color }]);
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -36,7 +39,11 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
     form.setValue('tags', currentTags.filter(tag => tag !== tagToRemove));
     
     // Remove from customTags state
-    setCustomTags(prev => prev.filter(tag => tag.name !== tagToRemove));
+    const updatedCustomTags = customTags.filter(tag => tag.name !== tagToRemove);
+    setCustomTags(updatedCustomTags);
+    
+    // Update customTagsData in form
+    form.setValue('customTagsData', updatedCustomTags);
   };
 
   return (
