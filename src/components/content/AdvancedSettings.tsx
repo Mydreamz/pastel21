@@ -25,7 +25,8 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
     // Initialize customTags from form values if they exist
     const existingCustomTags = form.getValues().customTagsData || [];
     if (existingCustomTags.length > 0) {
-      setCustomTags(existingCustomTags);
+      // Type assertion to ensure we're working with the correct type
+      setCustomTags(existingCustomTags as Array<{name: string, color: string}>);
     }
   }, [form]);
 
@@ -38,8 +39,8 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
     const currentTags = form.getValues('tags') || [];
     form.setValue('tags', [...currentTags, name], { shouldValidate: true });
     
-    // Store customTagsData in form
-    form.setValue('customTagsData', newCustomTags, { shouldValidate: true });
+    // Store customTagsData in form with proper type assertion
+    form.setValue('customTagsData', newCustomTags as Array<{name: string, color: string}>, { shouldValidate: true });
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -51,8 +52,8 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
     const updatedCustomTags = customTags.filter(tag => tag.name !== tagToRemove);
     setCustomTags(updatedCustomTags);
     
-    // Update customTagsData in form
-    form.setValue('customTagsData', updatedCustomTags, { shouldValidate: true });
+    // Update customTagsData in form with proper type assertion
+    form.setValue('customTagsData', updatedCustomTags as Array<{name: string, color: string}>, { shouldValidate: true });
   };
 
   return (
