@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -40,7 +40,13 @@ const ViewContent = () => {
     refetchContent
   } = useViewContent(id);
   
-  const { isCreator, isPurchased, isLoading: permissionsLoading } = useContentPermissions(content);
+  const { 
+    isCreator, 
+    isPurchased, 
+    isLoading: permissionsLoading,
+    refetchPermissions 
+  } = useContentPermissions(content);
+  
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,10 +65,17 @@ const ViewContent = () => {
       // Clean up the URL to remove the query parameter
       navigate(`/view/${id}`, { replace: true });
       
-      // Refetch content to ensure we have the latest permissions
-      refetchContent();
+      // Refresh permissions and content to ensure we have the latest data
+      const refreshData = async () => {
+        if (refetchPermissions) {
+          await refetchPermissions();
+        }
+        refetchContent();
+      };
+      
+      refreshData();
     }
-  }, [fromPurchase, id, navigate, toast, justPurchased, refetchContent]);
+  }, [fromPurchase, id, navigate, toast, justPurchased, refetchPermissions, refetchContent]);
 
   // Initialize share URL when content is loaded
   useEffect(() => {
@@ -113,6 +126,7 @@ const ViewContent = () => {
               content={content} 
               onUnlock={handleUnlock} 
               isCreator={isCreator}
+              refetchPermissions={refetchPermissions}
             />
           )}
 

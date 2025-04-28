@@ -8,9 +8,15 @@ interface PaymentFlowProps {
   content: any;
   onUnlock: () => void;
   isCreator: boolean;
+  refetchPermissions?: () => Promise<void>;
 }
 
-const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator }) => {
+const PaymentFlow: React.FC<PaymentFlowProps> = ({ 
+  content, 
+  onUnlock, 
+  isCreator,
+  refetchPermissions 
+}) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   const { user, session } = useAuth();
@@ -43,6 +49,11 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     try {
       // Call the provided onUnlock function which will handle the transaction
       await onUnlock();
+      
+      // After successful purchase, refresh permissions
+      if (refetchPermissions) {
+        await refetchPermissions();
+      }
     } catch (error) {
       // Error handling is done in the onUnlock function
     } finally {
