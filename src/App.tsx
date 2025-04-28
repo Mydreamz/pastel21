@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import PreviewContent from "./pages/PreviewContent";
 import Search from "./pages/Search";
 import ForgotPassword from "./pages/ForgotPassword";
+import Marketplace from "./pages/Marketplace";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -167,6 +168,7 @@ const App = () => {
                   <Route path="/success" element={<ContentSuccess />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

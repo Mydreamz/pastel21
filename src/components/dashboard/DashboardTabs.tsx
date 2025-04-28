@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, DollarSign, Store } from 'lucide-react';
+import { FileText, DollarSign } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import PublishedContent from './PublishedContent';
 import PurchasedContent from './PurchasedContent';
 import MarketplaceContent from './MarketplaceContent';
@@ -27,9 +29,11 @@ const DashboardTabs = ({
   filters,
   searchQuery
 }: DashboardTabsProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="w-full grid grid-cols-3 bg-white/5 rounded-none border-b border-white/10">
+      <TabsList className="w-full grid grid-cols-2 md:grid-cols-3 bg-white/5 rounded-none border-b border-white/10">
         <TabsTrigger 
           value="my-content" 
           className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
@@ -42,15 +46,17 @@ const DashboardTabs = ({
           className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
         >
           <DollarSign className="mr-2 h-4 w-4" />
-          Purchased Content
+          Purchased
         </TabsTrigger>
-        <TabsTrigger 
-          value="marketplace" 
-          className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
-        >
-          <Store className="mr-2 h-4 w-4" />
-          Marketplace
-        </TabsTrigger>
+        {!isMobile && (
+          <TabsTrigger 
+            value="marketplace" 
+            className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          >
+            <Store className="mr-2 h-4 w-4" />
+            Marketplace
+          </TabsTrigger>
+        )}
       </TabsList>
       
       <TabsContent value="my-content" className="m-0 p-4">

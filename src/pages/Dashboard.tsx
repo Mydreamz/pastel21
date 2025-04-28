@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import { Store } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/App';
 import { useToast } from "@/hooks/use-toast";
 import StarsBackground from '@/components/StarsBackground';
@@ -22,6 +24,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<string>("my-content");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     if (!session) {
@@ -97,7 +100,20 @@ const Dashboard = () => {
       <MainNav openAuthDialog={() => {}} />
       
       <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
-        <DashboardHeader />
+        <div className="flex justify-between items-center mb-6">
+          <DashboardHeader />
+          {isMobile && (
+            <Button
+              onClick={() => navigate('/marketplace')}
+              variant="outline"
+              size="sm"
+              className="border-white/10 hover:bg-white/5"
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Marketplace
+            </Button>
+          )}
+        </div>
         
         <Card className="glass-card border-white/10 text-white mb-8">
           <CardContent className="p-0">
