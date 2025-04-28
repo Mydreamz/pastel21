@@ -12,13 +12,7 @@ export const contentFormSchema = z.object({
   scheduledFor: z.date().optional(),
   scheduledTime: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  category: z.string().optional(),
-  customTagsData: z.array(
-    z.object({
-      name: z.string(),
-      color: z.string()
-    })
-  ).optional()
+  category: z.string().optional()
 });
 
 export type ContentFormValues = z.infer<typeof contentFormSchema> & {
@@ -42,5 +36,4 @@ export type Content = ContentFormValues & {
   tags?: string[];
   category?: string;
   views?: number;
-  customTagsData?: Array<{name: string, color: string}>;
 };

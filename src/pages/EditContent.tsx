@@ -57,25 +57,17 @@ const EditContent = () => {
         if (error) throw error;
         
         if (content) {
-          // Type assertion to ensure customTagsData has the correct shape
-          const customTagsData = content.custom_tags_data 
-            ? (Array.isArray(content.custom_tags_data) 
-                ? content.custom_tags_data as Array<{name: string, color: string}>
-                : [])
-            : [];
-          
           form.reset({
             title: content.title,
             teaser: content.teaser,
             price: content.price.toString(),
             content: content.content || '',
             expiry: content.expiry || "",
-            tags: content.tags || [],
-            customTagsData: customTagsData
+            tags: content.tags || []
           });
           
           setSelectedContentType(content.content_type);
-          if (content.expiry || (content.tags && content.tags.length > 0) || content.custom_tags_data) {
+          if (content.expiry || (content.tags && content.tags.length > 0)) {
             setShowAdvanced(true);
           }
         } else {

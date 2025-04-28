@@ -1,8 +1,7 @@
 
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Share2, DollarSign } from 'lucide-react';
-import ContentTags from './ContentTags';
+import { Clock, Eye, Tag } from 'lucide-react';
 
 interface ContentDisplayProps {
   content: Content;
@@ -11,9 +10,6 @@ interface ContentDisplayProps {
 }
 
 const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps) => {
-  // Extract customTagsData from content if it exists
-  const customTagsData = content.customTagsData || [];
-
   return (
     <div className="mt-8 border-t border-white/10 pt-8">
       <div className="flex items-center justify-between mb-4">
@@ -37,14 +33,30 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
         </div>
       </div>
       
-      {/* Display tags if available with custom tag colors */}
+      {/* Display tags if available */}
       {(content.tags?.length || content.category) && (
-        <ContentTags 
-          tags={content.tags} 
-          categories={content.category ? [content.category] : []} 
-          className="mb-4"
-          customTagsData={customTagsData}
-        />
+        <div className="flex flex-wrap gap-2 mb-4">
+          {content.category && (
+            <Badge 
+              variant="outline" 
+              className="bg-purple-500/20 text-purple-300 border-purple-500/30 cursor-pointer hover:bg-purple-500/30"
+            >
+              <Tag className="h-3 w-3 mr-1" />
+              {content.category}
+            </Badge>
+          )}
+          
+          {content.tags?.map((tag) => (
+            <Badge 
+              key={`tag-${tag}`}
+              variant="outline" 
+              className="bg-white/5 hover:bg-white/10 cursor-pointer border-white/10"
+            >
+              <Tag className="h-3 w-3 mr-1" />
+              {tag}
+            </Badge>
+          ))}
+        </div>
       )}
       
       {content.contentType === 'text' && content.content && (

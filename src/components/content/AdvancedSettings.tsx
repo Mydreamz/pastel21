@@ -1,16 +1,13 @@
 
 import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, ChevronDown, Tag } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { format } from "date-fns";
 import { UseFormReturn } from "react-hook-form";
 import { ContentFormValues } from '@/types/content';
-import CustomTagCreator from '../dashboard/filters/CustomTagCreator';
 
 interface AdvancedSettingsProps {
   form: UseFormReturn<ContentFormValues>;
@@ -19,43 +16,6 @@ interface AdvancedSettingsProps {
 }
 
 const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSettingsProps) => {
-  const [customTags, setCustomTags] = React.useState<Array<{name: string, color: string}>>([]);
-
-  React.useEffect(() => {
-    // Initialize customTags from form values if they exist
-    const existingCustomTags = form.getValues().customTagsData || [];
-    if (existingCustomTags.length > 0) {
-      // Type assertion to ensure we're working with the correct type
-      setCustomTags(existingCustomTags as Array<{name: string, color: string}>);
-    }
-  }, [form]);
-
-  const handleAddTag = (name: string, color: string) => {
-    // Add new tag to customTags state
-    const newCustomTags = [...customTags, { name, color }];
-    setCustomTags(newCustomTags);
-    
-    // Add tag to form values
-    const currentTags = form.getValues('tags') || [];
-    form.setValue('tags', [...currentTags, name], { shouldValidate: true });
-    
-    // Store customTagsData in form with proper type assertion
-    form.setValue('customTagsData', newCustomTags as Array<{name: string, color: string}>, { shouldValidate: true });
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    // Remove from form values
-    const currentTags = form.getValues('tags') || [];
-    form.setValue('tags', currentTags.filter(tag => tag !== tagToRemove), { shouldValidate: true });
-    
-    // Remove from customTags state
-    const updatedCustomTags = customTags.filter(tag => tag.name !== tagToRemove);
-    setCustomTags(updatedCustomTags);
-    
-    // Update customTagsData in form with proper type assertion
-    form.setValue('customTagsData', updatedCustomTags as Array<{name: string, color: string}>, { shouldValidate: true });
-  };
-
   return (
     <div className="space-y-4">
       <Button
@@ -106,32 +66,6 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
               </FormItem>
             )}
           />
-
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Tag className="h-4 w-4" />
-              <FormLabel>Content Tags</FormLabel>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-              {customTags.map((tag) => (
-                <Badge
-                  key={tag.name}
-                  variant="outline"
-                  className={`cursor-pointer border-${tag.color}-500/30 bg-${tag.color}-500/20 text-${tag.color}-300`}
-                  onClick={() => removeTag(tag.name)}
-                >
-                  {tag.name}
-                  <span className="ml-1 text-xs">&times;</span>
-                </Badge>
-              ))}
-            </div>
-            
-            <CustomTagCreator
-              customTags={customTags}
-              onAddTag={handleAddTag}
-            />
-          </div>
         </div>
       )}
     </div>

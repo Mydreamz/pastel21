@@ -27,7 +27,6 @@ export const useContentForm = () => {
       content: "",
       expiry: "",
       file: null,
-      customTagsData: [],
       tags: []
     }
   });
@@ -87,8 +86,7 @@ export const useContentForm = () => {
         file_type: fileType,
         file_size: fileSize,
         tags: values.tags || [],
-        category: values.category || null,
-        custom_tags_data: values.customTagsData || []  // Store the custom tag data
+        category: values.category || null
       };
 
       console.log("Sending payload to Supabase:", payload);
