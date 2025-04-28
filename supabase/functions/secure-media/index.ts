@@ -37,10 +37,9 @@ serve(async (req) => {
       )
     }
 
-    // Get request params
-    const url = new URL(req.url)
-    const contentId = url.searchParams.get('contentId')
-    const filePath = url.searchParams.get('filePath')
+    // Get request params from request body instead of URL
+    // This is to match how the function is being called from the frontend
+    const { contentId, filePath } = await req.json();
 
     if (!contentId || !filePath) {
       return new Response(
