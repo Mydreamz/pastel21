@@ -1,26 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { User, Mail, Save, MapPin, Globe, Twitter, Linkedin, Github } from 'lucide-react';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
-interface ProfileData {
-  id: string;
-  name?: string;
-  bio?: string;
-  location?: string;
-  twitter_url?: string;
-  linkedin_url?: string;
-  github_url?: string;
-}
+import { useProfileData, ProfileData } from '@/hooks/useProfileData';
 
 interface AccountSettingsProps {
   userData: any;
@@ -38,8 +27,8 @@ const profileSchema = z.object({
 const AccountSettings = ({ userData }: AccountSettingsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const { toast } = useToast();
+  const { profileData, updateProfile } = useProfileData();
   
   const userEmail = userData?.email || '';
   const userName = profileData?.name || userData?.user_metadata?.name || '';
@@ -57,44 +46,19 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
     }
   });
 
-  // Fetch profile data
+  // Update form when profile data changes
   useEffect(() => {
-    const fetchProfileData = async () => {
-      if (!userData?.id) return;
-      
-      try {
-        // Use a custom query for now until TypeScript definitions are updated
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userData.id)
-          .single();
-          
-        if (error) {
-          console.error("Error fetching profile:", error);
-          return;
-        }
-        
-        if (data) {
-          // Type assertion to handle the profiles table
-          const profileData = data as unknown as ProfileData;
-          setProfileData(profileData);
-          form.reset({
-            name: profileData.name || userName,
-            bio: profileData.bio || '',
-            location: profileData.location || '',
-            twitter_url: profileData.twitter_url || '',
-            linkedin_url: profileData.linkedin_url || '',
-            github_url: profileData.github_url || '',
-          });
-        }
-      } catch (error) {
-        console.error("Error in profile fetch:", error);
-      }
-    };
-    
-    fetchProfileData();
-  }, [userData, form, userName]);
+    if (profileData) {
+      form.reset({
+        name: profileData.name || userName,
+        bio: profileData.bio || '',
+        location: profileData.location || '',
+        twitter_url: profileData.twitter_url || '',
+        linkedin_url: profileData.linkedin_url || '',
+        github_url: profileData.github_url || '',
+      });
+    }
+  }, [profileData, form, userName]);
   
   const handleSave = async (values: z.infer<typeof profileSchema>) => {
     if (isSaving) return;
@@ -108,31 +72,17 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
       
       if (authError) throw authError;
       
-      // Update or insert profile in profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userData.id,
-          name: values.name,
-          bio: values.bio || null,
-          location: values.location || null,
-          twitter_url: values.twitter_url || null,
-          linkedin_url: values.linkedin_url || null,
-          github_url: values.github_url || null,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'id' });
-      
-      if (profileError) throw profileError;
-      
-      setProfileData({
-        id: userData.id,
+      // Update profile using our custom hook
+      const { error } = await updateProfile({
         name: values.name,
-        bio: values.bio,
-        location: values.location,
-        twitter_url: values.twitter_url,
-        linkedin_url: values.linkedin_url,
-        github_url: values.github_url,
+        bio: values.bio || null,
+        location: values.location || null,
+        twitter_url: values.twitter_url || null,
+        linkedin_url: values.linkedin_url || null,
+        github_url: values.github_url || null
       });
+      
+      if (error) throw error;
       
       toast({
         title: "Profile updated",

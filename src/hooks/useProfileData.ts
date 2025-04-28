@@ -5,6 +5,18 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/App';
 
+// Define a ProfileData type to use throughout the application
+export interface ProfileData {
+  id: string;
+  name?: string;
+  bio?: string;
+  location?: string;
+  twitter_url?: string;
+  linkedin_url?: string;
+  github_url?: string;
+  updated_at?: string;
+}
+
 export const useProfileData = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -12,6 +24,7 @@ export const useProfileData = () => {
   const [userContents, setUserContents] = useState<any[]>([]);
   const [balance, setBalance] = useState(0);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     // Get user contents and transactions only if user is authenticated
@@ -42,6 +55,35 @@ export const useProfileData = () => {
           .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
 
         setBalance(userEarnings);
+        
+        // Fetch user profile data using a more generic approach
+        if (user.id) {
+          try {
+            // Use a more generic approach with any type
+            const { data, error } = await supabase
+              .rpc('get_profile_by_id', { user_id: user.id });
+            
+            if (error) {
+              console.error("Error fetching profile:", error);
+              // Fallback to direct query with type assertion
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+              
+              if (profileError) {
+                console.error("Profile fetch fallback failed:", profileError);
+              } else if (profileData) {
+                setProfileData(profileData as unknown as ProfileData);
+              }
+            } else if (data) {
+              setProfileData(data as unknown as ProfileData);
+            }
+          } catch (profileError) {
+            console.error("Error in profile fetch:", profileError);
+          }
+        }
       } catch (e) {
         console.error("Error fetching user data:", e);
         toast({
@@ -119,6 +161,39 @@ export const useProfileData = () => {
       });
     }
   };
+  
+  const updateProfile = async (profileData: Partial<ProfileData>) => {
+    if (!user) return { error: new Error("User not authenticated") };
+    
+    try {
+      // Use a more generic approach to update profile
+      const { error } = await supabase
+        .rpc('update_profile', {
+          user_id: user.id,
+          profile_data: profileData
+        });
+        
+      if (error) {
+        // Fallback to direct update with type assertion
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            ...profileData,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'id' });
+          
+        if (updateError) {
+          throw updateError;
+        }
+      }
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      return { error };
+    }
+  };
 
   return {
     isAuthenticated: !!session,
@@ -126,8 +201,10 @@ export const useProfileData = () => {
     userContents,
     balance,
     isLoading: isLoadingData,
+    profileData,
     handleLogout,
     handleEditContent,
-    handleDeleteContent
+    handleDeleteContent,
+    updateProfile
   };
 };
