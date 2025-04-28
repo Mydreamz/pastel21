@@ -57,6 +57,13 @@ const EditContent = () => {
         if (error) throw error;
         
         if (content) {
+          // Type assertion to ensure customTagsData has the correct shape
+          const customTagsData = content.custom_tags_data 
+            ? (Array.isArray(content.custom_tags_data) 
+                ? content.custom_tags_data as Array<{name: string, color: string}>
+                : [])
+            : [];
+          
           form.reset({
             title: content.title,
             teaser: content.teaser,
@@ -64,7 +71,7 @@ const EditContent = () => {
             content: content.content || '',
             expiry: content.expiry || "",
             tags: content.tags || [],
-            customTagsData: content.custom_tags_data || []
+            customTagsData: customTagsData
           });
           
           setSelectedContentType(content.content_type);
