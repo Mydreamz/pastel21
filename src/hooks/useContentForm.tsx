@@ -8,6 +8,7 @@ import { contentFormSchema, ContentFormValues } from '@/types/content';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/App';
+import { uploadFileToStorage } from '@/lib/fileUtils';
 
 export const useContentForm = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export const useContentForm = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const { user, session, isLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<ContentFormValues>({
     resolver: zodResolver(contentFormSchema),
@@ -34,6 +36,8 @@ export const useContentForm = () => {
   const onSubmit = async (values: ContentFormValues) => {
     // Verify authentication before proceeding
     try {
+      setIsUploading(true);
+      
       if (!session || !user) {
         toast({
           title: "Authentication required",
@@ -45,7 +49,7 @@ export const useContentForm = () => {
       }
 
       // Handle file upload if needed
-      let fileUrl, fileName, fileType, fileSize;
+      let fileUrl, fileName, fileType, fileSize, filePath;
       if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
         if (!selectedFile) {
           toast({
@@ -53,10 +57,25 @@ export const useContentForm = () => {
             description: `Please select a ${selectedContentType} file to upload`,
             variant: "destructive"
           });
+          setIsUploading(false);
           return;
         }
-        // For now, store file locally (todo: upload to Supabase Storage later)
-        fileUrl = URL.createObjectURL(selectedFile);
+        
+        // Upload file to Supabase Storage
+        const uploadResult = await uploadFileToStorage(selectedFile, user.id);
+        
+        if (!uploadResult) {
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload the file. Please try again.",
+            variant: "destructive"
+          });
+          setIsUploading(false);
+          return;
+        }
+        
+        fileUrl = uploadResult.url;
+        filePath = uploadResult.path;
         fileName = selectedFile.name;
         fileType = selectedFile.type;
         fileSize = selectedFile.size;
@@ -85,6 +104,7 @@ export const useContentForm = () => {
         file_name: fileName,
         file_type: fileType,
         file_size: fileSize,
+        file_path: filePath, // Store the file path for future reference
         tags: values.tags || [],
         category: values.category || null
       };
@@ -105,8 +125,10 @@ export const useContentForm = () => {
           : "Your content has been published"
       });
 
+      setIsUploading(false);
       navigate('/success', { state: { content: data } });
     } catch (error: any) {
+      setIsUploading(false);
       console.error("Error saving content:", error);
       toast({
         title: "Error creating content",
@@ -127,6 +149,7 @@ export const useContentForm = () => {
     setShowAdvanced,
     isAuthenticated: !!user,
     isAuthChecking: isLoading,
-    userData: user
+    userData: user,
+    isUploading
   };
 };

@@ -13,6 +13,9 @@ import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentHeader from '@/components/content/ContentHeader';
 import ContentFormActions from '@/components/content/ContentFormActions';
 import StarsBackground from '@/components/StarsBackground';
+import { uploadFileToStorage, deleteFileFromStorage } from '@/lib/fileUtils';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 const EditContent = () => {
   const navigate = useNavigate();
@@ -20,6 +23,8 @@ const EditContent = () => {
   const { toast } = useToast();
   const { user, session } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [originalFilePath, setOriginalFilePath] = useState<string | null>(null);
   
   const {
     form,
@@ -67,6 +72,10 @@ const EditContent = () => {
           });
           
           setSelectedContentType(content.content_type);
+          if (content.file_path) {
+            setOriginalFilePath(content.file_path);
+          }
+          
           if (content.expiry || (content.tags && content.tags.length > 0)) {
             setShowAdvanced(true);
           }
@@ -93,6 +102,89 @@ const EditContent = () => {
 
     loadContent();
   }, [id, form, navigate, toast, user, session]);
+  
+  const handleSubmit = async (values: any) => {
+    if (!user || !id) return;
+    
+    try {
+      setIsSaving(true);
+      
+      let fileUrl, fileName, fileType, fileSize, filePath;
+      
+      // Handle file upload if a new file is selected
+      if (['image', 'video', 'audio', 'document'].includes(selectedContentType) && selectedFile) {
+        // Upload new file to Supabase Storage
+        const uploadResult = await uploadFileToStorage(selectedFile, user.id);
+        
+        if (!uploadResult) {
+          toast({
+            title: "Upload failed",
+            description: "Failed to upload the new file. Please try again.",
+            variant: "destructive"
+          });
+          setIsSaving(false);
+          return;
+        }
+        
+        // Delete the old file if it exists
+        if (originalFilePath) {
+          await deleteFileFromStorage(originalFilePath);
+        }
+        
+        fileUrl = uploadResult.url;
+        filePath = uploadResult.path;
+        fileName = selectedFile.name;
+        fileType = selectedFile.type;
+        fileSize = selectedFile.size;
+      }
+
+      // Prepare payload for update
+      const payload: any = {
+        title: values.title,
+        teaser: values.teaser,
+        price: values.price,
+        content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
+        expiry: values.expiry || null,
+        tags: values.tags || [],
+        category: values.category || null,
+        updated_at: new Date().toISOString()
+      };
+      
+      // Only update file info if a new file was uploaded
+      if (fileUrl) {
+        payload.file_url = fileUrl;
+        payload.file_name = fileName;
+        payload.file_type = fileType;
+        payload.file_size = fileSize;
+        payload.file_path = filePath;
+      }
+
+      const { data, error } = await supabase
+        .from('contents')
+        .update(payload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Content updated",
+        description: "Your content has been successfully updated"
+      });
+
+      navigate(`/view/${id}`);
+    } catch (error: any) {
+      console.error("Error updating content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update content: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -120,7 +212,7 @@ const EditContent = () => {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
                 <BasicInfoFields form={form} />
                 
                 <ContentTypeSelector
@@ -137,7 +229,28 @@ const EditContent = () => {
                   setShowAdvanced={setShowAdvanced}
                 />
                 
-                <ContentFormActions />
+                <div className="flex justify-end gap-4 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => navigate(`/view/${id}`)}
+                    className="border-gray-700 hover:border-gray-600 text-gray-300"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                    disabled={isSaving}
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : 'Save Changes'}
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>

@@ -30,6 +30,9 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const createdAt = new Date(content.created_at || content.createdAt).toLocaleDateString();
   const status = content.status || 'published';
   const views = content.views || 0;
+  // Check if the file URL is a blob URL or a storage URL
+  const fileUrl = content.file_url || content.fileUrl;
+  const isValidUrl = fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('/'));
   
   return (
     <Card key={contentId} className="bg-white/5 border-white/10 hover:border-emerald-500/30 transition-colors">
@@ -64,6 +67,11 @@ const ContentCard: React.FC<ContentCardProps> = ({
             <div className="flex items-center">
               <Eye className="h-3 w-3 mr-1" />
               {views} views
+            </div>
+          )}
+          {contentType !== 'text' && contentType !== 'link' && !isValidUrl && (
+            <div className="text-amber-400">
+              Media files pending migration
             </div>
           )}
         </div>

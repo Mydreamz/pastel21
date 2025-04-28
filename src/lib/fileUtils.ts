@@ -1,5 +1,6 @@
-
 import { LucideIcon, FileText, Image, FileVideo, FileAudio } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 export const getFileIcon = (type: string): LucideIcon => {
   switch (type) {
@@ -84,4 +85,60 @@ export const validateFile = (
   }
 
   return { isValid: true, error: null };
+};
+
+export const uploadFileToStorage = async (
+  file: File,
+  userId: string
+): Promise<{ url: string; path: string } | null> => {
+  try {
+    if (!file) return null;
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+    
+    const { data, error } = await supabase.storage
+      .from('content-media')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+      
+    if (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+    
+    // Get the public URL for the file
+    const { data: { publicUrl } } = supabase.storage
+      .from('content-media')
+      .getPublicUrl(filePath);
+      
+    return {
+      url: publicUrl,
+      path: data.path
+    };
+  } catch (error) {
+    console.error('File upload error:', error);
+    return null;
+  }
+};
+
+export const deleteFileFromStorage = async (filePath: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase.storage
+      .from('content-media')
+      .remove([filePath]);
+      
+    if (error) {
+      console.error('Error deleting file:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('File deletion error:', error);
+    return false;
+  }
 };

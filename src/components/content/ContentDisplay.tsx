@@ -1,7 +1,9 @@
 
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Tag } from 'lucide-react';
+import { Clock, Eye, Tag, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ContentDisplayProps {
   content: Content;
@@ -10,6 +12,16 @@ interface ContentDisplayProps {
 }
 
 const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps) => {
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  
+  // Check if file URL is valid (not a blob URL)
+  const isValidFileUrl = content.fileUrl && 
+    (content.fileUrl.startsWith('http') || content.fileUrl.startsWith('/'));
+
+  const handleMediaError = () => {
+    setMediaError("The media file could not be loaded. It may have been stored using a temporary URL.");
+  };
+
   return (
     <div className="mt-8 border-t border-white/10 pt-8">
       <div className="flex items-center justify-between mb-4">
@@ -78,56 +90,94 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
         </div>
       )}
       
+      {mediaError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{mediaError}</AlertDescription>
+        </Alert>
+      )}
+      
       {content.fileUrl && (
         <div className="mt-4">
           {content.contentType === 'image' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2 flex justify-center">
-              <img 
-                src={content.fileUrl} 
-                alt={content.title} 
-                className="max-w-full max-h-[600px] object-contain rounded-md"
-                loading="lazy"
-              />
+              {isValidFileUrl ? (
+                <img 
+                  src={content.fileUrl} 
+                  alt={content.title} 
+                  onError={handleMediaError}
+                  className="max-w-full max-h-[600px] object-contain rounded-md"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="p-6 text-amber-400">
+                  This image was stored with a temporary URL and needs to be updated.
+                  {isCreator && " Please edit this content to upload the image again."}
+                </div>
+              )}
             </div>
           )}
           
           {content.contentType === 'video' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2">
-              <video 
-                controls
-                preload="metadata"
-                poster={content.fileUrl + '?poster=true'}
-                className="w-full rounded-md"
-              >
-                <source src={content.fileUrl} type={content.fileType} />
-                Your browser does not support the video tag.
-              </video>
+              {isValidFileUrl ? (
+                <video 
+                  controls
+                  preload="metadata"
+                  poster={content.fileUrl + '?poster=true'}
+                  onError={handleMediaError}
+                  className="w-full rounded-md"
+                >
+                  <source src={content.fileUrl} type={content.fileType} />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <div className="p-6 text-amber-400">
+                  This video was stored with a temporary URL and needs to be updated.
+                  {isCreator && " Please edit this content to upload the video again."}
+                </div>
+              )}
             </div>
           )}
           
           {content.contentType === 'audio' && (
             <div className="bg-white/5 p-4 rounded-md">
-              <audio 
-                controls
-                preload="metadata"
-                className="w-full"
-              >
-                <source src={content.fileUrl} type={content.fileType} />
-                Your browser does not support the audio tag.
-              </audio>
+              {isValidFileUrl ? (
+                <audio 
+                  controls
+                  preload="metadata"
+                  onError={handleMediaError}
+                  className="w-full"
+                >
+                  <source src={content.fileUrl} type={content.fileType} />
+                  Your browser does not support the audio tag.
+                </audio>
+              ) : (
+                <div className="p-6 text-amber-400">
+                  This audio was stored with a temporary URL and needs to be updated.
+                  {isCreator && " Please edit this content to upload the audio again."}
+                </div>
+              )}
             </div>
           )}
           
           {content.contentType === 'document' && (
             <div className="bg-white/5 p-4 rounded-md">
-              <a 
-                href={content.fileUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-emerald-400 hover:underline flex items-center"
-              >
-                Download {content.fileName || 'Document'}
-              </a>
+              {isValidFileUrl ? (
+                <a 
+                  href={content.fileUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:underline flex items-center"
+                >
+                  Download {content.fileName || 'Document'}
+                </a>
+              ) : (
+                <div className="p-6 text-amber-400">
+                  This document was stored with a temporary URL and needs to be updated.
+                  {isCreator && " Please edit this content to upload the document again."}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -141,7 +191,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased }: ContentDisplayProps
         </div>
         <div className="flex items-center gap-1">
           <Clock className="h-4 w-4" />
-          <span>{content.contentType === 'text' ? `${Math.ceil(content.content?.length / 1000)} min read` : '3 min'}</span>
+          <span>{content.contentType === 'text' ? `${Math.ceil((content.content?.length || 0) / 1000)} min read` : '3 min'}</span>
         </div>
       </div>
     </div>
