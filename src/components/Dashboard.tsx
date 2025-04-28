@@ -104,9 +104,14 @@ const Dashboard = () => {
   
   return (
     <div 
-      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow"
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow card-corner-cutout"
       style={parallaxStyle}
     >
+      <div className="card-corner-icon">
+        <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center">
+          <span className="text-xs font-bold text-black">+</span>
+        </div>
+      </div>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-white">Dashboard</h3>
         <div className="flex gap-2">
