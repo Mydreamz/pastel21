@@ -1,7 +1,7 @@
 
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
-import { Clock, Eye, Tag, AlertCircle, Lock } from 'lucide-react';
+import { Clock, Eye, Tag, AlertCircle, Lock, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -10,9 +10,18 @@ interface ContentDisplayProps {
   isCreator: boolean;
   isPurchased: boolean;
   secureFileUrl?: string | null;
+  secureFileLoading?: boolean;
+  secureFileError?: string | null;
 }
 
-const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: ContentDisplayProps) => {
+const ContentDisplay = ({ 
+  content, 
+  isCreator, 
+  isPurchased, 
+  secureFileUrl,
+  secureFileLoading,
+  secureFileError
+}: ContentDisplayProps) => {
   const [mediaError, setMediaError] = useState<string | null>(null);
   
   // Determine which file URL to use (secure URL takes precedence)
@@ -97,6 +106,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
         </div>
       )}
       
+      {/* Display any error messages */}
       {mediaError && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
@@ -104,9 +114,25 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
         </Alert>
       )}
       
+      {secureFileError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load secure content: {secureFileError}
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {isMediaContent && (
         <div className="mt-4">
-          {!canAccessMedia && (
+          {secureFileLoading && (
+            <div className="bg-white/5 border border-white/10 rounded-md p-6 flex justify-center items-center">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-500/80" />
+              <p className="ml-3 text-gray-300">Loading secure content...</p>
+            </div>
+          )}
+          
+          {!canAccessMedia && !secureFileLoading && (
             <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg p-6 text-center">
               <Lock className="h-8 w-8 mx-auto mb-3 text-emerald-500/80" />
               <p className="text-lg font-medium mb-1">Protected Content</p>
@@ -116,7 +142,7 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
             </div>
           )}
           
-          {canAccessMedia && content.contentType === 'image' && (
+          {canAccessMedia && !secureFileLoading && content.contentType === 'image' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2 flex justify-center">
               {isValidFileUrl ? (
                 <img 
@@ -128,14 +154,16 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
                 />
               ) : (
                 <div className="p-6 text-amber-400">
-                  This image was stored with a temporary URL and needs to be updated.
+                  {secureFileError ? 
+                    "Error loading secure image content." : 
+                    "This image was stored with a temporary URL and needs to be updated."}
                   {isCreator && " Please edit this content to upload the image again."}
                 </div>
               )}
             </div>
           )}
           
-          {canAccessMedia && content.contentType === 'video' && (
+          {canAccessMedia && !secureFileLoading && content.contentType === 'video' && (
             <div className="overflow-hidden rounded-md bg-white/5 p-2">
               {isValidFileUrl ? (
                 <video 
@@ -150,14 +178,16 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
                 </video>
               ) : (
                 <div className="p-6 text-amber-400">
-                  This video was stored with a temporary URL and needs to be updated.
+                  {secureFileError ? 
+                    "Error loading secure video content." : 
+                    "This video was stored with a temporary URL and needs to be updated."}
                   {isCreator && " Please edit this content to upload the video again."}
                 </div>
               )}
             </div>
           )}
           
-          {canAccessMedia && content.contentType === 'audio' && (
+          {canAccessMedia && !secureFileLoading && content.contentType === 'audio' && (
             <div className="bg-white/5 p-4 rounded-md">
               {isValidFileUrl ? (
                 <audio 
@@ -171,14 +201,16 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
                 </audio>
               ) : (
                 <div className="p-6 text-amber-400">
-                  This audio was stored with a temporary URL and needs to be updated.
+                  {secureFileError ? 
+                    "Error loading secure audio content." : 
+                    "This audio was stored with a temporary URL and needs to be updated."}
                   {isCreator && " Please edit this content to upload the audio again."}
                 </div>
               )}
             </div>
           )}
           
-          {canAccessMedia && content.contentType === 'document' && (
+          {canAccessMedia && !secureFileLoading && content.contentType === 'document' && (
             <div className="bg-white/5 p-4 rounded-md">
               {isValidFileUrl ? (
                 <a 
@@ -191,7 +223,9 @@ const ContentDisplay = ({ content, isCreator, isPurchased, secureFileUrl }: Cont
                 </a>
               ) : (
                 <div className="p-6 text-amber-400">
-                  This document was stored with a temporary URL and needs to be updated.
+                  {secureFileError ? 
+                    "Error loading secure document." : 
+                    "This document was stored with a temporary URL and needs to be updated."}
                   {isCreator && " Please edit this content to upload the document again."}
                 </div>
               )}

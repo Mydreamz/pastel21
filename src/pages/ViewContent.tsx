@@ -18,7 +18,14 @@ import { useNavigate } from 'react-router-dom';
 
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const { content, loading, error, secureFileUrl } = useViewContent(id);
+  const { 
+    content, 
+    loading, 
+    error, 
+    secureFileUrl, 
+    secureFileLoading,
+    secureFileError 
+  } = useViewContent(id);
   const { isCreator, isPurchased } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
@@ -66,6 +73,8 @@ const ViewContent = () => {
               isCreator={isCreator} 
               isPurchased={isPurchased}
               secureFileUrl={secureFileUrl}
+              secureFileLoading={secureFileLoading}
+              secureFileError={secureFileError}
             />
           </div>
 
