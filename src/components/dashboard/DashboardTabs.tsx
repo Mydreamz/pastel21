@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, DollarSign } from 'lucide-react';
+import { FileText, DollarSign, Store } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import PublishedContent from './PublishedContent';
 import PurchasedContent from './PurchasedContent';

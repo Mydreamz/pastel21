@@ -12,6 +12,7 @@ import { BackToTop } from '@/components/ui/back-to-top';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
