@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/App';
@@ -26,7 +26,7 @@ const Dashboard = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
-  
+
   useEffect(() => {
     if (!session) {
       navigate('/');
@@ -39,7 +39,7 @@ const Dashboard = () => {
       fetchUserContents();
     }
   }, [session, navigate]);
-  
+
   const fetchUserContents = async () => {
     setLoading(true);
     
@@ -84,15 +84,11 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-  
-  const handleFilter = (filters: string[]) => {
-    setActiveFilters(filters);
+
+  const handleCreateContent = () => {
+    navigate('/create');
   };
-  
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-  
+
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative overflow-hidden">
       <StarsBackground />
@@ -100,42 +96,41 @@ const Dashboard = () => {
       
       <MainNav openAuthDialog={() => {}} />
       
-      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
-        <div className="flex justify-between items-center mb-6">
+      <main className="relative z-10 flex-1 flex flex-col w-full">
+        <div className="container px-2 sm:px-4">
           <DashboardHeader />
-          {isMobile && (
-            <Button
-              onClick={() => navigate('/marketplace')}
-              variant="outline"
-              size="sm"
-              className="border-white/10 hover:bg-white/5"
-            >
-              <Store className="h-4 w-4 mr-2" />
-              Marketplace
-            </Button>
-          )}
+          
+          <Card className="glass-card border-white/10 text-white flex-1">
+            <CardContent className="p-0">
+              <DashboardSearch 
+                onFilter={setActiveFilters}
+                searchQuery={searchQuery}
+                onSearchChange={(e) => setSearchQuery(e.target.value)}
+              />
+              
+              <DashboardTabs 
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                publishedContents={publishedContents}
+                purchasedContents={purchasedContents}
+                marketplaceContents={marketplaceContents}
+                loading={loading}
+                filters={activeFilters}
+                searchQuery={searchQuery}
+              />
+            </CardContent>
+          </Card>
         </div>
-        
-        <Card className="glass-card border-white/10 text-white mb-8">
-          <CardContent className="p-0">
-            <DashboardSearch 
-              onFilter={handleFilter}
-              searchQuery={searchQuery}
-              onSearchChange={handleSearch}
-            />
-            
-            <DashboardTabs 
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              publishedContents={publishedContents}
-              purchasedContents={purchasedContents}
-              marketplaceContents={marketplaceContents}
-              loading={loading}
-              filters={activeFilters}
-              searchQuery={searchQuery}
-            />
-          </CardContent>
-        </Card>
+
+        {isMobile && (
+          <Button
+            onClick={handleCreateContent}
+            className="fixed right-4 bottom-4 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg h-14 w-14 p-0"
+            size="icon"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
+        )}
       </main>
       
       <BackToTop />
