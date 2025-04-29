@@ -3,23 +3,42 @@ import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PaymentFlowProps {
   content: any;  // Replace 'any' with the actual content type from your types
   onUnlock: () => void;
   isCreator: boolean;
+  isPurchased: boolean;
+  refreshPermissions: () => void;
 }
 
-const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator }) => {
+const PaymentFlow: React.FC<PaymentFlowProps> = ({ 
+  content, 
+  onUnlock, 
+  isCreator, 
+  isPurchased,
+  refreshPermissions
+}) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   const { user, session } = useAuth();
 
-  const handleUnlock = () => {
+  const handleUnlock = async () => {
     if (isCreator) {
       toast({
         title: "Creator Access",
         description: "You have full access as the content creator",
+        variant: "default"
+      });
+      onUnlock();
+      return;
+    }
+
+    if (isPurchased) {
+      toast({
+        title: "Already Purchased",
+        description: "You have already purchased this content",
         variant: "default"
       });
       onUnlock();
@@ -40,30 +59,70 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
       return;
     }
     
-    // Simulate payment process for demonstration
-    setTimeout(() => {
-      try {
-        onUnlock();
+    try {
+      // Check again server-side if the content has already been purchased
+      const { data: existingTransactions, error: checkError } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', content.id)
+        .eq('user_id', user.id)
+        .eq('is_deleted', false)
+        .limit(1);
         
+      if (checkError) {
+        throw new Error("Error checking transaction status");
+      }
+      
+      // If already purchased, prevent duplicate purchase
+      if (existingTransactions && existingTransactions.length > 0) {
         toast({
-          title: "Payment Successful",
-          description: `You've unlocked "${content.title}"`,
+          title: "Already Purchased",
+          description: "You've already purchased this content",
           variant: "default"
         });
-      } catch (error) {
-        toast({
-          title: "Payment Failed",
-          description: "Unable to process your payment. Please try again.",
-          variant: "destructive"
-        });
-      } finally {
+        refreshPermissions();
+        onUnlock();
         setIsProcessing(false);
+        return;
       }
-    }, 1500);
+      
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert([{
+          content_id: content.id,
+          user_id: user.id,
+          creator_id: content.creatorId,
+          amount: content.price,
+          timestamp: new Date().toISOString()
+        }]);
+
+      if (transactionError) {
+        throw new Error("Failed to process payment");
+      }
+      
+      // Refresh the permissions to update the UI
+      refreshPermissions();
+      onUnlock();
+      
+      toast({
+        title: "Payment Successful",
+        description: `You've unlocked "${content.title}"`,
+        variant: "default"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Payment Failed",
+        description: error.message || "Unable to process your payment. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  // Only show the LockedContent component for paid content when not unlocked
-  if (parseFloat(content.price) > 0 && !isCreator) {
+  // Show the LockedContent component for paid content when not unlocked and not already purchased
+  if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
     return (
       <LockedContent 
         price={content.price} 
@@ -74,7 +133,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({ content, onUnlock, isCreator 
     );
   }
 
-  // Return null if content is free or user is creator
+  // Return null if content is free, user is creator, or content is already purchased
   return null;
 };
 

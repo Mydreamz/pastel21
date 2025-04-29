@@ -24,9 +24,10 @@ const ViewContent = () => {
     error, 
     secureFileUrl, 
     secureFileLoading,
-    secureFileError 
+    secureFileError,
+    handleUnlock
   } = useViewContent(id);
-  const { isCreator, isPurchased } = useContentPermissions(content);
+  const { isCreator, isPurchased, refreshPermissions } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
   const navigate = useNavigate();

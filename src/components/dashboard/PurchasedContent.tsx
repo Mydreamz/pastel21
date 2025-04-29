@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -42,8 +43,19 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
       </div>
     );
   }
+
+  // Create a map to deduplicate content by ID
+  const uniqueContentsMap = new Map();
+  contents.forEach(content => {
+    if (!uniqueContentsMap.has(content.id)) {
+      uniqueContentsMap.set(content.id, content);
+    }
+  });
   
-  const filteredContents = contents.filter(content => {
+  // Convert back to array
+  const uniqueContents = Array.from(uniqueContentsMap.values());
+  
+  const filteredContents = uniqueContents.filter(content => {
     const isPaid = parseFloat(content.price) > 0;
     const matchesSearch = searchQuery ? 
       (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
