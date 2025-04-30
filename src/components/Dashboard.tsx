@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
-import DashboardChart from './dashboard/DashboardChart';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
 import UseCaseCarousel from './UseCaseCarousel';
 
@@ -118,7 +117,6 @@ const Dashboard = () => {
       
       <UseCaseCarousel />
       <DashboardStats />
-      <DashboardChart />
       <DashboardActiveUsers />
     </div>
   );
