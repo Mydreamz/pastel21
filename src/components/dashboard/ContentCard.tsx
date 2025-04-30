@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2, Clock, Calendar, User } from 'lucide-react';
+import { Eye, Edit, Trash2, Clock, Calendar, User, Check } from 'lucide-react';
 import ContentTypeBadge from './ContentTypeBadge';
 import PriceBadge from './PriceBadge';
 
@@ -12,13 +12,15 @@ interface ContentCardProps {
   showActions?: boolean;
   showPurchaseDate?: boolean;
   onDelete?: (id: string) => void;
+  isPurchased?: boolean;
 }
 
 const ContentCard: React.FC<ContentCardProps> = ({ 
   content, 
   showActions = false, 
   showPurchaseDate = false,
-  onDelete 
+  onDelete,
+  isPurchased
 }) => {
   const navigate = useNavigate();
   
@@ -40,6 +42,11 @@ const ContentCard: React.FC<ContentCardProps> = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-2">
             <ContentTypeBadge contentType={contentType} />
+            {(isPurchased || showPurchaseDate) && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <Check className="h-3 w-3 mr-1" /> Purchased
+              </span>
+            )}
           </div>
           <PriceBadge price={price} />
         </div>

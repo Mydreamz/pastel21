@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { BackToTop } from '@/components/ui/back-to-top';
 import MarketplaceContent from '@/components/dashboard/MarketplaceContent';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/App';
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
   const [contents, setContents] = React.useState<any[]>([]);
+  const { user } = useAuth();
   
   React.useEffect(() => {
     const fetchMarketplaceContents = async () => {

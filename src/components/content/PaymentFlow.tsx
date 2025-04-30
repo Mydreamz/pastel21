@@ -38,7 +38,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
     if (isPurchased) {
       toast({
         title: "Already Purchased",
-        description: "You have already purchased this content",
+        description: "You've already purchased this content and have full access",
         variant: "default"
       });
       onUnlock();
@@ -76,8 +76,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       // If already purchased, prevent duplicate purchase
       if (existingTransactions && existingTransactions.length > 0) {
         toast({
-          title: "Already Purchased",
-          description: "You've already purchased this content",
+          title: "Already In Your Library",
+          description: "You've already purchased this content. You can access it from your purchased content section.",
           variant: "default"
         });
         refreshPermissions();
@@ -107,7 +107,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       
       toast({
         title: "Payment Successful",
-        description: `You've unlocked "${content.title}"`,
+        description: `You've unlocked "${content.title}" and it's now in your library`,
         variant: "default"
       });
     } catch (error: any) {
@@ -129,6 +129,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
         onUnlock={handleUnlock}
         contentTitle={content.title}
         isProcessing={isProcessing}
+        isPurchased={isPurchased}
       />
     );
   }

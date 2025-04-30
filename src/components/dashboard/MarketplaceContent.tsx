@@ -1,6 +1,10 @@
-import React from 'react';
-import { Store } from 'lucide-react';
+
+import React, { useEffect, useState } from 'react';
+import { Store, Check } from 'lucide-react';
 import ContentCard from './ContentCard';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/App';
+import { Badge } from '@/components/ui/badge';
 
 interface MarketplaceContentProps {
   contents: any[];
@@ -15,6 +19,40 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   filters,
   searchQuery
 }) => {
+  const { user } = useAuth();
+  const [purchasedContentIds, setPurchasedContentIds] = useState<string[]>([]);
+  
+  // Fetch purchased content IDs when user is logged in
+  useEffect(() => {
+    const fetchPurchasedContent = async () => {
+      if (!user) {
+        setPurchasedContentIds([]);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('content_id')
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
+          
+        if (error) {
+          console.error('Error fetching purchased content:', error);
+          return;
+        }
+        
+        // Extract content IDs from transactions
+        const contentIds = data.map(item => item.content_id);
+        setPurchasedContentIds(contentIds);
+      } catch (err) {
+        console.error('Error in fetching purchased content:', err);
+      }
+    };
+    
+    fetchPurchasedContent();
+  }, [user]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -61,7 +99,16 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredContents.map((content) => (
-        <ContentCard key={content.id} content={content} />
+        <div key={content.id} className="relative">
+          {purchasedContentIds.includes(content.id) && (
+            <Badge 
+              className="absolute top-2 right-2 z-10 bg-emerald-500 text-white flex items-center gap-1 px-2 py-1"
+            >
+              <Check className="h-3 w-3" /> Purchased
+            </Badge>
+          )}
+          <ContentCard key={content.id} content={content} />
+        </div>
       ))}
     </div>
   );
