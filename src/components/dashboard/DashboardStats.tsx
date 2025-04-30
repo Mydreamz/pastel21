@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { DollarSign, MessageSquare, TrendingUp } from 'lucide-react';
+import { IndianRupee, MessageSquare, TrendingUp } from 'lucide-react';
 
 const DashboardStats = () => {
   return (
@@ -9,14 +9,14 @@ const DashboardStats = () => {
         <div className="flex items-start justify-between">
           <div>
             <p className="text-gray-400 text-sm mb-1">Total Earnings</p>
-            <p className="text-2xl font-bold text-white">$12,582</p>
+            <p className="text-2xl font-bold text-white">₹12,582</p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-emerald-500" />
               <p className="text-xs text-emerald-500">+24% from last month</p>
             </div>
           </div>
           <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <DollarSign className="h-5 w-5 text-emerald-500" />
+            <IndianRupee className="h-5 w-5 text-emerald-500" />
           </div>
         </div>
       </div>

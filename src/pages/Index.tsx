@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
@@ -113,10 +112,10 @@ const Index = () => {
                 
                 <div className="mb-6">
                   <div className="flex items-end gap-1">
-                    <span className="text-4xl font-bold">$29</span>
+                    <span className="text-4xl font-bold">₹1999</span>
                     <span className="text-gray-400">/month</span>
                   </div>
-                  <p className="text-gray-400 text-sm">Billed annually ($348/year)</p>
+                  <p className="text-gray-400 text-sm">Billed annually (₹23,988/year)</p>
                 </div>
                 
                 <ul className="space-y-3 mb-8">

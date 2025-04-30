@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/App';
-import { Lock, Check, ShoppingCart } from 'lucide-react';
+import { Lock, Check, ShoppingCart, IndianRupee } from 'lucide-react';
 
 interface LockedContentProps {
   price: string;
@@ -32,7 +32,7 @@ const LockedContent: React.FC<LockedContentProps> = ({
       <p className="text-gray-300 mb-6">
         {isPurchased 
           ? "You've already purchased this content. Click below to access it."
-          : `Purchase ${contentTitle} for $${parseFloat(price).toFixed(2)} to view the full content`
+          : `Purchase ${contentTitle} for ₹${parseFloat(price).toFixed(2)} to view the full content`
         }
       </p>
       
@@ -53,8 +53,8 @@ const LockedContent: React.FC<LockedContentProps> = ({
           </span>
         ) : (
           <span className="flex items-center">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Purchase for ${parseFloat(price).toFixed(2)}
+            <IndianRupee className="h-4 w-4 mr-2" />
+            Purchase for ₹{parseFloat(price).toFixed(2)}
           </span>
         )}
       </Button>

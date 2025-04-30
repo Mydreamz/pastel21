@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, LayoutDashboard } from 'lucide-react';
+import { User, LayoutDashboard, Shield } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,12 +34,9 @@ const MainNav = ({
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
-            <img 
-              src="/monitizelogo.jpg" 
-              alt="Monitize.club Logo" 
-              className="h-8 w-8 mr-2 rounded-full"
-              fetchPriority="high"
-            />
+            <div className="h-8 w-8 mr-2 relative">
+              <Shield className="absolute inset-0 text-emerald-500 h-full w-full animate-pulse-gentle" />
+            </div>
             <span className="text-2xl font-bold text-white">
               Monitize<span className="text-emerald-500">.club</span>
             </span>

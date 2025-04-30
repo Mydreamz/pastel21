@@ -50,7 +50,7 @@ const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, co
           <>
             <span className="hidden sm:block">•</span>
             <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs">
-              ${parseFloat(price).toFixed(2)}
+              ₹{parseFloat(price).toFixed(2)}
             </span>
           </>
         )}

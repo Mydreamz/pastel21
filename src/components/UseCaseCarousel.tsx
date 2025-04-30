@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Trophy, TrendingUp, BookOpen, Smartphone, Calendar, 
-  Lock, DollarSign, CheckCircle, Crown, AlertCircle
+  Lock, IndianRupee, CheckCircle, Crown, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,7 +35,7 @@ export default function UseCaseCarousel() {
       title: "Fantasy Teams",
       description: "Monetize your sports expertise with premium team selections",
       icon: (props) => <Trophy {...props} />,
-      monetizationIcon: (props) => <DollarSign {...props} />,
+      monetizationIcon: (props) => <IndianRupee {...props} />,
       monetizationText: "Buy Now ₹99"
     },
     {
@@ -59,7 +59,7 @@ export default function UseCaseCarousel() {
       title: "Instagram Reels",
       description: "Turn your video content into a revenue stream",
       icon: (props) => <Smartphone {...props} />,
-      monetizationIcon: (props) => <DollarSign {...props} />,
+      monetizationIcon: (props) => <IndianRupee {...props} />,
       monetizationText: "₹199"
     },
     {

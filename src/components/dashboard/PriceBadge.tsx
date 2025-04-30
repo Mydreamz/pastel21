@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { DollarSign } from 'lucide-react';
+import { IndianRupee } from 'lucide-react';
 
 interface PriceBadgeProps {
   price: string;
@@ -13,7 +13,7 @@ const PriceBadge: React.FC<PriceBadgeProps> = ({ price }) => {
   if (isPaid) {
     return (
       <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
-        <DollarSign className="h-3 w-3 mr-1" />
+        <IndianRupee className="h-3 w-3 mr-1" />
         {parseFloat(price).toFixed(2)}
       </Badge>
     );

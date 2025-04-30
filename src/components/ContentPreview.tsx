@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, DollarSign, Info, Check } from 'lucide-react';
+import { Lock, IndianRupee, Info, Check } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface ContentPreviewProps {
@@ -115,7 +115,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
         
         {/* Price tag */}
         <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-          <DollarSign className="h-3 w-3" />
+          <IndianRupee className="h-3 w-3" />
           {price.toFixed(2)}
         </div>
       </CardContent>
@@ -125,8 +125,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
           onClick={handleDirectPurchase}
         >
-          <DollarSign className="mr-2 h-4 w-4" />
-          Unlock Now (${price.toFixed(2)})
+          <IndianRupee className="mr-2 h-4 w-4" />
+          Unlock Now (₹{price.toFixed(2)})
         </Button>
         
         {formattedExpiry && (
@@ -150,7 +150,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
             <div className="mb-4 p-4 bg-white/5 rounded-md">
               <div className="flex justify-between items-center mb-2">
                 <span>Content Price</span>
-                <span className="font-semibold">${price.toFixed(2)}</span>
+                <span className="font-semibold">₹{price.toFixed(2)}</span>
               </div>
               <div className="text-xs text-gray-400 mt-2">
                 This is a simulated payment system. In a real application, this would connect to a payment provider like Stripe.
@@ -183,8 +183,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
                 </>
               ) : (
                 <>
-                  <DollarSign className="mr-2 h-4 w-4" />
-                  Pay ${price.toFixed(2)}
+                  <IndianRupee className="mr-2 h-4 w-4" />
+                  Pay ₹{price.toFixed(2)}
                 </>
               )}
             </Button>
