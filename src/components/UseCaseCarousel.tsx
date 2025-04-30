@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { 
   Trophy, TrendingUp, BookOpen, Smartphone, Calendar, 
@@ -33,7 +32,7 @@ export default function UseCaseCarousel() {
   const USE_CASES: UseCaseSlide[] = [
     {
       id: 1,
-      title: "Dream11 Teams",
+      title: "Fantasy Teams",
       description: "Monetize your sports expertise with premium team selections",
       icon: (props) => <Trophy {...props} />,
       monetizationIcon: (props) => <DollarSign {...props} />,
