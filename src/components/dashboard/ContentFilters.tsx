@@ -25,7 +25,7 @@ const ContentFilters: React.FC<ContentFiltersProps> = ({ onFilter }) => {
   
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <div className="flex items-center text-sm text-gray-400 mr-1">
+      <div className="flex items-center text-sm text-gray-700 font-medium mr-1">
         <Filter className="h-4 w-4 mr-1" />
         Filter:
       </div>
