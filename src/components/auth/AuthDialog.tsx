@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -131,12 +132,12 @@ const AuthDialog = ({
 
   return (
     <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-      <DialogContent className="glass-card border-white/10 text-white sm:max-w-md">
+      <DialogContent className="glass-card border-white/10 text-gray-800 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
+          <DialogTitle className="text-xl font-bold text-gray-800">
             {authTab === 'login' ? 'Sign In' : 'Create Account'}
           </DialogTitle>
-          <DialogDescription className="text-gray-300">
+          <DialogDescription className="text-gray-600">
             {authTab === 'login' 
               ? 'Sign in to your account to access your dashboard'
               : 'Create a new account to get started with CreatorHub'}
@@ -144,19 +145,19 @@ const AuthDialog = ({
         </DialogHeader>
         
         {authError && (
-          <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-300">
+          <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{authError}</AlertDescription>
           </Alert>
         )}
         
         <Tabs value={authTab} onValueChange={(value) => setAuthTab(value as 'login' | 'signup')} className="w-full">
-          <TabsList className="grid grid-cols-2 bg-white/5 border border-white/10 p-1">
-            <TabsTrigger value="login" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+          <TabsList className="grid grid-cols-2 bg-white/50 border border-gray-200 p-1">
+            <TabsTrigger value="login" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
               <LogIn className="h-4 w-4 mr-2" />
               Login
             </TabsTrigger>
-            <TabsTrigger value="signup" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+            <TabsTrigger value="signup" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
               <User className="h-4 w-4 mr-2" />
               Sign Up
             </TabsTrigger>
@@ -174,7 +175,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="your@email.com"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/70 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -194,7 +195,7 @@ const AuthDialog = ({
                         <Input
                           type="password"
                           placeholder="••••••••"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/70 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -207,7 +208,7 @@ const AuthDialog = ({
                 <div className="flex justify-end mb-2">
                   <button
                     type="button"
-                    className="text-sm text-emerald-400 hover:underline ml-auto"
+                    className="text-sm text-pastel-700 hover:underline ml-auto"
                     onClick={() => {
                       setShowAuthDialog(false);
                       window.location.href = "/forgot-password";
@@ -219,7 +220,7 @@ const AuthDialog = ({
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -232,12 +233,12 @@ const AuthDialog = ({
               </form>
             </Form>
             
-            <div className="mt-4 text-center text-sm text-gray-400">
+            <div className="mt-4 text-center text-sm text-gray-600">
               <p>
                 Don't have an account?{' '}
                 <button
                   onClick={() => setAuthTab('signup')}
-                  className="text-emerald-500 hover:underline"
+                  className="text-pastel-700 hover:underline"
                 >
                   Create one
                 </button>
@@ -257,7 +258,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="John Doe"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/70 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -276,7 +277,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="your@email.com"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/70 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -296,7 +297,7 @@ const AuthDialog = ({
                         <Input
                           type="password"
                           placeholder="••••••••"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/70 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -308,7 +309,7 @@ const AuthDialog = ({
                 
                 <Button 
                   type="submit" 
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -321,12 +322,12 @@ const AuthDialog = ({
               </form>
             </Form>
             
-            <div className="mt-4 text-center text-sm text-gray-400">
+            <div className="mt-4 text-center text-sm text-gray-600">
               <p>
                 Already have an account?{' '}
                 <button
                   onClick={() => setAuthTab('login')}
-                  className="text-emerald-500 hover:underline"
+                  className="text-pastel-700 hover:underline"
                 >
                   Sign in
                 </button>

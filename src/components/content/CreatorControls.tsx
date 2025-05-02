@@ -18,7 +18,7 @@ const CreatorControls = ({ contentId, contentTitle, onSchedule }: CreatorControl
       <Button
         onClick={() => setShowScheduler(!showScheduler)}
         variant="outline"
-        className="border-gray-700 hover:border-emerald-500 text-gray-300"
+        className="border-gray-300 hover:border-pastel-500 text-gray-700 rounded-xl"
       >
         <CalendarClock className="mr-2 h-4 w-4" />
         {showScheduler ? 'Hide Scheduler' : 'Schedule Content'}

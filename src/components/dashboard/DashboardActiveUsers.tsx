@@ -4,7 +4,7 @@ import { Users } from 'lucide-react';
 
 const DashboardActiveUsers = () => {
   return (
-    <div className="glass-card p-4 rounded-xl">
+    <div className="glass-card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-pastel-500/20 flex items-center justify-center">

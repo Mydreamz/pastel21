@@ -53,10 +53,10 @@ const StarsBackground: React.FC = () => {
         />
       ))}
       
-      {/* Add emerald glow effects */}
-      <div className="absolute top-1/4 -left-40 w-80 h-80 bg-glow-emerald rounded-full animate-glow opacity-40" />
-      <div className="absolute top-3/4 -right-40 w-96 h-96 bg-glow-emerald rounded-full animate-glow opacity-30" style={{ animationDelay: '2s' }} />
-      <div className="absolute bottom-0 left-1/3 w-[40rem] h-[40rem] bg-glow-emerald rounded-full animate-glow opacity-20" style={{ animationDelay: '4s' }} />
+      {/* Add pastel glow effects */}
+      <div className="absolute top-1/4 -left-40 w-80 h-80 bg-glow-pastel rounded-full animate-glow opacity-40" />
+      <div className="absolute top-3/4 -right-40 w-96 h-96 bg-glow-pastel rounded-full animate-glow opacity-30" style={{ animationDelay: '2s' }} />
+      <div className="absolute bottom-0 left-1/3 w-[40rem] h-[40rem] bg-glow-pastel rounded-full animate-glow opacity-20" style={{ animationDelay: '4s' }} />
     </div>
   );
 };

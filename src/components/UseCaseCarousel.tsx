@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { 
   Trophy, TrendingUp, BookOpen, Smartphone, Calendar, 
@@ -81,7 +82,7 @@ export default function UseCaseCarousel() {
           <div
             key={useCase.id}
             className={cn(
-              "absolute inset-0 glass-card p-6 rounded-2xl transition-all duration-700 flex flex-col",
+              "absolute inset-0 glass-card p-6 flex flex-col",
               {
                 "translate-x-0 opacity-100": index === activeSlide,
                 "translate-x-full opacity-0": index > activeSlide,
@@ -94,18 +95,18 @@ export default function UseCaseCarousel() {
           >
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center justify-center w-16 h-16 bg-black/20 rounded-xl animate-float">
-                <useCase.icon className="text-emerald-500 w-8 h-8" />
+                <useCase.icon className="text-pastel-500 w-8 h-8" />
               </div>
               
-              <div className="flex items-center gap-2 bg-emerald-500/20 text-emerald-400 px-3 py-2 rounded-lg animate-pulse-gentle">
+              <div className="flex items-center gap-2 bg-pastel-500/20 text-pastel-700 px-3 py-2 rounded-lg animate-pulse-gentle">
                 <useCase.monetizationIcon className="h-4 w-4" />
                 <span className="text-sm font-medium">{useCase.monetizationText}</span>
               </div>
             </div>
             
             <div className="mt-auto animate-fade-in" style={{ animationDelay: '200ms' }}>
-              <h3 className="text-xl font-bold mb-1">{useCase.title}</h3>
-              <p className="text-gray-400 text-sm">{useCase.description}</p>
+              <h3 className="text-xl font-bold mb-1 text-gray-800">{useCase.title}</h3>
+              <p className="text-gray-600 text-sm">{useCase.description}</p>
             </div>
           </div>
         ))}

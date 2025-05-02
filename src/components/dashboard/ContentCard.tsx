@@ -36,7 +36,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const isValidUrl = fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('/'));
   
   return (
-    <Card key={contentId} className="bg-white/50 backdrop-blur-md border border-white/30 shadow-neumorphic hover:border-pastel-300/50 transition-colors rounded-xl">
+    <Card className="glass-card hover:border-pastel-300/50 transition-colors">
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-2">
@@ -50,7 +50,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
           <PriceBadge price={price} />
         </div>
         
-        <h3 className="font-medium text-lg mb-1 text-pastel-700 line-clamp-1">{title}</h3>
+        <h3 className="font-medium text-lg mb-1 text-gray-800 line-clamp-1">{title}</h3>
         
         <div className="flex flex-col text-xs text-gray-500 mb-3 gap-1">
           {creatorName && (
@@ -76,7 +76,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
             </div>
           )}
           {contentType !== 'text' && contentType !== 'link' && !isValidUrl && (
-            <div className="text-amber-600">
+            <div className="text-pastel-700">
               Media files pending migration
             </div>
           )}
@@ -87,7 +87,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
             onClick={() => navigate(`/view/${contentId}`)} 
             variant="outline" 
             size="sm" 
-            className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700"
+            className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
           >
             <Eye className="h-4 w-4 mr-1" />
             {showPurchaseDate ? 'View Content' : 'View'}
@@ -99,7 +99,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => navigate(`/edit/${contentId}`)} 
                 variant="outline" 
                 size="sm" 
-                className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700"
+                className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
               >
                 <Edit className="h-4 w-4 mr-1" />
                 Edit
@@ -108,7 +108,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => onDelete?.(contentId)}
                 variant="outline" 
                 size="sm" 
-                className="border-gray-300 bg-white/50 hover:bg-red-100 hover:text-red-600 ml-auto"
+                className="border-gray-300 bg-white/50 hover:bg-pastel-100 hover:text-pastel-600 ml-auto rounded-xl"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

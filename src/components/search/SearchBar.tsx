@@ -29,11 +29,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="pl-10 py-6 bg-white/5 border-white/10 text-white placeholder:text-gray-400 w-full rounded-lg focus:ring-emerald-500 focus:border-emerald-500"
+          className="pl-10 py-6 bg-white/5 border-gray-200 text-gray-800 placeholder:text-gray-400 w-full rounded-lg focus:ring-pastel-500 focus:border-pastel-500"
         />
         <Button 
           type="submit" 
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md"
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-pastel-500 hover:bg-pastel-600 text-white rounded-md"
         >
           Search
         </Button>

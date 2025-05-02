@@ -72,11 +72,11 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-xl bg-white/50 border border-white/30 shadow-neumorphic;
+    @apply backdrop-blur-xl bg-white/50 border border-white/30 shadow-neumorphic rounded-2xl;
   }
   
   .glass-card-dark {
-    @apply backdrop-blur-xl bg-white/70 border border-white/20 shadow-neumorphic;
+    @apply backdrop-blur-xl bg-white/70 border border-white/20 shadow-neumorphic rounded-2xl;
   }
   
   .text-gradient-pastel {

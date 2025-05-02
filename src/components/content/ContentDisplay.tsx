@@ -39,22 +39,22 @@ const ContentDisplay = ({
   };
 
   return (
-    <div className="mt-8 border-t border-white/10 pt-8">
+    <div className="mt-8 border-t border-gray-200 pt-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">Full Content</h2>
+        <h2 className="text-xl font-bold text-gray-800">Full Content</h2>
         <div className="flex gap-2">
           {isCreator && (
-            <Badge variant="outline" className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+            <Badge variant="outline" className="bg-pastel-500/20 text-pastel-700 border-pastel-500/30 rounded-full">
               Creator View
             </Badge>
           )}
           {isPurchased && !isCreator && (
-            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
+            <Badge variant="outline" className="bg-pastel-400/20 text-pastel-700 border-pastel-400/30 rounded-full">
               Purchased
             </Badge>
           )}
           {parseFloat(content.price) === 0 && (
-            <Badge variant="outline" className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+            <Badge variant="outline" className="bg-pastel-300/20 text-pastel-700 border-pastel-300/30 rounded-full">
               Free
             </Badge>
           )}
@@ -67,7 +67,7 @@ const ContentDisplay = ({
           {content.category && (
             <Badge 
               variant="outline" 
-              className="bg-purple-500/20 text-purple-300 border-purple-500/30 cursor-pointer hover:bg-purple-500/30"
+              className="bg-pastel-500/20 text-pastel-700 border-pastel-500/30 cursor-pointer hover:bg-pastel-500/30 rounded-full"
             >
               <Tag className="h-3 w-3 mr-1" />
               {content.category}
@@ -78,7 +78,7 @@ const ContentDisplay = ({
             <Badge 
               key={`tag-${tag}`}
               variant="outline" 
-              className="bg-white/5 hover:bg-white/10 cursor-pointer border-white/10"
+              className="bg-white/50 hover:bg-white/70 cursor-pointer border-gray-200 text-gray-700 rounded-full"
             >
               <Tag className="h-3 w-3 mr-1" />
               {tag}
@@ -88,18 +88,18 @@ const ContentDisplay = ({
       )}
       
       {content.contentType === 'text' && content.content && (
-        <div className="prose prose-invert max-w-none">
+        <div className="prose max-w-none text-gray-700">
           <p>{content.content}</p>
         </div>
       )}
       
       {content.contentType === 'link' && content.content && (
-        <div className="bg-white/5 p-4 rounded-md">
+        <div className="bg-white/50 p-4 rounded-xl shadow-neumorphic">
           <a 
             href={content.content} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-emerald-400 hover:underline break-all"
+            className="text-pastel-700 hover:underline break-all"
           >
             {content.content}
           </a>
@@ -108,14 +108,14 @@ const ContentDisplay = ({
       
       {/* Display any error messages */}
       {mediaError && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-4 bg-red-50 border-red-200 text-red-700">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{mediaError}</AlertDescription>
         </Alert>
       )}
       
       {secureFileError && (
-        <Alert variant="destructive" className="mb-4">
+        <Alert variant="destructive" className="mb-4 bg-red-50 border-red-200 text-red-700">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Failed to load secure content: {secureFileError}
@@ -126,34 +126,34 @@ const ContentDisplay = ({
       {isMediaContent && (
         <div className="mt-4">
           {secureFileLoading && (
-            <div className="bg-white/5 border border-white/10 rounded-md p-6 flex justify-center items-center">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-500/80" />
-              <p className="ml-3 text-gray-300">Loading secure content...</p>
+            <div className="bg-white/50 border border-gray-200 rounded-xl p-6 flex justify-center items-center">
+              <Loader2 className="h-8 w-8 animate-spin text-pastel-500/80" />
+              <p className="ml-3 text-gray-600">Loading secure content...</p>
             </div>
           )}
           
           {!canAccessMedia && !secureFileLoading && (
-            <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg p-6 text-center">
-              <Lock className="h-8 w-8 mx-auto mb-3 text-emerald-500/80" />
-              <p className="text-lg font-medium mb-1">Protected Content</p>
-              <p className="text-gray-400 text-sm">
+            <div className="bg-white/70 backdrop-blur-sm border border-gray-200 rounded-xl p-6 text-center">
+              <Lock className="h-8 w-8 mx-auto mb-3 text-pastel-500/80" />
+              <p className="text-lg font-medium mb-1 text-gray-800">Protected Content</p>
+              <p className="text-gray-600 text-sm">
                 This content requires purchase to view
               </p>
             </div>
           )}
           
           {canAccessMedia && !secureFileLoading && content.contentType === 'image' && (
-            <div className="overflow-hidden rounded-md bg-white/5 p-2 flex justify-center">
+            <div className="overflow-hidden rounded-xl bg-white/50 p-2 flex justify-center shadow-neumorphic">
               {isValidFileUrl ? (
                 <img 
                   src={displayFileUrl} 
                   alt={content.title} 
                   onError={handleMediaError}
-                  className="max-w-full max-h-[600px] object-contain rounded-md"
+                  className="max-w-full max-h-[600px] object-contain rounded-xl"
                   loading="lazy"
                 />
               ) : (
-                <div className="p-6 text-amber-400">
+                <div className="p-6 text-pastel-700">
                   {secureFileError ? 
                     "Error loading secure image content." : 
                     "This image was stored with a temporary URL and needs to be updated."}
@@ -164,20 +164,20 @@ const ContentDisplay = ({
           )}
           
           {canAccessMedia && !secureFileLoading && content.contentType === 'video' && (
-            <div className="overflow-hidden rounded-md bg-white/5 p-2">
+            <div className="overflow-hidden rounded-xl bg-white/50 p-2 shadow-neumorphic">
               {isValidFileUrl ? (
                 <video 
                   controls
                   preload="metadata"
                   poster={displayFileUrl + '?poster=true'}
                   onError={handleMediaError}
-                  className="w-full rounded-md"
+                  className="w-full rounded-xl"
                 >
                   <source src={displayFileUrl} type={content.fileType} />
                   Your browser does not support the video tag.
                 </video>
               ) : (
-                <div className="p-6 text-amber-400">
+                <div className="p-6 text-pastel-700">
                   {secureFileError ? 
                     "Error loading secure video content." : 
                     "This video was stored with a temporary URL and needs to be updated."}
@@ -188,7 +188,7 @@ const ContentDisplay = ({
           )}
           
           {canAccessMedia && !secureFileLoading && content.contentType === 'audio' && (
-            <div className="bg-white/5 p-4 rounded-md">
+            <div className="bg-white/50 p-4 rounded-xl shadow-neumorphic">
               {isValidFileUrl ? (
                 <audio 
                   controls
@@ -200,7 +200,7 @@ const ContentDisplay = ({
                   Your browser does not support the audio tag.
                 </audio>
               ) : (
-                <div className="p-6 text-amber-400">
+                <div className="p-6 text-pastel-700">
                   {secureFileError ? 
                     "Error loading secure audio content." : 
                     "This audio was stored with a temporary URL and needs to be updated."}
@@ -211,18 +211,18 @@ const ContentDisplay = ({
           )}
           
           {canAccessMedia && !secureFileLoading && content.contentType === 'document' && (
-            <div className="bg-white/5 p-4 rounded-md">
+            <div className="bg-white/50 p-4 rounded-xl shadow-neumorphic">
               {isValidFileUrl ? (
                 <a 
                   href={displayFileUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-emerald-400 hover:underline flex items-center"
+                  className="text-pastel-700 hover:underline flex items-center"
                 >
                   Download {content.fileName || 'Document'}
                 </a>
               ) : (
-                <div className="p-6 text-amber-400">
+                <div className="p-6 text-pastel-700">
                   {secureFileError ? 
                     "Error loading secure document." : 
                     "This document was stored with a temporary URL and needs to be updated."}
@@ -235,7 +235,7 @@ const ContentDisplay = ({
       )}
       
       {/* Content engagement stats */}
-      <div className="mt-6 flex items-center gap-4 text-sm text-gray-400">
+      <div className="mt-6 flex items-center gap-4 text-sm text-gray-600">
         <div className="flex items-center gap-1">
           <Eye className="h-4 w-4" />
           <span>{content.views || Math.floor(Math.random() * 100) + 5} views</span>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
@@ -25,7 +26,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -46,8 +47,8 @@ const Index = () => {
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything creators need to monetize with Monitize.club</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Everything creators need to monetize with Monitize.club</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
               All the tools you need to create, grow, and monetize your audience in one powerful platform.
             </p>
           </div>
@@ -70,33 +71,33 @@ const Index = () => {
                 icon: "💰"
               }
             ].map((feature, i) => (
-              <div key={i} className="glass-card p-6 rounded-xl">
+              <div key={i} className="glass-card p-6">
                 <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-gray-800">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </div>
             ))}
           </div>
         </section>
         
         <section id="pricing" className="py-16 md:py-24">
-          <div className="glass-card p-8 md:p-12 rounded-2xl">
+          <div className="glass-card p-8 md:p-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to start monetizing your content with Monitize.club?</h2>
-                <p className="text-gray-400 mb-6">Join thousands of creators who are earning more with our platform.</p>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Ready to start monetizing your content with Monitize.club?</h2>
+                <p className="text-gray-600 mb-6">Join thousands of creators who are earning more with our platform.</p>
                 
                 <ul className="space-y-3 mb-8">
                   {["Free to get started", "No credit card required", "Cancel anytime"].map((item, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-emerald-500" />
-                      <span>{item}</span>
+                      <CheckCircle className="h-5 w-5 text-pastel-500" />
+                      <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
                 
                 <Button 
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-6 h-12 text-base font-medium"
+                  className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
                   onClick={() => openAuthDialog('signup')}
                 >
                   Start for free
@@ -104,18 +105,18 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="glass-card p-6 rounded-xl border border-emerald-500/20">
+              <div className="glass-card p-6 border border-pastel-500/20">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">Pro Plan</h3>
-                  <div className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-sm font-medium">Popular</div>
+                  <h3 className="text-xl font-bold text-gray-800">Pro Plan</h3>
+                  <div className="px-3 py-1 rounded-full bg-pastel-500/20 text-pastel-700 text-sm font-medium">Popular</div>
                 </div>
                 
                 <div className="mb-6">
                   <div className="flex items-end gap-1">
-                    <span className="text-4xl font-bold">₹1999</span>
-                    <span className="text-gray-400">/month</span>
+                    <span className="text-4xl font-bold text-gray-800">₹1999</span>
+                    <span className="text-gray-600">/month</span>
                   </div>
-                  <p className="text-gray-400 text-sm">Billed annually (₹23,988/year)</p>
+                  <p className="text-gray-600 text-sm">Billed annually (₹23,988/year)</p>
                 </div>
                 
                 <ul className="space-y-3 mb-8">
@@ -127,13 +128,13 @@ const Index = () => {
                     "Multiple payment methods"
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-emerald-500" />
-                      <span>{feature}</span>
+                      <CheckCircle className="h-5 w-5 text-pastel-500" />
+                      <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-full">
+                <Button className="w-full bg-pastel-500 hover:bg-pastel-600 text-white rounded-full">
                   Get Started
                 </Button>
               </div>

@@ -33,7 +33,7 @@ const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, co
           <Button
             onClick={() => navigate(`/edit/${contentId}`)}
             variant="outline"
-            className="border-gray-300 hover:bg-pastel-100 hover:border-pastel-300"
+            className="border-gray-300 hover:bg-pastel-100 hover:border-pastel-300 rounded-xl"
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit Content

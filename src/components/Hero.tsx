@@ -15,24 +15,24 @@ const Hero = () => {
   return (
     <div className="relative flex flex-col items-start gap-6 py-10 md:py-12 lg:py-16 w-full max-w-screen-xl mx-auto px-4 md:px-6">
       <div className="flex flex-col gap-3 max-w-[720px]">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
-          Create, Share, and <span className="text-gradient-emerald">Monetize</span> Your Content
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-800">
+          Create, Share, and <span className="text-gradient-pastel">Monetize</span> Your Content
         </h1>
         
-        <p className="text-lg md:text-xl text-gray-300 max-w-[600px]">
+        <p className="text-lg md:text-xl text-gray-600 max-w-[600px]">
           All-in-one platform for creators to build, grow, and monetize their audience with powerful insights and analytics.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <Button 
-            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full px-6 h-12 text-base font-medium"
+            className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
             onClick={handleGetStarted}
           >
             Get Started Free
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
           
-          <Button variant="outline" className="border-gray-700 hover:border-emerald-500 hover:bg-emerald-500/10 text-white rounded-full px-6 h-12 text-base font-medium">
+          <Button variant="outline" className="border-gray-400 hover:border-pastel-500 hover:bg-pastel-500/10 text-gray-700 rounded-full px-6 h-12 text-base font-medium">
             See How It Works
           </Button>
         </div>
