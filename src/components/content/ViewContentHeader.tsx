@@ -23,7 +23,7 @@ const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, co
       <div className="flex justify-between items-start mb-6">
         <button 
           onClick={() => navigate('/')} 
-          className="flex items-center text-gray-300 hover:text-white transition-colors"
+          className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
@@ -33,7 +33,7 @@ const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, co
           <Button
             onClick={() => navigate(`/edit/${contentId}`)}
             variant="outline"
-            className="border-white/10 hover:bg-white/10"
+            className="border-gray-300 hover:bg-pastel-100 hover:border-pastel-300"
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit Content
@@ -41,15 +41,15 @@ const ViewContentHeader = ({ title, creatorName, createdAt, price, creatorId, co
         )}
       </div>
       
-      <h1 className="text-2xl md:text-3xl font-bold mb-2">{title}</h1>
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-gray-400 mb-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">{title}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-gray-500 mb-6">
         <span>By {creatorName}</span>
         <span className="hidden sm:block">•</span>
         <span>Created {new Date(createdAt).toLocaleDateString()}</span>
         {parseFloat(price) > 0 && (
           <>
             <span className="hidden sm:block">•</span>
-            <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs">
+            <span className="px-2 py-1 bg-pastel-500/20 text-pastel-700 rounded-full text-xs">
               ₹{parseFloat(price).toFixed(2)}
             </span>
           </>

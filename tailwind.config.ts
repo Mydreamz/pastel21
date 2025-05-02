@@ -53,6 +53,20 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				pastel: {
+					DEFAULT: '#9b87f5',
+					50: '#EAEFFC',
+					100: '#EEF0FC',
+					200: '#DBDDFA',
+					300: '#C9CBF8',
+					400: '#B6B8F7',
+					500: '#9b87f5',
+					600: '#8271dc',
+					700: '#6957c3',
+					800: '#5040aa',
+					900: '#372991',
+					950: '#1F1A78',
+				},
 				emerald: {
 					DEFAULT: '#10b981',
 					50: '#ecfdf5',
@@ -154,8 +168,13 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+				'glow-pastel': 'radial-gradient(circle, rgba(155, 135, 245, 0.2) 0%, rgba(155, 135, 245, 0) 70%)',
 				'glow-emerald': 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0) 70%)',
 				'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")"
+			},
+			boxShadow: {
+				'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.05), -8px -8px 16px rgba(255, 255, 255, 0.7)',
+				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)'
 			}
 		}
 	},

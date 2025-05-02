@@ -5,35 +5,35 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 230 90% 97%;
+    --foreground: 240 10% 18%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 230 90% 99%;
+    --card-foreground: 240 10% 18%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 230 90% 99%;
+    --popover-foreground: 240 10% 18%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 245 78% 75%;
+    --primary-foreground: 240 5% 12%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 20% 96%;
+    --secondary-foreground: 240 10% 18%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 240 20% 96%;
+    --muted-foreground: 240 10% 40%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 245 78% 90%;
+    --accent-foreground: 240 5% 12%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --border: 245 30% 90%;
+    --input: 245 30% 90%;
+    --ring: 245 78% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -48,11 +48,11 @@
 
 @layer base {
   * {
-    @apply border-border selection:bg-emerald-500/20 selection:text-emerald-50;
+    @apply border-border selection:bg-pastel-500/20 selection:text-pastel-950;
   }
   
   body {
-    @apply bg-[#111111] text-foreground antialiased overflow-x-hidden;
+    @apply bg-[#EAEFFC] text-foreground antialiased overflow-x-hidden;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 
@@ -72,24 +72,24 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-xl;
+    @apply backdrop-blur-xl bg-white/50 border border-white/30 shadow-neumorphic;
   }
   
   .glass-card-dark {
-    @apply backdrop-blur-xl bg-black/40 border border-white/10 shadow-xl;
+    @apply backdrop-blur-xl bg-white/70 border border-white/20 shadow-neumorphic;
   }
   
-  .text-gradient-emerald {
-    @apply bg-gradient-to-r from-emerald-500 to-emerald-400 bg-clip-text text-transparent;
+  .text-gradient-pastel {
+    @apply bg-gradient-to-r from-pastel-500 to-pastel-400 bg-clip-text text-transparent;
   }
   
-  .highlight-emerald {
+  .highlight-pastel {
     @apply relative inline-block;
   }
   
-  .highlight-emerald::after {
+  .highlight-pastel::after {
     content: "";
-    @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-emerald-500 rounded-full opacity-70;
+    @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-pastel-500 rounded-full opacity-70;
   }
   
   .star {
@@ -102,7 +102,7 @@
 
   .glow-effect::before {
     content: "";
-    @apply absolute inset-0 rounded-full bg-gradient-radial from-emerald-500/20 to-transparent opacity-0 transition-opacity duration-500 ease-in-out;
+    @apply absolute inset-0 rounded-full bg-gradient-radial from-pastel-500/20 to-transparent opacity-0 transition-opacity duration-500 ease-in-out;
   }
 
   .glow-effect:hover::before {
