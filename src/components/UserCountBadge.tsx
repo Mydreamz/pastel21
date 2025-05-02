@@ -18,29 +18,29 @@ const UserCountBadge: React.FC<UserCountBadgeProps> = ({ count }) => {
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-pastel-500/20 border border-pastel-300/50 shadow-neumorphic cursor-pointer group transition-all duration-300 hover:bg-pastel-500/30 hover:shadow-lg">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-xl bg-pastel-500/25 border border-pastel-300/50 shadow-neumorphic cursor-pointer group transition-all duration-500 hover:bg-pastel-500/30 hover:shadow-lg transform hover:scale-105">
           <div className="flex -space-x-2">
             {users.map((user, i) => (
               <Avatar 
                 key={i} 
-                className="border-2 border-white w-7 h-7 transition-all duration-300 group-hover:translate-y-[-2px] animate-fade-in" 
-                style={{ animationDelay: `${i * 100}ms` }}
+                className="border-2 border-white w-7 h-7 transition-all duration-500 group-hover:translate-y-[-3px] animate-fade-in shadow-md" 
+                style={{ animationDelay: `${i * 150}ms` }}
               >
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="bg-pastel-100 text-pastel-700">{user.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={user.avatar} alt={user.name} className="transition-transform duration-500 hover:scale-110" />
+                <AvatarFallback className="bg-pastel-100 text-pastel-700 transition-colors duration-300 hover:bg-pastel-200">{user.name.charAt(0)}</AvatarFallback>
               </Avatar>
             ))}
-            <div className="w-7 h-7 rounded-full bg-pastel-600 flex items-center justify-center text-xs font-medium text-white border-2 border-white transition-all duration-300 group-hover:translate-y-[-2px] animate-fade-in"
-              style={{ animationDelay: `${users.length * 100}ms` }}>
+            <div className="w-7 h-7 rounded-full bg-pastel-600 flex items-center justify-center text-xs font-medium text-white border-2 border-white transition-all duration-500 group-hover:translate-y-[-3px] animate-fade-in shadow-md"
+              style={{ animationDelay: `${users.length * 150}ms` }}>
               +
             </div>
           </div>
-          <p className="text-sm font-medium text-gray-800 transition-all duration-300 group-hover:scale-105">
+          <p className="text-sm font-medium text-gray-800 transition-all duration-500 group-hover:scale-105">
             <span className="font-bold">{count.toLocaleString()}+</span> users
           </p>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent className="w-80 backdrop-blur-xl bg-white/80 border border-pastel-200/50 shadow-neumorphic rounded-2xl animate-scale-in">
+      <HoverCardContent className="w-80 backdrop-blur-xl bg-white/95 border border-pastel-200/50 shadow-neumorphic rounded-2xl animate-scale-in transition-all duration-500 transform origin-top">
         <div className="flex flex-col gap-3">
           <p className="text-sm font-medium text-gray-800 animate-fade-in">
             Join our fast-growing community of creators
@@ -49,10 +49,10 @@ const UserCountBadge: React.FC<UserCountBadgeProps> = ({ count }) => {
             {users.map((user, i) => (
               <div 
                 key={i} 
-                className="flex items-center gap-3 animate-fade-in hover:bg-pastel-100/30 rounded-lg p-1 transition-all duration-300" 
-                style={{ animationDelay: `${i * 150}ms` }}
+                className="flex items-center gap-3 animate-fade-in hover:bg-pastel-100/60 rounded-lg p-1.5 transition-all duration-300 transform hover:translate-x-1" 
+                style={{ animationDelay: `${i * 200}ms` }}
               >
-                <Avatar className="border border-pastel-200 transition-transform duration-300 hover:scale-110">
+                <Avatar className="border border-pastel-200 transition-transform duration-500 hover:scale-110 shadow-sm">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="bg-pastel-100 text-pastel-700">{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -62,7 +62,7 @@ const UserCountBadge: React.FC<UserCountBadgeProps> = ({ count }) => {
                 </div>
               </div>
             ))}
-            <p className="text-xs text-pastel-700 font-medium pt-1 animate-fade-in" style={{ animationDelay: `${users.length * 150}ms` }}>
+            <p className="text-xs text-pastel-700 font-medium pt-1 animate-fade-in" style={{ animationDelay: `${users.length * 200}ms` }}>
               And {count - users.length}+ others
             </p>
           </div>

@@ -43,13 +43,13 @@ export const BackToTop = () => {
   };
   
   return (
-    <div className={`fixed bottom-4 right-4 z-50 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+    <div className={`fixed bottom-4 right-4 z-50 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
       <Button 
         onClick={scrollToTop} 
         size="icon" 
-        className={`p-2 rounded-full shadow-lg bg-pastel-600 hover:bg-pastel-500 transition-all duration-300 hover:shadow-xl ${isScrolling ? 'animate-pulse-gentle' : ''}`}
+        className={`p-2 rounded-full shadow-lg bg-pastel-600 hover:bg-pastel-500 transition-all duration-500 hover:shadow-xl transform hover:scale-110 ${isScrolling ? 'animate-pulse-gentle' : ''}`}
       >
-        <ArrowUp className="h-5 w-5 animate-bounce" style={{ animationDuration: '2s' }} />
+        <ArrowUp className="h-5 w-5 animate-bounce" style={{ animationDuration: '1.5s' }} />
       </Button>
     </div>
   );
