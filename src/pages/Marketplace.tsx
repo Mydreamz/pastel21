@@ -41,7 +41,7 @@ const Marketplace = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -53,14 +53,14 @@ const Marketplace = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate('/dashboard')}
-            className="text-white hover:bg-white/10"
+            className="text-gray-700 hover:bg-white/10"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold">Marketplace</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Marketplace</h1>
         </div>
         
-        <Card className="glass-card border-white/10 text-white mb-8">
+        <Card className="glass-card border-white/10 text-gray-800 mb-8">
           <CardContent className="p-0">
             <DashboardSearch 
               onFilter={setFilters}

@@ -85,24 +85,24 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 bg-[#EAEFFC]">
       <MainNav openAuthDialog={openAuthDialog} />
       
       <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-6 text-center">Search Content</h1>
+          <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Search Content</h1>
           <SearchBar onSearch={searchContent} placeholder="Search for creators, topics, or content..." />
           
           <div className="mt-6 flex flex-wrap gap-2 justify-center">
             <div className="flex items-center mr-2">
-              <Tags className="h-4 w-4 mr-1 text-gray-400" />
-              <span className="text-sm text-gray-400">Popular:</span>
+              <Tags className="h-4 w-4 mr-1 text-gray-600" />
+              <span className="text-sm text-gray-600">Popular:</span>
             </div>
             {popularTags.map((tag) => (
               <Badge 
                 key={tag}
                 variant="outline" 
-                className="bg-white/5 hover:bg-white/10 cursor-pointer border-white/10"
+                className="bg-white/20 hover:bg-white/30 cursor-pointer border-white/20 text-gray-700"
                 onClick={() => handleTagSearch(tag)}
               >
                 <Tag className="h-3 w-3 mr-1" />

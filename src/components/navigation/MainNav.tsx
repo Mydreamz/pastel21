@@ -7,9 +7,6 @@ import { User, LayoutDashboard, Shield } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
-import { useTheme } from '@/hooks/useTheme';
-import { Switch } from "@/components/ui/switch";
-import { Moon, Sun } from "lucide-react";
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -20,7 +17,6 @@ const MainNav = ({
 }: MainNavProps) => {
   const navigate = useNavigate();
   const { user, session } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const isAuthenticated = !!session;
   
   const handleLogout = async () => {
@@ -46,16 +42,16 @@ const MainNav = ({
           
           {!isAuthenticated && (
             <nav className="hidden md:flex items-center space-x-6 ml-10">
-              <Link to="/" className="text-gray-600 hover:text-pastel-700 transition-colors">
+              <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors">
                 Home
               </Link>
-              <Link to="/#features" className="text-gray-600 hover:text-pastel-700 transition-colors">
+              <Link to="/#features" className="text-gray-700 hover:text-pastel-700 transition-colors">
                 Features
               </Link>
-              <Link to="/#pricing" className="text-gray-600 hover:text-pastel-700 transition-colors">
+              <Link to="/#pricing" className="text-gray-700 hover:text-pastel-700 transition-colors">
                 Pricing
               </Link>
-              <Link to="/#contents" className="text-gray-600 hover:text-pastel-700 transition-colors">
+              <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors">
                 Explore
               </Link>
             </nav>
@@ -63,15 +59,6 @@ const MainNav = ({
         </div>
         
         <div className="flex items-center space-x-3">
-          <div className="flex items-center mr-2">
-            <Sun className="h-4 w-4 text-gray-600 mr-1" />
-            <Switch 
-              checked={theme === 'dark'} 
-              onCheckedChange={toggleTheme}
-            />
-            <Moon className="h-4 w-4 text-gray-600 ml-1" />
-          </div>
-          
           {isAuthenticated && user ? <>
               <NotificationDropdown />
               
@@ -87,8 +74,8 @@ const MainNav = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="glass-card border border-pastel-100 text-gray-700">
                   <div className="px-3 py-2">
-                    <p className="font-medium">{userName}</p>
-                    <p className="text-sm text-gray-500">{userEmail}</p>
+                    <p className="font-medium text-gray-800">{userName}</p>
+                    <p className="text-sm text-gray-600">{userEmail}</p>
                   </div>
                   <DropdownMenuSeparator className="bg-pastel-200/50" />
                   <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-pastel-100">

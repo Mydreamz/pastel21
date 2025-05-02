@@ -174,3 +174,35 @@
 .top-up-component {
   @apply bg-white/70 border border-pastel-200/50 rounded-2xl shadow-neumorphic;
 }
+
+/* High contrast text styles for better visibility */
+.text-high-contrast {
+  @apply text-gray-800;
+}
+
+.text-medium-contrast {
+  @apply text-gray-700;
+}
+
+.text-low-contrast {
+  @apply text-gray-600;
+}
+
+/* Dashboard card improvements */
+.dashboard-card {
+  @apply bg-white/80 border border-pastel-200/50 shadow-neumorphic rounded-2xl;
+}
+
+/* Marketplace content text */
+.marketplace-content-text {
+  @apply text-gray-800;
+}
+
+/* Profile page text improvements */
+.profile-text {
+  @apply text-gray-800;
+}
+
+.profile-subtext {
+  @apply text-gray-600;
+}

@@ -111,7 +111,7 @@ const EditContent = () => {
         <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
           <CardHeader>
             <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Edit Content</CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardDescription className="text-gray-700">
               Update your content details
             </CardDescription>
           </CardHeader>
