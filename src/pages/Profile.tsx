@@ -28,12 +28,12 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-300 hover:text-white transition-colors">
+        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-600 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
@@ -48,25 +48,25 @@ const Profile = () => {
           </div>
           
           <div className="lg:col-span-2">
-            <Card className="glass-card border-white/10 text-white">
+            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
               <CardHeader>
                 <CardTitle>Your Dashboard</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription className="text-gray-600">
                   Manage your content and view analytics
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="analytics">
-                  <TabsList className="grid grid-cols-3 bg-white/5 border border-white/10 p-1">
-                    <TabsTrigger value="analytics" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+                  <TabsList className="grid grid-cols-3 bg-white/50 border border-pastel-200/50 p-1">
+                    <TabsTrigger value="analytics" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
                       <BarChart className="h-4 w-4 mr-2" />
                       Analytics
                     </TabsTrigger>
-                    <TabsTrigger value="content" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+                    <TabsTrigger value="content" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
                       <FileText className="h-4 w-4 mr-2" />
                       Your Content
                     </TabsTrigger>
-                    <TabsTrigger value="settings" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+                    <TabsTrigger value="settings" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
                       <User className="h-4 w-4 mr-2" />
                       Account
                     </TabsTrigger>

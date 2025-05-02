@@ -45,9 +45,9 @@ const CreateContent = () => {
   // Show loading state while checking auth
   if (isAuthChecking || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#EAEFFC]">
+        <div className="text-gray-800 text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
           <p>Verifying authentication...</p>
         </div>
       </div>
@@ -57,14 +57,14 @@ const CreateContent = () => {
   // If not authenticated, show a message and redirect
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white text-center max-w-md p-8">
+      <div className="min-h-screen flex items-center justify-center bg-[#EAEFFC]">
+        <div className="text-gray-800 text-center max-w-md p-8 glass-card shadow-neumorphic border-pastel-200/50">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold mb-4">Authentication Required</h2>
           <p className="mb-6">You need to be signed in to create content. You'll be redirected to the home page.</p>
           <Button 
             onClick={() => navigate('/')}
-            className="bg-emerald-500 hover:bg-emerald-600"
+            className="bg-pastel-500 hover:bg-pastel-600 text-white"
           >
             Go to Home Page
           </Button>
@@ -74,21 +74,21 @@ const CreateContent = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden bg-[#EAEFFC]">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-300 hover:text-white transition-colors">
+        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-600 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
         
         <div className="grid md:grid-cols-[2fr,1fr] gap-6">
-          <Card className="glass-card border-white/10 text-white">
+          <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
             <CardHeader>
-              <CardTitle className="text-2xl md:text-3xl font-bold">Create Locked Content</CardTitle>
-              <CardDescription className="text-gray-300">
+              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Create Locked Content</CardTitle>
+              <CardDescription className="text-gray-600">
                 Share and monetize your content with a secure paywall
               </CardDescription>
             </CardHeader>
@@ -116,13 +116,13 @@ const CreateContent = () => {
                       type="button" 
                       variant="outline" 
                       onClick={() => setShowScheduler(true)}
-                      className="border-gray-700 hover:border-gray-600 text-gray-300"
+                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
                     >
                       Schedule
                     </Button>
                     <Button 
                       type="submit" 
-                      className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                      className="bg-pastel-500 hover:bg-pastel-600 text-white"
                     >
                       Create Content
                     </Button>

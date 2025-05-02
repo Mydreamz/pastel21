@@ -156,13 +156,13 @@ const EditContentForm = ({
             type="button" 
             variant="outline" 
             onClick={() => navigate(`/view/${contentId}`)}
-            className="border-gray-700 hover:border-gray-600 text-gray-300"
+            className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
           >
             Cancel
           </Button>
           <Button 
             type="submit" 
-            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="bg-pastel-500 hover:bg-pastel-600 text-white"
             disabled={isSaving}
           >
             {isSaving ? (

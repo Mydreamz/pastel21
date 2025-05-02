@@ -101,17 +101,17 @@ const EditContent = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden bg-[#EAEFFC]">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
         <ContentHeader />
         
-        <Card className="glass-card border-white/10 text-white">
+        <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
           <CardHeader>
-            <CardTitle className="text-2xl md:text-3xl font-bold">Edit Content</CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Edit Content</CardTitle>
+            <CardDescription className="text-gray-600">
               Update your content details
             </CardDescription>
           </CardHeader>

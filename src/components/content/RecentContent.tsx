@@ -65,7 +65,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
           <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
         </div>
       ) : recentContents.length === 0 ? (
-        <Card className="glass-card border-white/10 text-center p-8">
+        <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
           <p className="text-gray-600">No content available yet</p>
         </Card>
       ) : (
@@ -81,7 +81,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
               <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   {parseFloat(content.price) > 0 && (
-                    <div className="flex items-center text-pastel-600">
+                    <div className="flex items-center text-pastel-700">
                       <Lock className="h-4 w-4 mr-1" />
                       ${parseFloat(content.price).toFixed(2)}
                     </div>
@@ -93,7 +93,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                       variant="outline" 
                       size="sm" 
                       onClick={() => navigate(`/edit/${content.id}`)}
-                      className="border-pastel-200 hover:bg-pastel-100"
+                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>

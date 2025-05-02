@@ -36,7 +36,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const isValidUrl = fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('/'));
   
   return (
-    <Card className="glass-card hover:border-pastel-300/50 transition-colors">
+    <Card className="glass-card hover:border-pastel-300/50 transition-colors shadow-neumorphic border-pastel-200/50">
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-2">
@@ -52,7 +52,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
         
         <h3 className="font-medium text-lg mb-1 text-gray-800 line-clamp-1">{title}</h3>
         
-        <div className="flex flex-col text-xs text-gray-500 mb-3 gap-1">
+        <div className="flex flex-col text-xs text-gray-600 mb-3 gap-1">
           {creatorName && (
             <div className="flex items-center">
               <User className="h-3 w-3 mr-1" />
@@ -87,7 +87,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
             onClick={() => navigate(`/view/${contentId}`)} 
             variant="outline" 
             size="sm" 
-            className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
+            className="border-pastel-200 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
           >
             <Eye className="h-4 w-4 mr-1" />
             {showPurchaseDate ? 'View Content' : 'View'}
@@ -99,7 +99,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => navigate(`/edit/${contentId}`)} 
                 variant="outline" 
                 size="sm" 
-                className="border-gray-300 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
+                className="border-pastel-200 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
               >
                 <Edit className="h-4 w-4 mr-1" />
                 Edit
@@ -108,7 +108,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => onDelete?.(contentId)}
                 variant="outline" 
                 size="sm" 
-                className="border-gray-300 bg-white/50 hover:bg-pastel-100 hover:text-pastel-600 ml-auto rounded-xl"
+                className="border-pastel-200 bg-white/50 hover:bg-pastel-100 hover:text-pastel-600 ml-auto rounded-xl"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

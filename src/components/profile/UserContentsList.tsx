@@ -92,28 +92,28 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
   return (
     <div className="pt-4 space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Your Published Content</h3>
-        <Button onClick={() => navigate('/create')} className="bg-emerald-500 hover:bg-emerald-600 text-white text-sm">
+        <h3 className="text-lg font-medium text-gray-800">Your Published Content</h3>
+        <Button onClick={() => navigate('/create')} className="bg-pastel-500 hover:bg-pastel-600 text-white text-sm">
           Create New
         </Button>
       </div>
       
       {userContents.length === 0 ? (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-gray-600">
           <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
           <p>You haven't created any content yet</p>
-          <Button onClick={() => navigate('/create')} variant="link" className="text-emerald-500 mt-2">
+          <Button onClick={() => navigate('/create')} variant="link" className="text-pastel-700 mt-2">
             Create your first content
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="rounded-md border border-white/10 overflow-hidden">
+          <div className="rounded-md border border-pastel-200/50 overflow-hidden bg-white/50">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-white/10">
+                <TableRow className="hover:bg-transparent border-pastel-200/50">
                   <TableHead 
-                    className="text-white cursor-pointer"
+                    className="text-gray-700 cursor-pointer"
                     onClick={() => handleSort('title')}
                   >
                     <div className="flex items-center">
@@ -124,7 +124,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="text-white cursor-pointer"
+                    className="text-gray-700 cursor-pointer"
                     onClick={() => handleSort('price')}
                   >
                     <div className="flex items-center">
@@ -135,7 +135,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                     </div>
                   </TableHead>
                   <TableHead 
-                    className="text-white cursor-pointer"
+                    className="text-gray-700 cursor-pointer"
                     onClick={() => handleSort('created_at')}
                   >
                     <div className="flex items-center">
@@ -145,22 +145,22 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                       )}
                     </div>
                   </TableHead>
-                  <TableHead className="text-right text-white">Actions</TableHead>
+                  <TableHead className="text-right text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedContent.map((content) => (
-                  <TableRow key={content.id} className="border-white/10">
-                    <TableCell className="font-medium">{content.title}</TableCell>
-                    <TableCell>${parseFloat(content.price).toFixed(2)}</TableCell>
-                    <TableCell>{new Date(content.created_at).toLocaleDateString()}</TableCell>
+                  <TableRow key={content.id} className="border-pastel-200/50">
+                    <TableCell className="font-medium text-gray-800">{content.title}</TableCell>
+                    <TableCell className="text-pastel-700">${parseFloat(content.price).toFixed(2)}</TableCell>
+                    <TableCell className="text-gray-700">{new Date(content.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
                         <Button
                           onClick={() => navigate(`/view/${content.id}`)}
                           variant="outline"
                           size="sm"
-                          className="border-white/10 hover:bg-white/10"
+                          className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -168,7 +168,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                           onClick={() => onEditContent(content.id)}
                           variant="outline"
                           size="sm"
-                          className="border-white/10 hover:bg-white/10"
+                          className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -176,11 +176,11 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                           onClick={() => handleDeleteClick(content.id)}
                           variant="outline"
                           size="sm"
-                          className={`border-white/10 hover:bg-white/10 ${confirmDelete === content.id ? 'bg-red-500/10 border-red-500/30' : ''}`}
+                          className={`border-pastel-200 hover:bg-pastel-100 text-gray-700 ${confirmDelete === content.id ? 'bg-red-500/10 border-red-500/30' : ''}`}
                         >
                           {confirmDelete === content.id ? (
                             <span className="flex items-center space-x-1">
-                              <Check className="h-4 w-4 text-green-500" onClick={(e) => {
+                              <Check className="h-4 w-4 text-pastel-700" onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteClick(content.id);
                               }} />
@@ -207,7 +207,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                 <PaginationItem>
                   <PaginationPrevious 
                     onClick={() => setCurrentPage(curr => Math.max(curr - 1, 1))}
-                    className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                    className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} text-gray-700 hover:text-pastel-700`}
                   />
                 </PaginationItem>
                 
@@ -216,7 +216,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                     <PaginationLink 
                       isActive={currentPage === i + 1}
                       onClick={() => setCurrentPage(i + 1)}
-                      className={currentPage === i + 1 ? 'bg-emerald-500 text-white border-emerald-500' : ''}
+                      className={currentPage === i + 1 ? 'bg-pastel-500 text-white border-pastel-500' : 'text-gray-700'}
                     >
                       {i + 1}
                     </PaginationLink>
@@ -226,7 +226,7 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => setCurrentPage(curr => Math.min(curr + 1, totalPages))}
-                    className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                    className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''} text-gray-700 hover:text-pastel-700`}
                   />
                 </PaginationItem>
               </PaginationContent>

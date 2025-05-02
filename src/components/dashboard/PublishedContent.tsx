@@ -35,7 +35,7 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
       <div className="text-center py-12">
         <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
         <h3 className="text-xl font-medium mb-1 text-gray-800">No published content</h3>
-        <p className="text-gray-500 mb-4">Create your first content to get started</p>
+        <p className="text-gray-600 mb-4">Create your first content to get started</p>
         <Button 
           onClick={() => navigate('/create')} 
           className="bg-pastel-500 hover:bg-pastel-600 text-white"
@@ -65,7 +65,7 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
   if (filteredContents.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No content matches your current filters or search query</p>
+        <p className="text-gray-600">No content matches your current filters or search query</p>
       </div>
     );
   }
