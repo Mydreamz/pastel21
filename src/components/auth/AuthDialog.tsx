@@ -132,7 +132,7 @@ const AuthDialog = ({
 
   return (
     <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-      <DialogContent className="glass-card border-white/10 text-gray-800 sm:max-w-md">
+      <DialogContent className="backdrop-blur-xl bg-white/80 border border-gray-200/50 shadow-lg text-gray-800 sm:max-w-md rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-800">
             {authTab === 'login' ? 'Sign In' : 'Create Account'}
@@ -152,7 +152,7 @@ const AuthDialog = ({
         )}
         
         <Tabs value={authTab} onValueChange={(value) => setAuthTab(value as 'login' | 'signup')} className="w-full">
-          <TabsList className="grid grid-cols-2 bg-white/50 border border-gray-200 p-1">
+          <TabsList className="grid grid-cols-2 bg-white/70 border border-gray-200 p-1">
             <TabsTrigger value="login" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
               <LogIn className="h-4 w-4 mr-2" />
               Login
@@ -175,7 +175,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="your@email.com"
-                          className="bg-white/70 border-gray-200 text-gray-800"
+                          className="bg-white/90 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -195,7 +195,7 @@ const AuthDialog = ({
                         <Input
                           type="password"
                           placeholder="••••••••"
-                          className="bg-white/70 border-gray-200 text-gray-800"
+                          className="bg-white/90 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -225,7 +225,7 @@ const AuthDialog = ({
                 >
                   {isLoading ? (
                     <>
-                      <span className="animate-spin mr-2 inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                      <span className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
                       Signing In...
                     </>
                   ) : "Sign In"}
@@ -258,7 +258,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="John Doe"
-                          className="bg-white/70 border-gray-200 text-gray-800"
+                          className="bg-white/90 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -277,7 +277,7 @@ const AuthDialog = ({
                       <FormControl>
                         <Input
                           placeholder="your@email.com"
-                          className="bg-white/70 border-gray-200 text-gray-800"
+                          className="bg-white/90 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -297,7 +297,7 @@ const AuthDialog = ({
                         <Input
                           type="password"
                           placeholder="••••••••"
-                          className="bg-white/70 border-gray-200 text-gray-800"
+                          className="bg-white/90 border-gray-200 text-gray-800"
                           disabled={isLoading}
                           {...field}
                         />
@@ -314,7 +314,7 @@ const AuthDialog = ({
                 >
                   {isLoading ? (
                     <>
-                      <span className="animate-spin mr-2 inline-block h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+                      <span className="inline-block mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
                       Creating Account...
                     </>
                   ) : "Create Account"}
