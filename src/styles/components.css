@@ -1,0 +1,56 @@
+
+/* App button */
+.app-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+}
+
+/* Neumorphic style for standard inputs */
+.input-neumorphic {
+  @apply bg-white/70 border border-pastel-100 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-500/30 outline-none transition-all duration-300;
+}
+
+/* Auth form improvements */
+.auth-form-input {
+  @apply bg-white/70 border border-pastel-100 rounded-xl focus:ring-2 focus:ring-pastel-500/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+}
+
+.auth-form-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+}
+
+/* Top-up component styling */
+.top-up-component {
+  @apply bg-white/70 border border-pastel-200/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+}
+
+/* High contrast text styles for better visibility */
+.text-high-contrast {
+  @apply text-gray-800;
+}
+
+.text-medium-contrast {
+  @apply text-gray-700;
+}
+
+.text-low-contrast {
+  @apply text-gray-600;
+}
+
+/* Dashboard card improvements */
+.dashboard-card {
+  @apply bg-white/80 border border-pastel-200/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+}
+
+/* Marketplace content text */
+.marketplace-content-text {
+  @apply text-gray-800;
+}
+
+/* Profile page text improvements */
+.profile-text {
+  @apply text-gray-800;
+}
+
+.profile-subtext {
+  @apply text-gray-600;
+}
