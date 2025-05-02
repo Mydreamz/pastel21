@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/App';
 import { useToast } from '@/hooks/use-toast';
+import { IndianRupee } from 'lucide-react';
 
 interface RecentContentProps {
   isAuthenticated: boolean;
@@ -82,8 +83,8 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                 <div className="flex items-center gap-2">
                   {parseFloat(content.price) > 0 && (
                     <div className="flex items-center text-pastel-700">
-                      <Lock className="h-4 w-4 mr-1" />
-                      ${parseFloat(content.price).toFixed(2)}
+                      <IndianRupee className="h-4 w-4 mr-1" />
+                      {parseFloat(content.price).toFixed(2)}
                     </div>
                   )}
                 </div>

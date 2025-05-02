@@ -160,3 +160,17 @@
 .input-neumorphic {
   @apply bg-white/70 border border-pastel-100 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-500/30 outline-none;
 }
+
+/* Auth form improvements - remove glowy effect */
+.auth-form-input {
+  @apply bg-white/70 border border-pastel-100 rounded-xl focus:ring-2 focus:ring-pastel-500/30 focus:border-pastel-200 outline-none text-gray-800;
+}
+
+.auth-form-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all;
+}
+
+/* Top-up component styling */
+.top-up-component {
+  @apply bg-white/70 border border-pastel-200/50 rounded-2xl shadow-neumorphic;
+}

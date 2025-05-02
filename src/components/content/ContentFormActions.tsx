@@ -25,7 +25,7 @@ const ContentFormActions = ({ isSubmitting }: ContentFormActionsProps) => {
         className="bg-pastel-500 hover:bg-pastel-600 text-white"
         disabled={isSubmitting}
       >
-        Update Content
+        {isSubmitting ? 'Saving...' : 'Update Content'}
       </Button>
     </div>
   );

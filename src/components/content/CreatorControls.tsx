@@ -25,7 +25,7 @@ const CreatorControls = ({ contentId, contentTitle, onSchedule }: CreatorControl
       </Button>
 
       {showScheduler && (
-        <div className="mt-4">
+        <div className="mt-4 glass-card p-4">
           <ContentScheduler
             contentId={contentId}
             contentTitle={contentTitle}

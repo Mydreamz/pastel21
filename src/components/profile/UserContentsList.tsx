@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Edit, FileText, Trash2, Eye, ChevronDown, Check, X } from 'lucide-react';
@@ -20,6 +19,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { IndianRupee } from 'lucide-react';
 
 interface UserContentsListProps {
   userContents: any[];
@@ -152,7 +152,12 @@ const UserContentsList = ({ userContents, onEditContent, onDeleteContent }: User
                 {paginatedContent.map((content) => (
                   <TableRow key={content.id} className="border-pastel-200/50">
                     <TableCell className="font-medium text-gray-800">{content.title}</TableCell>
-                    <TableCell className="text-pastel-700">${parseFloat(content.price).toFixed(2)}</TableCell>
+                    <TableCell className="text-pastel-700">
+                      <span className="flex items-center">
+                        <IndianRupee className="h-3 w-3 mr-1" />
+                        {parseFloat(content.price).toFixed(2)}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-gray-700">{new Date(content.created_at).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
