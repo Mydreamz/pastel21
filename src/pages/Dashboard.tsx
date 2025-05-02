@@ -90,7 +90,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative overflow-hidden">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -100,7 +100,7 @@ const Dashboard = () => {
         <div className="container px-2 sm:px-4">
           <DashboardHeader />
           
-          <Card className="glass-card border-white/10 text-white flex-1">
+          <Card className="glass-card border-white/10 text-gray-800 flex-1">
             <CardContent className="p-0">
               <DashboardSearch 
                 onFilter={setActiveFilters}
@@ -125,7 +125,7 @@ const Dashboard = () => {
         {isMobile && (
           <Button
             onClick={handleCreateContent}
-            className="fixed right-4 bottom-4 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg h-14 w-14 p-0"
+            className="fixed right-4 bottom-4 rounded-full bg-pastel-500 hover:bg-pastel-600 text-white shadow-lg h-14 w-14 p-0"
             size="icon"
           >
             <Plus className="h-6 w-6" />

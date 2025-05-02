@@ -23,7 +23,7 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full"></div>
+        <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
       </div>
     );
   }
@@ -36,7 +36,7 @@ const PurchasedContent: React.FC<PurchasedContentProps> = ({
         <p className="text-gray-400 mb-4">Purchase content from other creators to see it here</p>
         <Button 
           onClick={() => navigate('/')} 
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-pastel-500 hover:bg-pastel-600 text-white"
         >
           Explore Content
         </Button>

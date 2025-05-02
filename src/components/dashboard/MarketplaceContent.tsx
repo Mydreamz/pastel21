@@ -56,7 +56,7 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full"></div>
+        <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
       </div>
     );
   }
@@ -102,7 +102,7 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
         <div key={content.id} className="relative">
           {purchasedContentIds.includes(content.id) && (
             <Badge 
-              className="absolute top-2 right-2 z-10 bg-emerald-500 text-white flex items-center gap-1 px-2 py-1"
+              className="absolute top-2 right-2 z-10 bg-pastel-500 text-white flex items-center gap-1 px-2 py-1"
             >
               <Check className="h-3 w-3" /> Purchased
             </Badge>

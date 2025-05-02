@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,7 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full"></div>
+        <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
       </div>
     );
   }
@@ -37,7 +38,7 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
         <p className="text-gray-400 mb-4">Create your first content to get started</p>
         <Button 
           onClick={() => navigate('/create')} 
-          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          className="bg-pastel-500 hover:bg-pastel-600 text-white"
         >
           Create Content
         </Button>

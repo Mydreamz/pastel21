@@ -36,14 +36,14 @@ const DashboardTabs = ({
       <TabsList className="w-full grid grid-cols-2 md:grid-cols-3 bg-white/5 rounded-none border-b border-white/10">
         <TabsTrigger 
           value="my-content" 
-          className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-pastel-500"
         >
           <FileText className="mr-2 h-4 w-4" />
           My Content
         </TabsTrigger>
         <TabsTrigger 
           value="purchased" 
-          className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+          className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-pastel-500"
         >
           <DollarSign className="mr-2 h-4 w-4" />
           Purchased
@@ -51,7 +51,7 @@ const DashboardTabs = ({
         {!isMobile && (
           <TabsTrigger 
             value="marketplace" 
-            className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-emerald-500"
+            className="rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-pastel-500"
           >
             <Store className="mr-2 h-4 w-4" />
             Marketplace

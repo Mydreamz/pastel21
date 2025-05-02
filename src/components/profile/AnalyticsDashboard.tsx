@@ -41,7 +41,7 @@ const AnalyticsDashboard = () => {
             size="sm" 
             variant={timeRange === '7d' ? 'default' : 'outline'}
             onClick={() => setTimeRange('7d')}
-            className={timeRange === '7d' ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-white/10 hover:bg-white/10'}
+            className={timeRange === '7d' ? 'bg-pastel-500 hover:bg-pastel-600' : 'border-white/10 hover:bg-white/10'}
           >
             7 days
           </Button>
@@ -49,7 +49,7 @@ const AnalyticsDashboard = () => {
             size="sm" 
             variant={timeRange === '30d' ? 'default' : 'outline'}
             onClick={() => setTimeRange('30d')}
-            className={timeRange === '30d' ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-white/10 hover:bg-white/10'}
+            className={timeRange === '30d' ? 'bg-pastel-500 hover:bg-pastel-600' : 'border-white/10 hover:bg-white/10'}
           >
             30 days
           </Button>
@@ -57,7 +57,7 @@ const AnalyticsDashboard = () => {
             size="sm" 
             variant={timeRange === 'all' ? 'default' : 'outline'}
             onClick={() => setTimeRange('all')}
-            className={timeRange === 'all' ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-white/10 hover:bg-white/10'}
+            className={timeRange === 'all' ? 'bg-pastel-500 hover:bg-pastel-600' : 'border-white/10 hover:bg-white/10'}
           >
             All time
           </Button>
@@ -71,7 +71,7 @@ const AnalyticsDashboard = () => {
             <Card key={index} className="glass-card border-white/10 text-white">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <Icon className="h-4 w-4 text-emerald-500" />
+                <Icon className="h-4 w-4 text-pastel-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
@@ -84,10 +84,10 @@ const AnalyticsDashboard = () => {
 
       <Tabs defaultValue="views">
         <TabsList className="grid grid-cols-2 bg-white/5 border border-white/10 p-1">
-          <TabsTrigger value="views" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+          <TabsTrigger value="views" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
             Views Over Time
           </TabsTrigger>
-          <TabsTrigger value="popular" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">
+          <TabsTrigger value="popular" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white">
             Popular Content
           </TabsTrigger>
         </TabsList>
@@ -106,8 +106,8 @@ const AnalyticsDashboard = () => {
                   <AreaChart data={viewsOverTime} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#9b87f5" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <XAxis 
@@ -128,7 +128,7 @@ const AnalyticsDashboard = () => {
                     <Area
                       type="monotone"
                       dataKey="views"
-                      stroke="#10b981"
+                      stroke="#9b87f5"
                       fillOpacity={1}
                       fill="url(#colorViews)"
                     />
@@ -167,7 +167,7 @@ const AnalyticsDashboard = () => {
                         borderRadius: '8px',
                       }}
                     />
-                    <Bar dataKey="views" fill="#10b981" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="views" fill="#9b87f5" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
