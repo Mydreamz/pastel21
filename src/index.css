@@ -44,6 +44,36 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .dark {
+    --background: 240 10% 5%;
+    --foreground: 0 0% 95%;
+
+    --card: 240 10% 7%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 240 10% 3%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 245 78% 75%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 62.8% 40.6%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 245 78% 65%;
+  }
 }
 
 @layer base {
@@ -76,7 +106,7 @@
   }
   
   .glass-card-dark {
-    @apply backdrop-blur-xl bg-white/70 border border-white/20 shadow-neumorphic rounded-2xl;
+    @apply backdrop-blur-xl bg-white/10 border border-white/5 shadow-neumorphic rounded-2xl;
   }
   
   .text-gradient-pastel {
@@ -121,3 +151,12 @@
   text-align: left;
 }
 
+/* Add a specific style for the app button */
+.app-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all;
+}
+
+/* Neumorphic style for standard inputs */
+.input-neumorphic {
+  @apply bg-white/70 border border-pastel-100 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-500/30 outline-none;
+}

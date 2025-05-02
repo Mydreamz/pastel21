@@ -49,11 +49,11 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
   }, [toast]);
 
   return (
-    <section className="py-16">
+    <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold">Recent Content</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Recent Content</h2>
         {isAuthenticated && (
-          <Button onClick={() => navigate('/create')} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+          <Button onClick={() => navigate('/create')} className="bg-pastel-500 hover:bg-pastel-600 text-white">
             <Plus className="mr-2 h-4 w-4" />
             Create Content
           </Button>
@@ -62,26 +62,26 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       
       {loading ? (
         <div className="flex justify-center py-10">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full"></div>
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
         </div>
       ) : recentContents.length === 0 ? (
         <Card className="glass-card border-white/10 text-center p-8">
-          <p className="text-gray-400">No content available yet</p>
+          <p className="text-gray-600">No content available yet</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recentContents.map((content) => (
-            <Card key={content.id} className="glass-card border-white/10">
+            <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold truncate">{content.title}</CardTitle>
+                <CardTitle className="text-lg font-semibold truncate text-gray-800">{content.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-400 text-sm line-clamp-3">{content.teaser}</p>
+                <p className="text-gray-600 text-sm line-clamp-3">{content.teaser}</p>
               </CardContent>
               <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   {parseFloat(content.price) > 0 && (
-                    <div className="flex items-center text-emerald-400">
+                    <div className="flex items-center text-pastel-600">
                       <Lock className="h-4 w-4 mr-1" />
                       ${parseFloat(content.price).toFixed(2)}
                     </div>
@@ -93,7 +93,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                       variant="outline" 
                       size="sm" 
                       onClick={() => navigate(`/edit/${content.id}`)}
-                      className="border-white/10 hover:bg-white/10"
+                      className="border-pastel-200 hover:bg-pastel-100"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -108,6 +108,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                     }}
                     variant="secondary"
                     size="sm"
+                    className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
                   >
                     View
                   </Button>
