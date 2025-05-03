@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
@@ -103,7 +104,7 @@ const Dashboard = () => {
   
   return (
     <div 
-      className="p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl bg-pastel-300/60 border border-pastel-200/50 shadow-neumorphic"
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl bg-white/60 border border-pastel-200/50 shadow-neumorphic"
       style={parallaxStyle}
     >
       <div className="flex items-center justify-between mb-6">
