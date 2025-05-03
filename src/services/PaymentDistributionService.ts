@@ -22,6 +22,8 @@ export class PaymentDistributionService {
         this.PLATFORM_FEE_PERCENTAGE
       );
 
+      console.log(`Processing payment - Amount: ${amount}, Platform fee: ${platformFee}, Creator earnings: ${creatorEarnings}`);
+
       // Create transaction record - convert numbers to strings for Supabase
       const { data: transaction, error } = await supabase
         .from('transactions')

@@ -5,6 +5,7 @@ import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
 import { PaymentDistributionService } from '@/services/PaymentDistributionService';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 interface PaymentFlowProps {
   content: any;
@@ -23,6 +24,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
 }) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { user, session } = useAuth();
 
   const handleUnlock = async () => {
@@ -51,14 +54,14 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       return;
     }
 
-    setIsProcessing(true);
-    
-    // Check if user is authenticated before proceeding with payment
+    // If user is not authenticated, show auth dialog
     if (!session || !user) {
-      setIsProcessing(false);
-      // The auth dialog will be shown by the LockedContent component
+      setAuthTab('login');
+      setShowAuthDialog(true);
       return;
     }
+    
+    setIsProcessing(true);
     
     try {
       // Check again server-side if the content has already been purchased
@@ -123,13 +126,22 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   // Show the LockedContent component for paid content when not unlocked and not already purchased
   if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
     return (
-      <LockedContent 
-        price={content.price} 
-        onUnlock={handleUnlock}
-        contentTitle={content.title}
-        isProcessing={isProcessing}
-        isPurchased={isPurchased}
-      />
+      <>
+        <LockedContent 
+          price={content.price} 
+          onUnlock={handleUnlock}
+          contentTitle={content.title}
+          isProcessing={isProcessing}
+          isPurchased={isPurchased}
+        />
+        
+        <AuthDialog 
+          showAuthDialog={showAuthDialog}
+          setShowAuthDialog={setShowAuthDialog}
+          authTab={authTab}
+          setAuthTab={setAuthTab}
+        />
+      </>
     );
   }
 

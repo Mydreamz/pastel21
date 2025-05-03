@@ -1,9 +1,13 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Lock, IndianRupee, Info, Check } from 'lucide-react';
+import { Lock, IndianRupee, Info, Check, LogIn } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import AuthDialog from '@/components/auth/AuthDialog';
+import { calculateFees } from '@/utils/paymentUtils';
+import { useAuth } from '@/App';
 
 interface ContentPreviewProps {
   title: string;
@@ -29,8 +33,14 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   onPurchase
 }) => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Calculate platform fee and creator earnings
+  const { platformFee, creatorEarnings } = calculateFees(price);
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -48,23 +58,20 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   const formattedExpiry = formatExpiryDate(expiryDate);
 
   const handlePayment = () => {
+    // Check for auth first
+    if (!user) {
+      setAuthTab('login');
+      setShowAuthDialog(true);
+      setShowPaymentDialog(false);
+      return;
+    }
+    
     setIsProcessing(true);
     
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
       setShowPaymentDialog(false);
-      
-      // Check for auth
-      const auth = localStorage.getItem('auth');
-      if (!auth) {
-        toast({
-          title: "Authentication required",
-          description: "Please sign in to purchase content",
-          variant: "destructive"
-        });
-        return;
-      }
       
       // Process successful payment
       if (onPaymentSuccess) {
@@ -79,6 +86,12 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   };
 
   const handleDirectPurchase = () => {
+    if (!user) {
+      setAuthTab('login');
+      setShowAuthDialog(true);
+      return;
+    }
+    
     if (onPurchase) {
       onPurchase();
     } else {
@@ -87,55 +100,66 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   };
   
   return (
-    <Card className="glass-card border-white/10 text-white overflow-hidden">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-xl">
-          <Lock className="h-5 w-5 text-emerald-500" /> {title}
-          {scheduledFor && (
-            <span className="text-sm font-normal text-gray-400">
-              (Scheduled for {formatExpiryDate(scheduledFor.toISOString())})
-            </span>
+    <>
+      <Card className="glass-card border-white/10 text-white overflow-hidden">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Lock className="h-5 w-5 text-emerald-500" /> {title}
+            {scheduledFor && (
+              <span className="text-sm font-normal text-gray-400">
+                (Scheduled for {formatExpiryDate(scheduledFor.toISOString())})
+              </span>
+            )}
+          </CardTitle>
+          <CardDescription className="text-gray-300">
+            {teaser}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent className="relative">
+          {/* Blurred preview */}
+          <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="relative z-10 text-center p-6">
+              <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />
+              <p className="text-white font-semibold">This content is locked</p>
+              <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
+            </div>
+          </div>
+          
+          {/* Price tag */}
+          <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+            <IndianRupee className="h-3 w-3" />
+            {price.toFixed(2)}
+          </div>
+        </CardContent>
+        
+        <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <Button 
+            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
+            onClick={handleDirectPurchase}
+          >
+            {user ? (
+              <>
+                <IndianRupee className="mr-2 h-4 w-4" />
+                Unlock Now (₹{price.toFixed(2)})
+              </>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In to Unlock
+              </>
+            )}
+          </Button>
+          
+          {formattedExpiry && (
+            <div className="text-xs text-gray-400 flex items-center gap-1">
+              <Info className="h-3 w-3" />
+              Expires: {formattedExpiry}
+            </div>
           )}
-        </CardTitle>
-        <CardDescription className="text-gray-300">
-          {teaser}
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="relative">
-        {/* Blurred preview */}
-        <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="relative z-10 text-center p-6">
-            <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />
-            <p className="text-white font-semibold">This content is locked</p>
-            <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
-          </div>
-        </div>
-        
-        {/* Price tag */}
-        <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
-          <IndianRupee className="h-3 w-3" />
-          {price.toFixed(2)}
-        </div>
-      </CardContent>
-      
-      <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <Button 
-          className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
-          onClick={handleDirectPurchase}
-        >
-          <IndianRupee className="mr-2 h-4 w-4" />
-          Unlock Now (₹{price.toFixed(2)})
-        </Button>
-        
-        {formattedExpiry && (
-          <div className="text-xs text-gray-400 flex items-center gap-1">
-            <Info className="h-3 w-3" />
-            Expires: {formattedExpiry}
-          </div>
-        )}
-      </CardFooter>
+        </CardFooter>
+      </Card>
       
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="glass-card border-white/10 text-white sm:max-w-md">
@@ -147,13 +171,18 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           </DialogHeader>
           
           <div className="py-4">
-            <div className="mb-4 p-4 bg-white/5 rounded-md">
+            <div className="mb-4 p-4 bg-black/20 rounded-md border border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <span>Content Price</span>
                 <span className="font-semibold">₹{price.toFixed(2)}</span>
               </div>
-              <div className="text-xs text-gray-400 mt-2">
-                This is a simulated payment system. In a real application, this would connect to a payment provider like Stripe.
+              <div className="flex justify-between items-center text-sm text-gray-400 border-t border-white/10 pt-2 mt-2">
+                <span>Platform Fee (7%)</span>
+                <span>₹{platformFee.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-emerald-400 border-t border-white/10 pt-2 mt-2">
+                <span>Creator Earnings</span>
+                <span>₹{creatorEarnings.toFixed(2)}</span>
               </div>
             </div>
             
@@ -191,7 +220,14 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+      
+      <AuthDialog 
+        showAuthDialog={showAuthDialog}
+        setShowAuthDialog={setShowAuthDialog}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+      />
+    </>
   );
 };
 
