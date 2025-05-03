@@ -13,6 +13,7 @@ export const useContentSharing = (contentId: string, price: string) => {
   const initializeShareUrl = () => {
     if (!contentId) return;
     
+    // The URL is determined by price - premium content goes to preview, free content to view
     if (parseFloat(price) > 0) {
       setShareUrl(`${window.location.origin}/preview/${contentId}`);
     } else {

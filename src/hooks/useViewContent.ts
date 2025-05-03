@@ -126,6 +126,7 @@ export const useViewContent = (id: string | undefined) => {
         const mapped = supabaseToContent(foundContent);
         setContent(mapped);
 
+        // Handle authentication cases
         if (user) {
           // Check if user is creator or has purchased the content
           const isCreator = mapped.creatorId === user.id;
@@ -171,17 +172,19 @@ export const useViewContent = (id: string | undefined) => {
               navigate(`/preview/${id}`);
             }
           }
-        } else if (
-          window.location.pathname.startsWith('/view/') &&
-          parseFloat(foundContent.price) > 0
-        ) {
-          // Redirect to preview page if user is not authenticated and content is paid
-          console.log("Redirecting unauthenticated user to preview page for paid content");
-          navigate(`/preview/${id}`);
-        } else if (parseFloat(foundContent.price) === 0) {
-          // Free content is still unlocked, but we need to handle the file URL differently
-          console.log("Content is free - unlocking for unauthenticated user");
-          setIsUnlocked(true);
+        } else {
+          // Handle unauthenticated user
+          console.log("User is not authenticated");
+          
+          if (parseFloat(mapped.price) === 0) {
+            // Free content is still unlocked for unauthenticated users
+            console.log("Content is free - unlocking for unauthenticated user");
+            setIsUnlocked(true);
+          } else if (window.location.pathname.startsWith('/view/')) {
+            // Only redirect if we're on the view route and it's paid content
+            console.log("Redirecting unauthenticated user to preview page for paid content");
+            navigate(`/preview/${id}`);
+          }
         }
       } catch (e: any) {
         console.error("Error in loadContent:", e);

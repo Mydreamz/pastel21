@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -199,16 +198,9 @@ const App = () => {
                       <CreateContent />
                     </ProtectedRoute>
                   } />
-                  <Route path="/view/:id" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
-                      <ViewContent />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/preview/:id" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
-                      <PreviewContent />
-                    </ProtectedRoute>
-                  } />
+                  {/* Make view and preview routes public */}
+                  <Route path="/view/:id" element={<ViewContent />} />
+                  <Route path="/preview/:id" element={<PreviewContent />} />
                   <Route path="/edit/:id" element={
                     <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
                       <EditContent />
