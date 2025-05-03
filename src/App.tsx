@@ -1,8 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { useState, useEffect, createContext, useContext } from "react";
@@ -43,6 +44,35 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const useAuth = () => useContext(AuthContext);
+
+// Protected route component to handle authentication
+interface ProtectedRouteProps {
+  children: JSX.Element;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+const ProtectedRoute = ({ children, isAuthenticated, isLoading }: ProtectedRouteProps) => {
+  const location = useLocation();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!isAuthenticated) {
+    // Redirect to home page if not authenticated
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
 
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -159,16 +189,52 @@ const App = () => {
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={session ? <Navigate to="/dashboard" /> : <Index />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/create" element={<CreateContent />} />
-                  <Route path="/view/:id" element={<ViewContent />} />
-                  <Route path="/preview/:id" element={<PreviewContent />} />
-                  <Route path="/edit/:id" element={<EditContent />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/success" element={<ContentSuccess />} />
-                  <Route path="/search" element={<Search />} />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/create" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <CreateContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/view/:id" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <ViewContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/preview/:id" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <PreviewContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/edit/:id" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <EditContent />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/success" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <ContentSuccess />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/search" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <Search />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/marketplace" element={
+                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                      <Marketplace />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

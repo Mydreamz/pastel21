@@ -1,15 +1,23 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UserCountBadge from './UserCountBadge';
+import { useAuth } from '@/App';
 
-const Hero = () => {
-  const navigate = useNavigate();
+interface HeroProps {
+  openAuthDialog?: (tab: 'login' | 'signup') => void;
+}
+
+const Hero = ({ openAuthDialog }: HeroProps) => {
+  const { user } = useAuth();
   
   const handleGetStarted = () => {
-    navigate('/create');
+    if (user) {
+      window.location.href = '/dashboard';
+    } else if (openAuthDialog) {
+      openAuthDialog('signup');
+    }
   };
   
   return (
