@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
@@ -27,6 +27,37 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { user, session } = useAuth();
+  const [hasCheckedPurchase, setHasCheckedPurchase] = useState(false);
+  const [isAlreadyPurchased, setIsAlreadyPurchased] = useState(isPurchased);
+  
+  // Check if the user has already purchased this content
+  useEffect(() => {
+    const checkPurchaseStatus = async () => {
+      if (!user || !content?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('id')
+          .eq('content_id', content.id)
+          .eq('user_id', user.id)
+          .eq('is_deleted', false)
+          .limit(1);
+          
+        if (error) {
+          console.error("Error checking purchase status:", error);
+          return;
+        }
+        
+        setIsAlreadyPurchased(data && data.length > 0);
+        setHasCheckedPurchase(true);
+      } catch (e) {
+        console.error("Exception checking purchase status:", e);
+      }
+    };
+    
+    checkPurchaseStatus();
+  }, [user, content?.id]);
 
   const handleUnlock = async () => {
     if (isCreator) {
@@ -39,7 +70,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       return;
     }
 
-    if (isPurchased) {
+    if (isAlreadyPurchased || isPurchased) {
       toast({
         title: "Already Purchased",
         description: "You've already purchased this content and have full access",
@@ -64,32 +95,6 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
     setIsProcessing(true);
     
     try {
-      // Check again server-side if the content has already been purchased
-      const { data: existingTransactions, error: checkError } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('content_id', content.id)
-        .eq('user_id', user.id)
-        .eq('is_deleted', false)
-        .limit(1);
-        
-      if (checkError) {
-        throw new Error("Error checking transaction status");
-      }
-      
-      // If already purchased, prevent duplicate purchase
-      if (existingTransactions && existingTransactions.length > 0) {
-        toast({
-          title: "Already In Your Library",
-          description: "You've already purchased this content. You can access it from your purchased content section.",
-          variant: "default"
-        });
-        refreshPermissions();
-        onUnlock();
-        setIsProcessing(false);
-        return;
-      }
-      
       // Process payment with fee distribution
       const paymentAmount = parseFloat(content.price);
       const result = await PaymentDistributionService.processPayment(
@@ -100,18 +105,30 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       );
 
       if (!result.success) {
-        throw new Error(result.error || "Failed to process payment");
+        if (result.alreadyPurchased) {
+          toast({
+            title: "Already In Your Library",
+            description: "You've already purchased this content. You can access it from your purchased content section.",
+            variant: "default"
+          });
+          setIsAlreadyPurchased(true);
+          refreshPermissions();
+          onUnlock();
+        } else {
+          throw new Error(result.error || "Failed to process payment");
+        }
+      } else {
+        // Refresh the permissions to update the UI
+        refreshPermissions();
+        setIsAlreadyPurchased(true);
+        onUnlock();
+        
+        toast({
+          title: "Payment Successful",
+          description: `You've unlocked "${content.title}" and it's now in your library`,
+          variant: "default"
+        });
       }
-      
-      // Refresh the permissions to update the UI
-      refreshPermissions();
-      onUnlock();
-      
-      toast({
-        title: "Payment Successful",
-        description: `You've unlocked "${content.title}" and it's now in your library`,
-        variant: "default"
-      });
     } catch (error: any) {
       toast({
         title: "Payment Failed",
@@ -124,7 +141,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   };
 
   // Show the LockedContent component for paid content when not unlocked and not already purchased
-  if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
+  const actuallyPurchased = isAlreadyPurchased || isPurchased;
+  if (parseFloat(content.price) > 0 && !isCreator && !actuallyPurchased) {
     return (
       <>
         <LockedContent 
@@ -132,7 +150,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
           onUnlock={handleUnlock}
           contentTitle={content.title}
           isProcessing={isProcessing}
-          isPurchased={isPurchased}
+          isPurchased={actuallyPurchased}
         />
         
         <AuthDialog 

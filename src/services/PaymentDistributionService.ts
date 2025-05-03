@@ -15,6 +15,28 @@ export class PaymentDistributionService {
       if (!contentId || !userId || !creatorId || amount <= 0) {
         throw new Error("Invalid payment parameters");
       }
+      
+      // Check if transaction already exists (prevent duplicate purchases)
+      const { data: existingTransactions, error: checkError } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', contentId)
+        .eq('user_id', userId)
+        .eq('is_deleted', false)
+        .limit(1);
+      
+      if (checkError) {
+        console.error("Error checking for existing transactions:", checkError);
+      }
+      
+      // If transaction already exists, prevent duplicate purchase
+      if (existingTransactions && existingTransactions.length > 0) {
+        return {
+          success: false,
+          error: "You've already purchased this content",
+          alreadyPurchased: true
+        };
+      }
 
       // Calculate fee distribution
       const { platformFee, creatorEarnings } = calculateFees(
@@ -92,12 +114,18 @@ export class PaymentDistributionService {
           parseFloat(profile.available_balance) : 0;
       }
       
+      // Debug log to verify the earnings are being added correctly
+      console.log(`Updating creator earnings. Current total: ${currentTotalEarnings}, Current balance: ${currentAvailableBalance}`);
+      console.log(`Adding creator earnings (after fee): ${earnings}`);
+      
       // Update existing profile with new values
-      // FIXED: Now only adds the creator earnings (after platform fee deduction)
+      // IMPORTANT: Only add the creator earnings (after platform fee deduction)
       const newTotalEarnings = currentTotalEarnings + earnings;
       const newAvailableBalance = currentAvailableBalance + earnings;
       
-      await supabase
+      console.log(`New total earnings: ${newTotalEarnings}, New balance: ${newAvailableBalance}`);
+      
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({
           total_earnings: newTotalEarnings.toString(),
@@ -105,6 +133,10 @@ export class PaymentDistributionService {
           updated_at: new Date().toISOString()
         })
         .eq('id', creatorId);
+        
+      if (updateError) {
+        console.error("Error updating creator earnings:", updateError);
+      }
     } catch (error) {
       console.error("Error updating creator earnings:", error);
       // We don't throw here to prevent transaction failure, 
