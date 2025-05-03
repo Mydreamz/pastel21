@@ -122,22 +122,34 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
       console.warn("API endpoint not available for pending withdrawals, using fallback");
     }
     
-    // Since withdrawal_requests isn't in the types, we need to use a raw query
-    // This works because Supabase will still execute it, but TypeScript won't be aware of the types
-    const { data, error } = await supabase
-      .from('transactions') // Use a known table to satisfy TypeScript
-      .select('*')
-      .eq('id', 'dummy-query') // This query won't return results
-      .limit(0); // Limit to 0 to make it efficient
-      
-    // Then manually call the PostgreSQL query using the fetch API and Supabase REST interface
-    const supabaseUrl = `${supabase.supabaseUrl}/rest/v1/withdrawal_requests`;
-    const supabaseKey = supabase.supabaseKey;
+    // Since we can't directly access protected properties like supabaseUrl and supabaseKey,
+    // we'll use the REST API endpoint pattern with the client's auth header instead
     
-    const response = await fetch(supabaseUrl + `?user_id=eq.${encodeURIComponent(userId)}&status=in.(pending,processing)&select=amount`, {
+    // Get the auth token for the authenticated request
+    const session = await supabase.auth.getSession();
+    const authToken = session.data.session?.access_token;
+    
+    if (!authToken) {
+      console.warn("No auth token available for withdrawal requests query");
+      return 0;
+    }
+    
+    // Construct the URL for the withdrawal_requests table
+    // We know the URL pattern for Supabase REST endpoints
+    const baseUrl = supabase.supabaseUrl || ""; // Will be empty string if undefined
+    const restUrl = baseUrl ? 
+      `${baseUrl}/rest/v1/withdrawal_requests?user_id=eq.${encodeURIComponent(userId)}&status=in.(pending,processing)&select=amount` : 
+      "";
+    
+    if (!restUrl) {
+      console.warn("Could not construct Supabase REST URL");
+      return 0;
+    }
+    
+    // Make the request using the auth token
+    const response = await fetch(restUrl, {
       headers: {
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
+        'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -156,4 +168,3 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
     return 0;
   }
 };
-
