@@ -8,8 +8,8 @@ const DashboardStats = () => {
       <div className="glass-card p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-gray-600 text-sm mb-1">Total Earnings</p>
-            <p className="text-2xl font-bold text-gray-800">₹12,582</p>
+            <p className="text-black text-sm mb-1">Total Earnings</p>
+            <p className="text-2xl font-bold text-black">₹12,582</p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-pastel-600" />
               <p className="text-xs text-pastel-600">+24% from last month</p>
@@ -24,8 +24,8 @@ const DashboardStats = () => {
       <div className="glass-card p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-gray-600 text-sm mb-1">Total Messages</p>
-            <p className="text-2xl font-bold text-gray-800">8,429</p>
+            <p className="text-black text-sm mb-1">Total Messages</p>
+            <p className="text-2xl font-bold text-black">8,429</p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-pastel-600" />
               <p className="text-xs text-pastel-600">+18% from last month</p>

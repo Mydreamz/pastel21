@@ -11,11 +11,11 @@ const DashboardActiveUsers = () => {
             <Users className="h-4 w-4 text-pastel-700" />
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-800">Active Users</p>
-            <p className="text-xs text-gray-500">Last 30 days</p>
+            <p className="text-sm font-medium text-black">Active Users</p>
+            <p className="text-xs text-black/70">Last 30 days</p>
           </div>
         </div>
-        <p className="text-lg font-bold text-gray-800">3,892</p>
+        <p className="text-lg font-bold text-black">3,892</p>
       </div>
     </div>
   );
