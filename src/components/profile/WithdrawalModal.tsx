@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bank, Phone, IndianRupee, CreditCard } from 'lucide-react';
+import { Building, Phone, IndianRupee, CreditCard } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 
 interface WithdrawalModalProps {
@@ -98,20 +98,26 @@ const WithdrawalModal = ({ isOpen, onClose, userId, balance }: WithdrawalModalPr
         return;
       }
       
-      // Save withdrawal request to database
-      const { error } = await supabase.from('withdrawal_requests').insert({
-        user_id: userId,
-        amount: values.amount,
-        account_holder_name: values.accountHolderName,
-        account_number: values.accountNumber,
-        ifsc_code: values.ifscCode,
-        bank_name: values.bankName,
-        pan_number: values.panNumber,
-        pan_name: values.panName,
-        phone_number: values.phoneNumber,
-        payment_method: 'bank_transfer',
-        status: 'pending'
-      });
+      // Save withdrawal request to database (using fetch instead of Supabase client)
+      const { error } = await fetch('/api/withdrawal-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          amount: values.amount,
+          account_holder_name: values.accountHolderName,
+          account_number: values.accountNumber,
+          ifsc_code: values.ifscCode,
+          bank_name: values.bankName,
+          pan_number: values.panNumber,
+          pan_name: values.panName,
+          phone_number: values.phoneNumber,
+          payment_method: 'bank_transfer',
+          status: 'pending'
+        })
+      }).then(res => res.json());
       
       if (error) throw error;
       
@@ -149,17 +155,23 @@ const WithdrawalModal = ({ isOpen, onClose, userId, balance }: WithdrawalModalPr
         return;
       }
       
-      // Save withdrawal request to database
-      const { error } = await supabase.from('withdrawal_requests').insert({
-        user_id: userId,
-        amount: values.amount,
-        upi_id: values.upiId,
-        pan_number: values.panNumber,
-        pan_name: values.panName,
-        phone_number: values.phoneNumber,
-        payment_method: 'upi',
-        status: 'pending'
-      });
+      // Save withdrawal request to database (using fetch instead of Supabase client)
+      const { error } = await fetch('/api/withdrawal-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          amount: values.amount,
+          upi_id: values.upiId,
+          pan_number: values.panNumber,
+          pan_name: values.panName,
+          phone_number: values.phoneNumber,
+          payment_method: 'upi',
+          status: 'pending'
+        })
+      }).then(res => res.json());
       
       if (error) throw error;
       
@@ -196,7 +208,7 @@ const WithdrawalModal = ({ isOpen, onClose, userId, balance }: WithdrawalModalPr
         <Tabs defaultValue="bank" value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid grid-cols-2 bg-white/50 border border-pastel-200/50 p-1">
             <TabsTrigger value="bank" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
-              <Bank className="h-4 w-4 mr-2" />
+              <Building className="h-4 w-4 mr-2" />
               Bank Transfer
             </TabsTrigger>
             <TabsTrigger value="upi" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
