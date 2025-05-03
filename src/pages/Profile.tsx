@@ -10,6 +10,7 @@ import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
+import EarningsSummary from '@/components/profile/EarningsSummary';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -48,6 +49,12 @@ const Profile = () => {
           </div>
           
           <div className="lg:col-span-2">
+            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
+              <CardContent className="pt-6">
+                <EarningsSummary userId={userData.id} />
+              </CardContent>
+            </Card>
+            
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
               <CardHeader>
                 <CardTitle className="text-gray-800">Your Dashboard</CardTitle>

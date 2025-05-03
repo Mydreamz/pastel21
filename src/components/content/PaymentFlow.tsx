@@ -4,9 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
 import { supabase } from '@/integrations/supabase/client';
+import { PaymentDistributionService } from '@/services/PaymentDistributionService';
 
 interface PaymentFlowProps {
-  content: any;  // Replace 'any' with the actual content type from your types
+  content: any;
   onUnlock: () => void;
   isCreator: boolean;
   isPurchased: boolean;
@@ -86,19 +87,17 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
         return;
       }
       
-      // Create transaction record
-      const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert([{
-          content_id: content.id,
-          user_id: user.id,
-          creator_id: content.creatorId,
-          amount: content.price,
-          timestamp: new Date().toISOString()
-        }]);
+      // Process payment with fee distribution
+      const paymentAmount = parseFloat(content.price);
+      const result = await PaymentDistributionService.processPayment(
+        content.id,
+        user.id,
+        content.creatorId,
+        paymentAmount
+      );
 
-      if (transactionError) {
-        throw new Error("Failed to process payment");
+      if (!result.success) {
+        throw new Error(result.error || "Failed to process payment");
       }
       
       // Refresh the permissions to update the UI
