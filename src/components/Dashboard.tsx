@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
 import UseCaseCarousel from './UseCaseCarousel';
+
 const Dashboard = () => {
   const [mousePosition, setMousePosition] = useState({
     x: 0,
@@ -93,7 +94,11 @@ const Dashboard = () => {
     transition: prefersReducedMotion ? 'none' : 'transform 0.1s cubic-bezier(0.33, 1, 0.68, 1)',
     willChange: prefersReducedMotion ? 'auto' : 'transform'
   };
-  return <div style={parallaxStyle} className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl bg-pastel-300/60 border border-pastel-200/50 shadow-neumorphic">
+  return (
+    <div 
+      style={parallaxStyle} 
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl bg-pastel-300/60 border border-pastel-200/50 shadow-neumorphic"
+    >
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-gray-800">Dashboard</h3>
         <div className="flex gap-2">
@@ -106,6 +111,8 @@ const Dashboard = () => {
       <UseCaseCarousel />
       <DashboardStats />
       <DashboardActiveUsers />
-    </div>;
+    </div>
+  );
 };
+
 export default Dashboard;
