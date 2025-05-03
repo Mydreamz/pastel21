@@ -35,3 +35,16 @@ export interface WithdrawalRequest {
   phone_number: string;
   created_at?: string;
 }
+
+// Interface for saved user withdrawal details
+export interface SavedUserDetails {
+  account_holder_name?: string;
+  account_number?: string;
+  ifsc_code?: string;
+  bank_name?: string;
+  upi_id?: string;
+  pan_number?: string;
+  pan_name?: string;
+  phone_number?: string;
+  is_verified?: boolean;
+}

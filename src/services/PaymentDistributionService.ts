@@ -69,18 +69,24 @@ export class PaymentDistributionService {
       // First get current creator profile
       const { data: creatorProfile, error } = await supabase
         .from('profiles')
-        .select('total_earnings, available_balance')
+        .select('*')
         .eq('id', creatorId)
         .single();
 
-      if (error) {
-        // Handle case where columns might not exist yet
-        console.log("Fetching profile data error:", error);
-      }
-
       // Initialize values, handling the case where fields might not exist yet
-      const currentTotalEarnings = creatorProfile?.total_earnings ? parseFloat(creatorProfile.total_earnings) : 0;
-      const currentAvailableBalance = creatorProfile?.available_balance ? parseFloat(creatorProfile.available_balance) : 0;
+      let currentTotalEarnings = 0;
+      let currentAvailableBalance = 0;
+      
+      if (error) {
+        // Handle case where profile doesn't exist or columns might not exist yet
+        console.log("Fetching profile data error:", error);
+      } else if (creatorProfile) {
+        // Safely access properties that might not exist yet
+        currentTotalEarnings = creatorProfile.total_earnings ? 
+          parseFloat(creatorProfile.total_earnings as string) : 0;
+        currentAvailableBalance = creatorProfile.available_balance ? 
+          parseFloat(creatorProfile.available_balance as string) : 0;
+      }
       
       // Update existing profile with new values
       const newTotalEarnings = currentTotalEarnings + earnings;
@@ -109,7 +115,7 @@ export class PaymentDistributionService {
       // Get creator profile with earnings data
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('total_earnings, available_balance')
+        .select('*')
         .eq('id', creatorId)
         .single();
 
@@ -117,30 +123,54 @@ export class PaymentDistributionService {
         console.error("Error fetching profile:", profileError);
       }
 
-      // Get pending withdrawals total - temporarily disabled until table exists
+      // Initialize values
+      let totalEarnings = 0;
+      let availableBalance = 0;
       let pendingWithdrawalsTotal = 0;
+      
+      // Extract profile data if available
+      if (profile) {
+        totalEarnings = profile.total_earnings ? parseFloat(profile.total_earnings as string) : 0;
+        availableBalance = profile.available_balance ? parseFloat(profile.available_balance as string) : 0;
+      }
+      
+      // Get pending withdrawals total using RPC function or direct query
       try {
-        // Check if the withdrawal_requests table exists
-        const { error: tableCheckError } = await supabase
-          .from('withdrawal_requests')
-          .select('id')
-          .limit(1);
-
-        if (!tableCheckError) {
-          // Table exists, fetch withdrawal data
-          const { data: pendingWithdrawals } = await supabase
+        // Try using an RPC function first (safer approach)
+        const { data: pendingData, error: rpcError } = await supabase.rpc('get_pending_withdrawals', {
+          user_id_param: creatorId
+        });
+        
+        if (!rpcError && pendingData !== null) {
+          pendingWithdrawalsTotal = parseFloat(pendingData);
+        } else {
+          // Fallback: Direct query (may fail if table doesn't exist)
+          console.log("RPC function not available, trying direct query");
+          
+          // Check if the withdrawal_requests table exists first
+          const { count, error: countError } = await supabase
             .from('withdrawal_requests')
-            .select('amount')
-            .eq('user_id', creatorId)
-            .in('status', ['pending', 'processing']);
-
-          pendingWithdrawalsTotal = pendingWithdrawals?.reduce(
-            (total, withdrawal) => total + parseFloat(withdrawal.amount), 
-            0
-          ) || 0;
+            .select('*', { count: 'exact', head: true })
+            .limit(1);
+            
+          if (!countError) {
+            // Table exists, proceed with query
+            const { data: requests } = await supabase
+              .from('withdrawal_requests')
+              .select('amount')
+              .eq('user_id', creatorId)
+              .in('status', ['pending', 'processing']);
+              
+            if (requests && requests.length > 0) {
+              pendingWithdrawalsTotal = requests.reduce(
+                (total, req) => total + (typeof req.amount === 'string' ? 
+                  parseFloat(req.amount) : (req.amount as number)), 0
+              );
+            }
+          }
         }
-      } catch (withdrawalError) {
-        console.error("Error checking withdrawals:", withdrawalError);
+      } catch (err) {
+        console.error("Error checking withdrawals:", err);
       }
 
       // Get transaction count
@@ -148,10 +178,6 @@ export class PaymentDistributionService {
         .from('transactions')
         .select('id', { count: 'exact', head: true })
         .eq('creator_id', creatorId);
-
-      // Handle cases where profile data might not exist yet
-      const totalEarnings = profile?.total_earnings ? parseFloat(profile.total_earnings) : 0;
-      const availableBalance = profile?.available_balance ? parseFloat(profile.available_balance) : 0;
 
       return {
         total_earnings: totalEarnings,
