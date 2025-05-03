@@ -36,19 +36,19 @@ const ContentFormActions = ({
   };
   
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-4`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-6 border-t border-pastel-200 mt-6`}>
       <Button 
         type="button" 
         variant="outline" 
         onClick={handleSecondaryClick}
-        className={`${isMobile ? 'w-full' : ''} border-pastel-200 hover:bg-pastel-100 text-gray-700`}
+        className={`${isMobile ? 'w-full' : ''} border-pastel-200 hover:bg-pastel-100 text-gray-700 font-medium`}
       >
         {secondaryText}
       </Button>
       {isPrimary && (
         <Button 
           type="submit" 
-          className={`${isMobile ? 'w-full' : ''} bg-pastel-500 hover:bg-pastel-600 text-white`}
+          className={`${isMobile ? 'w-full' : ''} bg-pastel-500 hover:bg-pastel-600 text-white shadow-sm`}
           disabled={isSubmitting}
           onClick={onPrimaryAction}
         >

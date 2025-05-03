@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form } from "@/components/ui/form";
 import { UseFormReturn } from 'react-hook-form';
-import { Button } from "@/components/ui/button";
-import { Loader2 } from 'lucide-react';
 import { ContentFormValues } from '@/types/content';
 import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import BasicInfoFields from '@/components/content/BasicInfoFields';
@@ -12,7 +10,6 @@ import AdvancedSettings from '@/components/content/AdvancedSettings';
 import { deleteFileFromStorage, uploadFileToStorage } from '@/lib/fileUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useIsMobile } from '@/hooks/use-mobile';
 import ContentFormActions from '@/components/content/ContentFormActions';
 
 interface EditContentFormProps {
@@ -41,7 +38,6 @@ const EditContentForm = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  const isMobile = useIsMobile();
 
   const handleSubmit = async (values: ContentFormValues) => {
     try {
@@ -137,7 +133,7 @@ const EditContentForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
         <BasicInfoFields form={form} />
         
         <ContentTypeSelector
@@ -154,28 +150,12 @@ const EditContentForm = ({
           setShowAdvanced={setShowAdvanced}
         />
         
-        <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-4`}>
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => navigate(`/view/${contentId}`)}
-            className={`${isMobile ? 'w-full' : ''} border-pastel-200 hover:bg-pastel-100 text-gray-700`}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            className={`${isMobile ? 'w-full' : ''} bg-pastel-500 hover:bg-pastel-600 text-white`}
-            disabled={isSaving}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : 'Save Changes'}
-          </Button>
-        </div>
+        <ContentFormActions
+          isSubmitting={isSaving}
+          primaryText="Save Changes"
+          secondaryText="Cancel"
+          navigateTo={`/view/${contentId}`}
+        />
       </form>
     </Form>
   );

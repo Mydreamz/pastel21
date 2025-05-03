@@ -7,6 +7,7 @@ import { IndianRupee } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 import { ContentFormValues } from '@/types/content';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Separator } from "@/components/ui/separator";
 
 type BasicInfoFieldsProps = {
   form: UseFormReturn<ContentFormValues>;
@@ -16,14 +17,19 @@ const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <>
+    <div className="space-y-6 p-4 rounded-lg border border-pastel-200 bg-white/80 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <h3 className="text-lg font-medium text-gray-800">Basic Information</h3>
+        <Separator className="flex-1 bg-pastel-200" />
+      </div>
+
       <FormField control={form.control} name="title" render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-gray-700">Title</FormLabel>
+          <FormLabel className="text-gray-700 font-medium">Title</FormLabel>
           <FormControl>
             <Input 
               placeholder="Enter a title for your content" 
-              className="bg-white/70 border-pastel-200/50 text-gray-800 input-neumorphic" 
+              className="bg-white border-pastel-200 text-gray-800 input-neumorphic focus:border-pastel-500" 
               {...field} 
             />
           </FormControl>
@@ -33,13 +39,13 @@ const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
       
       <FormField control={form.control} name="teaser" render={({ field }) => (
         <FormItem>
-          <FormLabel className="flex items-center gap-2 text-gray-700">
-            Public Teaser <span className="text-gray-500 text-sm">(visible to everyone)</span>
+          <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+            Public Teaser <span className="text-gray-500 text-sm font-normal">(visible to everyone)</span>
           </FormLabel>
           <FormControl>
             <Textarea 
               placeholder="Write a teaser that will make people want to unlock your content" 
-              className="h-24 bg-white/70 border-pastel-200/50 text-gray-800 input-neumorphic" 
+              className="h-24 bg-white border-pastel-200 text-gray-800 input-neumorphic focus:border-pastel-500" 
               {...field} 
             />
           </FormControl>
@@ -49,8 +55,8 @@ const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
       
       <FormField control={form.control} name="price" render={({ field }) => (
         <FormItem>
-          <FormLabel className="flex items-center gap-2 text-gray-700">
-            <IndianRupee className="h-4 w-4" /> Unlock Price
+          <FormLabel className="flex items-center gap-2 text-gray-700 font-medium">
+            <IndianRupee className="h-4 w-4 text-pastel-500" /> Unlock Price
           </FormLabel>
           <FormControl>
             <div className="relative">
@@ -59,10 +65,10 @@ const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
                 min="0" 
                 step="0.01" 
                 placeholder="5.00" 
-                className={`pl-8 bg-white/70 border-pastel-200/50 text-gray-800 input-neumorphic ${isMobile ? 'w-full' : 'max-w-xs'}`} 
+                className={`pl-8 bg-white border-pastel-200 text-gray-800 input-neumorphic focus:border-pastel-500 ${isMobile ? 'w-full' : 'max-w-xs'}`} 
                 {...field} 
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₹</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pastel-500 font-medium">₹</span>
             </div>
           </FormControl>
           <FormDescription className="text-gray-500">
@@ -71,7 +77,7 @@ const BasicInfoFields = ({ form }: BasicInfoFieldsProps) => {
           <FormMessage />
         </FormItem>
       )} />
-    </>
+    </div>
   );
 };
 
