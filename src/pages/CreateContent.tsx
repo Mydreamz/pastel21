@@ -82,23 +82,23 @@ const CreateContent = () => {
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <button onClick={() => navigate('/')} className="mb-4 sm:mb-6 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-3 sm:px-6 py-3 sm:py-6">
+        <button onClick={() => navigate('/')} className="mb-3 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
         
-        <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-[2fr,1fr]'} gap-6`}>
+        <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-[2fr,1fr]'} gap-4`}>
           <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
-            <CardHeader className={isMobile ? "px-4 py-4" : "px-6 py-6"}>
+            <CardHeader className={isMobile ? "px-3 py-3" : "px-6 py-6"}>
               <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Create Locked Content</CardTitle>
               <CardDescription className="text-gray-700">
                 Share and monetize your content with a secure paywall
               </CardDescription>
             </CardHeader>
-            <CardContent className={isMobile ? "px-4 pb-4" : "px-6 pb-6"}>
+            <CardContent className={isMobile ? "px-3 pb-3" : "px-6 pb-6"}>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form onSubmit={form.handleSubmit(onSubmit)} className={`${isMobile ? 'space-y-3' : 'space-y-6'}`}>
                   <BasicInfoFields form={form} />
                   
                   <ContentTypeSelector 
@@ -115,7 +115,7 @@ const CreateContent = () => {
                     setShowAdvanced={setShowAdvanced}
                   />
                   
-                  <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-4`}>
+                  <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-3 pt-3`}>
                     <Button 
                       type="button" 
                       variant="outline" 
@@ -152,10 +152,10 @@ const CreateContent = () => {
           
           {isMobile && showScheduler && (
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
-              <CardHeader className="px-4 py-4">
+              <CardHeader className="px-3 py-3">
                 <CardTitle className="text-lg font-bold text-gray-800">Schedule Content</CardTitle>
               </CardHeader>
-              <CardContent className="px-4 pb-4">
+              <CardContent className="px-3 pb-3">
                 <ContentScheduler
                   contentId=""
                   contentTitle={form.getValues().title || "Untitled Content"}

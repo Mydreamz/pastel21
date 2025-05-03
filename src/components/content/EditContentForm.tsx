@@ -11,6 +11,7 @@ import { deleteFileFromStorage, uploadFileToStorage } from '@/lib/fileUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import ContentFormActions from '@/components/content/ContentFormActions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EditContentFormProps {
   form: UseFormReturn<ContentFormValues>;
@@ -38,6 +39,7 @@ const EditContentForm = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleSubmit = async (values: ContentFormValues) => {
     try {
@@ -133,7 +135,7 @@ const EditContentForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className={`${isMobile ? 'space-y-3' : 'space-y-8'}`}>
         <BasicInfoFields form={form} />
         
         <ContentTypeSelector

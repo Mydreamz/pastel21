@@ -9,6 +9,7 @@ import TextContentTab from './content-tabs/TextContentTab';
 import LinkContentTab from './content-tabs/LinkContentTab';
 import MediaContentTab from './content-tabs/MediaContentTab';
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type ContentTypeSelectorProps = {
   form: UseFormReturn<ContentFormValues>;
@@ -25,8 +26,10 @@ const ContentTypeSelector = ({
   selectedFile,
   setSelectedFile
 }: ContentTypeSelectorProps) => {
+  const isMobile = useIsMobile();
+  
   return (
-    <div className="space-y-6 w-full p-4 rounded-lg border border-pastel-200 bg-white/80 shadow-sm">
+    <div className={`${isMobile ? 'p-3' : 'p-4'} rounded-lg border border-pastel-200 bg-white/80 shadow-sm`}>
       <div className="flex items-center gap-2">
         <h3 className="text-lg font-medium text-gray-800 flex items-center gap-2">
           <Lock className="h-4 w-4 text-pastel-500" /> Locked Content
@@ -37,7 +40,7 @@ const ContentTypeSelector = ({
       <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
         <ContentTypeTabs />
         
-        <div className="mt-4 p-4 border border-pastel-100 rounded-md bg-white">
+        <div className={`mt-3 ${isMobile ? 'p-3' : 'p-4'} border border-pastel-100 rounded-md bg-white`}>
           <TextContentTab form={form} />
           <LinkContentTab form={form} />
           

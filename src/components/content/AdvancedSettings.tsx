@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
   const isMobile = useIsMobile();
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Button
         type="button"
         variant="outline"
@@ -32,7 +33,7 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
       </Button>
 
       {showAdvanced && (
-        <div className="space-y-4 rounded-lg border border-pastel-200 bg-white/80 p-5 shadow-sm">
+        <div className={`${isMobile ? 'p-3 space-y-3' : 'p-5 space-y-4'} rounded-lg border border-pastel-200 bg-white/80 shadow-sm`}>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-medium text-gray-800">Expiration Settings</h3>
             <Separator className="flex-1 bg-pastel-200" />
@@ -71,9 +72,11 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
                     />
                   </PopoverContent>
                 </Popover>
-                <FormDescription className="text-gray-500">
-                  Set a date when this content will no longer be available
-                </FormDescription>
+                {!isMobile && (
+                  <FormDescription className="text-gray-500">
+                    Set a date when this content will no longer be available
+                  </FormDescription>
+                )}
                 <FormMessage />
               </FormItem>
             )}

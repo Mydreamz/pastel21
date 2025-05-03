@@ -36,7 +36,7 @@ const ContentFormActions = ({
   };
   
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-6 border-t border-pastel-200 mt-6`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-3 ${isMobile ? 'pt-3' : 'pt-6'} border-t border-pastel-200 ${isMobile ? 'mt-3' : 'mt-6'}`}>
       <Button 
         type="button" 
         variant="outline" 
