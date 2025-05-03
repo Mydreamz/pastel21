@@ -4,9 +4,9 @@ export interface Transaction {
   content_id: string;
   user_id: string;
   creator_id: string;
-  amount: number;
-  platform_fee: number;
-  creator_earnings: number;
+  amount: string; // Changed to string to match Supabase
+  platform_fee: string; // Changed to string to match Supabase
+  creator_earnings: string; // Changed to string to match Supabase
   timestamp: string;
   status: 'pending' | 'completed' | 'failed';
   is_deleted?: boolean;
