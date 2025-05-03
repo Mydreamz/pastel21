@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +107,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
         <div className="flex justify-center mb-6">
           <Avatar className="h-24 w-24">
             <AvatarImage src={userData?.user_metadata?.avatar_url} />
-            <AvatarFallback className="bg-emerald-500/20 text-emerald-500 text-2xl">
+            <AvatarFallback className="bg-pastel-500/20 text-pastel-700 text-2xl">
               {userInitial}
             </AvatarFallback>
           </Avatar>
@@ -120,17 +121,17 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                    <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                       <User className="h-4 w-4 mr-2" />
                       Name
                     </FormLabel>
                     <FormControl>
                       <Input 
                         {...field} 
-                        className="bg-white/5 border-white/10 text-white"
+                        className="bg-white/50 border-pastel-200/50 text-black"
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-400" />
+                    <FormMessage className="text-xs text-red-500" />
                   </FormItem>
                 )}
               />
@@ -140,7 +141,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 name="bio"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                    <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                       <User className="h-4 w-4 mr-2" />
                       Bio
                     </FormLabel>
@@ -148,10 +149,10 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                       <Textarea 
                         {...field} 
                         placeholder="Tell us about yourself..."
-                        className="bg-white/5 border-white/10 text-white resize-none min-h-[100px]"
+                        className="bg-white/50 border-pastel-200/50 text-black resize-none min-h-[100px]"
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-400" />
+                    <FormMessage className="text-xs text-red-500" />
                   </FormItem>
                 )}
               />
@@ -161,7 +162,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                    <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                       <MapPin className="h-4 w-4 mr-2" />
                       Location
                     </FormLabel>
@@ -169,16 +170,16 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                       <Input 
                         {...field} 
                         placeholder="City, Country"
-                        className="bg-white/5 border-white/10 text-white"
+                        className="bg-white/50 border-pastel-200/50 text-black"
                       />
                     </FormControl>
-                    <FormMessage className="text-xs text-red-400" />
+                    <FormMessage className="text-xs text-red-500" />
                   </FormItem>
                 )}
               />
               
-              <div className="space-y-4 border border-white/10 rounded-md p-4 bg-white/5">
-                <h3 className="text-sm font-medium flex items-center">
+              <div className="space-y-4 border border-pastel-200/50 rounded-md p-4 bg-white/50">
+                <h3 className="text-sm font-medium flex items-center text-black">
                   <Globe className="h-4 w-4 mr-2" />
                   Social Media Links
                 </h3>
@@ -188,7 +189,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                   name="twitter_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                      <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                         <Twitter className="h-4 w-4 mr-2" />
                         Twitter
                       </FormLabel>
@@ -196,10 +197,10 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                         <Input 
                           {...field} 
                           placeholder="https://twitter.com/username"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/50 border-pastel-200/50 text-black"
                         />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -209,7 +210,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                   name="linkedin_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                      <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                         <Linkedin className="h-4 w-4 mr-2" />
                         LinkedIn
                       </FormLabel>
@@ -217,10 +218,10 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                         <Input 
                           {...field} 
                           placeholder="https://linkedin.com/in/username"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/50 border-pastel-200/50 text-black"
                         />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -230,7 +231,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                   name="github_url"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                      <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                         <Github className="h-4 w-4 mr-2" />
                         GitHub
                       </FormLabel>
@@ -238,24 +239,24 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                         <Input 
                           {...field} 
                           placeholder="https://github.com/username"
-                          className="bg-white/5 border-white/10 text-white"
+                          className="bg-white/50 border-pastel-200/50 text-black"
                         />
                       </FormControl>
-                      <FormMessage className="text-xs text-red-400" />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
               </div>
               
               <div>
-                <FormLabel className="text-sm text-gray-400 mb-1 flex items-center">
+                <FormLabel className="text-sm text-black/70 mb-1 flex items-center">
                   <Mail className="h-4 w-4 mr-2" />
                   Email (Read-only)
                 </FormLabel>
                 <Input 
                   value={userEmail}
                   readOnly
-                  className="bg-white/5 border-white/10 text-white opacity-70"
+                  className="bg-white/50 border-pastel-200/50 text-black opacity-70"
                 />
               </div>
               
@@ -263,7 +264,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 <Button 
                   type="submit" 
                   disabled={isSaving}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="flex-1 bg-pastel-500 hover:bg-pastel-600 text-white"
                 >
                   {isSaving ? (
                     <span className="flex items-center">
@@ -281,7 +282,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                   type="button"
                   variant="outline" 
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 border-white/10 hover:bg-white/10"
+                  className="flex-1 border-pastel-200/50 hover:bg-pastel-100/50 text-black"
                 >
                   Cancel
                 </Button>
@@ -291,55 +292,55 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
         ) : (
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400 mb-1 flex items-center">
+              <label className="text-sm text-black/70 mb-1 flex items-center">
                 <User className="h-4 w-4 mr-2" />
                 Name
               </label>
               <Input 
                 value={profileData?.name || userName} 
                 readOnly 
-                className="bg-white/5 border-white/10 text-white" 
+                className="bg-white/50 border-pastel-200/50 text-black" 
               />
             </div>
             
             {profileData?.bio && (
               <div>
-                <label className="text-sm text-gray-400 mb-1 flex items-center">
+                <label className="text-sm text-black/70 mb-1 flex items-center">
                   <User className="h-4 w-4 mr-2" />
                   Bio
                 </label>
                 <Textarea
                   value={profileData.bio}
                   readOnly
-                  className="bg-white/5 border-white/10 text-white resize-none"
+                  className="bg-white/50 border-pastel-200/50 text-black resize-none"
                 />
               </div>
             )}
             
             {profileData?.location && (
               <div>
-                <label className="text-sm text-gray-400 mb-1 flex items-center">
+                <label className="text-sm text-black/70 mb-1 flex items-center">
                   <MapPin className="h-4 w-4 mr-2" />
                   Location
                 </label>
                 <Input
                   value={profileData.location}
                   readOnly
-                  className="bg-white/5 border-white/10 text-white"
+                  className="bg-white/50 border-pastel-200/50 text-black"
                 />
               </div>
             )}
             
             {(profileData?.twitter_url || profileData?.linkedin_url || profileData?.github_url) && (
-              <div className="space-y-4 border border-white/10 rounded-md p-4 bg-white/5">
-                <h3 className="text-sm font-medium flex items-center">
+              <div className="space-y-4 border border-pastel-200/50 rounded-md p-4 bg-white/50">
+                <h3 className="text-sm font-medium flex items-center text-black">
                   <Globe className="h-4 w-4 mr-2" />
                   Social Media Links
                 </h3>
                 
                 {profileData?.twitter_url && (
                   <div>
-                    <label className="text-sm text-gray-400 mb-1 flex items-center">
+                    <label className="text-sm text-black/70 mb-1 flex items-center">
                       <Twitter className="h-4 w-4 mr-2" />
                       Twitter
                     </label>
@@ -347,7 +348,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                       href={profileData.twitter_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-emerald-500 hover:underline break-all block"
+                      className="text-pastel-700 hover:underline break-all block"
                     >
                       {profileData.twitter_url}
                     </a>
@@ -356,7 +357,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 
                 {profileData?.linkedin_url && (
                   <div>
-                    <label className="text-sm text-gray-400 mb-1 flex items-center">
+                    <label className="text-sm text-black/70 mb-1 flex items-center">
                       <Linkedin className="h-4 w-4 mr-2" />
                       LinkedIn
                     </label>
@@ -364,7 +365,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                       href={profileData.linkedin_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-emerald-500 hover:underline break-all block"
+                      className="text-pastel-700 hover:underline break-all block"
                     >
                       {profileData.linkedin_url}
                     </a>
@@ -373,7 +374,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                 
                 {profileData?.github_url && (
                   <div>
-                    <label className="text-sm text-gray-400 mb-1 flex items-center">
+                    <label className="text-sm text-black/70 mb-1 flex items-center">
                       <Github className="h-4 w-4 mr-2" />
                       GitHub
                     </label>
@@ -381,7 +382,7 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
                       href={profileData.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-emerald-500 hover:underline break-all block"
+                      className="text-pastel-700 hover:underline break-all block"
                     >
                       {profileData.github_url}
                     </a>
@@ -391,18 +392,18 @@ const AccountSettings = ({ userData }: AccountSettingsProps) => {
             )}
             
             <div>
-              <label className="text-sm text-gray-400 mb-1 flex items-center">
+              <label className="text-sm text-black/70 mb-1 flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
                 Email
               </label>
-              <Input value={userEmail} className="bg-white/5 border-white/10 text-white" readOnly />
+              <Input value={userEmail} className="bg-white/50 border-pastel-200/50 text-black" readOnly />
             </div>
             
             <div className="pt-4">
               <Button 
                 variant="outline" 
                 onClick={() => setIsEditing(true)}
-                className="w-full border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/10"
+                className="w-full border-pastel-200/50 bg-pastel-500/10 text-pastel-700 hover:bg-pastel-500/20"
               >
                 Edit Profile
               </Button>
