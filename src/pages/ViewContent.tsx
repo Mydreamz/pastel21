@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
@@ -37,7 +36,7 @@ const ViewContent = () => {
     if (content) {
       initializeShareUrl();
     }
-  }, [content, initializeShareUrl]);
+  }, [content]);
 
   if (loading) {
     return <ContentLoader />;

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { 
   Share, 
@@ -92,8 +91,7 @@ const ContentActions = ({
   };
 
   const shareToTwitter = () => {
-    const text = `Check out "${contentTitle}" ${shareUrl}`;
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out "${contentTitle}" ${shareUrl}`)}`, '_blank');
   };
 
   const shareToFacebook = () => {
@@ -111,8 +109,7 @@ const ContentActions = ({
   };
 
   const shareToWhatsApp = () => {
-    const text = `Check out "${contentTitle}" ${shareUrl}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Check out "${contentTitle}" ${shareUrl}`)}`, '_blank');
   };
 
   const shareToInstagram = () => {

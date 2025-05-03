@@ -1,12 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 
 export const useContentSharing = (contentId: string, price: string) => {
   const [shareUrl, setShareUrl] = useState('');
   const { toast } = useToast();
 
+  useEffect(() => {
+    initializeShareUrl();
+  }, [contentId, price]);
+
   const initializeShareUrl = () => {
+    if (!contentId) return;
+    
     if (parseFloat(price) > 0) {
       setShareUrl(`${window.location.origin}/preview/${contentId}`);
     } else {

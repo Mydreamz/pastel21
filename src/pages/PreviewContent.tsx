@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -13,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { useContentSharing } from '@/hooks/useContentSharing';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,12 +22,13 @@ const PreviewContent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
-  const [shareUrl, setShareUrl] = useState('');
+  const { shareUrl, handleShare } = useContentSharing(id || '', content?.price || '0');
 
   // Add debug logging for this component
   console.log("PreviewContent: Content ID:", id);
   console.log("PreviewContent: Content loaded:", content);
   console.log("PreviewContent: Error state:", error);
+  console.log("PreviewContent: Share URL:", shareUrl);
 
   useEffect(() => {
     const auth = localStorage.getItem('auth');
@@ -41,9 +42,6 @@ const PreviewContent = () => {
         console.error("Auth parsing error", e);
       }
     }
-    
-    // Set share URL
-    setShareUrl(window.location.href);
     
     // Load related content if content is available
     if (content) {
@@ -62,22 +60,6 @@ const PreviewContent = () => {
       }
     }
   }, [content, id]);
-
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({
-        title: "Link copied!",
-        description: "Content preview link has been copied to your clipboard",
-      });
-    } catch (err) {
-      toast({
-        title: "Failed to copy",
-        description: "Could not copy the link to clipboard",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleSuccessfulPayment = () => {
     // Redirect to full content view after successful payment
@@ -245,7 +227,7 @@ const PreviewContent = () => {
                           case 'link':
                             return <LinkIcon className="h-4 w-4 text-yellow-400" />;
                           default:
-                            return <FileText className="h-4 w-4 text-blue-400" />;
+                            return <FileText className="h-4 w-5 text-blue-400" />;
                         }
                       })()}
                       {parseFloat(item.price) > 0 && (
