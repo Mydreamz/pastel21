@@ -1,94 +1,33 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
-import { useNotifications } from '@/contexts/NotificationContext';
-import { Content, ContentType } from '@/types/content';
+import { Content } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/App';
-
-const supabaseToContent = (row: any): Content => ({
-  id: row.id,
-  title: row.title,
-  teaser: row.teaser,
-  price: row.price,
-  content: row.content,
-  contentType: row.content_type as ContentType,
-  creatorId: row.creator_id,
-  creatorName: row.creator_name,
-  expiry: row.expiry || undefined,
-  scheduledFor: row.scheduled_for || undefined,
-  scheduledTime: row.scheduled_time || undefined,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-  status: row.status || 'published',
-  fileUrl: row.file_url || undefined,
-  fileName: row.file_name || undefined,
-  fileType: row.file_type || undefined,
-  fileSize: row.file_size || undefined,
-  filePath: row.file_path || undefined,
-  tags: row.tags || [],
-  category: row.category || undefined,
-  views: row.views ?? undefined
-});
+import { useSecureFileUrl } from './content/useSecureFileUrl';
+import { supabaseToContent } from './content/useContentMapping';
+import { useContentTransaction } from './content/useContentTransaction';
 
 export const useViewContent = (id: string | undefined) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { addNotification } = useNotifications();
   const [content, setContent] = useState<Content | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [secureFileUrl, setSecureFileUrl] = useState<string | null>(null);
-  const [secureFileLoading, setSecureFileLoading] = useState(false);
-  const [secureFileError, setSecureFileError] = useState<string | null>(null);
   const { user, session } = useAuth();
-
-  // Function to get secure URL for protected content
-  const getSecureFileUrl = async (contentId: string, filePath: string | undefined) => {
-    if (!filePath || !user) {
-      console.log("Cannot get secure URL: Missing file path or user not authenticated");
-      return null;
-    }
-    
-    setSecureFileLoading(true);
-    setSecureFileError(null);
-    
-    try {
-      console.log(`Getting secure URL for content ID: ${contentId}, file path: ${filePath}`);
-      
-      // Call the secure-media edge function with POST method and JSON body
-      const { data, error } = await supabase.functions.invoke('secure-media', {
-        body: { 
-          contentId, 
-          filePath 
-        },
-        method: 'POST',
-      });
-
-      if (error) {
-        console.error('Error getting secure file URL:', error);
-        setSecureFileError(`Failed to get secure file: ${error.message || "Unknown error"}`);
-        return null;
-      }
-
-      if (!data?.secureUrl) {
-        console.error('No secure URL returned from function');
-        setSecureFileError("Server returned an invalid response");
-        return null;
-      }
-
-      console.log('Secure URL retrieved successfully');
-      return data.secureUrl;
-    } catch (err: any) {
-      console.error('Failed to get secure file URL:', err);
-      setSecureFileError(`Error: ${err.message || "Unknown error"}`);
-      return null;
-    } finally {
-      setSecureFileLoading(false);
-    }
-  };
+  
+  // Import sub-hooks
+  const { 
+    secureFileUrl, 
+    secureFileLoading, 
+    secureFileError, 
+    getSecureFileUrl 
+  } = useSecureFileUrl();
+  
+  const {
+    isProcessing,
+    handleContentPurchase
+  } = useContentTransaction();
 
   useEffect(() => {
     const loadContent = async () => {
@@ -138,8 +77,7 @@ export const useViewContent = (id: string | undefined) => {
             // If has file path, get secure URL
             if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
               console.log(`Getting secure URL for creator's content, file path: ${mapped.filePath}`);
-              const url = await getSecureFileUrl(id, mapped.filePath);
-              setSecureFileUrl(url);
+              await getSecureFileUrl(id, mapped.filePath, user.id);
             }
           } else {
             // Check for transactions
@@ -163,8 +101,7 @@ export const useViewContent = (id: string | undefined) => {
               // If has file path, get secure URL
               if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
                 console.log(`Getting secure URL for purchased content, file path: ${mapped.filePath}`);
-                const url = await getSecureFileUrl(id, mapped.filePath);
-                setSecureFileUrl(url);
+                await getSecureFileUrl(id, mapped.filePath, user.id);
               }
             } else if (window.location.pathname.startsWith('/view/')) {
               // Redirect to preview page if paid content that user hasn't purchased
@@ -200,65 +137,22 @@ export const useViewContent = (id: string | undefined) => {
 
   const handleUnlock = async () => {
     if (!session || !user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to unlock this content",
-        variant: "destructive"
-      });
       return;
     }
 
     if (!content || !id) return;
-
-    try {
-      console.log(`User ${user.id} purchasing content ${id}`);
-      
-      // Insert transaction
-      const { error: transactionError } = await supabase.from('transactions').insert([{
-        content_id: id,
-        user_id: user.id,
-        creator_id: content.creatorId,
-        amount: content.price,
-        timestamp: new Date().toISOString()
-      }]);
-
-      if (transactionError) {
-        console.error("Transaction error:", transactionError);
-        throw transactionError;
-      }
-
+    
+    const userName = user.user_metadata?.name || user.email;
+    const result = await handleContentPurchase(content, user.id, userName);
+    
+    if (result) {
       setIsUnlocked(true);
-
+      
       // After purchase, get secure URL for file if it exists
       if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {
         console.log(`Getting secure URL after purchase, file path: ${content.filePath}`);
-        const url = await getSecureFileUrl(id, content.filePath);
-        setSecureFileUrl(url);
+        await getSecureFileUrl(id, content.filePath, user.id);
       }
-
-      toast({
-        title: "Content unlocked",
-        description: `Thank you for your purchase of $${parseFloat(content.price).toFixed(2)}`
-      });
-
-      navigate(`/view/${id}`);
-
-      if (content && user) {
-        addNotification({
-          title: "New Purchase",
-          message: `${user.user_metadata?.name || user.email} purchased your content "${content.title}" for $${parseFloat(content.price).toFixed(2)}`,
-          type: 'content',
-          link: `/profile`
-        });
-      }
-
-    } catch (e: any) {
-      console.error("Error in handleUnlock:", e);
-      toast({
-        title: "Transaction failed",
-        description: e.message || "There was a problem processing your purchase",
-        variant: "destructive"
-      });
     }
   };
 
@@ -271,6 +165,7 @@ export const useViewContent = (id: string | undefined) => {
     isAuthenticated: !!session,
     secureFileUrl,
     secureFileLoading,
-    secureFileError
+    secureFileError,
+    isProcessing
   };
 };
