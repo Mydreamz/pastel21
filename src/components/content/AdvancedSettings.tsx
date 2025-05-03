@@ -8,6 +8,7 @@ import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { format } from "date-fns";
 import { UseFormReturn } from "react-hook-form";
 import { ContentFormValues } from '@/types/content';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AdvancedSettingsProps {
   form: UseFormReturn<ContentFormValues>;
@@ -16,12 +17,14 @@ interface AdvancedSettingsProps {
 }
 
 const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSettingsProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="space-y-4">
       <Button
         type="button"
         variant="outline"
-        className="w-full justify-between border-white/10 bg-white/5 hover:bg-white/10"
+        className="w-full justify-between border-pastel-200/50 bg-white/70 hover:bg-pastel-100/50 text-gray-700"
         onClick={() => setShowAdvanced(!showAdvanced)}
       >
         Advanced Settings
@@ -29,19 +32,19 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
       </Button>
 
       {showAdvanced && (
-        <div className="space-y-4 rounded-md border border-white/10 bg-white/5 p-4">
+        <div className="space-y-4 rounded-md border border-pastel-200/50 bg-white/70 p-4">
           <FormField
             control={form.control}
             name="expiry"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Content Expiry Date</FormLabel>
+                <FormLabel className="text-gray-700">Content Expiry Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant="outline"
-                        className={`w-full pl-3 text-left font-normal border-white/10 bg-white/5 hover:bg-white/10 ${!field.value && "text-gray-400"}`}
+                        className={`${isMobile ? 'w-full' : 'w-[240px]'} pl-3 text-left font-normal border-pastel-200/50 bg-white/70 hover:bg-pastel-100/50 text-gray-700 ${!field.value && "text-gray-500"}`}
                       >
                         {field.value ? (
                           format(field.value, "PPP")
@@ -52,7 +55,7 @@ const AdvancedSettings = ({ form, showAdvanced, setShowAdvanced }: AdvancedSetti
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-gray-900 border-white/10" align="start">
+                  <PopoverContent className="w-auto p-0 bg-white border-pastel-200/50" align="start">
                     <Calendar
                       mode="single"
                       selected={field.value ? new Date(field.value) : undefined}

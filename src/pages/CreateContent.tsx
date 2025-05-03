@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useContentForm } from '@/hooks/useContentForm';
 import BasicInfoFields from '@/components/content/BasicInfoFields';
@@ -13,11 +13,14 @@ import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentScheduler from '@/components/content/ContentScheduler';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from '@/App';
+import { useIsMobile } from '@/hooks/use-mobile';
+import ContentFormActions from '@/components/content/ContentFormActions';
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
+  const isMobile = useIsMobile();
   
   const {
     form,
@@ -29,7 +32,8 @@ const CreateContent = () => {
     showAdvanced,
     setShowAdvanced,
     isAuthenticated,
-    isAuthChecking
+    isAuthChecking,
+    isUploading
   } = useContentForm();
 
   const handleScheduleContent = (scheduleInfo: { date: Date; time: string }) => {
@@ -78,21 +82,21 @@ const CreateContent = () => {
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <button onClick={() => navigate('/')} className="mb-4 sm:mb-6 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
         
-        <div className="grid md:grid-cols-[2fr,1fr] gap-6">
+        <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-[2fr,1fr]'} gap-6`}>
           <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
-            <CardHeader>
-              <CardTitle className="text-2xl md:text-3xl font-bold text-gray-800">Create Locked Content</CardTitle>
+            <CardHeader className={isMobile ? "px-4 py-4" : "px-6 py-6"}>
+              <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Create Locked Content</CardTitle>
               <CardDescription className="text-gray-700">
                 Share and monetize your content with a secure paywall
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? "px-4 pb-4" : "px-6 pb-6"}>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <BasicInfoFields form={form} />
@@ -111,20 +115,26 @@ const CreateContent = () => {
                     setShowAdvanced={setShowAdvanced}
                   />
                   
-                  <div className="flex justify-end gap-4 pt-4">
+                  <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-4`}>
                     <Button 
                       type="button" 
                       variant="outline" 
                       onClick={() => setShowScheduler(true)}
-                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+                      className={`${isMobile ? 'w-full' : ''} border-pastel-200 hover:bg-pastel-100 text-gray-700`}
                     >
                       Schedule
                     </Button>
                     <Button 
                       type="submit" 
-                      className="bg-pastel-500 hover:bg-pastel-600 text-white"
+                      className={`${isMobile ? 'w-full' : ''} bg-pastel-500 hover:bg-pastel-600 text-white`}
+                      disabled={isUploading}
                     >
-                      Create Content
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : 'Create Content'}
                     </Button>
                   </div>
                 </form>
@@ -132,12 +142,27 @@ const CreateContent = () => {
             </CardContent>
           </Card>
 
-          {showScheduler && (
+          {!isMobile && showScheduler && (
             <ContentScheduler
               contentId=""
               contentTitle={form.getValues().title || "Untitled Content"}
               onSchedule={handleScheduleContent}
             />
+          )}
+          
+          {isMobile && showScheduler && (
+            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
+              <CardHeader className="px-4 py-4">
+                <CardTitle className="text-lg font-bold text-gray-800">Schedule Content</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <ContentScheduler
+                  contentId=""
+                  contentTitle={form.getValues().title || "Untitled Content"}
+                  onSchedule={handleScheduleContent}
+                />
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

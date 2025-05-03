@@ -12,6 +12,8 @@ import AdvancedSettings from '@/components/content/AdvancedSettings';
 import { deleteFileFromStorage, uploadFileToStorage } from '@/lib/fileUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
+import ContentFormActions from '@/components/content/ContentFormActions';
 
 interface EditContentFormProps {
   form: UseFormReturn<ContentFormValues>;
@@ -39,6 +41,7 @@ const EditContentForm = ({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleSubmit = async (values: ContentFormValues) => {
     try {
@@ -151,18 +154,18 @@ const EditContentForm = ({
           setShowAdvanced={setShowAdvanced}
         />
         
-        <div className="flex justify-end gap-4 pt-4">
+        <div className={`flex ${isMobile ? 'flex-col' : 'justify-end'} gap-4 pt-4`}>
           <Button 
             type="button" 
             variant="outline" 
             onClick={() => navigate(`/view/${contentId}`)}
-            className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+            className={`${isMobile ? 'w-full' : ''} border-pastel-200 hover:bg-pastel-100 text-gray-700`}
           >
             Cancel
           </Button>
           <Button 
             type="submit" 
-            className="bg-pastel-500 hover:bg-pastel-600 text-white"
+            className={`${isMobile ? 'w-full' : ''} bg-pastel-500 hover:bg-pastel-600 text-white`}
             disabled={isSaving}
           >
             {isSaving ? (
