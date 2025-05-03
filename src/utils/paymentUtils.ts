@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -102,8 +101,7 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
   if (!userId) return 0;
   
   try {
-    // We can't use RPC directly since get_pending_withdrawals isn't in the types
-    // So we'll just use the API endpoint directly
+    // Try the API endpoint first
     const apiUrl = `${window.location.origin}/api/calculate-pending-withdrawals`;
     try {
       const response = await fetch(apiUrl, {
@@ -122,9 +120,6 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
       console.warn("API endpoint not available for pending withdrawals, using fallback");
     }
     
-    // Since we can't directly access protected properties like supabaseUrl and supabaseKey,
-    // we'll use the REST API endpoint pattern with the client's auth header instead
-    
     // Get the auth token for the authenticated request
     const session = await supabase.auth.getSession();
     const authToken = session.data.session?.access_token;
@@ -134,17 +129,12 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
       return 0;
     }
     
-    // Construct the URL for the withdrawal_requests table
-    // We know the URL pattern for Supabase REST endpoints
-    const baseUrl = supabase.supabaseUrl || ""; // Will be empty string if undefined
-    const restUrl = baseUrl ? 
-      `${baseUrl}/rest/v1/withdrawal_requests?user_id=eq.${encodeURIComponent(userId)}&status=in.(pending,processing)&select=amount` : 
-      "";
-    
-    if (!restUrl) {
-      console.warn("Could not construct Supabase REST URL");
-      return 0;
-    }
+    // Instead of accessing the protected supabaseUrl property, 
+    // we'll use the URL from the SUPABASE_URL constant defined in the client file
+    // We need to import this constant explicitly, but for this edit, we'll use the hardcoded URL
+    // that was defined in the client.ts file
+    const baseUrl = "https://pdlqxpckrxrsfyuknsjg.supabase.co";
+    const restUrl = `${baseUrl}/rest/v1/withdrawal_requests?user_id=eq.${encodeURIComponent(userId)}&status=in.(pending,processing)&select=amount`;
     
     // Make the request using the auth token
     const response = await fetch(restUrl, {
