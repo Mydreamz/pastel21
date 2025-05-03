@@ -39,14 +39,18 @@ const LockedContent: React.FC<LockedContentProps> = ({
   };
   
   return (
-    <div className="p-6 border border-white/10 rounded-lg bg-black/20 backdrop-blur-sm text-center">
-      <Lock className="h-12 w-12 mx-auto mb-4 text-emerald-500/80" />
+    <div className="p-6 rounded-xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/20 shadow-neumorphic hover:shadow-lg transition-all duration-300">
+      <div className="flex justify-center mb-4">
+        <div className="p-3 bg-gradient-to-br from-pastel-200 to-pastel-400/30 rounded-full">
+          <Lock className="h-10 w-10 text-pastel-800" />
+        </div>
+      </div>
       
-      <h3 className="text-xl font-bold mb-2">
+      <h3 className="text-xl font-bold mb-2 text-center text-pastel-800 dark:text-white">
         {isPurchased ? 'You Own This Content' : 'Premium Content'}
       </h3>
       
-      <p className="text-gray-300 mb-4">
+      <p className="text-center text-medium-contrast dark:text-gray-300 mb-6">
         {isPurchased 
           ? "You've already purchased this content. Click below to access it."
           : `Purchase ${contentTitle} for ₹${priceNum.toFixed(2)} to view the full content`
@@ -54,16 +58,16 @@ const LockedContent: React.FC<LockedContentProps> = ({
       </p>
       
       {!isPurchased && (
-        <div className="bg-black/30 p-3 rounded-md mb-4 text-left text-sm">
-          <div className="flex justify-between mb-2">
+        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg mb-5 text-left text-sm border border-pastel-200/20 shadow-neumorphic-inset">
+          <div className="flex justify-between mb-2 text-high-contrast dark:text-white">
             <span>Content price:</span>
             <span>₹{priceNum.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between mb-2 text-gray-400 border-b border-white/10 pb-2">
+          <div className="flex justify-between mb-2 text-medium-contrast dark:text-gray-400 border-b border-pastel-200/30 pb-2">
             <span>Platform fee (7%):</span>
             <span>₹{platformFee.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-emerald-400 pt-1">
+          <div className="flex justify-between text-pastel-800 dark:text-pastel-300 font-medium pt-1">
             <span>Creator receives:</span>
             <span>₹{creatorEarnings.toFixed(2)}</span>
           </div>
@@ -73,10 +77,14 @@ const LockedContent: React.FC<LockedContentProps> = ({
       <Button
         onClick={handlePurchaseClick}
         disabled={isProcessing}
-        className={`w-full ${isPurchased ? 'bg-emerald-600' : 'bg-emerald-500'} hover:bg-emerald-600 text-white`}
+        className={`w-full transition-all duration-300 ${
+          isPurchased 
+            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' 
+            : 'bg-gradient-to-r from-pastel-500 to-pastel-600 hover:from-pastel-600 hover:to-pastel-700'
+        } text-white shadow-md hover:shadow-lg`}
       >
         {isProcessing ? (
-          <span className="flex items-center">
+          <span className="flex items-center justify-center">
             <span className="animate-spin mr-2">●</span>
             Processing...
           </span>
@@ -99,9 +107,33 @@ const LockedContent: React.FC<LockedContentProps> = ({
       </Button>
       
       {!user && (
-        <p className="text-sm mt-4 text-gray-400">
-          You need to sign in or create an account to purchase content
-        </p>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-low-contrast dark:text-gray-400">
+            You need to sign in or create an account to purchase content
+          </p>
+          <div className="flex justify-center mt-2 space-x-3">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setAuthTab('login');
+                setShowAuthDialog(true);
+              }}
+              className="border-pastel-200 hover:bg-pastel-50 text-pastel-700"
+            >
+              Sign In
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setAuthTab('signup');
+                setShowAuthDialog(true);
+              }}
+              className="border-pastel-200 hover:bg-pastel-50 text-pastel-700"
+            >
+              Create Account
+            </Button>
+          </div>
+        </div>
       )}
       
       <AuthDialog 

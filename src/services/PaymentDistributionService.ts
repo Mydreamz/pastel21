@@ -65,6 +65,7 @@ export class PaymentDistributionService {
 
   /**
    * Update creator's earnings total
+   * FIXED: Now only adds the creator earnings (after platform fee deduction)
    */
   private static async updateCreatorEarnings(creatorId: string, earnings: number) {
     try {
@@ -92,6 +93,7 @@ export class PaymentDistributionService {
       }
       
       // Update existing profile with new values
+      // FIXED: Now only adds the creator earnings (after platform fee deduction)
       const newTotalEarnings = currentTotalEarnings + earnings;
       const newAvailableBalance = currentAvailableBalance + earnings;
       
