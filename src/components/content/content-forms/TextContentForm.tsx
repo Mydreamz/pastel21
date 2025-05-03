@@ -4,12 +4,15 @@ import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/f
 import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from 'react-hook-form';
 import { ContentFormValues } from '@/types/content';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type TextContentFormProps = {
   form: UseFormReturn<ContentFormValues>;
 };
 
 const TextContentForm = ({ form }: TextContentFormProps) => {
+  const isMobile = useIsMobile();
+  
   return (
     <FormField
       control={form.control}
@@ -19,7 +22,7 @@ const TextContentForm = ({ form }: TextContentFormProps) => {
           <FormControl>
             <Textarea 
               placeholder="Write your premium content here" 
-              className="h-40 bg-white/5 border-white/10 text-white" 
+              className={`${isMobile ? 'h-24' : 'h-40'} bg-white border-pastel-200 text-gray-700 focus:border-pastel-500`} 
               {...field} 
             />
           </FormControl>

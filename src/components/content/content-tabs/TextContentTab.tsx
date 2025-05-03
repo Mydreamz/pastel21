@@ -11,9 +11,7 @@ type TextContentTabProps = {
 
 const TextContentTab = ({ form }: TextContentTabProps) => {
   return (
-    <TabsContent value="text" className="p-4 bg-white/5 border border-white/10 rounded-md top-10">
-      <TextContentForm form={form} />
-    </TabsContent>
+    <TextContentForm form={form} />
   );
 };
 

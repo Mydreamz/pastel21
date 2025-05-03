@@ -11,10 +11,10 @@ const ContentTypeTabs = () => {
   return (
     <TabsList className={`
       grid 
-      ${isMobile ? 'grid-cols-3 gap-1' : 'grid-cols-3 md:grid-cols-6 gap-1'} 
-      bg-white/5 
+      ${isMobile ? 'grid-cols-2 gap-1 mt-2' : 'grid-cols-3 md:grid-cols-6 gap-1 mt-3'} 
+      bg-pastel-100/50
       border 
-      border-white/10 
+      border-pastel-200
       p-1 
       rounded-md
     `}>

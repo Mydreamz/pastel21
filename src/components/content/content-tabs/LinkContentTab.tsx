@@ -11,9 +11,7 @@ type LinkContentTabProps = {
 
 const LinkContentTab = ({ form }: LinkContentTabProps) => {
   return (
-    <TabsContent value="link" className="p-4 bg-white/5 border border-white/10 rounded-md">
-      <LinkContentForm form={form} />
-    </TabsContent>
+    <LinkContentForm form={form} />
   );
 };
 
