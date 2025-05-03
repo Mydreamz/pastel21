@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Wallet, Calendar, Mail } from 'lucide-react';
+import { User, Wallet, Calendar, Mail, IndianRupee } from 'lucide-react';
+import WithdrawalModal from './WithdrawalModal';
 
 interface ProfileSidebarProps {
   userData: any;
@@ -13,6 +14,8 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
+  const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
+  
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
@@ -61,8 +64,21 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
               <Wallet className="h-5 w-5 text-pastel-700 mr-2" />
               <h3 className="font-medium text-gray-800">Wallet Balance</h3>
             </div>
-            <p className="text-2xl font-bold text-gray-800">${balance.toFixed(2)}</p>
-            <p className="text-xs text-gray-600 mt-1">Available for withdrawal</p>
+            <p className="text-2xl font-bold text-gray-800">
+              <span className="flex items-center">
+                <IndianRupee className="h-5 w-5 mr-1" />
+                {balance.toFixed(2)}
+              </span>
+            </p>
+            <p className="text-xs text-gray-600 mt-1 mb-3">Available for withdrawal</p>
+            
+            <Button 
+              onClick={() => setIsWithdrawalModalOpen(true)}
+              variant="outline" 
+              className="w-full border-pastel-200 bg-pastel-500/10 hover:bg-pastel-500/20 text-pastel-700"
+            >
+              Withdraw Funds
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -71,6 +87,13 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
           Logout
         </Button>
       </CardFooter>
+      
+      <WithdrawalModal 
+        isOpen={isWithdrawalModalOpen} 
+        onClose={() => setIsWithdrawalModalOpen(false)}
+        userId={userData?.id}
+        balance={balance} 
+      />
     </Card>
   );
 };
