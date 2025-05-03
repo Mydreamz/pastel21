@@ -14,6 +14,7 @@ const Dashboard = () => {
   });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  
   useEffect(() => {
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setPrefersReducedMotion(motionQuery.matches);
@@ -31,6 +32,7 @@ const Dashboard = () => {
       window.removeEventListener('resize', checkMobile);
     };
   }, []);
+  
   const handleMouseMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (prefersReducedMotion) return;
     let clientX, clientY;
@@ -48,6 +50,7 @@ const Dashboard = () => {
       y
     });
   }, [prefersReducedMotion]);
+  
   useEffect(() => {
     if (prefersReducedMotion || isMobile) return;
     let ticking = false;
@@ -69,6 +72,7 @@ const Dashboard = () => {
       window.removeEventListener('touchmove', handleMouseMoveRAF);
     };
   }, [handleMouseMove, prefersReducedMotion, isMobile]);
+  
   useEffect(() => {
     if (prefersReducedMotion) {
       setMovement({
@@ -89,28 +93,36 @@ const Dashboard = () => {
     const animationId = requestAnimationFrame(animateMovement);
     return () => cancelAnimationFrame(animationId);
   }, [mousePosition, prefersReducedMotion]);
+  
   const parallaxStyle = {
     transform: `translate3d(${movement.x}px, ${movement.y}px, 0)`,
     transition: prefersReducedMotion ? 'none' : 'transform 0.1s cubic-bezier(0.33, 1, 0.68, 1)',
     willChange: prefersReducedMotion ? 'auto' : 'transform'
   };
+  
   return (
     <div 
       style={parallaxStyle} 
-      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl bg-pastel-300/60 border border-pastel-200/50 shadow-neumorphic"
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl border border-pastel-200/60 shadow-neumorphic relative overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-800">Dashboard</h3>
-        <div className="flex gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-pastel-500"></div>
-        </div>
-      </div>
+      {/* Decorative elements for visual interest */}
+      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pastel-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute -top-10 -left-10 w-32 h-32 bg-pastel-500/20 rounded-full blur-3xl"></div>
       
-      <UseCaseCarousel />
-      <DashboardStats />
-      <DashboardActiveUsers />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-800">Dashboard</h3>
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+            <div className="w-3 h-3 rounded-full bg-pastel-500"></div>
+          </div>
+        </div>
+        
+        <UseCaseCarousel />
+        <DashboardStats />
+        <DashboardActiveUsers />
+      </div>
     </div>
   );
 };
