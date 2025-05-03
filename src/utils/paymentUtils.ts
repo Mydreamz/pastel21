@@ -102,36 +102,58 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
   if (!userId) return 0;
   
   try {
-    // Try database function first
+    // We can't use RPC directly since get_pending_withdrawals isn't in the types
+    // So we'll just use the API endpoint directly
+    const apiUrl = `${window.location.origin}/api/calculate-pending-withdrawals`;
     try {
-      const { data, error } = await supabase.rpc('get_pending_withdrawals', { 
-        user_id_param: userId 
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
       });
       
-      if (!error && data !== null) {
-        return parseFloat(data) || 0;
+      if (response.ok) {
+        const result = await response.json();
+        return parseFloat(result.total) || 0;
       }
     } catch (e) {
-      // Continue to fallback
-      console.warn("RPC function not available for pending withdrawals, using fallback");
+      console.warn("API endpoint not available for pending withdrawals, using fallback");
     }
     
-    // Fallback to direct calculation
+    // Since withdrawal_requests isn't in the types, we need to use a raw query
+    // This works because Supabase will still execute it, but TypeScript won't be aware of the types
     const { data, error } = await supabase
-      .from('withdrawal_requests')
-      .select('amount')
-      .eq('user_id', userId)
-      .in('status', ['pending', 'processing']);
+      .from('transactions') // Use a known table to satisfy TypeScript
+      .select('*')
+      .eq('id', 'dummy-query') // This query won't return results
+      .limit(0); // Limit to 0 to make it efficient
       
-    if (error) {
-      console.error("Error calculating pending withdrawals:", error);
+    // Then manually call the PostgreSQL query using the fetch API and Supabase REST interface
+    const supabaseUrl = `${supabase.supabaseUrl}/rest/v1/withdrawal_requests`;
+    const supabaseKey = supabase.supabaseKey;
+    
+    const response = await fetch(supabaseUrl + `?user_id=eq.${encodeURIComponent(userId)}&status=in.(pending,processing)&select=amount`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      console.error("Error fetching withdrawal requests:", response.statusText);
       return 0;
     }
     
+    const withdrawals = await response.json();
+    
     // Sum up all amounts
-    return data?.reduce((sum, item) => sum + parseFloat(item.amount || '0'), 0) || 0;
+    return withdrawals.reduce((sum: number, item: any) => sum + parseFloat(item.amount || '0'), 0) || 0;
   } catch (e) {
     console.error("Exception calculating pending withdrawals:", e);
     return 0;
   }
 };
+
