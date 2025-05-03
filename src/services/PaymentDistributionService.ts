@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { calculateFees, validateTransaction } from "@/utils/paymentUtils";
 import { EarningsSummary } from "@/types/transaction";
@@ -80,11 +81,12 @@ export class PaymentDistributionService {
         // Handle case where profile doesn't exist or columns might not exist yet
         console.log("Fetching profile data error:", error);
       } else if (creatorProfile) {
-        // Access properties safely with type checking
-        currentTotalEarnings = creatorProfile.total_earnings ? 
-          parseFloat(creatorProfile.total_earnings as string) : 0;
-        currentAvailableBalance = creatorProfile.available_balance ? 
-          parseFloat(creatorProfile.available_balance as string) : 0;
+        // Access properties using type assertion since TypeScript doesn't know about these fields yet
+        const profile = creatorProfile as any;
+        currentTotalEarnings = profile.total_earnings ? 
+          parseFloat(profile.total_earnings) : 0;
+        currentAvailableBalance = profile.available_balance ? 
+          parseFloat(profile.available_balance) : 0;
       }
       
       // Update existing profile with new values
@@ -129,50 +131,27 @@ export class PaymentDistributionService {
       
       // Extract profile data if available
       if (profile) {
-        // Access properties safely with type assertions
+        // Use type assertion to access custom fields
         const profileData = profile as any;
         totalEarnings = profileData.total_earnings ? parseFloat(profileData.total_earnings) : 0;
         availableBalance = profileData.available_balance ? parseFloat(profileData.available_balance) : 0;
       }
       
-      // Get pending withdrawals total using custom function
+      // Get pending withdrawals total using a custom API endpoint
+      // This avoids TypeScript errors with direct RPC calls
       try {
-        const { data, error } = await supabase.rpc(
-          'get_pending_withdrawals',
-          { user_id_param: creatorId }
-        );
+        const response = await fetch('/api/calculate-pending-withdrawals', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: creatorId })
+        });
         
-        if (!error && data !== null) {
-          pendingWithdrawalsTotal = typeof data === 'string' ? parseFloat(data) : Number(data);
-        } else {
-          console.log("RPC function error:", error);
-          
-          // Fallback to direct query only if withdrawal_requests table exists
-          try {
-            // Simple check if the withdrawal_requests table exists by trying to count rows
-            const { count } = await supabase
-              .from('transactions') // Use an existing table just to avoid errors
-              .select('*', { count: 'exact', head: true })
-              .limit(1);
-              
-            if (count !== null) {
-              // Manually calculate pending withdrawals (this won't run unless the table exists)
-              // This is just a backup approach
-              const pendingWithdrawals = await fetch('/api/calculate-pending-withdrawals', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ userId: creatorId })
-              }).then(res => res.json());
-              
-              if (pendingWithdrawals?.total) {
-                pendingWithdrawalsTotal = Number(pendingWithdrawals.total);
-              }
-            }
-          } catch (err) {
-            console.error("Error in fallback withdrawal calculation:", err);
-            // Failed gracefully, keep pendingWithdrawalsTotal as 0
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.total) {
+            pendingWithdrawalsTotal = Number(data.total);
           }
         }
       } catch (err) {
