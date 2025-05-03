@@ -39,22 +39,80 @@ serve(async (req) => {
       );
     }
 
-    // Handle POST request for withdrawal request submission
-    if (req.method === 'POST') {
-      const requestData = await req.json();
-      
-      const { error } = await supabaseClient
-        .from('withdrawal_requests')
-        .insert({
-          ...requestData,
-          user_id: user.id, // Ensure user_id is from the token
-        });
+    // Handle GET request for getting saved withdrawal details
+    if (req.method === 'GET') {
+      const { data: withdrawalDetails, error } = await supabaseClient
+        .from('withdrawal_details')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
         return new Response(
           JSON.stringify({ error: error.message }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
+      }
+
+      return new Response(
+        JSON.stringify({ data: withdrawalDetails || null }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Handle POST request for withdrawal request submission
+    if (req.method === 'POST') {
+      const requestData = await req.json();
+      const { saveDetails, ...withdrawalData } = requestData;
+      
+      // Create withdrawal request
+      const { error: withdrawalError } = await supabaseClient
+        .from('withdrawal_requests')
+        .insert({
+          ...withdrawalData,
+          user_id: user.id, // Ensure user_id is from the token
+        });
+
+      if (withdrawalError) {
+        return new Response(
+          JSON.stringify({ error: withdrawalError.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // If user wants to save details for future use
+      if (saveDetails) {
+        const detailsToSave = {
+          user_id: user.id,
+          account_holder_name: withdrawalData.account_holder_name,
+          account_number: withdrawalData.account_number,
+          ifsc_code: withdrawalData.ifsc_code,
+          bank_name: withdrawalData.bank_name,
+          upi_id: withdrawalData.upi_id,
+          pan_number: withdrawalData.pan_number,
+          pan_name: withdrawalData.pan_name,
+          phone_number: withdrawalData.phone_number,
+        };
+
+        // Check if details already exist
+        const { data: existingDetails } = await supabaseClient
+          .from('withdrawal_details')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (existingDetails) {
+          // Update existing details
+          await supabaseClient
+            .from('withdrawal_details')
+            .update(detailsToSave)
+            .eq('user_id', user.id);
+        } else {
+          // Insert new details
+          await supabaseClient
+            .from('withdrawal_details')
+            .insert(detailsToSave);
+        }
       }
 
       return new Response(
