@@ -22,7 +22,23 @@ export const useContentTransaction = () => {
   const checkPurchaseStatus = async (contentId: string, userId: string) => {
     if (!contentId || !userId) return false;
     
-    return await hasUserPurchasedContent(contentId, userId);
+    try {
+      // Try to use the database function if available
+      const { data, error } = await supabase.rpc('has_purchased_content', {
+        user_id_param: userId,
+        content_id_param: contentId
+      });
+      
+      if (error) {
+        console.warn("Could not use RPC function, falling back to query:", error);
+        return hasUserPurchasedContent(contentId, userId);
+      }
+      
+      return data;
+    } catch (err) {
+      console.warn("Error with RPC function, falling back to query:", err);
+      return hasUserPurchasedContent(contentId, userId);
+    }
   };
   
   /**
@@ -38,10 +54,19 @@ export const useContentTransaction = () => {
       return false;
     }
 
+    if (isProcessing) {
+      toast({
+        title: "Processing",
+        description: "Your previous request is still processing",
+        variant: "default"
+      });
+      return false;
+    }
+
     setIsProcessing(true);
     
     try {
-      // Check if already purchased
+      // Check if already purchased - with extra validation
       const alreadyPurchased = await checkPurchaseStatus(content.id, userId);
       if (alreadyPurchased) {
         toast({
@@ -54,18 +79,30 @@ export const useContentTransaction = () => {
       
       console.log(`User ${userId} purchasing content ${content.id}`);
       
-      // Insert transaction
-      const { error: transactionError } = await supabase.from('transactions').insert([{
+      // Insert transaction with validation
+      const { data, error } = await supabase.from('transactions').insert([{
         content_id: content.id,
         user_id: userId,
         creator_id: content.creatorId,
         amount: content.price,
-        timestamp: new Date().toISOString()
-      }]);
+        platform_fee: (parseFloat(content.price) * 0.07).toFixed(2),
+        creator_earnings: (parseFloat(content.price) * 0.93).toFixed(2),
+        timestamp: new Date().toISOString(),
+        status: 'completed'
+      }]).select();
 
-      if (transactionError) {
-        console.error("Transaction error:", transactionError);
-        throw transactionError;
+      if (error) {
+        // Check if this is a duplicate purchase error
+        if (error.code === '23505') {
+          toast({
+            title: "Already Purchased",
+            description: "You've already purchased this content",
+            variant: "default"
+          });
+          return true;
+        }
+        console.error("Transaction error:", error);
+        throw error;
       }
 
       toast({

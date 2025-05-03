@@ -52,11 +52,28 @@ export const validateTransaction = (transaction: any): boolean => {
 
 /**
  * Check if a user has already purchased a specific content
+ * Uses direct database query with fallback
  */
 export const hasUserPurchasedContent = async (contentId: string, userId: string) => {
   if (!contentId || !userId) return false;
   
   try {
+    // Try to use the database function if available
+    try {
+      const { data, error } = await supabase.rpc('has_purchased_content', {
+        user_id_param: userId,
+        content_id_param: contentId
+      });
+      
+      if (!error) {
+        return !!data;
+      }
+    } catch (e) {
+      // Silently continue to fallback
+      console.warn("RPC function not available, using fallback");
+    }
+    
+    // Fallback to direct query
     const { data, error } = await supabase
       .from('transactions')
       .select('id')
@@ -74,5 +91,47 @@ export const hasUserPurchasedContent = async (contentId: string, userId: string)
   } catch (e) {
     console.error("Exception checking purchase status:", e);
     return false;
+  }
+};
+
+/**
+ * Calculate pending withdrawals for a user
+ * Handles API fallback for totals
+ */
+export const calculatePendingWithdrawals = async (userId: string): Promise<number> => {
+  if (!userId) return 0;
+  
+  try {
+    // Try database function first
+    try {
+      const { data, error } = await supabase.rpc('get_pending_withdrawals', { 
+        user_id_param: userId 
+      });
+      
+      if (!error && data !== null) {
+        return parseFloat(data) || 0;
+      }
+    } catch (e) {
+      // Continue to fallback
+      console.warn("RPC function not available for pending withdrawals, using fallback");
+    }
+    
+    // Fallback to direct calculation
+    const { data, error } = await supabase
+      .from('withdrawal_requests')
+      .select('amount')
+      .eq('user_id', userId)
+      .in('status', ['pending', 'processing']);
+      
+    if (error) {
+      console.error("Error calculating pending withdrawals:", error);
+      return 0;
+    }
+    
+    // Sum up all amounts
+    return data?.reduce((sum, item) => sum + parseFloat(item.amount || '0'), 0) || 0;
+  } catch (e) {
+    console.error("Exception calculating pending withdrawals:", e);
+    return 0;
   }
 };

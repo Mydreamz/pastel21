@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { calculateFees, validateTransaction } from "@/utils/paymentUtils";
+import { calculateFees, validateTransaction, calculatePendingWithdrawals } from "@/utils/paymentUtils";
 import { EarningsSummary } from "@/types/transaction";
 
 export class PaymentDistributionService {
@@ -27,6 +27,7 @@ export class PaymentDistributionService {
       
       if (checkError) {
         console.error("Error checking for existing transactions:", checkError);
+        throw new Error("Failed to validate transaction uniqueness");
       }
       
       // If transaction already exists, prevent duplicate purchase
@@ -46,6 +47,7 @@ export class PaymentDistributionService {
 
       console.log(`Processing payment - Amount: ${amount}, Platform fee: ${platformFee}, Creator earnings: ${creatorEarnings}`);
 
+      // Begin transaction with error handling
       // Create transaction record - convert numbers to strings for Supabase
       const { data: transaction, error } = await supabase
         .from('transactions')
@@ -63,6 +65,15 @@ export class PaymentDistributionService {
         .single();
 
       if (error) {
+        // If the error is a duplicate row violation, it means the content was already purchased
+        if (error.code === '23505') { // PostgreSQL unique constraint violation
+          return {
+            success: false,
+            error: "You've already purchased this content",
+            alreadyPurchased: true
+          };
+        }
+        
         console.error("Transaction recording error:", error);
         throw new Error("Failed to record transaction");
       }
@@ -87,7 +98,7 @@ export class PaymentDistributionService {
 
   /**
    * Update creator's earnings total
-   * FIXED: Now only adds the creator earnings (after platform fee deduction)
+   * FIXED: Now correctly adds only the creator earnings (after platform fee deduction)
    */
   private static async updateCreatorEarnings(creatorId: string, earnings: number) {
     try {
@@ -128,8 +139,8 @@ export class PaymentDistributionService {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          total_earnings: newTotalEarnings.toString(),
-          available_balance: newAvailableBalance.toString(),
+          total_earnings: newTotalEarnings.toFixed(2),
+          available_balance: newAvailableBalance.toFixed(2),
           updated_at: new Date().toISOString()
         })
         .eq('id', creatorId);
@@ -173,32 +184,18 @@ export class PaymentDistributionService {
         availableBalance = profileData.available_balance ? parseFloat(profileData.available_balance) : 0;
       }
       
-      // Get pending withdrawals total using a custom API endpoint
-      // This avoids TypeScript errors with direct RPC calls
-      try {
-        const response = await fetch('/api/calculate-pending-withdrawals', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId: creatorId })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.total) {
-            pendingWithdrawalsTotal = Number(data.total);
-          }
-        }
-      } catch (err) {
-        console.error("Error checking withdrawals:", err);
-      }
+      // Get pending withdrawals total using direct calculation
+      pendingWithdrawalsTotal = await calculatePendingWithdrawals(creatorId);
 
       // Get transaction count
-      const { count: transactionCount } = await supabase
+      const { count: transactionCount, error: countError } = await supabase
         .from('transactions')
         .select('id', { count: 'exact', head: true })
         .eq('creator_id', creatorId);
+
+      if (countError) {
+        console.error("Error counting transactions:", countError);
+      }
 
       return {
         total_earnings: totalEarnings,

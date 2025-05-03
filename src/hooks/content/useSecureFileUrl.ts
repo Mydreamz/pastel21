@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Hook for handling secure file URLs
@@ -9,6 +10,7 @@ export const useSecureFileUrl = () => {
   const [secureFileUrl, setSecureFileUrl] = useState<string | null>(null);
   const [secureFileLoading, setSecureFileLoading] = useState(false);
   const [secureFileError, setSecureFileError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   /**
    * Function to get secure URL for protected content
@@ -42,6 +44,11 @@ export const useSecureFileUrl = () => {
       if (error) {
         console.error('Error getting secure file URL:', error);
         setSecureFileError(`Failed to get secure file: ${error.message || "Unknown error"}`);
+        toast({
+          title: "Error loading file",
+          description: "Could not load the secure file. Please try again.",
+          variant: "destructive"
+        });
         return null;
       }
 
@@ -57,6 +64,11 @@ export const useSecureFileUrl = () => {
     } catch (err: any) {
       console.error('Failed to get secure file URL:', err);
       setSecureFileError(`Error: ${err.message || "Unknown error"}`);
+      toast({
+        title: "Error loading file",
+        description: "Could not load the secure file. Please try again.",
+        variant: "destructive"
+      });
       return null;
     } finally {
       setSecureFileLoading(false);
