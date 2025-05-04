@@ -159,32 +159,38 @@ export type Database = {
       }
       profiles: {
         Row: {
+          available_balance: string | null
           bio: string | null
           github_url: string | null
           id: string
           linkedin_url: string | null
           location: string | null
           name: string | null
+          total_earnings: string | null
           twitter_url: string | null
           updated_at: string | null
         }
         Insert: {
+          available_balance?: string | null
           bio?: string | null
           github_url?: string | null
           id: string
           linkedin_url?: string | null
           location?: string | null
           name?: string | null
+          total_earnings?: string | null
           twitter_url?: string | null
           updated_at?: string | null
         }
         Update: {
+          available_balance?: string | null
           bio?: string | null
           github_url?: string | null
           id?: string
           linkedin_url?: string | null
           location?: string | null
           name?: string | null
+          total_earnings?: string | null
           twitter_url?: string | null
           updated_at?: string | null
         }
@@ -194,27 +200,36 @@ export type Database = {
         Row: {
           amount: string
           content_id: string | null
+          creator_earnings: string | null
           creator_id: string | null
           id: string
           is_deleted: boolean
+          platform_fee: string | null
+          status: string | null
           timestamp: string
           user_id: string | null
         }
         Insert: {
           amount: string
           content_id?: string | null
+          creator_earnings?: string | null
           creator_id?: string | null
           id?: string
           is_deleted?: boolean
+          platform_fee?: string | null
+          status?: string | null
           timestamp?: string
           user_id?: string | null
         }
         Update: {
           amount?: string
           content_id?: string | null
+          creator_earnings?: string | null
           creator_id?: string | null
           id?: string
           is_deleted?: boolean
+          platform_fee?: string | null
+          status?: string | null
           timestamp?: string
           user_id?: string | null
         }
@@ -230,7 +245,53 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      processed_transactions: {
+        Row: {
+          amount: string | null
+          content_id: string | null
+          creator_earnings: string | null
+          creator_id: string | null
+          id: string | null
+          is_deleted: boolean | null
+          platform_fee: string | null
+          status: string | null
+          timestamp: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: string | null
+          content_id?: string | null
+          creator_earnings?: never
+          creator_id?: string | null
+          id?: string | null
+          is_deleted?: boolean | null
+          platform_fee?: never
+          status?: never
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: string | null
+          content_id?: string | null
+          creator_earnings?: never
+          creator_id?: string | null
+          id?: string | null
+          is_deleted?: boolean | null
+          platform_fee?: never
+          status?: never
+          timestamp?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       get_protected_file_url: {
