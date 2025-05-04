@@ -36,24 +36,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       if (!user || !content?.id) return;
       
       try {
-        // Try to use the database function first
-        try {
-          const { data, error } = await supabase.rpc('has_purchased_content', {
-            user_id_param: user.id,
-            content_id_param: content.id
-          });
-          
-          if (!error) {
-            setIsAlreadyPurchased(!!data);
-            setHasCheckedPurchase(true);
-            return;
-          }
-        } catch (e) {
-          // Silently continue to fallback
-          console.warn("RPC function not available, using fallback for purchase check");
-        }
-        
-        // Fallback to direct query
+        // Direct query for purchase check
         const { data, error } = await supabase
           .from('transactions')
           .select('id')

@@ -46,14 +46,6 @@ export class PaymentDistributionService {
 
       console.log(`Processing payment - Amount: ${amount}, Platform fee: ${platformFee}, Creator earnings: ${creatorEarnings}`);
 
-      // First, ensure the columns exist in the transactions table
-      try {
-        // Force refresh the schema cache with a simple query
-        await supabase.from('transactions').select('id').limit(1);
-      } catch (err) {
-        console.log("Pre-check query executed");
-      }
-
       // Create transaction record - convert numbers to strings for Supabase
       try {
         const { data: transaction, error } = await supabase
@@ -72,46 +64,47 @@ export class PaymentDistributionService {
           .single();
 
         if (error) {
-          // If the error is a duplicate row violation, it means the content was already purchased
-          if (error.code === '23505') { // PostgreSQL unique constraint violation
-            return {
-              success: false,
-              error: "You've already purchased this content",
-              alreadyPurchased: true
-            };
+          // If the error indicates a duplicate purchase
+          if (error.code === '23505' || error.message?.includes("duplicate")) {
+            // Double check if transaction really exists
+            const { data: checkData, error: verifyError } = await supabase
+              .from('transactions')
+              .select('id')
+              .eq('content_id', contentId)
+              .eq('user_id', userId)
+              .limit(1);
+              
+            if (!verifyError && checkData && checkData.length > 0) {
+              return {
+                success: false,
+                error: "You've already purchased this content",
+                alreadyPurchased: true
+              };
+            }
           }
           
-          // If the error is related to missing columns, try an alternate approach
-          if (error.message && error.message.includes("column") && error.message.includes("does not exist")) {
-            console.error("Column missing error, trying alternative approach:", error);
-            
-            // Try inserting with only the basic fields that are guaranteed to exist
-            const { data: basicTransaction, error: basicError } = await supabase
-              .from('transactions')
-              .insert({
-                content_id: contentId,
-                user_id: userId,
-                creator_id: creatorId,
-                amount: amount.toString(),
-                timestamp: new Date().toISOString()
-              })
-              .select()
-              .single();
-              
-            if (basicError) {
-              console.error("Even basic transaction failed:", basicError);
-              throw new Error("Failed to record transaction: " + basicError.message);
-            }
-            
-            // If basic transaction succeeded, continue with the process
-            console.log("Basic transaction recorded successfully:", basicTransaction);
-          } else {
-            console.error("Transaction recording error:", error);
-            throw new Error("Failed to record transaction: " + error.message);
-          }
+          console.error("Transaction recording error:", error);
+          throw new Error("Failed to record transaction: " + error.message);
         }
       } catch (insertError) {
         console.error("Exception during transaction insert:", insertError);
+        
+        // One last check before failing
+        const { data: finalCheck } = await supabase
+          .from('transactions')
+          .select('id')
+          .eq('content_id', contentId)
+          .eq('user_id', userId)
+          .limit(1);
+          
+        if (finalCheck && finalCheck.length > 0) {
+          return {
+            success: false,
+            error: "Transaction already exists",
+            alreadyPurchased: true
+          };
+        }
+        
         throw new Error("Failed to process payment: " + (insertError instanceof Error ? insertError.message : "Unknown error"));
       }
 
@@ -149,7 +142,6 @@ export class PaymentDistributionService {
       let currentAvailableBalance = 0;
       
       if (error) {
-        // Handle case where profile doesn't exist or columns might not exist yet
         console.log("Fetching profile data error:", error);
       } else if (creatorProfile) {
         // Access properties using type assertion since TypeScript doesn't know about these fields yet
@@ -165,7 +157,6 @@ export class PaymentDistributionService {
       console.log(`Adding creator earnings (after fee): ${earnings}`);
       
       // Update existing profile with new values
-      // IMPORTANT: Only add the creator earnings (after platform fee deduction)
       const newTotalEarnings = currentTotalEarnings + earnings;
       const newAvailableBalance = currentAvailableBalance + earnings;
       
@@ -182,26 +173,7 @@ export class PaymentDistributionService {
           .eq('id', creatorId);
           
         if (updateError) {
-          // If columns don't exist, try a different approach
-          if (updateError.message && updateError.message.includes("column") && updateError.message.includes("does not exist")) {
-            console.log("Profile columns missing, trying to update only existing fields");
-            
-            // Try updating just the basic fields
-            const { error: basicUpdateError } = await supabase
-              .from('profiles')
-              .update({
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', creatorId);
-              
-            if (basicUpdateError) {
-              console.error("Basic profile update failed:", basicUpdateError);
-            } else {
-              console.log("Basic profile update succeeded, but earnings were not recorded");
-            }
-          } else {
-            console.error("Error updating creator earnings:", updateError);
-          }
+          console.error("Error updating creator earnings:", updateError);
         } else {
           console.log("Creator earnings updated successfully");
         }
@@ -210,8 +182,7 @@ export class PaymentDistributionService {
       }
     } catch (error) {
       console.error("Error updating creator earnings:", error);
-      // We don't throw here to prevent transaction failure, 
-      // but log for administrative review
+      // We don't throw here to prevent transaction failure
     }
   }
 
