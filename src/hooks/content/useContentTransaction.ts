@@ -25,24 +25,7 @@ export const useContentTransaction = () => {
     try {
       console.log(`Checking purchase status for content ${contentId} by user ${userId}`);
       
-      // Try to use the database function if available
-      try {
-        const { data, error } = await supabase.rpc('has_purchased_content', {
-          user_id_param: userId,
-          content_id_param: contentId
-        });
-        
-        if (!error) {
-          console.log(`RPC function result: ${data}`);
-          return data;
-        }
-        
-        console.warn("Could not use RPC function, falling back to query:", error);
-      } catch (err) {
-        console.warn("Error with RPC function, falling back to query:", err);
-      }
-      
-      // Regular query fallback
+      // Direct query approach - simpler and more reliable
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select('id')
@@ -52,23 +35,21 @@ export const useContentTransaction = () => {
         .limit(1);
       
       if (error) {
-        console.error("Error in transaction check:", error);
-        // Since this is just a check, don't throw - default to false
+        console.error("Error checking purchase status:", error);
         return false;
       }
       
       const result = transactions && transactions.length > 0;
-      console.log(`Direct query result: ${result ? 'Purchased' : 'Not purchased'}`);
+      console.log(`Purchase check result: ${result ? 'Purchased' : 'Not purchased'}`);
       return result;
     } catch (err) {
       console.error("Error checking purchase status:", err);
-      // Default to false on error
       return false;
     }
   };
   
   /**
-   * Handle content purchase/unlock - uses the more robust PaymentDistributionService
+   * Handle content purchase/unlock
    */
   const handleContentPurchase = async (content: Content | null, userId: string, userName: string | null) => {
     if (!content || !content.id) {
@@ -94,7 +75,7 @@ export const useContentTransaction = () => {
     try {
       console.log(`Starting purchase process for content ${content.id} by user ${userId}`);
       
-      // Check if already purchased - with extra validation
+      // Check if already purchased
       const alreadyPurchased = await checkPurchaseStatus(content.id, userId);
       if (alreadyPurchased) {
         console.log("Content already purchased, skipping transaction");
@@ -104,14 +85,13 @@ export const useContentTransaction = () => {
           variant: "default"
         });
         
-        // Navigate to view the content since it's already purchased
         navigate(`/view/${content.id}`);
         return true;
       }
       
       console.log(`User ${userId} purchasing content ${content.id} for ${content.price}`);
       
-      // Use the PaymentDistributionService for more robust processing
+      // Use the PaymentDistributionService for processing
       const paymentResult = await PaymentDistributionService.processPayment(
         content.id,
         userId,
@@ -120,10 +100,8 @@ export const useContentTransaction = () => {
       );
       
       if (!paymentResult.success) {
-        // If the failure indicates the content was already purchased, treat as success
         if (paymentResult.alreadyPurchased) {
-          console.log("Transaction verification shows content already purchased");
-          
+          console.log("Already purchased based on service response");
           toast({
             title: "Content unlocked",
             description: "You already own this content. It has been unlocked for viewing."
@@ -158,7 +136,7 @@ export const useContentTransaction = () => {
     } catch (e: any) {
       console.error("Error in handleContentPurchase:", e);
       
-      // Final verification check - did it succeed despite errors?
+      // Final verification check - did the transaction succeed despite errors?
       try {
         const finalCheck = await checkPurchaseStatus(content.id, userId);
         if (finalCheck) {
@@ -172,7 +150,6 @@ export const useContentTransaction = () => {
           return true;
         }
       } catch (verifyErr) {
-        // Ignore errors in the final check
         console.warn("Error during final verification check:", verifyErr);
       }
       
