@@ -98,29 +98,18 @@ export const hasUserPurchasedContent = async (contentId: string, userId: string)
  */
 export const calculatePendingWithdrawals = async (userId: string): Promise<number> => {
   try {
-    // Use direct database query instead of RPC function
-    const { data: withdrawalRequests, error } = await supabase
-      .from('withdrawal_requests')
-      .select('amount')
-      .eq('user_id', userId)
-      .in('status', ['pending', 'processing']);
+    // Use the get_pending_withdrawals RPC function
+    const { data, error } = await supabase.rpc('get_pending_withdrawals', {
+      user_id_param: userId
+    });
     
     if (error) {
       console.error('Error fetching pending withdrawals:', error);
       return 0;
     }
     
-    // Sum up all pending withdrawals
-    const pendingAmount = withdrawalRequests?.reduce((sum, req) => {
-      // Make sure we're working with numeric values
-      const amount = typeof req.amount === 'string' 
-        ? parseFloat(req.amount) 
-        : Number(req.amount);
-        
-      return sum + (isNaN(amount) ? 0 : amount);
-    }, 0) || 0;
-    
-    return pendingAmount;
+    // Ensure we're returning a number
+    return typeof data === 'number' ? data : 0;
   } catch (error) {
     console.error('Error calculating pending withdrawals:', error);
     return 0;

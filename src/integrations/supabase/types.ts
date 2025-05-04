@@ -243,6 +243,111 @@ export type Database = {
           },
         ]
       }
+      withdrawal_details: {
+        Row: {
+          account_holder_name: string | null
+          account_number: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          is_verified: boolean | null
+          pan_name: string | null
+          pan_number: string | null
+          phone_number: string | null
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+          verification_date: string | null
+        }
+        Insert: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_verified?: boolean | null
+          pan_name?: string | null
+          pan_number?: string | null
+          phone_number?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+          verification_date?: string | null
+        }
+        Update: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_verified?: boolean | null
+          pan_name?: string | null
+          pan_number?: string | null
+          phone_number?: string | null
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
+          verification_date?: string | null
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          account_holder_name: string | null
+          account_number: string | null
+          amount: number
+          bank_name: string | null
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          pan_name: string
+          pan_number: string
+          payment_method: string
+          phone_number: string
+          status: string
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          amount: number
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          pan_name: string
+          pan_number: string
+          payment_method: string
+          phone_number: string
+          status?: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          account_holder_name?: string | null
+          account_number?: string | null
+          amount?: number
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          pan_name?: string
+          pan_number?: string
+          payment_method?: string
+          phone_number?: string
+          status?: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       processed_transactions: {
@@ -294,6 +399,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_pending_withdrawals: {
+        Args: { user_id_param: string }
+        Returns: number
+      }
       get_protected_file_url: {
         Args: { content_id_param: string; file_path: string }
         Returns: string
