@@ -27,25 +27,25 @@ const ContentSuccess = () => {
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative">
       <StarsBackground />
-      <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
+      <div className="bg-grid absolute inset-0 opacity-[0.05] z-0"></div>
       
-      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
-        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-300 hover:text-white transition-colors">
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
+        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-200 hover:text-white transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
         
-        <Card className="glass-card border-white/10 text-white">
-          <CardHeader>
-            <CardTitle className="text-2xl md:text-3xl font-bold text-center text-emerald-400">
+        <Card className="glass-card border-white/20 shadow-lg bg-gradient-to-br from-white/50 to-pastel-200/50">
+          <CardHeader className="border-b border-white/10 pb-4">
+            <CardTitle className="text-2xl md:text-3xl font-bold text-center text-emerald-600">
               Content Created Successfully!
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <div className="text-center">
-              <p className="text-lg mb-2">Your content has been {content.status === 'scheduled' ? 'scheduled' : 'published'}!</p>
+              <p className="text-lg mb-2 text-gray-800">Your content has been {content.status === 'scheduled' ? 'scheduled' : 'published'}!</p>
               {content.status === 'scheduled' && (
-                <p className="text-gray-400">
+                <p className="text-gray-600">
                   Your content will be published on {new Date(content.scheduled_for).toLocaleDateString()} at {content.scheduled_time}
                 </p>
               )}
@@ -53,7 +53,7 @@ const ContentSuccess = () => {
 
             {/* Share button options with clear emphasis */}
             <div className="flex flex-col items-center mt-6 mb-6">
-              <h3 className="text-lg font-medium mb-3">Share your content</h3>
+              <h3 className="text-lg font-semibold mb-3 text-gray-800">Share your content</h3>
               <div className="w-full flex justify-center">
                 <ContentActions 
                   onShare={() => {}} // No-op; handled inside ContentActions
@@ -66,11 +66,11 @@ const ContentSuccess = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <Button onClick={() => navigate(`/edit/${content.id}`)} className="bg-white/10 hover:bg-white/20 text-white">
+              <Button onClick={() => navigate(`/edit/${content.id}`)} className="bg-gray-700 hover:bg-gray-800 text-white">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Content
               </Button>
-              <Button onClick={() => navigate(`/view/${content.id}`)} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+              <Button onClick={() => navigate(`/view/${content.id}`)} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                 <Eye className="mr-2 h-4 w-4" />
                 View Content
               </Button>
