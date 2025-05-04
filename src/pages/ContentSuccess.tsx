@@ -58,7 +58,7 @@ const ContentSuccess = () => {
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Content
               </Button>
-              <Button onClick={() => navigate(`/view/${content.id}`)} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Button onClick={() => navigate(`/view/${content.id}`)} className="text-white bg-pastel-800 hover:bg-pastel-700">
                 <Eye className="mr-2 h-4 w-4" />
                 View Content
               </Button>
