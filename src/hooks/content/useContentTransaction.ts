@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -15,12 +15,25 @@ export const useContentTransaction = () => {
   const { toast } = useToast();
   const { addNotification } = useNotifications();
   const [isProcessing, setIsProcessing] = useState(false);
+  // Use a ref to track processed transaction IDs to avoid duplicate processing
+  const processedTransactionIdsRef = useRef<Set<string>>(new Set());
 
   /**
    * Check if a user has purchased a specific content
+   * Use cache for repeated checks on the same content
    */
+  const purchaseCache = useRef<Record<string, boolean>>({});
+  
   const checkPurchaseStatus = async (contentId: string, userId: string) => {
     if (!contentId || !userId) return false;
+    
+    // Generate a unique key for this content/user pair
+    const cacheKey = `${contentId}-${userId}`;
+    
+    // Check cache first
+    if (purchaseCache.current[cacheKey] !== undefined) {
+      return purchaseCache.current[cacheKey];
+    }
     
     try {
       console.log(`Checking purchase status for content ${contentId} by user ${userId}`);
@@ -41,6 +54,9 @@ export const useContentTransaction = () => {
       
       const result = transactions && transactions.length > 0;
       console.log(`Purchase check result: ${result ? 'Purchased' : 'Not purchased'}`);
+      
+      // Store in cache
+      purchaseCache.current[cacheKey] = result;
       return result;
     } catch (err) {
       console.error("Error checking purchase status:", err);
@@ -49,7 +65,7 @@ export const useContentTransaction = () => {
   };
   
   /**
-   * Handle content purchase/unlock
+   * Handle content purchase/unlock with debouncing to prevent multiple calls
    */
   const handleContentPurchase = async (content: Content | null, userId: string, userName: string | null) => {
     if (!content || !content.id) {
@@ -70,7 +86,21 @@ export const useContentTransaction = () => {
       return false;
     }
 
+    // Create a transaction ID
+    const transactionId = `${content.id}-${userId}`;
+    
+    // Check if we've already processed this transaction
+    if (processedTransactionIdsRef.current.has(transactionId)) {
+      toast({
+        title: "Already Processing",
+        description: "Your payment is already being processed",
+        variant: "default"
+      });
+      return false;
+    }
+
     setIsProcessing(true);
+    processedTransactionIdsRef.current.add(transactionId);
     
     try {
       console.log(`Starting purchase process for content ${content.id} by user ${userId}`);
@@ -107,12 +137,17 @@ export const useContentTransaction = () => {
             description: "You already own this content. It has been unlocked for viewing."
           });
           
+          // Update cache
+          purchaseCache.current[`${content.id}-${userId}`] = true;
           navigate(`/view/${content.id}`);
           return true;
         }
         
         throw new Error(paymentResult.error || "Failed to process payment");
       }
+      
+      // Purchase successful - update cache
+      purchaseCache.current[`${content.id}-${userId}`] = true;
       
       // Purchase successful
       toast({
@@ -141,6 +176,10 @@ export const useContentTransaction = () => {
         const finalCheck = await checkPurchaseStatus(content.id, userId);
         if (finalCheck) {
           console.log("Final check shows purchase succeeded despite errors");
+          
+          // Update cache
+          purchaseCache.current[`${content.id}-${userId}`] = true;
+          
           toast({
             title: "Content unlocked",
             description: `Your purchase was successful despite some technical issues.`
@@ -161,6 +200,11 @@ export const useContentTransaction = () => {
       return false;
     } finally {
       setIsProcessing(false);
+      
+      // Remove the transaction ID from the set after a delay
+      setTimeout(() => {
+        processedTransactionIdsRef.current.delete(transactionId);
+      }, 5000);
     }
   };
 

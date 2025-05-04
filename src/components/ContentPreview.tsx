@@ -238,4 +238,5 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   );
 };
 
+// Use React.memo to prevent unnecessary re-renders
 export default React.memo(ContentPreview);

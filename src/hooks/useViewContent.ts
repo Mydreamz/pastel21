@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,11 +29,17 @@ export const useViewContent = (id: string | undefined) => {
     handleContentPurchase
   } = useContentTransaction();
 
+  // Track if content is already loaded to prevent duplicate loading
+  const contentLoadedRef = useRef(false);
+  const transactionCheckedRef = useRef(false);
+
   // Memoize the loadContent function to prevent recreating on every render
   const loadContent = useCallback(async () => {
-    if (!id) {
-      setError("No content ID provided");
-      setLoading(false);
+    if (!id || contentLoadedRef.current) {
+      if (!id) {
+        setError("No content ID provided");
+        setLoading(false);
+      }
       return;
     }
 
@@ -64,6 +70,7 @@ export const useViewContent = (id: string | undefined) => {
       console.log("Content found:", foundContent);
       const mapped = supabaseToContent(foundContent);
       setContent(mapped);
+      contentLoadedRef.current = true;
 
       // Handle authentication cases
       if (user) {
@@ -79,8 +86,9 @@ export const useViewContent = (id: string | undefined) => {
             console.log(`Getting secure URL for creator's content, file path: ${mapped.filePath}`);
             await getSecureFileUrl(id, mapped.filePath, user.id);
           }
-        } else {
+        } else if (!transactionCheckedRef.current) {
           // Check for transactions - use a single DB query
+          transactionCheckedRef.current = true;
           console.log(`Checking if user ${user.id} has purchased content ${id}`);
           const { data: transactions, error: txError } = await supabase
             .from('transactions')
@@ -133,9 +141,17 @@ export const useViewContent = (id: string | undefined) => {
     }
   }, [id, user, session, navigate, getSecureFileUrl]);
 
+  // Reset refs if id changes
+  useEffect(() => {
+    contentLoadedRef.current = false;
+    transactionCheckedRef.current = false;
+  }, [id]);
+
   // Fetch content on initial load and when dependencies change
   useEffect(() => {
-    loadContent();
+    if (!contentLoadedRef.current) {
+      loadContent();
+    }
   }, [loadContent]);
 
   const handleUnlock = async () => {
@@ -150,6 +166,7 @@ export const useViewContent = (id: string | undefined) => {
     
     if (result) {
       setIsUnlocked(true);
+      transactionCheckedRef.current = true;
       
       // After purchase, get secure URL for file if it exists
       if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {

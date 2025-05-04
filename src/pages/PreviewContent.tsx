@@ -17,13 +17,12 @@ import { useContentSharing } from '@/hooks/useContentSharing';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const { content, loading, error, handleUnlock } = useViewContent(id);
+  const { content, loading, error, handleUnlock, isProcessing: unlockProcessing } = useViewContent(id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
-  const { shareUrl, handleShare } = useContentSharing(id || '', content?.price || '0');
+  const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
 
   // Memoize content info to prevent unnecessary re-renders
   const contentInfo = useMemo(() => ({
@@ -33,14 +32,6 @@ const PreviewContent = () => {
     teaser: content?.teaser,
     contentType: content?.contentType
   }), [id, content?.title, content?.price, content?.teaser, content?.contentType]);
-
-  // Add debug logging only once when component mounts or when contentInfo changes
-  useEffect(() => {
-    console.log("PreviewContent: Content ID:", id);
-    console.log("PreviewContent: Content loaded:", content);
-    console.log("PreviewContent: Error state:", error);
-    console.log("PreviewContent: Share URL:", shareUrl);
-  }, [id, contentInfo, error, shareUrl]);
 
   // Check authentication status once
   useEffect(() => {
@@ -56,6 +47,13 @@ const PreviewContent = () => {
       }
     }
   }, []);
+
+  // Initialize share URL when content is available
+  useEffect(() => {
+    if (content) {
+      initializeShareUrl();
+    }
+  }, [content, initializeShareUrl]);
 
   // Load related content when content is available and only once
   useEffect(() => {
@@ -90,18 +88,12 @@ const PreviewContent = () => {
       });
       return;
     }
-
-    setIsProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      if (handleUnlock) {
-        handleUnlock();
-        handleSuccessfulPayment();
-      }
-    }, 1500);
-  }, [isAuthenticated, toast, handleUnlock, handleSuccessfulPayment]);
+    if (handleUnlock) {
+      handleUnlock();
+      // Navigation will happen in the useViewContent hook if purchase successful
+    }
+  }, [isAuthenticated, toast, handleUnlock]);
 
   // Get preview content (first 30% of text content)
   const getContentPreview = useCallback(() => {
@@ -214,7 +206,7 @@ const PreviewContent = () => {
               </div>
               <div className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />
-                <span>{Math.floor(Math.random() * 100) + 5} views</span>
+                <span>{content.views || Math.floor(Math.random() * 100) + 5} views</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
@@ -231,7 +223,7 @@ const PreviewContent = () => {
               price={content.price}
               onUnlock={handlePurchase}
               contentTitle={content.title}
-              isProcessing={isProcessing}
+              isProcessing={unlockProcessing}
             />
           </div>
           
@@ -248,7 +240,7 @@ const PreviewContent = () => {
               title={content.title}
               teaser={content.teaser}
               price={parseFloat(content.price)}
-              type={content.contentType}
+              type={content.contentType as any}
               onPaymentSuccess={handleSuccessfulPayment}
               contentId={content.id}
               onPurchase={handlePurchase}
@@ -270,4 +262,5 @@ const PreviewContent = () => {
   );
 };
 
+// Use memo to prevent unnecessary re-renders
 export default PreviewContent;
