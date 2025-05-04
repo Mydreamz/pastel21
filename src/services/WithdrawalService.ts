@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { SavedUserDetails } from "@/types/transaction";
+import { createCacheableRequest } from "@/utils/requestUtils";
 
 /**
  * Service for handling withdrawal-related API calls
@@ -9,7 +10,7 @@ export class WithdrawalService {
   /**
    * Fetch saved withdrawal details for a user
    */
-  static async getSavedWithdrawalDetails(accessToken: string): Promise<SavedUserDetails | null> {
+  static async _getSavedWithdrawalDetails(accessToken: string): Promise<SavedUserDetails | null> {
     try {
       // Use the edge function to get user withdrawal details
       const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
@@ -26,6 +27,15 @@ export class WithdrawalService {
       return null;
     }
   }
+
+  /**
+   * Cached version of getSavedWithdrawalDetails
+   * The cache will last for 2 minutes to reduce repeated requests
+   */
+  static getSavedWithdrawalDetails = createCacheableRequest(
+    WithdrawalService._getSavedWithdrawalDetails,
+    2 * 60 * 1000 // 2 minutes cache
+  );
 
   /**
    * Submit a bank withdrawal request

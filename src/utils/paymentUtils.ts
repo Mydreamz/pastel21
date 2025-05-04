@@ -1,4 +1,6 @@
+
 import { supabase } from "@/integrations/supabase/client";
+import { createCacheableRequest } from "./requestUtils";
 
 /**
  * Calculate platform fees and creator earnings from a payment amount
@@ -50,10 +52,9 @@ export const validateTransaction = (transaction: any): boolean => {
 };
 
 /**
- * Check if a user has already purchased a specific content
- * Uses direct database query with fallback
+ * Private implementation of hasUserPurchasedContent for caching purposes
  */
-export const hasUserPurchasedContent = async (contentId: string, userId: string) => {
+const _hasUserPurchasedContent = async (contentId: string, userId: string) => {
   if (!contentId || !userId) return false;
   
   try {
@@ -94,9 +95,15 @@ export const hasUserPurchasedContent = async (contentId: string, userId: string)
 };
 
 /**
- * Calculate pending withdrawals for a user
+ * Cached version of hasUserPurchasedContent
+ * Purchases don't change frequently, so we can cache for 5 minutes
  */
-export const calculatePendingWithdrawals = async (userId: string): Promise<number> => {
+export const hasUserPurchasedContent = createCacheableRequest(_hasUserPurchasedContent, 5 * 60 * 1000);
+
+/**
+ * Private implementation of calculatePendingWithdrawals for caching purposes
+ */
+const _calculatePendingWithdrawals = async (userId: string): Promise<number> => {
   try {
     // Use the get_pending_withdrawals RPC function
     const { data, error } = await supabase.rpc('get_pending_withdrawals', {
@@ -115,3 +122,9 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
     return 0;
   }
 };
+
+/**
+ * Cached version of calculatePendingWithdrawals
+ * Cache for 1 minute since withdrawal status might change
+ */
+export const calculatePendingWithdrawals = createCacheableRequest(_calculatePendingWithdrawals, 60 * 1000);

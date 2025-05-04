@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building, CreditCard, IndianRupee, Loader2 } from 'lucide-react';
@@ -24,8 +24,16 @@ const WithdrawalModal = ({ isOpen, onClose, userId, balance }: WithdrawalModalPr
     bankForm,
     upiForm,
     handleBankSubmit,
-    handleUpiSubmit
+    handleUpiSubmit,
+    loadSavedDetails
   } = useWithdrawal(userId, balance);
+
+  // Only load saved details when the modal is open
+  useEffect(() => {
+    if (isOpen) {
+      loadSavedDetails();
+    }
+  }, [isOpen, loadSavedDetails]);
 
   // Handle successful submission
   const handleFormSuccess = () => {
