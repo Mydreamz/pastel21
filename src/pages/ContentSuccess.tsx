@@ -54,7 +54,7 @@ const ContentSuccess = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <Button onClick={() => navigate(`/edit/${content.id}`)} className="bg-gray-700 hover:bg-gray-800 text-white">
+              <Button onClick={() => navigate(`/edit/${content.id}`)} className="text-white bg-pastel-700 hover:bg-pastel-600">
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Content
               </Button>
