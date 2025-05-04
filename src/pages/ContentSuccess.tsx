@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,12 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import ContentActions from '@/components/content/ContentActions';
-
 const ContentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const content = location.state?.content;
-
   if (!content) {
     navigate('/');
     return null;
@@ -23,9 +20,7 @@ const ContentSuccess = () => {
 
   // Debug the content object to ensure we have all necessary data
   console.log("Content data in ContentSuccess:", content);
-
-  return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative">
+  return <div className="min-h-screen flex flex-col antialiased text-white relative">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.05] z-0"></div>
       
@@ -37,31 +32,24 @@ const ContentSuccess = () => {
         
         <Card className="glass-card border-white/20 shadow-lg bg-gradient-to-br from-white/50 to-pastel-200/50">
           <CardHeader className="border-b border-white/10 pb-4">
-            <CardTitle className="text-2xl md:text-3xl font-bold text-center text-emerald-600">
+            <CardTitle className="text-2xl md:text-3xl font-bold text-center text-pastel-600">
               Content Created Successfully!
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6 pt-6">
             <div className="text-center">
               <p className="text-lg mb-2 text-gray-800">Your content has been {content.status === 'scheduled' ? 'scheduled' : 'published'}!</p>
-              {content.status === 'scheduled' && (
-                <p className="text-gray-600">
+              {content.status === 'scheduled' && <p className="text-gray-600">
                   Your content will be published on {new Date(content.scheduled_for).toLocaleDateString()} at {content.scheduled_time}
-                </p>
-              )}
+                </p>}
             </div>
 
             {/* Share button options with clear emphasis */}
             <div className="flex flex-col items-center mt-6 mb-6">
               <h3 className="text-lg font-semibold mb-3 text-gray-800">Share your content</h3>
               <div className="w-full flex justify-center">
-                <ContentActions 
-                  onShare={() => {}} // No-op; handled inside ContentActions
-                  shareUrl={shareUrl}
-                  contentTitle={contentTitle}
-                  contentId={content.id}
-                  isCreator={true}
-                />
+                <ContentActions onShare={() => {}} // No-op; handled inside ContentActions
+              shareUrl={shareUrl} contentTitle={contentTitle} contentId={content.id} isCreator={true} />
               </div>
             </div>
 
@@ -78,8 +66,6 @@ const ContentSuccess = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ContentSuccess;
