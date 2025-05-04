@@ -120,6 +120,19 @@ export const useContentTransaction = () => {
       );
       
       if (!paymentResult.success) {
+        // If the failure indicates the content was already purchased, treat as success
+        if (paymentResult.alreadyPurchased) {
+          console.log("Transaction verification shows content already purchased");
+          
+          toast({
+            title: "Content unlocked",
+            description: "You already own this content. It has been unlocked for viewing."
+          });
+          
+          navigate(`/view/${content.id}`);
+          return true;
+        }
+        
         throw new Error(paymentResult.error || "Failed to process payment");
       }
       
@@ -160,6 +173,7 @@ export const useContentTransaction = () => {
         }
       } catch (verifyErr) {
         // Ignore errors in the final check
+        console.warn("Error during final verification check:", verifyErr);
       }
       
       toast({

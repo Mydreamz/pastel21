@@ -51,8 +51,8 @@ export class PaymentDistributionService {
 
       // Create transaction record with all fields including fee distribution
       try {
-        // Prepare the transaction object with all possible fields
-        const transactionData = {
+        // Create the basic transaction object first (required fields only)
+        const baseTransactionData = {
           content_id: contentId,
           user_id: userId,
           creator_id: creatorId,
@@ -61,36 +61,72 @@ export class PaymentDistributionService {
           is_deleted: false
         };
         
-        // Add the fee distribution fields if they exist in the schema
+        // Handle potential schema cache issues by inserting in two stages if needed
         try {
-          transactionData['platform_fee'] = platformFee.toString();
-          transactionData['creator_earnings'] = creatorEarnings.toString();
-          transactionData['status'] = 'completed';
-        } catch (schemaError) {
-          console.warn("Could not include fee distribution fields:", schemaError);
-        }
-
-        const { data, error } = await supabase
-          .from('transactions')
-          .insert(transactionData)
-          .select();
-
-        if (error) {
-          // If the error indicates a duplicate purchase
-          if (error.code === '23505' || error.message?.includes("duplicate")) {
-            console.log("Duplicate transaction detected via error, treating as success");
-            return {
-              success: true,
-              alreadyPurchased: true,
-              message: "Content already purchased"
-            };
+          // First attempt: Try inserting with all fields including fee distribution
+          const fullTransactionData = {
+            ...baseTransactionData,
+            platform_fee: platformFee.toString(),
+            creator_earnings: creatorEarnings.toString(),
+            status: 'completed'
+          };
+          
+          const { data, error } = await supabase
+            .from('transactions')
+            .insert(fullTransactionData)
+            .select();
+            
+          if (error) {
+            // If schema cache error, throw to trigger fallback
+            if (error.message?.includes("column") || error.message?.includes("schema cache")) {
+              console.warn("Schema cache issue detected, trying fallback insertion:", error);
+              throw new Error("Schema cache error");
+            }
+            
+            // If the error indicates a duplicate purchase
+            if (error.code === '23505' || error.message?.includes("duplicate")) {
+              console.log("Duplicate transaction detected via error, treating as success");
+              return {
+                success: true,
+                alreadyPurchased: true,
+                message: "Content already purchased"
+              };
+            }
+            
+            throw error;
           }
           
-          console.error("Transaction recording error:", error);
-          throw new Error("Failed to record transaction: " + error.message);
+          console.log("Transaction recorded successfully with full data:", data);
+          return {
+            success: true,
+            platformFee,
+            creatorEarnings
+          };
+          
+        } catch (schemaError: any) {
+          // Fallback: Try inserting with just the base fields if there was a schema error
+          console.warn("Using fallback transaction insertion with base fields only");
+          
+          const { data: baseData, error: baseError } = await supabase
+            .from('transactions')
+            .insert(baseTransactionData)
+            .select();
+            
+          if (baseError) {
+            // If this also fails with a duplicate error, treat as success
+            if (baseError.code === '23505' || baseError.message?.includes("duplicate")) {
+              return {
+                success: true,
+                alreadyPurchased: true,
+                message: "Content already purchased"
+              };
+            }
+            
+            throw baseError;
+          }
+          
+          console.log("Transaction recorded successfully with basic data:", baseData);
         }
-
-        console.log("Transaction recorded successfully:", data);
       } catch (insertError: any) {
         console.error("Exception during transaction insert:", insertError);
         
