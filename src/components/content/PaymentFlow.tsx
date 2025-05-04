@@ -100,13 +100,12 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
     setIsProcessing(true);
     
     try {
-      // Process payment with fee distribution
-      const paymentAmount = parseFloat(content.price);
+      // Use the simplified transaction processing approach
       const result = await PaymentDistributionService.processPayment(
         content.id,
         user.id,
         content.creatorId,
-        paymentAmount
+        parseFloat(content.price)
       );
 
       if (!result.success) {
@@ -135,6 +134,32 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
         });
       }
     } catch (error: any) {
+      // One final check to see if the transaction actually went through
+      try {
+        const { data } = await supabase
+          .from('transactions')
+          .select('id')
+          .eq('content_id', content.id)
+          .eq('user_id', user.id)
+          .eq('is_deleted', false)
+          .limit(1);
+          
+        if (data && data.length > 0) {
+          // Transaction exists despite the error!
+          toast({
+            title: "Payment Successful",
+            description: `You've unlocked "${content.title}" and it's now in your library`,
+            variant: "default"
+          });
+          refreshPermissions();
+          setIsAlreadyPurchased(true);
+          onUnlock();
+          return;
+        }
+      } catch (finalCheckError) {
+        // If this fails too, proceed to the error message
+      }
+      
       toast({
         title: "Payment Failed",
         description: error.message || "Unable to process your payment. Please try again.",
