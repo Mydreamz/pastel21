@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,14 +19,18 @@ const ContentSuccess = () => {
     }
   }, [content, navigate]);
   
+  // Memoize computed values to prevent re-renders
+  const shareUrl = useMemo(() => {
+    if (!content) return '';
+    return `${window.location.origin}/view/${content.id}`;
+  }, [content]);
+  
+  const contentTitle = useMemo(() => content?.title || '', [content]);
+  
   // Early return if no content, the useEffect will handle navigation
   if (!content) {
     return null;
   }
-
-  // Construct the shareable URL
-  const shareUrl = `${window.location.origin}/view/${content.id}`;
-  const contentTitle = content.title;
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-white relative">
@@ -34,7 +38,11 @@ const ContentSuccess = () => {
       <div className="bg-grid absolute inset-0 opacity-[0.05] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
-        <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-200 hover:text-white transition-colors">
+        <button 
+          onClick={() => navigate('/')} 
+          className="mb-6 flex items-center text-gray-200 hover:text-white transition-colors"
+          type="button"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
         </button>
@@ -71,6 +79,7 @@ const ContentSuccess = () => {
               <Button 
                 onClick={() => navigate(`/edit/${content.id}`)} 
                 className="text-white bg-pastel-700 hover:bg-pastel-600"
+                type="button"
               >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Content
@@ -78,6 +87,7 @@ const ContentSuccess = () => {
               <Button 
                 onClick={() => navigate(`/view/${content.id}`)} 
                 className="text-white bg-pastel-800 hover:bg-pastel-700"
+                type="button"
               >
                 <Eye className="mr-2 h-4 w-4" />
                 View Content
@@ -90,4 +100,5 @@ const ContentSuccess = () => {
   );
 };
 
+// Use memo to prevent unnecessary re-renders
 export default React.memo(ContentSuccess);

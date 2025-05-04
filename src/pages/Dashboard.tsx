@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ const Dashboard = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
+  const [dataFetched, setDataFetched] = useState(false); // Track if data has been fetched
 
   useEffect(() => {
     if (!session) {
@@ -36,44 +37,49 @@ const Dashboard = () => {
         description: "Please sign in to access your dashboard",
         variant: "destructive"
       });
-    } else {
+    } else if (!dataFetched) {
+      // Only fetch data once per component mount
       fetchUserContents();
     }
-  }, [session, navigate]);
+  }, [session, navigate, dataFetched]);
 
-  const fetchUserContents = async () => {
+  const fetchUserContents = useCallback(async () => {
+    if (loading && dataFetched) return; // Prevent duplicate fetches
+    
     setLoading(true);
     
     try {
       if (!user) return;
       
-      const { data: publishedData, error: publishedError } = await supabase
-        .from('contents')
-        .select('*')
-        .eq('creator_id', user.id);
+      // Use Promise.all to parallelize requests
+      const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
+        supabase
+          .from('contents')
+          .select('*')
+          .eq('creator_id', user.id),
+          
+        supabase
+          .from('transactions')
+          .select('*, contents(*)')
+          .eq('user_id', user.id),
+          
+        supabase
+          .from('contents')
+          .select('*')
+          .neq('creator_id', user.id)
+          .eq('status', 'published')
+      ]);
         
-      if (publishedError) throw publishedError;
+      if (publishedResult.error) throw publishedResult.error;
+      if (transactionsResult.error) throw transactionsResult.error;
+      if (marketplaceResult.error) throw marketplaceResult.error;
       
-      const { data: transactionsData, error: transactionsError } = await supabase
-        .from('transactions')
-        .select('*, contents(*)')
-        .eq('user_id', user.id);
-        
-      if (transactionsError) throw transactionsError;
+      const purchased = transactionsResult.data?.map(tx => tx.contents).filter(Boolean) || [];
       
-      const purchased = transactionsData?.map(tx => tx.contents) || [];
-      
-      const { data: marketplaceData, error: marketplaceError } = await supabase
-        .from('contents')
-        .select('*')
-        .neq('creator_id', user.id)
-        .eq('status', 'published');
-        
-      if (marketplaceError) throw marketplaceError;
-      
-      setPublishedContents(publishedData || []);
-      setPurchasedContents(purchased.filter(Boolean));
-      setMarketplaceContents(marketplaceData || []);
+      setPublishedContents(publishedResult.data || []);
+      setPurchasedContents(purchased);
+      setMarketplaceContents(marketplaceResult.data || []);
+      setDataFetched(true);
     } catch (error) {
       console.error("Error fetching content:", error);
       toast({
@@ -84,7 +90,7 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast, loading, dataFetched]);
 
   const handleCreateContent = () => {
     navigate('/create');

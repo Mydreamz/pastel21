@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -15,9 +15,16 @@ export const useViewTracking = () => {
   
   // Track last view timestamp to prevent rapid duplicate tracking
   const lastViewTimeRef = useRef<Record<string, number>>({});
+  
+  // Track if interval is set up
+  const isSetupRef = useRef<boolean>(false);
 
   // Process the view queue periodically with reduced frequency
   useEffect(() => {
+    // Prevent multiple interval setups
+    if (isSetupRef.current) return;
+    isSetupRef.current = true;
+    
     const processQueue = async () => {
       if (isProcessingRef.current || queuedViews.current.length === 0) {
         return;
@@ -57,15 +64,19 @@ export const useViewTracking = () => {
       }
     };
 
-    // Reduce the polling frequency to once every 10 seconds
-    const interval = setInterval(processQueue, 10000);
-    return () => clearInterval(interval);
+    // Increase the polling interval to reduce API calls (now every 30 seconds)
+    const interval = setInterval(processQueue, 30000);
+    return () => {
+      clearInterval(interval);
+      isSetupRef.current = false;
+    };
   }, []);
 
   /**
    * Track a content view with throttling to prevent excessive tracking
+   * Memoized with useCallback to prevent re-creation on each render
    */
-  const trackView = (contentId: string, userId?: string) => {
+  const trackView = useCallback((contentId: string, userId?: string) => {
     if (!contentId) return;
     
     // Create a unique key for this view
@@ -89,7 +100,7 @@ export const useViewTracking = () => {
       processedViews.current.add(viewKey);
       console.log(`View queued for tracking: ${contentId}`);
     }
-  };
+  }, []);
 
   return { trackView };
 };

@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,14 +12,15 @@ export const useSecureFileUrl = () => {
   const [secureFileError, setSecureFileError] = useState<string | null>(null);
   const { toast } = useToast();
   
-  // Cache URLs to avoid repeated requests
+  // Cache URLs to avoid repeated requests (persistent across component re-renders)
   const urlCache = useRef<Record<string, string>>({});
+  // Track in-flight requests to prevent duplicate calls
   const pendingRequests = useRef<Record<string, Promise<string | null>>>({});
 
   /**
-   * Function to get secure URL for protected content with caching
+   * Function to get secure URL for protected content with improved caching
    */
-  const getSecureFileUrl = async (contentId: string, filePath: string | undefined, userId?: string) => {
+  const getSecureFileUrl = useCallback(async (contentId: string, filePath: string | undefined, userId?: string) => {
     if (!filePath) {
       console.log("Cannot get secure URL: Missing file path");
       return null;
@@ -43,9 +44,14 @@ export const useSecureFileUrl = () => {
     // Check if there's already a pending request for this URL
     if (pendingRequests.current[cacheKey]) {
       console.log("Using pending request for secure URL");
-      const result = await pendingRequests.current[cacheKey];
-      setSecureFileUrl(result);
-      return result;
+      try {
+        const result = await pendingRequests.current[cacheKey];
+        setSecureFileUrl(result);
+        return result;
+      } catch (err) {
+        console.error("Error resolving pending secure URL request:", err);
+        return null;
+      }
     }
     
     setSecureFileLoading(true);
@@ -99,17 +105,16 @@ export const useSecureFileUrl = () => {
         return null;
       } finally {
         setSecureFileLoading(false);
-        // Remove from pending requests
+        // Remove from pending requests after completion
         delete pendingRequests.current[cacheKey];
       }
     })();
     
-    // Store the promise
+    // Store the promise to prevent duplicate requests
     pendingRequests.current[cacheKey] = requestPromise;
     
-    // Return the promise result
     return requestPromise;
-  };
+  }, [toast]);
 
   return {
     secureFileUrl,

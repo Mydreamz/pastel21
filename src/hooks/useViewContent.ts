@@ -39,8 +39,12 @@ export const useViewContent = (id: string | undefined) => {
   
   const { trackView } = useViewTracking();
 
+  // Cache for the loaded content to prevent duplicate loadings
+  const contentCache = useRef<Record<string, Content>>({});
+
   // Memoize the loadContent function with better state tracking
   const loadContent = useCallback(async (contentId: string) => {
+    // Prevent duplicate loading attempts
     if (!contentId || contentLoadingRef.current || contentLoadedRef.current) {
       return;
     }
@@ -50,6 +54,19 @@ export const useViewContent = (id: string | undefined) => {
       setLoading(true);
       setError(null);
       console.log(`Loading content with ID: ${contentId}`);
+      
+      // Check if content is already in cache
+      if (contentCache.current[contentId]) {
+        console.log("Using cached content data");
+        setContent(contentCache.current[contentId]);
+        contentLoadedRef.current = true;
+        // Track view even when using cached data
+        trackView(contentId, user?.id);
+        
+        // Handle permissions based on cached content
+        handlePermissions(contentCache.current[contentId], contentId);
+        return;
+      }
       
       // Supabase query for the content
       const { data: foundContent, error: contentError } = await supabase
@@ -72,6 +89,10 @@ export const useViewContent = (id: string | undefined) => {
       
       console.log("Content found:", foundContent);
       const mapped = supabaseToContent(foundContent);
+      
+      // Store in cache
+      contentCache.current[contentId] = mapped;
+      
       setContent(mapped);
       contentLoadedRef.current = true;
       
@@ -81,52 +102,8 @@ export const useViewContent = (id: string | undefined) => {
       }
 
       // Handle authentication cases
-      if (user) {
-        // Check if user is creator or has purchased the content
-        const isCreator = mapped.creatorId === user.id;
-        console.log(`User is creator: ${isCreator}`);
-        
-        if (isCreator) {
-          setIsUnlocked(true);
-          
-          // If has file path, get secure URL
-          if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-            await getSecureFileUrl(contentId, mapped.filePath, user.id);
-          }
-        } else if (!transactionCheckedRef.current) {
-          // Check for transactions - use cached result if available
-          transactionCheckedRef.current = true;
-          
-          const userHasTransaction = await checkPurchaseStatus(contentId, user.id);
-          console.log(`User has transaction: ${userHasTransaction}`);
-          
-          if (parseFloat(mapped.price) === 0 || userHasTransaction) {
-            setIsUnlocked(true);
-            
-            // If has file path, get secure URL
-            if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-              await getSecureFileUrl(contentId, mapped.filePath, user.id);
-            }
-          } else if (window.location.pathname.startsWith('/view/')) {
-            // Redirect to preview page if paid content that user hasn't purchased
-            console.log("Redirecting to preview page for unpurchased paid content");
-            navigate(`/preview/${contentId}`);
-          }
-        }
-      } else {
-        // Handle unauthenticated user
-        console.log("User is not authenticated");
-        
-        if (parseFloat(mapped.price) === 0) {
-          // Free content is still unlocked for unauthenticated users
-          console.log("Content is free - unlocking for unauthenticated user");
-          setIsUnlocked(true);
-        } else if (window.location.pathname.startsWith('/view/')) {
-          // Only redirect if we're on the view route and it's paid content
-          console.log("Redirecting unauthenticated user to preview page for paid content");
-          navigate(`/preview/${contentId}`);
-        }
-      }
+      handlePermissions(mapped, contentId);
+      
     } catch (e: any) {
       console.error("Error in loadContent:", e);
       setError(e.message || "Error loading content");
@@ -136,6 +113,45 @@ export const useViewContent = (id: string | undefined) => {
       contentLoadAttemptedRef.current = true;
     }
   }, [user, session, navigate, getSecureFileUrl, checkPurchaseStatus, trackView]);
+
+  // Helper function to handle permissions and secure URLs
+  const handlePermissions = useCallback(async (contentData: Content, contentId: string) => {
+    if (!contentData || !user) return;
+    
+    // Handle authentication cases
+    // Check if user is creator or has purchased the content
+    const isCreator = contentData.creatorId === user.id;
+    console.log(`User is creator: ${isCreator}`);
+    
+    if (isCreator) {
+      setIsUnlocked(true);
+      
+      // If has file path, get secure URL
+      if (contentData.filePath && ['image', 'video', 'audio', 'document'].includes(contentData.contentType)) {
+        await getSecureFileUrl(contentId, contentData.filePath, user.id);
+      }
+    } else if (!transactionCheckedRef.current) {
+      // Check for transactions - use cached result if available
+      transactionCheckedRef.current = true;
+      
+      console.log(`Checking if user ${user.id} has purchased content ${contentId}`);
+      const userHasTransaction = await checkPurchaseStatus(contentId, user.id);
+      console.log(`User has transaction: ${userHasTransaction}`);
+      
+      if (parseFloat(contentData.price) === 0 || userHasTransaction) {
+        setIsUnlocked(true);
+        
+        // If has file path, get secure URL
+        if (contentData.filePath && ['image', 'video', 'audio', 'document'].includes(contentData.contentType)) {
+          await getSecureFileUrl(contentId, contentData.filePath, user.id);
+        }
+      } else if (window.location.pathname.startsWith('/view/')) {
+        // Redirect to preview page if paid content that user hasn't purchased
+        console.log("Redirecting to preview page for unpurchased paid content");
+        navigate(`/preview/${contentId}`);
+      }
+    }
+  }, [user, getSecureFileUrl, checkPurchaseStatus, navigate]);
 
   // Reset refs if id changes
   useEffect(() => {
