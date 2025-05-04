@@ -1,6 +1,8 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { calculateFees } from "@/utils/paymentUtils";
 import { EarningsSummary } from "@/types/transaction";
+import { calculatePendingWithdrawals } from "@/utils/paymentUtils";
 
 export class PaymentDistributionService {
   private static PLATFORM_FEE_PERCENTAGE = 7;
@@ -47,7 +49,7 @@ export class PaymentDistributionService {
 
       console.log(`Processing payment - Amount: ${amount}, Platform fee: ${platformFee}, Creator earnings: ${creatorEarnings}`);
 
-      // Create transaction record with ONLY the essential fields to avoid schema cache issues
+      // Create transaction record with all fields including fee distribution
       try {
         const { data, error } = await supabase
           .from('transactions')
@@ -56,6 +58,9 @@ export class PaymentDistributionService {
             user_id: userId,
             creator_id: creatorId,
             amount: amount.toString(),
+            platform_fee: platformFee.toString(),
+            creator_earnings: creatorEarnings.toString(),
+            status: 'completed',
             timestamp: new Date().toISOString(),
             is_deleted: false
           })
@@ -100,7 +105,7 @@ export class PaymentDistributionService {
         throw new Error("Failed to process payment: " + (insertError.message || "Unknown error"));
       }
 
-      // Attempt to update creator's earnings but don't fail if this fails
+      // Attempt to update creator's earnings, but only add the creator_earnings amount (not the full amount)
       try {
         await this.updateCreatorEarnings(creatorId, creatorEarnings);
       } catch (earningsError) {
