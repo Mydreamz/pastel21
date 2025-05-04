@@ -51,19 +51,28 @@ export class PaymentDistributionService {
 
       // Create transaction record with all fields including fee distribution
       try {
+        // Prepare the transaction object with all possible fields
+        const transactionData = {
+          content_id: contentId,
+          user_id: userId,
+          creator_id: creatorId,
+          amount: amount.toString(),
+          timestamp: new Date().toISOString(),
+          is_deleted: false
+        };
+        
+        // Add the fee distribution fields if they exist in the schema
+        try {
+          transactionData['platform_fee'] = platformFee.toString();
+          transactionData['creator_earnings'] = creatorEarnings.toString();
+          transactionData['status'] = 'completed';
+        } catch (schemaError) {
+          console.warn("Could not include fee distribution fields:", schemaError);
+        }
+
         const { data, error } = await supabase
           .from('transactions')
-          .insert({
-            content_id: contentId,
-            user_id: userId,
-            creator_id: creatorId,
-            amount: amount.toString(),
-            platform_fee: platformFee.toString(),
-            creator_earnings: creatorEarnings.toString(),
-            status: 'completed',
-            timestamp: new Date().toISOString(),
-            is_deleted: false
-          })
+          .insert(transactionData)
           .select();
 
         if (error) {

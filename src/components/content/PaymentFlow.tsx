@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
 import { useAuth } from '@/App';
@@ -30,35 +30,40 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   const [hasCheckedPurchase, setHasCheckedPurchase] = useState(false);
   const [isAlreadyPurchased, setIsAlreadyPurchased] = useState(isPurchased);
   
-  // Check if the user has already purchased this content
-  useEffect(() => {
-    const checkPurchaseStatus = async () => {
-      if (!user || !content?.id) return;
-      
-      try {
-        // Direct query for purchase check
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('id')
-          .eq('content_id', content.id)
-          .eq('user_id', user.id)
-          .eq('is_deleted', false)
-          .limit(1);
-          
-        if (error) {
-          console.error("Error checking purchase status:", error);
-          return;
-        }
-        
-        setIsAlreadyPurchased(data && data.length > 0);
-        setHasCheckedPurchase(true);
-      } catch (e) {
-        console.error("Exception checking purchase status:", e);
-      }
-    };
+  // Check if the user has already purchased this content - using useCallback to prevent extra renders
+  const checkPurchaseStatus = useCallback(async () => {
+    if (!user || !content?.id) return;
     
-    checkPurchaseStatus();
-  }, [user, content?.id, isPurchased]);
+    try {
+      // Direct query for purchase check
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', content.id)
+        .eq('user_id', user.id)
+        .eq('is_deleted', false)
+        .limit(1);
+        
+      if (error) {
+        console.error("Error checking purchase status:", error);
+        return;
+      }
+      
+      const hasPurchased = data && data.length > 0;
+      if (hasPurchased !== isAlreadyPurchased) {
+        setIsAlreadyPurchased(hasPurchased);
+      }
+      setHasCheckedPurchase(true);
+    } catch (e) {
+      console.error("Exception checking purchase status:", e);
+    }
+  }, [user, content?.id, isAlreadyPurchased]);
+  
+  useEffect(() => {
+    if ((user && content?.id) && (!hasCheckedPurchase || isPurchased !== isAlreadyPurchased)) {
+      checkPurchaseStatus();
+    }
+  }, [user, content?.id, isPurchased, isAlreadyPurchased, hasCheckedPurchase, checkPurchaseStatus]);
 
   const handleUnlock = async () => {
     if (isProcessing) {

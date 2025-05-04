@@ -126,7 +126,7 @@ export const useContentTransaction = () => {
       // Purchase successful
       toast({
         title: "Content unlocked",
-        description: `Thank you for your purchase of ₹${parseFloat(content.price).toFixed(2)}. Creator receives ₹${paymentResult.creatorEarnings?.toFixed(2)}.`
+        description: `Thank you for your purchase of ₹${parseFloat(content.price).toFixed(2)}${paymentResult.creatorEarnings ? `. Creator receives ₹${paymentResult.creatorEarnings.toFixed(2)}.` : ''}`
       });
       
       navigate(`/view/${content.id}`);
