@@ -2,12 +2,21 @@
 import { useRef, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Hook for tracking content views with batching, throttling and deduplication
+ */
 export const useViewTracking = () => {
+  // Cache to track which content has been viewed in this session
   const processedViews = useRef<Set<string>>(new Set());
+  
+  // Processing state and queue
   const isProcessingRef = useRef<boolean>(false);
   const queuedViews = useRef<Array<{contentId: string, userId?: string}>>([]);
+  
+  // Track last view timestamp to prevent rapid duplicate tracking
+  const lastViewTimeRef = useRef<Record<string, number>>({});
 
-  // Process the view queue periodically
+  // Process the view queue periodically with reduced frequency
   useEffect(() => {
     const processQueue = async () => {
       if (isProcessingRef.current || queuedViews.current.length === 0) {
@@ -17,10 +26,10 @@ export const useViewTracking = () => {
       isProcessingRef.current = true;
       
       try {
-        // Take up to 5 views at a time
-        const batch = queuedViews.current.splice(0, 5);
+        // Take up to 10 views at a time to reduce number of requests
+        const batch = queuedViews.current.splice(0, 10);
         
-        // Group by contentId to reduce number of requests
+        // Group by contentId to deduplicate requests
         const groupedViews = batch.reduce((acc, curr) => {
           const key = `${curr.contentId}-${curr.userId || 'anonymous'}`;
           if (!acc[key]) {
@@ -29,14 +38,18 @@ export const useViewTracking = () => {
           return acc;
         }, {} as Record<string, {contentId: string, userId?: string}>);
         
-        // Process each unique view
-        await Promise.all(Object.values(groupedViews).map(async view => {
-          await supabase.from('content_views').insert([{
-            content_id: view.contentId,
-            user_id: view.userId || null,
-            timestamp: new Date().toISOString()
-          }]);
+        // Create a single batch insert for all views
+        const viewsToInsert = Object.values(groupedViews).map(view => ({
+          content_id: view.contentId,
+          user_id: view.userId || null,
+          timestamp: new Date().toISOString()
         }));
+        
+        // Only make the API call if there are views to insert
+        if (viewsToInsert.length > 0) {
+          await supabase.from('content_views').insert(viewsToInsert);
+          console.log(`Tracked ${viewsToInsert.length} content views in batch`);
+        }
       } catch (error) {
         console.error("Error processing view queue:", error);
       } finally {
@@ -44,18 +57,37 @@ export const useViewTracking = () => {
       }
     };
 
-    const interval = setInterval(processQueue, 5000);
+    // Reduce the polling frequency to once every 10 seconds
+    const interval = setInterval(processQueue, 10000);
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * Track a content view with throttling to prevent excessive tracking
+   */
   const trackView = (contentId: string, userId?: string) => {
+    if (!contentId) return;
+    
     // Create a unique key for this view
     const viewKey = `${contentId}-${userId || 'anonymous'}`;
+    
+    // Get current time
+    const now = Date.now();
+    
+    // Implement throttling - only track once every 5 minutes for the same content/user
+    const lastViewTime = lastViewTimeRef.current[viewKey] || 0;
+    if (now - lastViewTime < 5 * 60 * 1000) {
+      return; // Skip if viewed recently
+    }
+    
+    // Update last view time
+    lastViewTimeRef.current[viewKey] = now;
     
     // Only queue if not already processed in this session
     if (!processedViews.current.has(viewKey)) {
       queuedViews.current.push({ contentId, userId });
       processedViews.current.add(viewKey);
+      console.log(`View queued for tracking: ${contentId}`);
     }
   };
 

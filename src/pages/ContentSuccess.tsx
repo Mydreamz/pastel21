@@ -1,16 +1,26 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Edit, Eye } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import ContentActions from '@/components/content/ContentActions';
+
 const ContentSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const content = location.state?.content;
+  
+  // Use effect for navigation instead of triggering it during render
+  useEffect(() => {
+    if (!content) {
+      navigate('/', { replace: true });
+    }
+  }, [content, navigate]);
+  
+  // Early return if no content, the useEffect will handle navigation
   if (!content) {
-    navigate('/');
     return null;
   }
 
@@ -18,9 +28,8 @@ const ContentSuccess = () => {
   const shareUrl = `${window.location.origin}/view/${content.id}`;
   const contentTitle = content.title;
 
-  // Debug the content object to ensure we have all necessary data
-  console.log("Content data in ContentSuccess:", content);
-  return <div className="min-h-screen flex flex-col antialiased text-white relative">
+  return (
+    <div className="min-h-screen flex flex-col antialiased text-white relative">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.05] z-0"></div>
       
@@ -48,17 +57,28 @@ const ContentSuccess = () => {
             <div className="flex flex-col items-center mt-6 mb-6">
               <h3 className="text-lg font-semibold mb-3 text-gray-800">Share your content</h3>
               <div className="w-full flex justify-center">
-                <ContentActions onShare={() => {}} // No-op; handled inside ContentActions
-              shareUrl={shareUrl} contentTitle={contentTitle} contentId={content.id} isCreator={true} />
+                <ContentActions 
+                  shareUrl={shareUrl} 
+                  contentTitle={contentTitle} 
+                  contentId={content.id} 
+                  isCreator={true}
+                  onShare={() => {}} // No-op; handled inside ContentActions
+                />
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <Button onClick={() => navigate(`/edit/${content.id}`)} className="text-white bg-pastel-700 hover:bg-pastel-600">
+              <Button 
+                onClick={() => navigate(`/edit/${content.id}`)} 
+                className="text-white bg-pastel-700 hover:bg-pastel-600"
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Content
               </Button>
-              <Button onClick={() => navigate(`/view/${content.id}`)} className="text-white bg-pastel-800 hover:bg-pastel-700">
+              <Button 
+                onClick={() => navigate(`/view/${content.id}`)} 
+                className="text-white bg-pastel-800 hover:bg-pastel-700"
+              >
                 <Eye className="mr-2 h-4 w-4" />
                 View Content
               </Button>
@@ -66,6 +86,8 @@ const ContentSuccess = () => {
           </CardContent>
         </Card>
       </div>
-    </div>;
+    </div>
+  );
 };
-export default ContentSuccess;
+
+export default React.memo(ContentSuccess);

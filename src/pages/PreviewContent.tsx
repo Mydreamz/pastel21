@@ -1,37 +1,32 @@
-
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentPreview from '@/components/ContentPreview';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
-import LockedContent from '@/components/content/LockedContent';
 import ContentActions from '@/components/content/ContentActions';
 import { useViewContent } from '@/hooks/useViewContent';
+import { useContentSharing } from '@/hooks/useContentSharing';
 import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { useContentSharing } from '@/hooks/useContentSharing';
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const { content, loading, error, handleUnlock, isProcessing: unlockProcessing } = useViewContent(id);
+  const { 
+    content, 
+    loading, 
+    error, 
+    handleUnlock, 
+    isProcessing: unlockProcessing 
+  } = useViewContent(id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
-
-  // Memoize content info to prevent unnecessary re-renders
-  const contentInfo = useMemo(() => ({
-    id,
-    title: content?.title,
-    price: content?.price,
-    teaser: content?.teaser,
-    contentType: content?.contentType
-  }), [id, content?.title, content?.price, content?.teaser, content?.contentType]);
 
   // Check authentication status once
   useEffect(() => {
@@ -55,9 +50,9 @@ const PreviewContent = () => {
     }
   }, [content, initializeShareUrl]);
 
-  // Load related content when content is available and only once
+  // Load related content only once when content is available
   useEffect(() => {
-    if (content?.id) {
+    if (content?.id && !relatedContent.length) {
       try {
         const contents = JSON.parse(localStorage.getItem('contents') || '[]');
         const related = contents
@@ -72,7 +67,7 @@ const PreviewContent = () => {
         console.error("Error loading related content", e);
       }
     }
-  }, [content?.id, content?.creatorId, content?.contentType, id]);
+  }, [content?.id, content?.creatorId, content?.contentType, id, relatedContent.length]);
 
   // Memoize handlers to prevent recreating functions on every render
   const handleSuccessfulPayment = useCallback(() => {
@@ -91,7 +86,6 @@ const PreviewContent = () => {
     
     if (handleUnlock) {
       handleUnlock();
-      // Navigation will happen in the useViewContent hook if purchase successful
     }
   }, [isAuthenticated, toast, handleUnlock]);
 
@@ -121,6 +115,15 @@ const PreviewContent = () => {
         return <FileText className="h-5 w-5 text-blue-400" />;
     }
   }, [content?.contentType]);
+
+  // Memoize content info to prevent unnecessary re-renders
+  const contentInfo = useMemo(() => ({
+    id,
+    title: content?.title,
+    price: content?.price,
+    teaser: content?.teaser,
+    contentType: content?.contentType
+  }), [id, content?.title, content?.price, content?.teaser, content?.contentType]);
 
   // Memoize related content components to prevent re-rendering
   const relatedContentItems = useMemo(() => {
@@ -219,23 +222,6 @@ const PreviewContent = () => {
             <h3 className="text-lg font-semibold text-emerald-400 mb-2">Premium Content</h3>
             <p className="text-gray-300 mb-4">{getContentPreview()}</p>
             
-            <LockedContent 
-              price={content.price}
-              onUnlock={handlePurchase}
-              contentTitle={content.title}
-              isProcessing={unlockProcessing}
-            />
-          </div>
-          
-          <ContentActions
-            onShare={handleShare}
-            shareUrl={shareUrl}
-            contentTitle={content.title}
-            contentId={content.id} 
-            isCreator={false}
-          />
-          
-          <div className="mt-8">
             <ContentPreview
               title={content.title}
               teaser={content.teaser}
@@ -246,6 +232,14 @@ const PreviewContent = () => {
               onPurchase={handlePurchase}
             />
           </div>
+          
+          <ContentActions
+            onShare={handleShare}
+            shareUrl={shareUrl}
+            contentTitle={content.title}
+            contentId={content.id} 
+            isCreator={false}
+          />
           
           {/* Related Content Section */}
           {relatedContent.length > 0 && (
@@ -262,5 +256,4 @@ const PreviewContent = () => {
   );
 };
 
-// Use memo to prevent unnecessary re-renders
-export default PreviewContent;
+export default React.memo(PreviewContent);

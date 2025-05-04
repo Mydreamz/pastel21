@@ -7,6 +7,7 @@ import { useAuth } from '@/App';
 import { useSecureFileUrl } from './content/useSecureFileUrl';
 import { supabaseToContent } from './content/useContentMapping';
 import { useContentTransaction } from './content/useContentTransaction';
+import { useViewTracking } from './useViewTracking';
 
 export const useViewContent = (id: string | undefined) => {
   const navigate = useNavigate();
@@ -15,6 +16,12 @@ export const useViewContent = (id: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const { user, session } = useAuth();
+  
+  // Track content loading state to prevent duplicate calls
+  const contentLoadingRef = useRef(false);
+  const contentLoadAttemptedRef = useRef(false);
+  const contentLoadedRef = useRef(false);
+  const transactionCheckedRef = useRef(false);
   
   // Import sub-hooks
   const { 
@@ -26,33 +33,29 @@ export const useViewContent = (id: string | undefined) => {
   
   const {
     isProcessing,
-    handleContentPurchase
+    handleContentPurchase,
+    checkPurchaseStatus
   } = useContentTransaction();
+  
+  const { trackView } = useViewTracking();
 
-  // Track if content is already loaded to prevent duplicate loading
-  const contentLoadedRef = useRef(false);
-  const transactionCheckedRef = useRef(false);
-
-  // Memoize the loadContent function to prevent recreating on every render
-  const loadContent = useCallback(async () => {
-    if (!id || contentLoadedRef.current) {
-      if (!id) {
-        setError("No content ID provided");
-        setLoading(false);
-      }
+  // Memoize the loadContent function with better state tracking
+  const loadContent = useCallback(async (contentId: string) => {
+    if (!contentId || contentLoadingRef.current || contentLoadedRef.current) {
       return;
     }
 
     try {
+      contentLoadingRef.current = true;
       setLoading(true);
       setError(null);
-      console.log(`Loading content with ID: ${id}`);
+      console.log(`Loading content with ID: ${contentId}`);
       
       // Supabase query for the content
       const { data: foundContent, error: contentError } = await supabase
         .from('contents')
         .select('*')
-        .eq('id', id)
+        .eq('id', contentId)
         .maybeSingle();
 
       if (contentError) {
@@ -61,7 +64,7 @@ export const useViewContent = (id: string | undefined) => {
       }
 
       if (!foundContent) {
-        console.error(`Content with ID ${id} not found`);
+        console.error(`Content with ID ${contentId} not found`);
         setError("Content not found");
         setContent(null);
         return;
@@ -71,6 +74,11 @@ export const useViewContent = (id: string | undefined) => {
       const mapped = supabaseToContent(foundContent);
       setContent(mapped);
       contentLoadedRef.current = true;
+      
+      // Track the content view only once when content is first loaded
+      if (mapped) {
+        trackView(contentId, user?.id);
+      }
 
       // Handle authentication cases
       if (user) {
@@ -83,26 +91,13 @@ export const useViewContent = (id: string | undefined) => {
           
           // If has file path, get secure URL
           if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-            console.log(`Getting secure URL for creator's content, file path: ${mapped.filePath}`);
-            await getSecureFileUrl(id, mapped.filePath, user.id);
+            await getSecureFileUrl(contentId, mapped.filePath, user.id);
           }
         } else if (!transactionCheckedRef.current) {
-          // Check for transactions - use a single DB query
+          // Check for transactions - use cached result if available
           transactionCheckedRef.current = true;
-          console.log(`Checking if user ${user.id} has purchased content ${id}`);
-          const { data: transactions, error: txError } = await supabase
-            .from('transactions')
-            .select('id')
-            .eq('content_id', id)
-            .eq('user_id', user.id)
-            .eq('is_deleted', false)
-            .limit(1);
-
-          if (txError) {
-            console.error("Error checking transactions:", txError);
-          }
-
-          const userHasTransaction = (transactions && transactions.length > 0);
+          
+          const userHasTransaction = await checkPurchaseStatus(contentId, user.id);
           console.log(`User has transaction: ${userHasTransaction}`);
           
           if (parseFloat(mapped.price) === 0 || userHasTransaction) {
@@ -110,13 +105,12 @@ export const useViewContent = (id: string | undefined) => {
             
             // If has file path, get secure URL
             if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-              console.log(`Getting secure URL for purchased content, file path: ${mapped.filePath}`);
-              await getSecureFileUrl(id, mapped.filePath, user.id);
+              await getSecureFileUrl(contentId, mapped.filePath, user.id);
             }
           } else if (window.location.pathname.startsWith('/view/')) {
             // Redirect to preview page if paid content that user hasn't purchased
             console.log("Redirecting to preview page for unpurchased paid content");
-            navigate(`/preview/${id}`);
+            navigate(`/preview/${contentId}`);
           }
         }
       } else {
@@ -130,7 +124,7 @@ export const useViewContent = (id: string | undefined) => {
         } else if (window.location.pathname.startsWith('/view/')) {
           // Only redirect if we're on the view route and it's paid content
           console.log("Redirecting unauthenticated user to preview page for paid content");
-          navigate(`/preview/${id}`);
+          navigate(`/preview/${contentId}`);
         }
       }
     } catch (e: any) {
@@ -138,21 +132,29 @@ export const useViewContent = (id: string | undefined) => {
       setError(e.message || "Error loading content");
     } finally {
       setLoading(false);
+      contentLoadingRef.current = false;
+      contentLoadAttemptedRef.current = true;
     }
-  }, [id, user, session, navigate, getSecureFileUrl]);
+  }, [user, session, navigate, getSecureFileUrl, checkPurchaseStatus, trackView]);
 
   // Reset refs if id changes
   useEffect(() => {
     contentLoadedRef.current = false;
+    contentLoadAttemptedRef.current = false;
     transactionCheckedRef.current = false;
+    contentLoadingRef.current = false;
+    
+    setContent(null);
+    setIsUnlocked(false);
+    setError(null);
   }, [id]);
 
-  // Fetch content on initial load and when dependencies change
+  // Fetch content only once on initial load with proper dependency tracking
   useEffect(() => {
-    if (!contentLoadedRef.current) {
-      loadContent();
+    if (id && !contentLoadAttemptedRef.current) {
+      loadContent(id);
     }
-  }, [loadContent]);
+  }, [id, loadContent]);
 
   const handleUnlock = async () => {
     if (!session || !user) {
