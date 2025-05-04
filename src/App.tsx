@@ -8,6 +8,7 @@ import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ContentCacheProvider } from "@/contexts/ContentCacheContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import CreateContent from "./pages/CreateContent";
@@ -26,6 +27,8 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      // Add stale time to reduce redundant refetches
+      staleTime: 60000, // 1 minute
     },
   },
 });
@@ -113,61 +116,63 @@ const App = () => {
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <ThemeProvider>
-            <NotificationProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<HomePageRoute />} />
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/create" element={
-                    <ProtectedRoute>
-                      <CreateContent />
-                    </ProtectedRoute>
-                  } />
-                  {/* Make view and preview routes public */}
-                  <Route path="/view/:id" element={<ViewContent />} />
-                  <Route path="/preview/:id" element={<PreviewContent />} />
-                  <Route path="/edit/:id" element={
-                    <ProtectedRoute>
-                      <EditContent />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/success" element={
-                    <ProtectedRoute>
-                      <ContentSuccess />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/search" element={
-                    <ProtectedRoute>
-                      <Search />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/marketplace" element={
-                    <ProtectedRoute>
-                      <Marketplace />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
-            </NotificationProvider>
-          </ThemeProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
+      <ContentCacheProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <ThemeProvider>
+              <NotificationProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<HomePageRoute />} />
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/create" element={
+                      <ProtectedRoute>
+                        <CreateContent />
+                      </ProtectedRoute>
+                    } />
+                    {/* Make view and preview routes public */}
+                    <Route path="/view/:id" element={<ViewContent />} />
+                    <Route path="/preview/:id" element={<PreviewContent />} />
+                    <Route path="/edit/:id" element={
+                      <ProtectedRoute>
+                        <EditContent />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/success" element={
+                      <ProtectedRoute>
+                        <ContentSuccess />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/search" element={
+                      <ProtectedRoute>
+                        <Search />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/marketplace" element={
+                      <ProtectedRoute>
+                        <Marketplace />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
+              </NotificationProvider>
+            </ThemeProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ContentCacheProvider>
     </AuthProvider>
   );
 };

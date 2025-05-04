@@ -6,6 +6,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Content } from '@/types/content';
 import { PaymentDistributionService } from '@/services/PaymentDistributionService';
+import { useContentCache } from '@/contexts/ContentCacheContext';
 
 /**
  * Hook for handling content transactions (purchases) with improved caching and deduplication
@@ -15,6 +16,7 @@ export const useContentTransaction = () => {
   const { toast } = useToast();
   const { addNotification } = useNotifications();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { checkPurchaseStatus, setPurchasedContentId } = useContentCache();
   
   // Use a ref to track processed transaction IDs to avoid duplicate processing
   const processedTransactionIdsRef = useRef<Set<string>>(new Set());
@@ -22,73 +24,6 @@ export const useContentTransaction = () => {
   // Track in-flight requests to prevent duplicate calls
   const pendingRequestsRef = useRef<Record<string, Promise<boolean>>>({});
 
-  /**
-   * Cache for purchase status to avoid repeated database queries
-   */
-  const purchaseCache = useRef<Record<string, boolean>>({});
-  
-  /**
-   * Check if a user has purchased a specific content
-   * Use cache for repeated checks on the same content
-   */
-  const checkPurchaseStatus = useCallback(async (contentId: string, userId: string): Promise<boolean> => {
-    if (!contentId || !userId) return false;
-    
-    // Generate a unique key for this content/user pair
-    const cacheKey = `${contentId}-${userId}`;
-    
-    // Check cache first
-    if (purchaseCache.current[cacheKey] !== undefined) {
-      return purchaseCache.current[cacheKey];
-    }
-    
-    // Check if there's already a request in flight for this check
-    if (pendingRequestsRef.current[`check-${cacheKey}`]) {
-      try {
-        return await pendingRequestsRef.current[`check-${cacheKey}`];
-      } catch (err) {
-        console.error("Error in pending purchase check:", err);
-        return false;
-      }
-    }
-    
-    // Create a new promise for this request
-    const checkPromise = (async () => {
-      try {
-        // Direct query approach - simpler and more reliable
-        const { data: transactions, error } = await supabase
-          .from('transactions')
-          .select('id')
-          .eq('content_id', contentId)
-          .eq('user_id', userId)
-          .eq('is_deleted', false)
-          .limit(1);
-        
-        if (error) {
-          console.error("Error checking purchase status:", error);
-          return false;
-        }
-        
-        const result = transactions && transactions.length > 0;
-        
-        // Store in cache
-        purchaseCache.current[cacheKey] = result;
-        return result;
-      } catch (err) {
-        console.error("Error checking purchase status:", err);
-        return false;
-      } finally {
-        // Remove from pending requests
-        delete pendingRequestsRef.current[`check-${cacheKey}`];
-      }
-    })();
-    
-    // Store the promise
-    pendingRequestsRef.current[`check-${cacheKey}`] = checkPromise;
-    
-    return checkPromise;
-  }, []);
-  
   /**
    * Handle content purchase/unlock with debouncing to prevent multiple calls
    */
@@ -142,7 +77,7 @@ export const useContentTransaction = () => {
       try {
         console.log(`Starting purchase process for content ${content.id} by user ${userId}`);
         
-        // Check if already purchased
+        // Check if already purchased - reuse the centralized check
         const alreadyPurchased = await checkPurchaseStatus(content.id, userId);
         if (alreadyPurchased) {
           console.log("Content already purchased, skipping transaction");
@@ -151,9 +86,6 @@ export const useContentTransaction = () => {
             description: "You've already purchased this content",
             variant: "default"
           });
-          
-          // Update cache
-          purchaseCache.current[`${content.id}-${userId}`] = true;
           
           navigate(`/view/${content.id}`);
           return true;
@@ -177,8 +109,8 @@ export const useContentTransaction = () => {
               description: "You already own this content. It has been unlocked for viewing."
             });
             
-            // Update cache
-            purchaseCache.current[`${content.id}-${userId}`] = true;
+            // Update centralized purchase cache
+            setPurchasedContentId(content.id);
             navigate(`/view/${content.id}`);
             return true;
           }
@@ -186,8 +118,8 @@ export const useContentTransaction = () => {
           throw new Error(paymentResult.error || "Failed to process payment");
         }
         
-        // Purchase successful - update cache
-        purchaseCache.current[`${content.id}-${userId}`] = true;
+        // Update centralized purchase cache
+        setPurchasedContentId(content.id);
         
         // Purchase successful
         toast({
@@ -217,8 +149,8 @@ export const useContentTransaction = () => {
           if (finalCheck) {
             console.log("Final check shows purchase succeeded despite errors");
             
-            // Update cache
-            purchaseCache.current[`${content.id}-${userId}`] = true;
+            // Update centralized purchase cache
+            setPurchasedContentId(content.id);
             
             toast({
               title: "Content unlocked",
@@ -253,11 +185,10 @@ export const useContentTransaction = () => {
     pendingRequestsRef.current[`purchase-${transactionId}`] = purchasePromise;
     
     return purchasePromise;
-  }, [isProcessing, navigate, toast, addNotification, checkPurchaseStatus]);
+  }, [isProcessing, navigate, toast, addNotification, checkPurchaseStatus, setPurchasedContentId]);
 
   return {
     isProcessing,
-    checkPurchaseStatus,
     handleContentPurchase
   };
 };

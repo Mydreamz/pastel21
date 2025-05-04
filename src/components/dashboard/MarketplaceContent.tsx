@@ -1,10 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Store, Check } from 'lucide-react';
 import ContentCard from './ContentCard';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';  // Fixed import
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
+import { useContentCache } from '@/contexts/ContentCacheContext';
 
 interface MarketplaceContentProps {
   contents: any[];
@@ -20,39 +21,28 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   searchQuery
 }) => {
   const { user } = useAuth();
-  const [purchasedContentIds, setPurchasedContentIds] = useState<string[]>([]);
+  const { purchasedContentIds } = useContentCache();
   
-  // Fetch purchased content IDs when user is logged in
-  useEffect(() => {
-    const fetchPurchasedContent = async () => {
-      if (!user) {
-        setPurchasedContentIds([]);
-        return;
-      }
+  // Filter logic now uses memoization to avoid unnecessary re-filters
+  const filteredContents = React.useMemo(() => {
+    return contents.filter(content => {
+      const isPaid = parseFloat(content.price) > 0;
+      const matchesSearch = searchQuery ? 
+        (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+         content.teaser?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+         content.creator_name?.toLowerCase().includes(searchQuery.toLowerCase())) 
+        : true;
       
-      try {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select('content_id')
-          .eq('user_id', user.id)
-          .eq('is_deleted', false);
-          
-        if (error) {
-          console.error('Error fetching purchased content:', error);
-          return;
-        }
+      if (filters.length === 0) return matchesSearch;
+      
+      const matchesPriceFilter = 
+        (filters.includes('Free') && !isPaid) ||
+        (filters.includes('Paid') && isPaid);
         
-        // Extract content IDs from transactions
-        const contentIds = data.map(item => item.content_id);
-        setPurchasedContentIds(contentIds);
-      } catch (err) {
-        console.error('Error in fetching purchased content:', err);
-      }
-    };
-    
-    fetchPurchasedContent();
-  }, [user]);
-
+      return matchesPriceFilter && matchesSearch;
+    });
+  }, [contents, filters, searchQuery]);
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -71,23 +61,6 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
     );
   }
   
-  const filteredContents = contents.filter(content => {
-    const isPaid = parseFloat(content.price) > 0;
-    const matchesSearch = searchQuery ? 
-      (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-       content.teaser?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       content.creator_name?.toLowerCase().includes(searchQuery.toLowerCase())) 
-      : true;
-    
-    if (filters.length === 0) return matchesSearch;
-    
-    const matchesPriceFilter = 
-      (filters.includes('Free') && !isPaid) ||
-      (filters.includes('Paid') && isPaid);
-      
-    return matchesPriceFilter && matchesSearch;
-  });
-  
   if (filteredContents.length === 0) {
     return (
       <div className="text-center py-8">
@@ -100,7 +73,7 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {filteredContents.map((content) => (
         <div key={content.id} className="relative">
-          {purchasedContentIds.includes(content.id) && (
+          {purchasedContentIds.has(content.id) && (
             <Badge 
               className="absolute top-2 right-2 z-10 bg-pastel-500 text-white flex items-center gap-1 px-2 py-1"
             >

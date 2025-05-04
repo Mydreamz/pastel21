@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,10 @@ import MarketplaceContent from '@/components/dashboard/MarketplaceContent';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import { useContentCache } from '@/contexts/ContentCacheContext';
+
+// Number of contents to load per page
+const PAGE_SIZE = 12;
 
 const Marketplace = () => {
   const navigate = useNavigate();
@@ -17,27 +22,54 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
   const [contents, setContents] = React.useState<any[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const { user } = useAuth();
+  const { purchasedContentIds } = useContentCache();
   
-  React.useEffect(() => {
-    const fetchMarketplaceContents = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('contents')
-          .select('*')
-          .eq('status', 'published');
-          
-        if (error) throw error;
+  // Memoized function to fetch marketplace contents efficiently
+  const fetchMarketplaceContents = useCallback(async (pageNumber: number) => {
+    try {
+      setLoading(true);
+      
+      // Query for marketplace contents with pagination
+      const { data, error } = await supabase
+        .from('contents')
+        .select('id, title, teaser, price, content_type, creator_id, creator_name, status, file_url')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .range(pageNumber * PAGE_SIZE, (pageNumber + 1) * PAGE_SIZE - 1);
+        
+      if (error) throw error;
+      
+      if (pageNumber === 0) {
+        // First page, replace contents
         setContents(data || []);
-      } catch (error) {
-        console.error('Error fetching marketplace contents:', error);
-      } finally {
-        setLoading(false);
+      } else {
+        // Subsequent pages, append contents
+        setContents(prev => [...prev, ...(data || [])]);
       }
-    };
-    
-    fetchMarketplaceContents();
+      
+      // If we got fewer items than requested, we've reached the end
+      setHasMore(data && data.length === PAGE_SIZE);
+    } catch (error) {
+      console.error('Error fetching marketplace contents:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Fetch initial data
+  useEffect(() => {
+    fetchMarketplaceContents(0);
+  }, [fetchMarketplaceContents]);
+  
+  // Load more contents when user clicks the load more button
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchMarketplaceContents(nextPage);
+  };
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
@@ -73,6 +105,18 @@ const Marketplace = () => {
                 filters={filters}
                 searchQuery={searchQuery}
               />
+              
+              {hasMore && !loading && (
+                <div className="flex justify-center mt-6">
+                  <Button 
+                    onClick={loadMore} 
+                    variant="outline"
+                    className="border-pastel-300 text-pastel-700 hover:bg-pastel-50"
+                  >
+                    Load More
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
