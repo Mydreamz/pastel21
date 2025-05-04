@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import DeleteContentDialog from './DeleteContentDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+
 interface ContentActionsProps {
   onShare: () => void;
   shareUrl: string;
@@ -14,6 +15,7 @@ interface ContentActionsProps {
   isCreator: boolean;
   children?: React.ReactNode;
 }
+
 const ContentActions = ({
   onShare,
   shareUrl,
@@ -22,12 +24,11 @@ const ContentActions = ({
   isCreator,
   children
 }: ContentActionsProps) => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [copying, setCopying] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   const handleCopyLink = async () => {
     try {
       setCopying(true);
@@ -46,16 +47,48 @@ const ContentActions = ({
       setCopying(false);
     }
   };
+
   const handleDelete = async () => {
     try {
-      const {
-        error
-      } = await supabase.from('contents').delete().eq('id', contentId);
-      if (error) throw error;
-      toast({
-        title: "Content deleted",
-        description: "Your content has been permanently deleted"
-      });
+      // First, check if there are any transactions related to this content
+      const { data: transactionData, error: transactionError } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', contentId)
+        .limit(1);
+      
+      if (transactionError) {
+        console.error('Error checking for transactions:', transactionError);
+      }
+      
+      // If there are transactions, mark content as deleted instead of actually deleting it
+      if (transactionData && transactionData.length > 0) {
+        const { error } = await supabase
+          .from('contents')
+          .update({ is_deleted: true })
+          .eq('id', contentId);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Content archived",
+          description: "Your content has been archived as it has associated transactions"
+        });
+      } else {
+        // If no transactions exist, we can safely delete the content
+        const { error } = await supabase
+          .from('contents')
+          .delete()
+          .eq('id', contentId);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Content deleted",
+          description: "Your content has been permanently deleted"
+        });
+      }
+      
       navigate('/profile');
     } catch (error: any) {
       console.error('Error deleting content:', error);
@@ -66,6 +99,7 @@ const ContentActions = ({
       });
     }
   };
+
   const shareToTwitter = () => {
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Check out "${contentTitle}" ${shareUrl}`)}`, '_blank');
   };
@@ -90,6 +124,7 @@ const ContentActions = ({
       description: "Link copied! You can now paste it in your Instagram story or message"
     });
   };
+
   return <>
       <div className="mt-4 flex justify-end gap-2">
         <DropdownMenu>
@@ -141,4 +176,5 @@ const ContentActions = ({
       <DeleteContentDialog isOpen={showDeleteDialog} onClose={() => setShowDeleteDialog(false)} onConfirm={handleDelete} contentTitle={contentTitle} />
     </>;
 };
+
 export default ContentActions;
