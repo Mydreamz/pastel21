@@ -102,33 +102,35 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
   if (!userId) return 0;
   
   try {
-    // First try using a custom query for database function (not typesafe but works)
+    // First try using a custom RPC call for get_pending_withdrawals
+    // This is safely outside the type system to avoid TypeScript errors
     try {
-      // Using a raw query to call the RPC function since it's not in TypeScript definitions yet
-      const { data: rpcResult, error: rpcError } = await supabase
-        .from('withdrawal_requests')
-        .select()
-        .filter('id', 'eq', 'get_pending_withdrawals_result')
-        .limit(1)
-        .then(() => {
-          // This is a workaround to trick TypeScript - we're actually using the 
-          // query builder to prepare headers for a custom fetch call
-          const headers = (supabase as any).headers;
-          const url = `${(supabase as any).supabaseUrl}/rest/v1/rpc/get_pending_withdrawals`;
-          
-          return fetch(url, {
-            method: 'POST',
-            headers: {
-              ...headers,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ user_id_param: userId })
-          }).then(res => res.json());
-        })
-        .catch(e => ({ error: e, data: null }));
+      const session = await supabase.auth.getSession();
+      const authToken = session.data.session?.access_token;
       
-      if (!rpcError && rpcResult) {
-        const pendingAmount = parseFloat(String(rpcResult));
+      if (!authToken) {
+        console.warn("No auth token available for RPC call");
+        throw new Error("No auth token");
+      }
+      
+      const supabaseUrl = (supabase as any).supabaseUrl || "https://pdlqxpckrxrsfyuknsjg.supabase.co";
+      const supabaseKey = (supabase as any).supabaseKey;
+      
+      // Call the RPC function directly (outside the TypeScript type system)
+      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/get_pending_withdrawals`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'apikey': supabaseKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ user_id_param: userId })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        const pendingAmount = parseFloat(String(result));
         if (!isNaN(pendingAmount)) {
           return pendingAmount;
         }
@@ -173,11 +175,14 @@ export const calculatePendingWithdrawals = async (userId: string): Promise<numbe
     }
 
     // Use the Supabase REST API directly to avoid TypeScript errors
-    const apiUrl = `${(supabase as any).supabaseUrl}/rest/v1/withdrawal_requests`;
+    const supabaseUrl = (supabase as any).supabaseUrl || "https://pdlqxpckrxrsfyuknsjg.supabase.co";
+    const supabaseKey = (supabase as any).supabaseKey;
+    
+    const apiUrl = `${supabaseUrl}/rest/v1/withdrawal_requests`;
     const response = await fetch(`${apiUrl}?user_id=eq.${userId}&status=in.(pending,processing)&select=amount`, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
-        'apikey': (supabase as any).supabaseKey,
+        'apikey': supabaseKey,
         'Content-Type': 'application/json'
       }
     });
