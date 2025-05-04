@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Define a ProfileData type to use throughout the application
 export interface ProfileData {
@@ -25,78 +25,78 @@ export const useProfileData = () => {
   const [balance, setBalance] = useState(0);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [fetchedData, setFetchedData] = useState(false);
+
+  // Use a memoized fetchUserData function to prevent multiple re-renders
+  const fetchUserData = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoadingData(true);
+      
+      // Get user contents from Supabase
+      const { data: contents, error: contentsError } = await supabase
+        .from('contents')
+        .select('*')
+        .eq('creator_id', user.id);
+        
+      if (contentsError) throw contentsError;
+      setUserContents(contents || []);
+
+      // Calculate balance from unlocked content (transactions)
+      const { data: transactions, error: transactionsError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('creator_id', user.id);
+        
+      if (transactionsError) throw transactionsError;
+
+      const userEarnings = (transactions || [])
+        .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
+
+      setBalance(userEarnings);
+      
+      // Fetch user profile data using Edge Function
+      if (user.id && session?.access_token) {
+        try {
+          // Call the get-profile Edge Function with auth token
+          const { data, error } = await supabase.functions.invoke('get-profile', {
+            body: { action: 'get' },
+            headers: {
+              Authorization: `Bearer ${session.access_token}`
+            }
+          });
+          
+          if (error) {
+            console.error("Error calling get-profile function:", error);
+          } else if (data?.data) {
+            setProfileData(data.data as ProfileData);
+          }
+        } catch (profileError) {
+          console.error("Error in profile fetch:", profileError);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching user data:", e);
+      toast({
+        title: "Error loading profile data",
+        description: "Failed to load your profile information",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingData(false);
+      setFetchedData(true);
+    }
+  }, [user, session, toast]);
 
   useEffect(() => {
-    // Get user contents and transactions only if user is authenticated
-    const fetchUserData = async () => {
-      if (!user) return;
-      
-      try {
-        setIsLoadingData(true);
-        
-        // Get user contents from Supabase
-        const { data: contents, error: contentsError } = await supabase
-          .from('contents')
-          .select('*')
-          .eq('creator_id', user.id);
-          
-        if (contentsError) throw contentsError;
-        setUserContents(contents || []);
-
-        // Calculate balance from unlocked content (transactions)
-        const { data: transactions, error: transactionsError } = await supabase
-          .from('transactions')
-          .select('*')
-          .eq('creator_id', user.id);
-          
-        if (transactionsError) throw transactionsError;
-
-        const userEarnings = (transactions || [])
-          .reduce((sum: number, tx: any) => sum + parseFloat(tx.amount), 0);
-
-        setBalance(userEarnings);
-        
-        // Fetch user profile data using Edge Function
-        if (user.id) {
-          try {
-            // Call the get-profile Edge Function with auth token
-            const { data, error } = await supabase.functions.invoke('get-profile', {
-              body: { action: 'get' },
-              headers: {
-                Authorization: `Bearer ${session?.access_token}`
-              }
-            });
-            
-            if (error) {
-              console.error("Error calling get-profile function:", error);
-            } else if (data?.data) {
-              setProfileData(data.data as ProfileData);
-            }
-          } catch (profileError) {
-            console.error("Error in profile fetch:", profileError);
-          }
-        }
-      } catch (e) {
-        console.error("Error fetching user data:", e);
-        toast({
-          title: "Error loading profile data",
-          description: "Failed to load your profile information",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoadingData(false);
-      }
-    };
-
-    if (!isLoading) {
-      if (!session) {
-        // Only redirect if we've checked auth status and user is not logged in
-        redirectToHome();
-      } else if (session && user) {
-        fetchUserData();
-      }
+    if (!isLoading && user && session && !fetchedData) {
+      fetchUserData();
+    } else if (!isLoading && !session) {
+      // Only redirect if we've checked auth status and user is not logged in
+      redirectToHome();
     }
-  }, [user, session, navigate, toast, isLoading]);
+  }, [user, session, isLoading, fetchUserData, fetchedData]);
   
   const redirectToHome = () => {
     toast({
@@ -172,6 +172,9 @@ export const useProfileData = () => {
       if (error) {
         throw error;
       }
+      
+      // Refresh profile data after update
+      fetchUserData();
       
       return { success: true };
     } catch (error: any) {

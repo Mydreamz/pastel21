@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,9 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/hooks/useTheme";
-import { useState, useEffect, createContext, useContext } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Session, User } from '@supabase/supabase-js';
+import { useState, useEffect } from "react";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import CreateContent from "./pages/CreateContent";
@@ -30,29 +30,14 @@ const queryClient = new QueryClient({
   },
 });
 
-export type AuthContextType = {
-  session: Session | null;
-  user: User | null;
-  isLoading: boolean;
-};
-
-export const AuthContext = createContext<AuthContextType>({
-  session: null,
-  user: null,
-  isLoading: true,
-});
-
-export const useAuth = () => useContext(AuthContext);
-
 // Protected route component to handle authentication
 interface ProtectedRouteProps {
   children: JSX.Element;
-  isAuthenticated: boolean;
-  isLoading: boolean;
 }
 
-const ProtectedRoute = ({ children, isAuthenticated, isLoading }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
+  const { isLoading, session } = useAuth();
   
   if (isLoading) {
     return (
@@ -65,7 +50,7 @@ const ProtectedRoute = ({ children, isAuthenticated, isLoading }: ProtectedRoute
     );
   }
   
-  if (!isAuthenticated) {
+  if (!session) {
     // Redirect to home page if not authenticated
     return <Navigate to="/" state={{ from: location }} replace />;
   }
@@ -75,95 +60,21 @@ const ProtectedRoute = ({ children, isAuthenticated, isLoading }: ProtectedRoute
 
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   
   useEffect(() => {
+    // Handle email confirmation from hash
     const handleEmailConfirmation = async () => {
       const hash = window.location.hash;
       
       if (hash && hash.includes('access_token')) {
-        try {
-          const { data } = await supabase.auth.getSession();
-          
-          if (data?.session) {
-            console.log("Successfully authenticated from email confirmation");
-            setSession(data.session);
-            setUser(data.session.user);
-            
-            const authData = {
-              isAuthenticated: true,
-              token: data.session.access_token,
-              user: data.session.user,
-            };
-            localStorage.setItem('auth', JSON.stringify(authData));
-            
-            window.location.hash = '';
-          }
-        } catch (error) {
-          console.error("Failed to process email confirmation:", error);
-        }
+        setIsInitialized(true);  // Will be handled by AuthProvider
+        window.location.hash = '';
+      } else {
+        setIsInitialized(true);
       }
     };
     
     handleEmailConfirmation();
-  }, []);
-  
-  useEffect(() => {
-    console.log("App: Setting up auth state management");
-    
-    const initializeAuth = async () => {
-      try {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-          (event, newSession) => {
-            console.log("App: Auth state changed:", event, newSession?.user?.id || "no user");
-            
-            setSession(newSession);
-            setUser(newSession?.user || null);
-            
-            if (newSession) {
-              const authData = {
-                isAuthenticated: true,
-                token: newSession.access_token,
-                user: newSession.user,
-              };
-              localStorage.setItem('auth', JSON.stringify(authData));
-              console.log("App: Updated local storage with auth data");
-            } else {
-              localStorage.removeItem('auth');
-              console.log("App: Removed auth data from local storage");
-            }
-          }
-        );
-        
-        const { data } = await supabase.auth.getSession();
-        console.log("App: Initial session check:", data.session ? `Session exists for ${data.session.user.id}` : "No session");
-        
-        setSession(data.session);
-        setUser(data.session?.user || null);
-        
-        if (data.session) {
-          const authData = {
-            isAuthenticated: true,
-            token: data.session.access_token,
-            user: data.session.user,
-          };
-          localStorage.setItem('auth', JSON.stringify(authData));
-          console.log("App: Updated local storage with initial session data");
-        }
-        
-        setIsInitialized(true);
-        
-        return () => {
-          subscription.unsubscribe();
-        };
-      } catch (error) {
-        console.error("Error initializing auth:", error);
-        setIsInitialized(true);
-      }
-    };
-    
-    initializeAuth();
   }, []);
   
   if (!isInitialized) {
@@ -178,7 +89,7 @@ const App = () => {
   }
 
   return (
-    <AuthContext.Provider value={{ session, user, isLoading: !isInitialized }}>
+    <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <ThemeProvider>
@@ -187,14 +98,14 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={session ? <Navigate to="/dashboard" /> : <Index />} />
+                  <Route path="/" element={<Index />} />
                   <Route path="/dashboard" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <Dashboard />
                     </ProtectedRoute>
                   } />
                   <Route path="/create" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <CreateContent />
                     </ProtectedRoute>
                   } />
@@ -202,27 +113,27 @@ const App = () => {
                   <Route path="/view/:id" element={<ViewContent />} />
                   <Route path="/preview/:id" element={<PreviewContent />} />
                   <Route path="/edit/:id" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <EditContent />
                     </ProtectedRoute>
                   } />
                   <Route path="/profile" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <Profile />
                     </ProtectedRoute>
                   } />
                   <Route path="/success" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <ContentSuccess />
                     </ProtectedRoute>
                   } />
                   <Route path="/search" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <Search />
                     </ProtectedRoute>
                   } />
                   <Route path="/marketplace" element={
-                    <ProtectedRoute isAuthenticated={!!session} isLoading={!isInitialized}>
+                    <ProtectedRoute>
                       <Marketplace />
                     </ProtectedRoute>
                   } />
@@ -234,7 +145,7 @@ const App = () => {
           </ThemeProvider>
         </TooltipProvider>
       </QueryClientProvider>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 };
 
