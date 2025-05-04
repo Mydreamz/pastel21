@@ -58,6 +58,29 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   return children;
 };
 
+// Component to handle home page redirection based on auth status
+const HomePageRoute = () => {
+  const { isLoading, session } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Authenticating...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Redirect to dashboard if user is logged in, otherwise show the landing page
+  if (session) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <Index />;
+};
+
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   
@@ -98,7 +121,7 @@ const App = () => {
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<HomePageRoute />} />
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
                       <Dashboard />
