@@ -98,38 +98,29 @@ export const hasUserPurchasedContent = async (contentId: string, userId: string)
  */
 export const calculatePendingWithdrawals = async (userId: string): Promise<number> => {
   try {
-    // First try to use the stored procedure if it exists
-    try {
-      const { data, error } = await supabase.rpc('get_pending_withdrawals', {
-        user_id_param: userId
-      });
-      
-      if (!error) {
-        return parseFloat(data || '0');
-      }
-    } catch (e) {
-      // Fallback to client-side calculation if RPC fails
-      console.warn("RPC get_pending_withdrawals failed, using client-side calculation");
+    // Use direct database query instead of RPC function
+    const { data: withdrawalRequests, error } = await supabase
+      .from('withdrawal_requests')
+      .select('amount')
+      .eq('user_id', userId)
+      .in('status', ['pending', 'processing']);
+    
+    if (error) {
+      console.error('Error fetching pending withdrawals:', error);
+      return 0;
     }
     
-    // Calculate manually as fallback
-    const { data: userTransactions } = await supabase
-      .from('transactions')
-      .select('amount')
-      .eq('creator_id', userId)
-      .eq('status', 'completed')
-      .eq('is_deleted', false);
-      
-    if (!userTransactions) return 0;
-    
-    // Sum up all completed transactions
-    const totalEarnings = userTransactions.reduce((sum, tx) => {
-      const amount = parseFloat(tx.amount || '0');
+    // Sum up all pending withdrawals
+    const pendingAmount = withdrawalRequests?.reduce((sum, req) => {
+      // Make sure we're working with numeric values
+      const amount = typeof req.amount === 'string' 
+        ? parseFloat(req.amount) 
+        : Number(req.amount);
+        
       return sum + (isNaN(amount) ? 0 : amount);
-    }, 0);
+    }, 0) || 0;
     
-    // Default to 0 pending withdrawals if we can't calculate properly
-    return totalEarnings > 0 ? totalEarnings * 0.05 : 0; // Estimate 5% pending
+    return pendingAmount;
   } catch (error) {
     console.error('Error calculating pending withdrawals:', error);
     return 0;
