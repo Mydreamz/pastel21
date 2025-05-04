@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -96,107 +95,48 @@ export const hasUserPurchasedContent = async (contentId: string, userId: string)
 
 /**
  * Calculate pending withdrawals for a user
- * Handles API fallback for totals
  */
 export const calculatePendingWithdrawals = async (userId: string): Promise<number> => {
-  if (!userId) return 0;
-  
   try {
-    // First try using a custom RPC call for get_pending_withdrawals
-    // This is safely outside the type system to avoid TypeScript errors
+    // First try to use the stored procedure if it exists
     try {
-      const session = await supabase.auth.getSession();
-      const authToken = session.data.session?.access_token;
-      
-      if (!authToken) {
-        console.warn("No auth token available for RPC call");
-        throw new Error("No auth token");
-      }
-      
-      const supabaseUrl = (supabase as any).supabaseUrl || "https://pdlqxpckrxrsfyuknsjg.supabase.co";
-      const supabaseKey = (supabase as any).supabaseKey;
-      
-      // Call the RPC function directly (outside the TypeScript type system)
-      const response = await fetch(`${supabaseUrl}/rest/v1/rpc/get_pending_withdrawals`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-          'apikey': supabaseKey,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ user_id_param: userId })
+      const { data, error } = await supabase.rpc('get_pending_withdrawals', {
+        user_id_param: userId
       });
       
-      if (response.ok) {
-        const result = await response.json();
-        const pendingAmount = parseFloat(String(result));
-        if (!isNaN(pendingAmount)) {
-          return pendingAmount;
-        }
+      if (!error) {
+        return parseFloat(data || '0');
       }
     } catch (e) {
-      console.warn("RPC function not available for pending withdrawals, using fallback:", e);
+      // Fallback to direct query if RPC fails
+      console.warn("RPC get_pending_withdrawals failed, using fallback query");
     }
     
-    // Then try the API endpoint
-    try {
-      const baseUrl = window.location.origin;
-      const apiUrl = `${baseUrl}/api/calculate-pending-withdrawals`;
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId }),
-      });
-      
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const result = await response.json();
-          return parseFloat(String(result.total)) || 0;
-        }
-        console.warn("API response was not JSON, using fallback");
+    // If stored procedure isn't available, query directly
+    const { data, error } = await supabase
+      .from('withdrawal_requests')
+      .select('amount')
+      .eq('user_id', userId)
+      .in('status', ['pending', 'processing']);
+    
+    if (error) {
+      // Handle "relation does not exist" error - table may not be created yet
+      if (error.code === '42P01') {
+        console.info('Withdrawal_requests table does not exist yet');
+        return 0;
       }
-    } catch (e) {
-      console.warn("API endpoint not available for pending withdrawals, using direct query fallback");
+      throw error;
     }
     
-    // Direct query fallback using custom fetch to avoid TypeScript errors
-    // with tables that aren't in the TypeScript definitions yet
-    const session = await supabase.auth.getSession();
-    const authToken = session.data.session?.access_token;
+    if (!data || data.length === 0) return 0;
     
-    if (!authToken) {
-      console.warn("No auth token available for withdrawal requests query");
-      return 0;
-    }
-
-    // Use the Supabase REST API directly to avoid TypeScript errors
-    const supabaseUrl = (supabase as any).supabaseUrl || "https://pdlqxpckrxrsfyuknsjg.supabase.co";
-    const supabaseKey = (supabase as any).supabaseKey;
-    
-    const apiUrl = `${supabaseUrl}/rest/v1/withdrawal_requests`;
-    const response = await fetch(`${apiUrl}?user_id=eq.${userId}&status=in.(pending,processing)&select=amount`, {
-      headers: {
-        'Authorization': `Bearer ${authToken}`,
-        'apikey': supabaseKey,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      console.error("Error fetching withdrawal requests:", response.statusText);
-      return 0;
-    }
-
-    const withdrawals = await response.json();
-    return (withdrawals || []).reduce((sum: number, item: any) => sum + parseFloat(item.amount || '0'), 0);
-    
-  } catch (e) {
-    console.error("Exception calculating pending withdrawals:", e);
+    // Sum up the amounts
+    return data.reduce((sum, item) => {
+      const amount = parseFloat(item.amount || '0');
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
+  } catch (error) {
+    console.error('Error calculating pending withdrawals:', error);
     return 0;
   }
 };

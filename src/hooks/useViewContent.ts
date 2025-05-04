@@ -20,6 +20,7 @@ export const useViewContent = (id: string | undefined) => {
   // Track content loaded state to prevent duplicate operations
   const contentLoadedRef = useRef(false);
   const permissionsCheckedRef = useRef(false);
+  const trackViewCompletedRef = useRef(false);
   
   // Import sub-hooks
   const { 
@@ -66,9 +67,10 @@ export const useViewContent = (id: string | undefined) => {
       setContent(loadedContent);
       contentLoadedRef.current = true;
       
-      // Track view once content is loaded
-      if (loadedContent) {
+      // Track view once content is loaded - but only if we haven't already
+      if (loadedContent && !trackViewCompletedRef.current) {
         trackView(contentId, user?.id);
+        trackViewCompletedRef.current = true;
       }
       
     } catch (e: any) {
@@ -123,6 +125,7 @@ export const useViewContent = (id: string | undefined) => {
   useEffect(() => {
     contentLoadedRef.current = false;
     permissionsCheckedRef.current = false;
+    trackViewCompletedRef.current = false;
     setContent(null);
     setIsUnlocked(false);
     setError(null);

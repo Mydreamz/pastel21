@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Wallet, Calendar, Mail, IndianRupee } from 'lucide-react';
 import WithdrawalModal from './WithdrawalModal';
 import { calculatePendingWithdrawals } from '@/utils/paymentUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileSidebarProps {
   userData: any;
@@ -15,8 +16,10 @@ interface ProfileSidebarProps {
 }
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
+  const { toast } = useToast();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
+  const [isLoadingPending, setIsLoadingPending] = useState(true);
   
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
@@ -35,16 +38,24 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
     if (userData?.id) {
       const loadPendingWithdrawals = async () => {
         try {
+          setIsLoadingPending(true);
           const amount = await calculatePendingWithdrawals(userData.id);
           setPendingWithdrawals(amount);
         } catch (error) {
           console.error("Error loading pending withdrawals:", error);
+          toast({
+            title: "Couldn't load pending withdrawals",
+            description: "There was an error loading your pending withdrawal information",
+            variant: "destructive"
+          });
+        } finally {
+          setIsLoadingPending(false);
         }
       };
       
       loadPendingWithdrawals();
     }
-  }, [userData?.id]);
+  }, [userData?.id, toast]);
   
   // Calculate available balance
   const availableBalance = Math.max(0, balance - pendingWithdrawals);
@@ -91,11 +102,15 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
                 {availableBalance.toFixed(2)}
               </span>
             </p>
-            {pendingWithdrawals > 0 && (
+            {isLoadingPending ? (
+              <p className="text-xs text-gray-600 mt-1">
+                Loading withdrawal information...
+              </p>
+            ) : pendingWithdrawals > 0 ? (
               <p className="text-xs text-gray-600 mt-1">
                 <span className="text-amber-600">₹{pendingWithdrawals.toFixed(2)} pending withdrawal</span>
               </p>
-            )}
+            ) : null}
             <p className="text-xs text-gray-600 mt-1 mb-3">Available for withdrawal</p>
             
             <Button 
