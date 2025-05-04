@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -39,8 +39,8 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Calculate platform fee and creator earnings
-  const { platformFee, creatorEarnings } = calculateFees(price);
+  // Calculate platform fee and creator earnings - memoized to prevent recalculations
+  const feeInfo = useMemo(() => calculateFees(price), [price]);
   
   const formatExpiryDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -55,7 +55,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
     });
   };
   
-  const formattedExpiry = formatExpiryDate(expiryDate);
+  const formattedExpiry = useMemo(() => formatExpiryDate(expiryDate), [expiryDate]);
 
   const handlePayment = () => {
     // Check for auth first
@@ -99,6 +99,13 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
     }
   };
   
+  // Prevent unnecessary renders in child components
+  const priceDisplay = useMemo(() => price.toFixed(2), [price]);
+  const dialogFeeInfo = useMemo(() => ({
+    platformFee: feeInfo.platformFee.toFixed(2),
+    creatorEarnings: feeInfo.creatorEarnings.toFixed(2)
+  }), [feeInfo]);
+
   return (
     <>
       <Card className="glass-card border-white/10 text-white overflow-hidden">
@@ -130,7 +137,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           {/* Price tag */}
           <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
             <IndianRupee className="h-3 w-3" />
-            {price.toFixed(2)}
+            {priceDisplay}
           </div>
         </CardContent>
         
@@ -142,7 +149,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
             {user ? (
               <>
                 <IndianRupee className="mr-2 h-4 w-4" />
-                Unlock Now (₹{price.toFixed(2)})
+                Unlock Now (₹{priceDisplay})
               </>
             ) : (
               <>
@@ -174,15 +181,15 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
             <div className="mb-4 p-4 bg-black/20 rounded-md border border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <span>Content Price</span>
-                <span className="font-semibold">₹{price.toFixed(2)}</span>
+                <span className="font-semibold">₹{priceDisplay}</span>
               </div>
               <div className="flex justify-between items-center text-sm text-gray-400 border-t border-white/10 pt-2 mt-2">
                 <span>Platform Fee (7%)</span>
-                <span>₹{platformFee.toFixed(2)}</span>
+                <span>₹{dialogFeeInfo.platformFee}</span>
               </div>
               <div className="flex justify-between items-center text-sm text-emerald-400 border-t border-white/10 pt-2 mt-2">
                 <span>Creator Earnings</span>
-                <span>₹{creatorEarnings.toFixed(2)}</span>
+                <span>₹{dialogFeeInfo.creatorEarnings}</span>
               </div>
             </div>
             
@@ -213,7 +220,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
               ) : (
                 <>
                   <IndianRupee className="mr-2 h-4 w-4" />
-                  Pay ₹{price.toFixed(2)}
+                  Pay ₹{priceDisplay}
                 </>
               )}
             </Button>
@@ -231,4 +238,4 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
   );
 };
 
-export default ContentPreview;
+export default React.memo(ContentPreview);

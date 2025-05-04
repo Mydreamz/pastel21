@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,111 +29,114 @@ export const useViewContent = (id: string | undefined) => {
     handleContentPurchase
   } = useContentTransaction();
 
-  useEffect(() => {
-    const loadContent = async () => {
-      if (!id) {
-        setError("No content ID provided");
-        setLoading(false);
-        return;
+  // Memoize the loadContent function to prevent recreating on every render
+  const loadContent = useCallback(async () => {
+    if (!id) {
+      setError("No content ID provided");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      console.log(`Loading content with ID: ${id}`);
+      
+      // Supabase query for the content
+      const { data: foundContent, error: contentError } = await supabase
+        .from('contents')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (contentError) {
+        console.error("Error fetching content:", contentError);
+        throw contentError;
       }
 
-      try {
-        setLoading(true);
-        setError(null);
-        console.log(`Loading content with ID: ${id}`);
+      if (!foundContent) {
+        console.error(`Content with ID ${id} not found`);
+        setError("Content not found");
+        setContent(null);
+        return;
+      }
+      
+      console.log("Content found:", foundContent);
+      const mapped = supabaseToContent(foundContent);
+      setContent(mapped);
+
+      // Handle authentication cases
+      if (user) {
+        // Check if user is creator or has purchased the content
+        const isCreator = mapped.creatorId === user.id;
+        console.log(`User is creator: ${isCreator}`);
         
-        // Supabase query for the content
-        const { data: foundContent, error: contentError } = await supabase
-          .from('contents')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (contentError) {
-          console.error("Error fetching content:", contentError);
-          throw contentError;
-        }
-
-        if (!foundContent) {
-          console.error(`Content with ID ${id} not found`);
-          setError("Content not found");
-          setContent(null);
-          return;
-        }
-        
-        console.log("Content found:", foundContent);
-        const mapped = supabaseToContent(foundContent);
-        setContent(mapped);
-
-        // Handle authentication cases
-        if (user) {
-          // Check if user is creator or has purchased the content
-          const isCreator = mapped.creatorId === user.id;
-          console.log(`User is creator: ${isCreator}`);
+        if (isCreator) {
+          setIsUnlocked(true);
           
-          if (isCreator) {
+          // If has file path, get secure URL
+          if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
+            console.log(`Getting secure URL for creator's content, file path: ${mapped.filePath}`);
+            await getSecureFileUrl(id, mapped.filePath, user.id);
+          }
+        } else {
+          // Check for transactions - use a single DB query
+          console.log(`Checking if user ${user.id} has purchased content ${id}`);
+          const { data: transactions, error: txError } = await supabase
+            .from('transactions')
+            .select('id')
+            .eq('content_id', id)
+            .eq('user_id', user.id)
+            .eq('is_deleted', false)
+            .limit(1);
+
+          if (txError) {
+            console.error("Error checking transactions:", txError);
+          }
+
+          const userHasTransaction = (transactions && transactions.length > 0);
+          console.log(`User has transaction: ${userHasTransaction}`);
+          
+          if (parseFloat(mapped.price) === 0 || userHasTransaction) {
             setIsUnlocked(true);
             
             // If has file path, get secure URL
             if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-              console.log(`Getting secure URL for creator's content, file path: ${mapped.filePath}`);
+              console.log(`Getting secure URL for purchased content, file path: ${mapped.filePath}`);
               await getSecureFileUrl(id, mapped.filePath, user.id);
             }
-          } else {
-            // Check for transactions
-            console.log(`Checking if user ${user.id} has purchased content ${id}`);
-            const { data: transactions, error: txError } = await supabase
-              .from('transactions')
-              .select('*')
-              .eq('content_id', id)
-              .eq('user_id', user.id);
-
-            if (txError) {
-              console.error("Error checking transactions:", txError);
-            }
-
-            const userHasTransaction = (transactions && transactions.length > 0);
-            console.log(`User has transaction: ${userHasTransaction}`);
-            
-            if (parseFloat(mapped.price) === 0 || userHasTransaction) {
-              setIsUnlocked(true);
-              
-              // If has file path, get secure URL
-              if (mapped.filePath && ['image', 'video', 'audio', 'document'].includes(mapped.contentType)) {
-                console.log(`Getting secure URL for purchased content, file path: ${mapped.filePath}`);
-                await getSecureFileUrl(id, mapped.filePath, user.id);
-              }
-            } else if (window.location.pathname.startsWith('/view/')) {
-              // Redirect to preview page if paid content that user hasn't purchased
-              console.log("Redirecting to preview page for unpurchased paid content");
-              navigate(`/preview/${id}`);
-            }
-          }
-        } else {
-          // Handle unauthenticated user
-          console.log("User is not authenticated");
-          
-          if (parseFloat(mapped.price) === 0) {
-            // Free content is still unlocked for unauthenticated users
-            console.log("Content is free - unlocking for unauthenticated user");
-            setIsUnlocked(true);
           } else if (window.location.pathname.startsWith('/view/')) {
-            // Only redirect if we're on the view route and it's paid content
-            console.log("Redirecting unauthenticated user to preview page for paid content");
+            // Redirect to preview page if paid content that user hasn't purchased
+            console.log("Redirecting to preview page for unpurchased paid content");
             navigate(`/preview/${id}`);
           }
         }
-      } catch (e: any) {
-        console.error("Error in loadContent:", e);
-        setError(e.message || "Error loading content");
-      } finally {
-        setLoading(false);
+      } else {
+        // Handle unauthenticated user
+        console.log("User is not authenticated");
+        
+        if (parseFloat(mapped.price) === 0) {
+          // Free content is still unlocked for unauthenticated users
+          console.log("Content is free - unlocking for unauthenticated user");
+          setIsUnlocked(true);
+        } else if (window.location.pathname.startsWith('/view/')) {
+          // Only redirect if we're on the view route and it's paid content
+          console.log("Redirecting unauthenticated user to preview page for paid content");
+          navigate(`/preview/${id}`);
+        }
       }
-    };
+    } catch (e: any) {
+      console.error("Error in loadContent:", e);
+      setError(e.message || "Error loading content");
+    } finally {
+      setLoading(false);
+    }
+  }, [id, user, session, navigate, getSecureFileUrl]);
 
+  // Fetch content on initial load and when dependencies change
+  useEffect(() => {
     loadContent();
-    // eslint-disable-next-line
-  }, [id, user, session]);
+  }, [loadContent]);
 
   const handleUnlock = async () => {
     if (!session || !user) {
