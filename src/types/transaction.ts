@@ -36,7 +36,7 @@ export interface WithdrawalRequest {
   created_at?: string;
 }
 
-// Interface for saved user withdrawal details
+// Updated interface for saved user withdrawal details
 export interface SavedUserDetails {
   account_holder_name?: string;
   account_number?: string;

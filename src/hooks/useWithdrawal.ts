@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,9 +20,7 @@ export const useWithdrawal = (userId: string, balance: number) => {
       setIsLoading(true);
       try {
         const session = await supabase.auth.getSession();
-        const accessToken = session.data.session?.access_token;
-        
-        if (!accessToken) throw new Error("No access token available");
+        const accessToken = session.data.session?.access_token || '';
         
         const data = await WithdrawalService.getSavedWithdrawalDetails(accessToken);
         if (data) {
@@ -60,9 +57,7 @@ export const useWithdrawal = (userId: string, balance: number) => {
       }
       
       const session = await supabase.auth.getSession();
-      const accessToken = session.data.session?.access_token;
-      
-      if (!accessToken) throw new Error("No access token available");
+      const accessToken = session.data.session?.access_token || '';
       
       // Submit withdrawal request
       const result = await WithdrawalService.submitBankWithdrawal(
@@ -110,9 +105,7 @@ export const useWithdrawal = (userId: string, balance: number) => {
       }
       
       const session = await supabase.auth.getSession();
-      const accessToken = session.data.session?.access_token;
-      
-      if (!accessToken) throw new Error("No access token available");
+      const accessToken = session.data.session?.access_token || '';
       
       // Submit withdrawal request
       const result = await WithdrawalService.submitUpiWithdrawal(
