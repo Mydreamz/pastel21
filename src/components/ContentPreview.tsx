@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Lock, IndianRupee, Info, Check, LogIn } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import AuthDialog from '@/components/auth/AuthDialog';
 import { calculateFees } from '@/utils/paymentUtils';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ContentPreviewProps {
   title: string;

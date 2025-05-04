@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Store, Check } from 'lucide-react';
 import ContentCard from './ContentCard';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { Badge } from '@/components/ui/badge';
 
 interface MarketplaceContentProps {

@@ -11,7 +11,7 @@ import RecentContent from '@/components/content/RecentContent';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { BackToTop } from '@/components/ui/back-to-top';
 
 const Index = () => {

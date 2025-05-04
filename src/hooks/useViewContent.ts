@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSecureFileUrl } from './content/useSecureFileUrl';
 import { supabaseToContent } from './content/useContentMapping';
 import { useContentTransaction } from './content/useContentTransaction';

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 import StarsBackground from '@/components/StarsBackground';
 import MainNav from '@/components/navigation/MainNav';

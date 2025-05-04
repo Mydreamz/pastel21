@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { useContentForm } from '@/hooks/useContentForm';
 import StarsBackground from '@/components/StarsBackground';
 import ContentHeader from '@/components/content/ContentHeader';

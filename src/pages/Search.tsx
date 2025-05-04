@@ -1,134 +1,123 @@
-
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import SearchBar from '@/components/search/SearchBar';
-import SearchResults from '@/components/search/SearchResults';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Search as SearchIcon } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
-import AuthDialog from '@/components/auth/AuthDialog';
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from '@/App';
-import { Tag, Tags } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import StarsBackground from '@/components/StarsBackground';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import ContentCard from '@/components/dashboard/ContentCard';
 
 const Search = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
-  const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [popularTags, setPopularTags] = useState<string[]>(["Photography", "Article", "Tutorial", "Design", "Programming"]);
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  const { user, session } = useAuth();
-  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const { session } = useAuth();
+  const isAuthenticated = !!session;
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    if (initialQuery) {
-      searchContent(initialQuery);
-    } else {
-      // Load recent content if no search query
-      try {
-        const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-        const sorted = contents
-          .sort((a: any, b: any) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-          .slice(0, 6);
-        setResults(sorted);
-      } catch (e) {
-        console.error("Error loading content", e);
-      }
-    }
-  }, [initialQuery]);
+    const initialSearchQuery = searchParams.get('query') || '';
+    setSearchQuery(initialSearchQuery);
 
-  const searchContent = (searchQuery: string) => {
-    setLoading(true);
-    setQuery(searchQuery);
-    
-    // Update URL with search query
-    setSearchParams({ q: searchQuery });
-    
+    if (initialSearchQuery) {
+      performSearch(initialSearchQuery);
+    }
+  }, [searchParams]);
+
+  const performSearch = async (query: string) => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+
     try {
-      const contents = JSON.parse(localStorage.getItem('contents') || '[]');
-      // Simple search implementation
-      const searchResults = contents.filter((content: any) => {
-        const titleMatch = content.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const teaserMatch = content.teaser.toLowerCase().includes(searchQuery.toLowerCase());
-        const contentMatch = content.content && content.content.toLowerCase().includes(searchQuery.toLowerCase());
-        
-        return titleMatch || teaserMatch || contentMatch;
-      });
-      
-      setTimeout(() => {
-        setResults(searchResults);
-        setLoading(false);
-      }, 500); // Simulate network delay
-    } catch (e) {
-      console.error("Error searching content", e);
-      setLoading(false);
-      toast({
-        title: "Search Error",
-        description: "Failed to search content. Please try again.",
-        variant: "destructive"
-      });
+      const { data, error } = await supabase
+        .from('contents')
+        .select('*')
+        .ilike('title', `%${query}%`);
+
+      if (error) {
+        console.error('Search error:', error);
+        return;
+      }
+
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error('Search error:', error);
     }
   };
 
-  const handleTagSearch = (tag: string) => {
-    searchContent(tag);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value;
+    setSearchQuery(newQuery);
   };
 
-  const openAuthDialog = (tab: 'login' | 'signup') => {
-    setAuthTab(tab);
-    setShowAuthDialog(true);
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch(searchQuery);
+    navigate(`/search?query=${searchQuery}`);
   };
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-gray-800 bg-[#EAEFFC]">
-      <MainNav openAuthDialog={openAuthDialog} />
-      
-      <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Search Content</h1>
-          <SearchBar onSearch={searchContent} placeholder="Search for creators, topics, or content..." />
-          
-          <div className="mt-6 flex flex-wrap gap-2 justify-center">
-            <div className="flex items-center mr-2">
-              <Tags className="h-4 w-4 mr-1 text-gray-600" />
-              <span className="text-sm text-gray-600">Popular:</span>
-            </div>
-            {popularTags.map((tag) => (
-              <Badge 
-                key={tag}
-                variant="outline" 
-                className="bg-white/20 hover:bg-white/30 cursor-pointer border-white/20 text-gray-700"
-                onClick={() => handleTagSearch(tag)}
-              >
-                <Tag className="h-3 w-3 mr-1" />
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        
-        <SearchResults 
-          results={results}
-          loading={loading}
-          query={query}
-        />
-      </main>
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
+      <StarsBackground />
+      <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
 
-      <Footer />
-      
-      <AuthDialog
-        showAuthDialog={showAuthDialog}
-        setShowAuthDialog={setShowAuthDialog}
-        authTab={authTab}
-        setAuthTab={setAuthTab}
-        setIsAuthenticated={() => {}} // This is no longer needed as we're using global auth context
-        setUserData={() => {}} // This is no longer needed as we're using global auth context
-      />
+      <MainNav openAuthDialog={() => {}} />
+
+      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/')}
+            className="text-gray-700 hover:bg-white/10"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-gray-800">Search</h1>
+        </div>
+
+        <Card className="glass-card border-white/10 text-gray-800 mb-8">
+          <CardContent className="p-6">
+            <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
+              <Input
+                type="text"
+                placeholder="Search for content..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="flex-1"
+              />
+              <Button type="submit">
+                <SearchIcon className="h-4 w-4 mr-2" />
+                Search
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {searchResults.length > 0 && (
+          <section className="py-6">
+            <h2 className="text-xl font-semibold mb-4">Search Results</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {searchResults.map((content) => (
+                <ContentCard key={content.id} content={content} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {searchQuery && searchResults.length === 0 && (
+          <Card className="glass-card border-white/10 text-gray-800">
+            <CardContent className="p-6 text-center">
+              <p>No results found for "{searchQuery}"</p>
+            </CardContent>
+          </Card>
+        )}
+      </main>
     </div>
   );
 };

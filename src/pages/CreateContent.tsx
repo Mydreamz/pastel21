@@ -12,7 +12,7 @@ import ContentTypeSelector from '@/components/content/ContentTypeSelector';
 import AdvancedSettings from '@/components/content/AdvancedSettings';
 import ContentScheduler from '@/components/content/ContentScheduler';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ContentFormActions from '@/components/content/ContentFormActions';
 

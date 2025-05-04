@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import LockedContent from './LockedContent';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PaymentDistributionService } from '@/services/PaymentDistributionService';
 import AuthDialog from '@/components/auth/AuthDialog';

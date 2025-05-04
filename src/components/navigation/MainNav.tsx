@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, LayoutDashboard, Shield } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 type MainNavProps = {

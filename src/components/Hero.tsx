@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import UserCountBadge from './UserCountBadge';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TutorialDialog from './Tutorial/TutorialDialog';
 import TutorialDrawer from './Tutorial/TutorialDrawer';

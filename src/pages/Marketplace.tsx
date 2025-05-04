@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { BackToTop } from '@/components/ui/back-to-top';
 import MarketplaceContent from '@/components/dashboard/MarketplaceContent';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Marketplace = () => {
   const navigate = useNavigate();

@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { contentFormSchema, ContentFormValues } from '@/types/content';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { uploadFileToStorage } from '@/lib/fileUtils';
 
 export const useContentForm = () => {

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/App';
+import { useAuth } from '@/contexts/AuthContext';
 import { Lock, Check, IndianRupee, LogIn } from 'lucide-react';
 import AuthDialog from '@/components/auth/AuthDialog';
 import { calculateFees, formatCurrency } from '@/utils/paymentUtils';
