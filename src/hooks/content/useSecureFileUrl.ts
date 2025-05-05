@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -94,7 +93,7 @@ export const useSecureFileUrl = () => {
     setSecureFileError(null);
     
     try {
-      // Call the cached function directly without wrapping in another Promise
+      // Get the promise from the cached function
       const promise = getCachedSecureFileUrl(contentId, filePath);
       
       // Store the promise reference for deduplication
