@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -71,7 +70,7 @@ export const useSecureFileUrl = () => {
     contentId: string, 
     filePath: string | undefined, 
     userId?: string
-  ) => {
+  ): Promise<string | null> => {
     if (!filePath) {
       console.log("Cannot get secure URL: Missing file path");
       return null;
@@ -94,12 +93,11 @@ export const useSecureFileUrl = () => {
     setSecureFileError(null);
     
     try {
-      // Create a new request and track it
-      // FIX: Ensure we're not wrapping a promise in another promise
+      // Fix: Get the promise from the cached function, avoiding nested promises
       const promise = getCachedSecureFileUrl(contentId, filePath);
       requestInProgress.current[cacheKey] = promise;
       
-      // Use await to unwrap the promise and get the actual string value
+      // Await the promise to get the actual string value
       const url = await promise;
       
       if (!url) {
