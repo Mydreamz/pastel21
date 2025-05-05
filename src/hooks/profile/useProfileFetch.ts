@@ -1,8 +1,7 @@
-
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileCache } from './useProfileCache';
-import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
+import { PaymentService } from '@/services/payment/PaymentService';
 import { ProfileData } from '@/types/profile';
 
 /**
@@ -205,7 +204,7 @@ export const useProfileFetch = (
   const fetchEarningsSummary = useCallback(async (userId: string) => {
     try {
       console.log("Fetching earnings summary for user:", userId);
-      const earningsSummary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
+      const earningsSummary = await PaymentService.getCreatorEarningsSummary(userId);
       
       if (earningsSummary) {
         console.log("Earnings summary received:", earningsSummary);

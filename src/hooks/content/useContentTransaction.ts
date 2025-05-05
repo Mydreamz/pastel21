@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Content } from '@/types/content';
-import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
+import { PaymentService } from '@/services/payment/PaymentService';
 import { useContentCache } from '@/contexts/ContentCacheContext';
 import { TransactionResult } from '@/types/transaction';
 
@@ -93,8 +93,8 @@ export const useContentTransaction = () => {
         
         console.log(`User ${userId} purchasing content ${content.id} for ${content.price}`);
         
-        // Use the PaymentDistributionService for processing
-        const paymentResult: TransactionResult = await PaymentDistributionService.processPayment(
+        // Use the PaymentService for processing
+        const paymentResult: TransactionResult = await PaymentService.processPayment(
           content.id,
           userId,
           content.creatorId,

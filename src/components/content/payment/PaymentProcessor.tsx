@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
+import { PaymentService } from '@/services/payment/PaymentService';
 import { TransactionResult } from '@/types/transaction';
 
 interface PaymentProcessorProps {
@@ -50,7 +50,7 @@ export const usePaymentProcessor = (
     
     try {
       // Use the simplified transaction processing approach
-      const result: TransactionResult = await PaymentDistributionService.processPayment(
+      const result: TransactionResult = await PaymentService.processPayment(
         contentId,
         userId,
         creatorId,
