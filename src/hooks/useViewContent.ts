@@ -21,6 +21,7 @@ export const useViewContent = (id: string | undefined) => {
   const contentLoadedRef = useRef(false);
   const permissionsCheckedRef = useRef(false);
   const trackViewCompletedRef = useRef(false);
+  const secureUrlRequestedRef = useRef(false);
   
   // Import sub-hooks
   const { 
@@ -81,7 +82,7 @@ export const useViewContent = (id: string | undefined) => {
     }
   }, [getCachedContent, loadContent, trackView, user]);
 
-  // Handle permissions check
+  // Handle permissions check with optimization to prevent duplicate requests
   const handlePermissions = useCallback(async () => {
     if (!content || !content.id || !user || permissionsCheckedRef.current) return;
     
@@ -96,8 +97,11 @@ export const useViewContent = (id: string | undefined) => {
         // Mark as purchased/owned in global cache
         setPurchasedContentId(content.id);
         
-        // If has file path, get secure URL
-        if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {
+        // If has file path, get secure URL (only once)
+        if (content.filePath && 
+            ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
+            !secureUrlRequestedRef.current) {
+          secureUrlRequestedRef.current = true;
           await getSecureFileUrl(content.id, content.filePath, user.id);
         }
       } else {
@@ -107,8 +111,11 @@ export const useViewContent = (id: string | undefined) => {
         if (parseFloat(content.price) === 0 || userHasTransaction) {
           setIsUnlocked(true);
           
-          // If has file path, get secure URL
-          if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {
+          // If has file path, get secure URL (only once)
+          if (content.filePath && 
+              ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
+              !secureUrlRequestedRef.current) {
+            secureUrlRequestedRef.current = true;
             await getSecureFileUrl(content.id, content.filePath, user.id);
           }
         } else if (window.location.pathname.startsWith('/view/')) {
@@ -126,19 +133,20 @@ export const useViewContent = (id: string | undefined) => {
     contentLoadedRef.current = false;
     permissionsCheckedRef.current = false;
     trackViewCompletedRef.current = false;
+    secureUrlRequestedRef.current = false;
     setContent(null);
     setIsUnlocked(false);
     setError(null);
   }, [id]);
 
-  // Load content when ID is available
+  // Load content when ID is available (only once)
   useEffect(() => {
     if (id && !contentLoadedRef.current) {
       handleContentLoad(id);
     }
   }, [id, handleContentLoad]);
 
-  // Check permissions when content and user are available
+  // Check permissions when content and user are available (only once)
   useEffect(() => {
     if (content && user && !permissionsCheckedRef.current) {
       handlePermissions();
@@ -156,8 +164,11 @@ export const useViewContent = (id: string | undefined) => {
       setIsUnlocked(true);
       setPurchasedContentId(content.id);
       
-      // After purchase, get secure URL for file if it exists
-      if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType)) {
+      // After purchase, get secure URL for file if it exists (only once)
+      if (content.filePath && 
+          ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
+          !secureUrlRequestedRef.current) {
+        secureUrlRequestedRef.current = true;
         await getSecureFileUrl(id, content.filePath, user.id);
       }
     }

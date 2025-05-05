@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -47,10 +46,10 @@ const fetchSecureFileUrl = async (
 };
 
 /**
- * Cached version of fetchSecureFileUrl with a cache duration of 5 minutes
+ * Cached version of fetchSecureFileUrl with a cache duration of 10 minutes (increased from 5)
  * Using a stable reference to prevent unnecessary rerenders
  */
-const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, 5 * 60 * 1000);
+const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, 10 * 60 * 1000);
 
 /**
  * Hook for handling secure file URLs with caching to prevent repeated requests
@@ -94,12 +93,12 @@ export const useSecureFileUrl = () => {
     setSecureFileError(null);
     
     try {
-      // Directly call the cached function to get a promise
-      const promise = getCachedSecureFileUrl(contentId, filePath);
-      // Store the promise reference to prevent duplicate requests
+      // Use the cached function but store its return value directly
+      const promise: Promise<string | null> = getCachedSecureFileUrl(contentId, filePath);
+      // Store the promise reference
       requestInProgress.current[cacheKey] = promise;
       
-      // Await the promise to get the actual value
+      // Await the promise
       const url = await promise;
       
       if (!url) {

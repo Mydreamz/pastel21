@@ -3,7 +3,7 @@ import { useRef, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Hook for tracking content views with batching, throttling and deduplication
+ * Hook for tracking content views with improved batching and throttling
  */
 export const useViewTracking = () => {
   // Cache to track which content has been viewed in this session
@@ -33,8 +33,8 @@ export const useViewTracking = () => {
       isProcessingRef.current = true;
       
       try {
-        // Take up to 10 views at a time to reduce number of requests
-        const batch = queuedViews.current.splice(0, 10);
+        // Take up to 20 views at a time for bigger batches
+        const batch = queuedViews.current.splice(0, 20);
         
         // Group by contentId to deduplicate requests
         const groupedViews = batch.reduce((acc, curr) => {
@@ -64,8 +64,8 @@ export const useViewTracking = () => {
       }
     };
 
-    // Increase the polling interval to reduce API calls (now every 30 seconds)
-    const interval = setInterval(processQueue, 30000);
+    // Increase the polling interval to reduce API calls (now every 60 seconds)
+    const interval = setInterval(processQueue, 60000);
     return () => {
       clearInterval(interval);
       isSetupRef.current = false;
@@ -85,9 +85,9 @@ export const useViewTracking = () => {
     // Get current time
     const now = Date.now();
     
-    // Implement throttling - only track once every 5 minutes for the same content/user
+    // Implement throttling - only track once every 30 minutes for the same content/user
     const lastViewTime = lastViewTimeRef.current[viewKey] || 0;
-    if (now - lastViewTime < 5 * 60 * 1000) {
+    if (now - lastViewTime < 30 * 60 * 1000) {
       return; // Skip if viewed recently
     }
     

@@ -2,7 +2,7 @@
 import { useRef, useCallback } from 'react';
 
 /**
- * Cache store for API responses with improved key management
+ * Cache store for API responses with improved key management and longer default cache time
  */
 const responseCache = new Map<string, {
   data: any;
@@ -11,15 +11,16 @@ const responseCache = new Map<string, {
 }>();
 
 /**
- * Default cache time in milliseconds (5 minutes)
+ * Default cache time in milliseconds (15 minutes instead of 5)
  */
-const DEFAULT_CACHE_TIME = 5 * 60 * 1000;
+const DEFAULT_CACHE_TIME = 15 * 60 * 1000;
 
 /**
  * Create consistent cache keys to ensure proper cache hit rate
  */
 const createCacheKey = (fnName: string, args: any[]): string => {
   try {
+    // Stable serialization to ensure consistent cache keys
     return `${fnName}-${JSON.stringify(args)}`;
   } catch (error) {
     // If JSON stringify fails (circular references), use a simpler approach
@@ -36,7 +37,7 @@ const createCacheKey = (fnName: string, args: any[]): string => {
 export const createCacheableRequest = <T extends (...args: any[]) => Promise<any>>(
   requestFn: T,
   cacheTime: number = DEFAULT_CACHE_TIME
-) => {
+): ((...args: Parameters<T>) => Promise<ReturnType<T>>) => {
   // Store the function name for better cache keys
   const fnName = requestFn.name || 'anonymous-request';
   
@@ -74,7 +75,7 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
       // Wait for the request to complete
       const result = await promise;
       
-      // Update the cache with the result
+      // Update the cache with the result and reset the promise
       responseCache.set(cacheKey, {
         data: result,
         timestamp: Date.now()

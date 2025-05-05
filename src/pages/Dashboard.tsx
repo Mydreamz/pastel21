@@ -27,40 +27,50 @@ const fetchAllUserContent = async (userId: string) => {
     };
   }
   
-  // Use Promise.all to parallelize requests
-  const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
-    supabase
-      .from('contents')
-      .select('*')
-      .eq('creator_id', userId),
-      
-    supabase
-      .from('transactions')
-      .select('*, contents(*)')
-      .eq('user_id', userId),
-      
-    supabase
-      .from('contents')
-      .select('*')
-      .neq('creator_id', userId)
-      .eq('status', 'published')
-  ]);
+  try {
+    // Use Promise.all to parallelize requests
+    const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
+      supabase
+        .from('contents')
+        .select('*')
+        .eq('creator_id', userId),
+        
+      supabase
+        .from('transactions')
+        .select('*, contents(*)')
+        .eq('user_id', userId),
+        
+      supabase
+        .from('contents')
+        .select('*')
+        .neq('creator_id', userId)
+        .eq('status', 'published')
+        .limit(20) // Limit market content to reduce load
+    ]);
     
-  if (publishedResult.error) throw publishedResult.error;
-  if (transactionsResult.error) throw transactionsResult.error;
-  if (marketplaceResult.error) throw marketplaceResult.error;
-  
-  const purchased = transactionsResult.data?.map(tx => tx.contents).filter(Boolean) || [];
-  
-  return {
-    publishedContents: publishedResult.data || [],
-    purchasedContents: purchased,
-    marketplaceContents: marketplaceResult.data || []
-  };
+    if (publishedResult.error) throw publishedResult.error;
+    if (transactionsResult.error) throw transactionsResult.error;
+    if (marketplaceResult.error) throw marketplaceResult.error;
+    
+    const purchased = transactionsResult.data?.map(tx => tx.contents).filter(Boolean) || [];
+    
+    return {
+      publishedContents: publishedResult.data || [],
+      purchasedContents: purchased,
+      marketplaceContents: marketplaceResult.data || []
+    };
+  } catch (error) {
+    console.error("Error in fetchAllUserContent:", error);
+    return {
+      publishedContents: [],
+      purchasedContents: [],
+      marketplaceContents: []
+    };
+  }
 };
 
-// Create a cached version of this function (cache for 1 minute)
-const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 60 * 1000);
+// Create a cached version of this function with a longer cache time (3 minutes instead of 1)
+const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 3 * 60 * 1000);
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -76,22 +86,28 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   const { invalidateCache } = useCacheUtils();
   
-  // Use a stable reference for user ID
-  const userId = useMemo(() => user?.id || null, [user?.id]);
+  // Use a stable reference for user ID with better null handling
+  const userId = useMemo(() => user?.id || '', [user?.id]);
+
+  // Add a flag to prevent duplicate fetching
+  const hasFetchedRef = useRef(false);
 
   // Memoized function to fetch content data with better dependency tracking
   const fetchUserContents = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || hasFetchedRef.current) return;
     
     setLoading(true);
     
     try {
-      // Use our cached fetch function with stable reference
+      // Use our cached fetch function
       const results = await getCachedUserContent(userId);
       
-      setPublishedContents(results.publishedContents);
-      setPurchasedContents(results.purchasedContents);
-      setMarketplaceContents(results.marketplaceContents);
+      if (results) {
+        setPublishedContents(results.publishedContents);
+        setPurchasedContents(results.purchasedContents);
+        setMarketplaceContents(results.marketplaceContents);
+        hasFetchedRef.current = true;
+      }
     } catch (error) {
       console.error("Error fetching content:", error);
       toast({
@@ -104,8 +120,13 @@ const Dashboard = () => {
     }
   }, [userId, toast]);
 
-  // Fetch data only when session/user changes
+  // Fetch data only when session/user changes and we haven't already fetched
   useEffect(() => {
+    // Reset fetch flag on user change
+    if (userId) {
+      hasFetchedRef.current = false;
+    }
+    
     if (!session) {
       navigate('/');
       toast({
@@ -113,7 +134,7 @@ const Dashboard = () => {
         description: "Please sign in to access your dashboard",
         variant: "destructive"
       });
-    } else if (userId) {
+    } else if (userId && !hasFetchedRef.current) {
       fetchUserContents();
     }
   }, [session, userId, navigate, fetchUserContents, toast]);
@@ -121,6 +142,11 @@ const Dashboard = () => {
   const handleCreateContent = () => {
     navigate('/create');
   };
+
+  // Reset processed data when switching tabs to prevent stale data
+  const handleTabChange = useCallback((tabValue: string) => {
+    setActiveTab(tabValue);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
@@ -143,7 +169,7 @@ const Dashboard = () => {
               
               <DashboardTabs 
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabChange}
                 publishedContents={publishedContents}
                 purchasedContents={purchasedContents}
                 marketplaceContents={marketplaceContents}
