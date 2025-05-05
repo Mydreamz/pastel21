@@ -163,7 +163,9 @@ const PreviewContent = () => {
   }
 
   if (error || !content) {
-    return <ContentError error={error || "Content not available. The link might be invalid or the content was removed."} />;
+    // Convert Error object to string if needed
+    const errorMessage = error ? (typeof error === 'string' ? error : error.message || "Content not available. The link might be invalid or the content was removed.") : "Content not available. The link might be invalid or the content was removed.";
+    return <ContentError error={errorMessage} />;
   }
 
   return (

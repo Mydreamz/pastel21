@@ -1,41 +1,42 @@
-import { FileText, ArrowLeft, Eye } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { useNavigate, useParams } from 'react-router-dom';
+
+import React from 'react';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface ContentErrorProps {
-  error: string | null;
+  // Explicitly define error as string to ensure type safety
+  error: string;
 }
 
 const ContentError = ({ error }: ContentErrorProps) => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  
-  // console.log("ContentError: Displayed with error:", error);
-  // console.log("ContentError: Content ID from params:", id);
-  
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <div className="text-red-500 mb-4">
-        <FileText className="h-16 w-16" />
-      </div>
-      <h1 className="text-2xl font-bold text-white mb-2">Content Not Found</h1>
-      <p className="text-gray-400 mb-6">{error || "The content you are looking for does not exist or might have been removed."}</p>
+    <div className="container max-w-4xl mx-auto px-4 py-8">
+      <Alert variant="destructive" className="glass-card border border-red-300/30 mb-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle className="text-red-500">Error Loading Content</AlertTitle>
+        <AlertDescription className="text-red-400">
+          {error}
+        </AlertDescription>
+      </Alert>
       
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={() => navigate('/')} variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Return to Home
+      <div className="flex justify-center mt-6">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/dashboard')}
+          className="mr-4"
+        >
+          Back to Dashboard
         </Button>
-        
-        {id && (
-          <Button 
-            onClick={() => navigate(`/preview/${id}`)} 
-            className="bg-emerald-500 hover:bg-emerald-600 text-white"
-          >
-            <Eye className="mr-2 h-4 w-4" />
-            Try Preview
-          </Button>
-        )}
+        <Button 
+          variant="default"
+          onClick={() => window.location.reload()}
+        >
+          Try Again
+        </Button>
       </div>
     </div>
   );

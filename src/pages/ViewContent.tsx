@@ -36,14 +36,16 @@ const ViewContent = () => {
     if (content) {
       initializeShareUrl();
     }
-  }, [content]);
+  }, [content, initializeShareUrl]);
 
   if (loading) {
     return <ContentLoader />;
   }
 
   if (error || !content) {
-    return <ContentError error={error || "Content not found"} />;
+    // Convert Error object to string if needed
+    const errorMessage = error ? (typeof error === 'string' ? error : error.message || "Unknown error") : "Content not found";
+    return <ContentError error={errorMessage} />;
   }
 
   return (
