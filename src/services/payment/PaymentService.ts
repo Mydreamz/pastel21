@@ -1,10 +1,14 @@
 
-import { processPurchaseTransaction } from './TransactionProcessingService';
-import { updateCreatorEarnings, reconcileUserEarnings } from './CreatorEarningsService';
-import { getCreatorEarningsSummary } from './EarningsSummaryService';
+import { TransactionProcessingService } from './TransactionProcessingService';
+import { CreatorEarningsService } from './CreatorEarningsService';
+import { EarningsSummaryService } from './EarningsSummaryService';
 import { TransactionResult, EarningsSummary } from '@/types/transaction';
 
-export class PaymentDistributionService {
+/**
+ * Main service for handling payment-related operations
+ * Acts as a facade for specialized payment services
+ */
+export class PaymentService {
   private static PLATFORM_FEE_PERCENTAGE = 7;
 
   /**
@@ -23,7 +27,7 @@ export class PaymentDistributionService {
       console.log(`Processing payment - Content: ${contentId}, User: ${userId}, Creator: ${creatorId}, Amount: ${amount}`);
       
       // Process the transaction
-      const transactionResult = await processPurchaseTransaction(
+      const transactionResult = await TransactionProcessingService.processPurchaseTransaction(
         contentId, 
         userId, 
         creatorId, 
@@ -35,7 +39,7 @@ export class PaymentDistributionService {
       if (transactionResult.success && !transactionResult.alreadyPurchased) {
         try {
           console.log(`Transaction successful, updating creator earnings for ${creatorId} with amount ${transactionResult.creatorEarnings || 0}`);
-          await updateCreatorEarnings(creatorId, transactionResult.creatorEarnings || 0);
+          await CreatorEarningsService.updateCreatorEarnings(creatorId, transactionResult.creatorEarnings || 0);
           
           // Also store platform fee for the company account (optional)
           await this.storePlatformFee(transactionResult.platformFee || 0, transactionResult.transactionId);
@@ -45,7 +49,7 @@ export class PaymentDistributionService {
           // Try to reconcile earnings as a fallback
           try {
             console.log("Attempting to reconcile earnings for creator:", creatorId);
-            await reconcileUserEarnings(creatorId);
+            await CreatorEarningsService.reconcileUserEarnings(creatorId);
           } catch (reconcileError) {
             console.error("Reconciliation also failed:", reconcileError);
           }
@@ -66,14 +70,14 @@ export class PaymentDistributionService {
    * Get a creator's earnings summary
    */
   static async getCreatorEarningsSummary(creatorId: string): Promise<EarningsSummary> {
-    return getCreatorEarningsSummary(creatorId);
+    return EarningsSummaryService.getCreatorEarningsSummary(creatorId);
   }
   
   /**
    * Reconcile a user's earnings by recalculating from transaction history
    */
   static async reconcileUserEarnings(userId: string) {
-    return reconcileUserEarnings(userId);
+    return CreatorEarningsService.reconcileUserEarnings(userId);
   }
   
   /**

@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
+import { PaymentService } from '@/services/payment/PaymentService';
 import { EarningsSummary as EarningsSummaryType } from '@/types/transaction';
 import { Loader2, IndianRupee, CreditCard, Wallet, WalletCards } from 'lucide-react';
 
@@ -16,7 +17,7 @@ const EarningsSummary: React.FC<EarningsSummaryProps> = ({ userId }) => {
     const fetchEarnings = async () => {
       try {
         setLoading(true);
-        const summary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
+        const summary = await PaymentService.getCreatorEarningsSummary(userId);
         setEarnings(summary);
       } catch (error) {
         console.error('Error fetching earnings data:', error);

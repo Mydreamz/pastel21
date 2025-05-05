@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { PaymentDistributionService } from "@/services/payment/PaymentDistributionService";
+import { PaymentService } from '@/services/payment/PaymentService';
 
 /**
  * Reconcile a user's earnings and balance based on transaction history
