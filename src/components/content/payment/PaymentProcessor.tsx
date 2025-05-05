@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { PaymentDistributionService } from '@/services/PaymentDistributionService';
+import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 
 interface PaymentProcessorProps {
   contentId: string;
@@ -13,7 +13,7 @@ interface PaymentProcessorProps {
   refreshPermissions: () => void;
 }
 
-const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
+const PaymentProcessor = ({
   contentId,
   userId,
   creatorId,
@@ -21,7 +21,24 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
   contentTitle,
   onSuccess,
   refreshPermissions
-}) => {
+}: PaymentProcessorProps) => {
+  // This component doesn't render anything visually
+  return null;
+};
+
+// Export both the component and the utility hook
+export default PaymentProcessor;
+
+// Export the hook for use in other components
+export const usePaymentProcessor = (
+  contentId: string,
+  userId: string,
+  creatorId: string,
+  price: string,
+  contentTitle: string,
+  onSuccess: () => void,
+  refreshPermissions: () => void
+) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -76,5 +93,3 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
 
   return { processPayment, isProcessing };
 };
-
-export default PaymentProcessor;

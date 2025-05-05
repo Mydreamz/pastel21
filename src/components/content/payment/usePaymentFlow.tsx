@@ -1,8 +1,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import PurchaseVerification from './PurchaseVerification';
-import PaymentProcessor from './PaymentProcessor';
+import { usePurchaseVerification } from './PurchaseVerification';
+import { usePaymentProcessor } from './PaymentProcessor';
 
 export const usePaymentFlow = (
   content: any,
@@ -17,24 +17,24 @@ export const usePaymentFlow = (
   const [hasCheckedPurchase, setHasCheckedPurchase] = useState(false);
   const [isAlreadyPurchased, setIsAlreadyPurchased] = useState(isPurchased);
   
-  // Create instances of our utility components
+  // Use our utility hooks
   const { verifyPurchaseStatus } = content?.id && userId ? 
-    PurchaseVerification({ contentId: content.id, userId }) : 
+    usePurchaseVerification(content.id, userId) : 
     { verifyPurchaseStatus: async () => false };
   
   const { processPayment, isProcessing: processingPayment } = content ? 
-    PaymentProcessor({
-      contentId: content.id,
-      userId: userId || '',
-      creatorId: content.creatorId,
-      price: content.price,
-      contentTitle: content.title,
-      onSuccess: () => {
+    usePaymentProcessor(
+      content.id,
+      userId || '',
+      content.creatorId,
+      content.price,
+      content.title,
+      () => {
         setIsAlreadyPurchased(true);
         onUnlock();
       },
       refreshPermissions
-    }) : { processPayment: async () => {}, isProcessing: false };
+    ) : { processPayment: async () => {}, isProcessing: false };
   
   // Update isProcessing state based on payment processor
   useEffect(() => {

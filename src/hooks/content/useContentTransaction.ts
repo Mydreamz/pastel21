@@ -1,11 +1,10 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Content } from '@/types/content';
-import { PaymentDistributionService } from '@/services/PaymentDistributionService';
+import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 import { useContentCache } from '@/contexts/ContentCacheContext';
 
 /**

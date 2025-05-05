@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PaymentDistributionService } from '@/services/PaymentDistributionService';
+import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 import { EarningsSummary as EarningsSummaryType } from '@/types/transaction';
 import { Loader2, IndianRupee, CreditCard, Wallet, WalletCards } from 'lucide-react';
 
