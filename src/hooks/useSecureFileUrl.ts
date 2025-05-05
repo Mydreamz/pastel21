@@ -1,146 +1,168 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
-import { createCacheableRequest } from '@/utils/requestUtils';
+import { useToast } from '@/hooks/use-toast';
 
-// Cache for URL requests to avoid repeated edge function calls
-const secureUrlCache = new Map<string, {
-  url: string,
-  timestamp: number
-}>();
+interface SecureFileUrlState {
+  secureUrl: string | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
-// Cache duration increased to 60 minutes to reduce requests
-const CACHE_DURATION = 60 * 60 * 1000;
+// Global cache to reduce redundant calls
+const urlCache: Record<string, {
+  url: string;
+  expires: number;
+}> = {};
 
-/**
- * Private implementation function to get a secure file URL
- * with improved caching and error handling
- */
-const fetchSecureFileUrl = async (
-  contentId: string, 
-  filePath: string | undefined
-): Promise<string | null> => {
-  if (!filePath) {
-    console.log("[SecureFileUrl] Cannot get secure URL: Missing file path");
-    return null;
-  }
-  
-  // Generate a consistent cache key
-  const cacheKey = `${contentId}:${filePath}`;
-  const cached = secureUrlCache.get(cacheKey);
-  
-  // Return cached URL if still valid
-  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
-    console.log(`[SecureFileUrl] Using cached secure URL for ${cacheKey}`);
-    return cached.url;
-  }
-  
-  try {
-    console.log(`[SecureFileUrl] Fetching secure URL for content ID: ${contentId}, file path: ${filePath}`);
-    
-    // Call the secure-media edge function with POST method and JSON body
-    const { data, error } = await supabase.functions.invoke('secure-media', {
-      body: { 
-        contentId, 
-        filePath 
-      },
-      method: 'POST',
-    });
+// Track in-flight requests to prevent duplicates
+const pendingRequests: Record<string, Promise<string>> = {};
 
-    if (error) {
-      console.error('[SecureFileUrl] Error getting secure file URL:', error);
-      return null;
-    }
+// Cache expiration time - 4 minutes to be safe (signed URLs last 5 mins)
+const CACHE_DURATION = 4 * 60 * 1000;
 
-    if (!data?.secureUrl) {
-      console.error('[SecureFileUrl] No secure URL returned from function');
-      return null;
-    }
-
-    console.log('[SecureFileUrl] Secure URL retrieved successfully');
-    
-    // Cache the result
-    secureUrlCache.set(cacheKey, {
-      url: data.secureUrl,
-      timestamp: Date.now()
-    });
-    
-    return data.secureUrl;
-  } catch (err: any) {
-    console.error('[SecureFileUrl] Failed to get secure file URL:', err);
-    return null;
-  }
-};
-
-/**
- * Cached version of fetchSecureFileUrl with longer cache duration
- */
-const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, CACHE_DURATION);
-
-/**
- * Hook for handling secure file URLs with optimized caching
- */
 export const useSecureFileUrl = () => {
+  const [state, setState] = useState<SecureFileUrlState>({
+    secureUrl: null,
+    isLoading: false,
+    error: null
+  });
   const { toast } = useToast();
-  const [secureUrl, setSecureUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const pendingRequestRef = useRef<Promise<string | null> | null>(null);
-  const hasFetchedRef = useRef(false);
 
-  // Memoized function to get secure URL
-  const getSecureFileUrl = useCallback(async (
-    contentId: string, 
-    filePath: string | undefined, 
-    userId?: string
-  ): Promise<string | null> => {
-    if (!contentId || !filePath) {
-      return null;
-    }
-    
-    // If already fetching for the same content, reuse the request
-    if (pendingRequestRef.current) {
-      console.log('[SecureFileUrl] Reusing in-flight request');
-      return pendingRequestRef.current;
-    }
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {      
-      // Fix: Avoid nesting promises incorrectly
-      pendingRequestRef.current = getCachedSecureFileUrl(contentId, filePath);
-      
-      // Await the promise to get the actual string result
-      const url = await pendingRequestRef.current;
-      
-      if (!url) {
-        throw new Error('Failed to get secure URL');
+  // Clear cache entries that have expired
+  const cleanupCache = useCallback(() => {
+    const now = Date.now();
+    Object.keys(urlCache).forEach(key => {
+      if (urlCache[key].expires < now) {
+        delete urlCache[key];
       }
-      
-      setSecureUrl(url);
-      hasFetchedRef.current = true;
-      return url;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get secure URL';
-      setError(errorMessage);
-      toast({
-        title: 'Error',
-        description: 'Failed to load secure content URL',
-        variant: 'destructive',
-      });
-      return null;
-    } finally {
-      setIsLoading(false);
-      pendingRequestRef.current = null;
+    });
+  }, []);
+
+  // Main function to get secure file URL with caching
+  const getSecureFileUrl = useCallback(async (
+    contentId: string,
+    filePath: string,
+    userId?: string
+  ): Promise<string> => {
+    if (!contentId || !filePath) {
+      setState(prev => ({ ...prev, error: 'Missing content ID or file path' }));
+      return Promise.reject('Missing content ID or file path');
     }
-  }, [toast]);
+
+    // Create a cache key from content ID and file path
+    const cacheKey = `${contentId}:${filePath}`;
+    
+    // Check if we have a cached URL that hasn't expired
+    cleanupCache();
+    if (urlCache[cacheKey] && urlCache[cacheKey].expires > Date.now()) {
+      console.log(`[useSecureFileUrl] Using cached URL for ${cacheKey}`);
+      setState(prev => ({ 
+        ...prev, 
+        secureUrl: urlCache[cacheKey].url,
+        isLoading: false,
+        error: null
+      }));
+      return urlCache[cacheKey].url;
+    }
+
+    // Check if there's already a request in flight for this file
+    if (pendingRequests[cacheKey]) {
+      console.log(`[useSecureFileUrl] Reusing in-flight request for ${cacheKey}`);
+      
+      try {
+        // Wait for the existing request and return its result directly
+        const url = await pendingRequests[cacheKey];
+        setState(prev => ({ 
+          ...prev, 
+          secureUrl: url,
+          isLoading: false,
+          error: null
+        }));
+        return url;
+      } catch (err) {
+        setState(prev => ({ 
+          ...prev, 
+          secureUrl: null,
+          isLoading: false,
+          error: err instanceof Error ? err.message : String(err)
+        }));
+        throw err;
+      }
+    }
+
+    // If we got here, we need to make a new request
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    
+    // Create a new promise for this request
+    const requestPromise = (async () => {
+      try {
+        console.log(`[useSecureFileUrl] Fetching secure URL for ${cacheKey}`);
+        
+        // Call the secure-media edge function to get a signed URL
+        const { data, error } = await supabase.functions.invoke('secure-media', {
+          body: { 
+            contentId, 
+            filePath,
+            userId 
+          }
+        });
+        
+        if (error) {
+          throw new Error(error.message || 'Failed to get secure file URL');
+        }
+        
+        if (!data?.signedUrl) {
+          throw new Error('No signed URL returned');
+        }
+        
+        // Store URL in cache with expiration time
+        urlCache[cacheKey] = {
+          url: data.signedUrl,
+          expires: Date.now() + CACHE_DURATION
+        };
+        
+        // Update state with the URL
+        setState(prev => ({ 
+          ...prev, 
+          secureUrl: data.signedUrl,
+          isLoading: false,
+          error: null
+        }));
+        
+        return data.signedUrl;
+      } catch (err) {
+        console.error('[useSecureFileUrl] Error:', err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        
+        setState(prev => ({ 
+          ...prev, 
+          secureUrl: null,
+          isLoading: false,
+          error: errorMessage
+        }));
+        
+        toast({
+          title: "Error getting secure file",
+          description: errorMessage,
+          variant: "destructive"
+        });
+        
+        throw err;
+      } finally {
+        // Remove this request from pending when done
+        delete pendingRequests[cacheKey];
+      }
+    })();
+    
+    // Store the promise so we can reuse it
+    pendingRequests[cacheKey] = requestPromise;
+    
+    return requestPromise;
+  }, [cleanupCache, toast]);
 
   return {
-    secureUrl,
-    isLoading,
-    error,
+    ...state,
     getSecureFileUrl
   };
 };
