@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
@@ -7,6 +6,12 @@ import { useSecureFileUrl } from './useSecureFileUrl';
 import { useContentTransaction } from './content/useContentTransaction';
 import { useViewTracking } from './useViewTracking';
 import { useContentCache } from '@/contexts/ContentCacheContext';
+
+// Memoize handlers outside the component to ensure stable references
+const memoizedTrackView = (trackView: any, id: string | undefined, userId: string | undefined) => {
+  if (!id) return;
+  trackView(id, userId);
+};
 
 export const useViewContent = (id: string | undefined) => {
   const navigate = useNavigate();
@@ -44,7 +49,7 @@ export const useViewContent = (id: string | undefined) => {
   const handleContentLoad = useCallback(async (contentId: string) => {
     if (!contentId || contentLoadedRef.current) return;
     
-    console.log(`[ViewContent] Loading content: ${contentId}`);
+    console.log(`[useViewContent] Loading content: ${contentId}`);
     
     try {
       setLoading(true);
@@ -55,7 +60,7 @@ export const useViewContent = (id: string | undefined) => {
       let loadedContent: Content | null;
       
       if (cachedContent) {
-        console.log("[ViewContent] Using cached content data");
+        console.log("[useViewContent] Using cached content data");
         loadedContent = cachedContent;
       } else {
         loadedContent = await loadContent(contentId);
@@ -71,12 +76,12 @@ export const useViewContent = (id: string | undefined) => {
       
       // Track view once content is loaded - but only if we haven't already
       if (loadedContent && !trackViewCompletedRef.current) {
-        trackView(contentId, user?.id);
+        memoizedTrackView(trackView, contentId, user?.id);
         trackViewCompletedRef.current = true;
       }
       
     } catch (e: any) {
-      console.error("[ViewContent] Error loading content:", e);
+      console.error("[useViewContent] Error loading content:", e);
       // Ensure we set a string error, not an Error object
       setError(typeof e === 'string' ? e : (e?.message || "Error loading content"));
     } finally {
@@ -88,7 +93,7 @@ export const useViewContent = (id: string | undefined) => {
   const handlePermissions = useCallback(async () => {
     if (!content || !content.id || !user || permissionsCheckedRef.current) return;
     
-    console.log(`[ViewContent] Checking permissions for content: ${content.id}, user: ${user.id}`);
+    console.log(`[useViewContent] Checking permissions for content: ${content.id}, user: ${user.id}`);
     permissionsCheckedRef.current = true;
     
     try {
@@ -106,7 +111,7 @@ export const useViewContent = (id: string | undefined) => {
             ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
             !secureUrlRequestedRef.current) {
           secureUrlRequestedRef.current = true;
-          console.log(`[ViewContent] Requesting secure URL for: ${content.id}, ${content.filePath}`);
+          console.log(`[useViewContent] Requesting secure URL for: ${content.id}, ${content.filePath}`);
           await getSecureFileUrl(content.id, content.filePath, user.id);
         }
       } else if (parseFloat(content.price) === 0) {
@@ -114,7 +119,7 @@ export const useViewContent = (id: string | undefined) => {
         setIsUnlocked(true);
       }
     } catch (err: any) {
-      console.error("[ViewContent] Error checking permissions:", err);
+      console.error("[useViewContent] Error checking permissions:", err);
       // Make sure we convert any errors to strings
       setError(typeof err === 'string' ? err : (err?.message || "Error checking content permissions"));
     }
@@ -133,59 +138,51 @@ export const useViewContent = (id: string | undefined) => {
   // Load content and check permissions with optimized approach to reduce duplicate calls
   useEffect(() => {
     if (!id || contentLoadedRef.current) return;
-
+    setLoading(true);
     const loadContentAndCheckPermissions = async () => {
       try {
         // Use cached content if available
         const cachedContent = getCachedContent(id);
         if (cachedContent) {
-          console.log("[ViewContent] Using cached content");
+          console.log("[useViewContent] Using cached content");
           setContent(cachedContent);
           contentLoadedRef.current = true;
-          
-          // Track view once if not already tracked
           if (!trackViewCompletedRef.current) {
-            trackView(id, user?.id);
+            memoizedTrackView(trackView, id, user?.id);
             trackViewCompletedRef.current = true;
           }
         } else {
-          // Load from database if not cached
           const loadedContent = await loadContent(id);
           if (loadedContent) {
             setContent(loadedContent);
             contentLoadedRef.current = true;
-            
-            // Track view once
             if (!trackViewCompletedRef.current) {
-              trackView(id, user?.id);
+              memoizedTrackView(trackView, id, user?.id);
               trackViewCompletedRef.current = true;
             }
           } else {
             setError("Content not found");
           }
         }
-
-        // Only check permissions if user is authenticated
         if (user && content) {
           await handlePermissions();
         }
       } catch (err: any) {
-        console.error("[ViewContent] Error loading content:", err);
+        console.error("[useViewContent] Error loading content:", err);
         setError(typeof err === 'string' ? err : (err?.message || "Error loading content"));
       } finally {
         setLoading(false);
       }
     };
-
-    setLoading(true);
     loadContentAndCheckPermissions();
-  }, [id, user, loadContent, handlePermissions, navigate, content?.price, getCachedContent, trackView]);
+    // Only depend on id and user to avoid unnecessary re-runs
+  }, [id, user]);
 
   const handleUnlock = async () => {
     if (!session || !user) return;
     if (!content || !id) return;
     
-    console.log(`[ViewContent] Unlocking content: ${id}`);
+    console.log(`[useViewContent] Unlocking content: ${id}`);
     
     const userName = user.user_metadata?.name || user.email;
     const result = await handleContentPurchase(content, user.id, userName);

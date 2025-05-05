@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
@@ -79,6 +78,9 @@ const fetchAllUserContent = async (userId: string) => {
 // Create a cached version of this function with a longer cache time (5 minutes instead of 3)
 const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 5 * 60 * 1000);
 
+// Global in-flight request deduplication for dashboard content
+const globalDashboardInFlight: Record<string, Promise<any>> = {};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, session } = useAuth();
@@ -102,18 +104,23 @@ const Dashboard = () => {
 
   // Memoized function to fetch content data with better dependency tracking
   const fetchUserContents = useCallback(async () => {
-    // Only fetch if user ID changed or we haven't fetched yet
-    if (!userId || 
-        (hasFetchedRef.current && userId === previousUserIdRef.current)) {
+    if (!userId) return;
+    if (globalDashboardInFlight[userId]) {
+      console.log(`[Dashboard] Deduplicated fetch for user: ${userId}`);
+      const results = await globalDashboardInFlight[userId];
+      setPublishedContents(results.publishedContents);
+      setPurchasedContents(results.purchasedContents);
+      setMarketplaceContents(results.marketplaceContents);
+      hasFetchedRef.current = true;
       return;
     }
-    
+    if (hasFetchedRef.current && userId === previousUserIdRef.current) return;
     console.log(`[Dashboard] Fetching content for user: ${userId}, previous: ${previousUserIdRef.current}`);
     previousUserIdRef.current = userId;
-    
     setLoading(true);
+    globalDashboardInFlight[userId] = getCachedUserContent(userId);
     try {
-      const results = await getCachedUserContent(userId);
+      const results = await globalDashboardInFlight[userId];
       if (results) {
         setPublishedContents(results.publishedContents);
         setPurchasedContents(results.purchasedContents);
@@ -121,7 +128,7 @@ const Dashboard = () => {
         hasFetchedRef.current = true;
       }
     } catch (error) {
-      console.error("Error fetching content:", error);
+      console.error("[Dashboard] Error fetching content:", error);
       toast({
         title: "Failed to load content",
         description: "There was an error loading your content",
@@ -129,17 +136,15 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
+      delete globalDashboardInFlight[userId];
     }
   }, [userId, toast]);
 
   useEffect(() => {
-    // Fetch content when userId changes but reset flag if userId changes
     if (userId && userId !== previousUserIdRef.current) {
       hasFetchedRef.current = false;
       fetchUserContents();
     }
-    
-    // Only redirect if we've checked auth status and user is not logged in
     if (session === null) {
       navigate('/');
       toast({
@@ -148,7 +153,8 @@ const Dashboard = () => {
         variant: "destructive"
       });
     }
-  }, [session, userId, navigate, fetchUserContents, toast]);
+    // Only depend on userId and session
+  }, [session, userId]);
 
   const handleCreateContent = () => {
     navigate('/create');
