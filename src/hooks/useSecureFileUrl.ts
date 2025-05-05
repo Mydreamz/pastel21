@@ -4,20 +4,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { createCacheableRequest } from '@/utils/requestUtils';
 
+// Cache for URL requests to avoid repeated edge function calls
+const secureUrlCache = new Map<string, {
+  url: string,
+  timestamp: number
+}>();
+
+// Cache duration increased to 30 minutes to reduce requests
+const CACHE_DURATION = 30 * 60 * 1000;
+
 /**
  * Private implementation function to get a secure file URL
+ * with improved caching and error handling
  */
 const fetchSecureFileUrl = async (
   contentId: string, 
   filePath: string | undefined
 ): Promise<string | null> => {
   if (!filePath) {
-    console.log("Cannot get secure URL: Missing file path");
+    console.log("[SecureFileUrl] Cannot get secure URL: Missing file path");
     return null;
   }
   
+  // Generate a consistent cache key
+  const cacheKey = `${contentId}:${filePath}`;
+  const cached = secureUrlCache.get(cacheKey);
+  
+  // Return cached URL if still valid
+  if (cached && (Date.now() - cached.timestamp < CACHE_DURATION)) {
+    console.log(`[SecureFileUrl] Using cached secure URL for ${cacheKey}`);
+    return cached.url;
+  }
+  
   try {
-    console.log(`Getting secure URL for content ID: ${contentId}, file path: ${filePath}`);
+    console.log(`[SecureFileUrl] Fetching secure URL for content ID: ${contentId}, file path: ${filePath}`);
     
     // Call the secure-media edge function with POST method and JSON body
     const { data, error } = await supabase.functions.invoke('secure-media', {
@@ -29,39 +49,47 @@ const fetchSecureFileUrl = async (
     });
 
     if (error) {
-      console.error('Error getting secure file URL:', error);
+      console.error('[SecureFileUrl] Error getting secure file URL:', error);
       return null;
     }
 
     if (!data?.secureUrl) {
-      console.error('No secure URL returned from function');
+      console.error('[SecureFileUrl] No secure URL returned from function');
       return null;
     }
 
-    console.log('Secure URL retrieved successfully');
+    console.log('[SecureFileUrl] Secure URL retrieved successfully');
+    
+    // Cache the result
+    secureUrlCache.set(cacheKey, {
+      url: data.secureUrl,
+      timestamp: Date.now()
+    });
+    
     return data.secureUrl;
   } catch (err: any) {
-    console.error('Failed to get secure file URL:', err);
+    console.error('[SecureFileUrl] Failed to get secure file URL:', err);
     return null;
   }
 };
 
 /**
- * Cached version of fetchSecureFileUrl with a cache duration of 15 minutes (increased from 10)
- * Using a stable reference to prevent unnecessary rerenders
+ * Cached version of fetchSecureFileUrl with longer cache duration
  */
-const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, 15 * 60 * 1000);
+const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, CACHE_DURATION);
 
 /**
- * Hook for handling secure file URLs with caching to prevent repeated requests
+ * Hook for handling secure file URLs with optimized caching
  */
 export const useSecureFileUrl = () => {
   const { toast } = useToast();
   const [secureUrl, setSecureUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pendingRequestRef = useRef<Promise<string | null> | null>(null);
   const hasFetchedRef = useRef(false);
 
+  // Memoized function to get secure URL
   const getSecureFileUrl = useCallback(async (
     contentId: string, 
     filePath: string | undefined, 
@@ -71,19 +99,32 @@ export const useSecureFileUrl = () => {
       return null;
     }
     
-    try {
-      setIsLoading(true);
-      setError(null);
+    // If already fetching for the same content, reuse the request
+    if (pendingRequestRef.current) {
+      console.log('[SecureFileUrl] Reusing in-flight request');
+      return pendingRequestRef.current;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {      
+      // Create a new request and store the promise
+      const requestPromise = getCachedSecureFileUrl(contentId, filePath);
+      pendingRequestRef.current = requestPromise;
       
-      // Fixed TypeScript error: Direct awaiting of the function instead of returning a Promise<Promise<string>>
-      const url = await getCachedSecureFileUrl(contentId, filePath);
+      const url = await requestPromise;
+      
+      if (!url) {
+        throw new Error('Failed to get secure URL');
+      }
       
       setSecureUrl(url);
       hasFetchedRef.current = true;
       return url;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to get secure URL');
-      setError(error);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get secure URL';
+      setError(errorMessage);
       toast({
         title: 'Error',
         description: 'Failed to load secure content URL',
@@ -92,6 +133,7 @@ export const useSecureFileUrl = () => {
       return null;
     } finally {
       setIsLoading(false);
+      pendingRequestRef.current = null;
     }
   }, [toast]);
 

@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
@@ -132,31 +133,59 @@ export const useViewContent = (id: string | undefined) => {
     }
   }, [id]);
 
-  // Load content and check permissions
+  // Load content and check permissions with optimized approach to reduce duplicate calls
   useEffect(() => {
     if (!id || contentLoadedRef.current) return;
 
     const loadContentAndCheckPermissions = async () => {
       try {
-        // First load the content
-        await loadContent(id);
-        contentLoadedRef.current = true;
+        // Use cached content if available
+        const cachedContent = getCachedContent(id);
+        if (cachedContent) {
+          console.log("[ViewContent] Using cached content");
+          setContent(cachedContent);
+          contentLoadedRef.current = true;
+          
+          // Track view once if not already tracked
+          if (!trackViewCompletedRef.current) {
+            trackView(id, user?.id);
+            trackViewCompletedRef.current = true;
+          }
+        } else {
+          // Load from database if not cached
+          const loadedContent = await loadContent(id);
+          if (loadedContent) {
+            setContent(loadedContent);
+            contentLoadedRef.current = true;
+            
+            // Track view once
+            if (!trackViewCompletedRef.current) {
+              trackView(id, user?.id);
+              trackViewCompletedRef.current = true;
+            }
+          } else {
+            setError("Content not found");
+          }
+        }
 
-        // Then check permissions
-        if (user) {
+        // Only check permissions if user is authenticated
+        if (user && content) {
           await handlePermissions();
-        } else if (parseFloat(content?.price || '0') > 0) {
-          // If not logged in and content is paid, redirect to preview
+        } else if (content && parseFloat(content.price) > 0 && window.location.pathname.startsWith('/view/')) {
+          // Redirect unauthenticated users for paid content
           navigate(`/preview/${id}`);
         }
       } catch (err: any) {
         console.error("[ViewContent] Error loading content:", err);
         setError(typeof err === 'string' ? err : (err?.message || "Error loading content"));
+      } finally {
+        setLoading(false);
       }
     };
 
+    setLoading(true);
     loadContentAndCheckPermissions();
-  }, [id, user, loadContent, handlePermissions, navigate, content?.price]);
+  }, [id, user, loadContent, handlePermissions, navigate, content?.price, getCachedContent, trackView]);
 
   const handleUnlock = async () => {
     if (!session || !user) return;

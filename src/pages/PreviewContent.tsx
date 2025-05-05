@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
@@ -12,6 +13,39 @@ import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, 
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
+
+// Memoized related content item component to prevent redundant re-renders
+const RelatedContentItem = React.memo(({ item, navigate }: { item: any, navigate: any }) => (
+  <div 
+    className="glass-card p-4 rounded-lg cursor-pointer hover:border-emerald-500/30 transition-colors border border-white/10" 
+    onClick={() => navigate(`/preview/${item.id}`)}
+  >
+    <div className="flex items-center justify-between mb-2">
+      {(() => {
+        switch (item.contentType) {
+          case 'text':
+            return <FileText className="h-4 w-4 text-blue-400" />;
+          case 'image':
+            return <Image className="h-4 w-4 text-purple-400" />;
+          case 'video':
+            return <Video className="h-4 w-4 text-red-400" />;
+          case 'link':
+            return <LinkIcon className="h-4 w-4 text-yellow-400" />;
+          default:
+            return <FileText className="h-4 w-4 text-blue-400" />;
+        }
+      })()}
+      {parseFloat(item.price) > 0 && (
+        <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 flex items-center">
+          <DollarSign className="h-3 w-3 mr-1" />
+          {parseFloat(item.price).toFixed(2)}
+        </Badge>
+      )}
+    </div>
+    <h4 className="font-medium text-emerald-300 mb-1">{item.title}</h4>
+    <p className="text-sm text-gray-400 line-clamp-2">{item.teaser}</p>
+  </div>
+));
 
 const PreviewContent = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +62,7 @@ const PreviewContent = () => {
   const [relatedContent, setRelatedContent] = useState<any[]>([]);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
 
-  // Check authentication status once
+  // Check authentication status once on initial render
   useEffect(() => {
     const auth = localStorage.getItem('auth');
     if (auth) {
@@ -54,6 +88,7 @@ const PreviewContent = () => {
   useEffect(() => {
     if (content?.id && !relatedContent.length) {
       try {
+        // Get from local storage to avoid unnecessary API calls
         const contents = JSON.parse(localStorage.getItem('contents') || '[]');
         const related = contents
           .filter((item: any) => 
@@ -116,54 +151,12 @@ const PreviewContent = () => {
     }
   }, [content?.contentType]);
 
-  // Memoize content info to prevent unnecessary re-renders
-  const contentInfo = useMemo(() => ({
-    id,
-    title: content?.title,
-    price: content?.price,
-    teaser: content?.teaser,
-    contentType: content?.contentType
-  }), [id, content?.title, content?.price, content?.teaser, content?.contentType]);
-
-  // Memoize related content components to prevent re-rendering
-  const relatedContentItems = useMemo(() => {
-    return relatedContent.map((item: any) => (
-      <div key={item.id} className="glass-card p-4 rounded-lg cursor-pointer hover:border-emerald-500/30 transition-colors border border-white/10" 
-           onClick={() => navigate(`/preview/${item.id}`)}>
-        <div className="flex items-center justify-between mb-2">
-          {(() => {
-            switch (item.contentType) {
-              case 'text':
-                return <FileText className="h-4 w-4 text-blue-400" />;
-              case 'image':
-                return <Image className="h-4 w-4 text-purple-400" />;
-              case 'video':
-                return <Video className="h-4 w-4 text-red-400" />;
-              case 'link':
-                return <LinkIcon className="h-4 w-4 text-yellow-400" />;
-              default:
-                return <FileText className="h-4 w-4 text-blue-400" />;
-            }
-          })()}
-          {parseFloat(item.price) > 0 && (
-            <Badge variant="outline" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 flex items-center">
-              <DollarSign className="h-3 w-3 mr-1" />
-              {parseFloat(item.price).toFixed(2)}
-            </Badge>
-          )}
-        </div>
-        <h4 className="font-medium text-emerald-300 mb-1">{item.title}</h4>
-        <p className="text-sm text-gray-400 line-clamp-2">{item.teaser}</p>
-      </div>
-    ));
-  }, [relatedContent, navigate]);
-
   if (loading) {
     return <ContentLoader />;
   }
 
   if (error || !content) {
-    // Error is already a string from our hook, but add a fallback just in case
+    // Fixed TypeScript error by ensuring error is always a string
     const errorMessage = error || "Content not available. The link might be invalid or the content was removed.";
     return <ContentError error={errorMessage} />;
   }
@@ -248,7 +241,9 @@ const PreviewContent = () => {
             <div className="mt-10 border-t border-white/10 pt-6">
               <h3 className="text-xl font-bold mb-4">More from this creator</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {relatedContentItems}
+                {relatedContent.map((item) => (
+                  <RelatedContentItem key={item.id} item={item} navigate={navigate} />
+                ))}
               </div>
             </div>
           )}

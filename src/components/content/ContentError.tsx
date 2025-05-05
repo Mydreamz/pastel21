@@ -42,4 +42,4 @@ const ContentError = ({ error }: ContentErrorProps) => {
   );
 };
 
-export default ContentError;
+export default React.memo(ContentError);

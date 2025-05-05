@@ -7,6 +7,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Cache to reduce DB queries within the edge function
+const accessCache = new Map<string, {
+  hasAccess: boolean,
+  timestamp: number
+}>();
+
+// Cache duration: 15 minutes
+const CACHE_TTL = 15 * 60 * 1000;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -26,8 +35,7 @@ serve(async (req) => {
         },
       }
     )
-    console.log("Supabase client created")
-
+    
     // Get user from auth header
     const {
       data: { user },
@@ -50,15 +58,12 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Authenticated user: ${user.id}`)
-
     // Parse request body
     let contentId, filePath;
     try {
       const body = await req.json();
       contentId = body.contentId;
       filePath = body.filePath;
-      console.log(`Received request for contentId: ${contentId}, filePath: ${filePath}`)
     } catch (e) {
       console.error("Error parsing request body:", e)
       return new Response(
@@ -75,101 +80,56 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Processing secure media request for content ID: ${contentId}, file path: ${filePath}`)
+    // Check cache first
+    const cacheKey = `${user.id}:${contentId}`;
+    const cachedAccess = accessCache.get(cacheKey);
     
-    // Verify the content exists first
-    const { data: contentData, error: contentError } = await supabaseClient
-      .from('contents')
-      .select('id, file_path')
-      .eq('id', contentId)
-      .single();
+    if (cachedAccess && (Date.now() - cachedAccess.timestamp < CACHE_TTL)) {
+      console.log(`Using cached access check for ${cacheKey}: ${cachedAccess.hasAccess}`);
       
-    if (contentError) {
-      console.error(`Error fetching content with ID ${contentId}:`, contentError)
-      return new Response(
-        JSON.stringify({ error: 'Content not found', details: contentError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-      )
-    }
-    
-    if (!contentData) {
-      console.error(`Content with ID ${contentId} does not exist`)
-      return new Response(
-        JSON.stringify({ error: 'Content not found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-      )
-    }
-    
-    console.log(`Content found. Database file path: ${contentData.file_path}, requested path: ${filePath}`)
-    
-    // Check if the user has access using the database function
-    console.log(`Checking if user ${user.id} has purchased content ${contentId}`)
-    const { data: hasAccess, error: accessError } = await supabaseClient
-      .rpc('has_purchased_content', {
-        user_id_param: user.id,
-        content_id_param: contentId
-      })
-
-    if (accessError) {
-      console.error('Error checking content access:', accessError)
-      return new Response(
-        JSON.stringify({ error: 'Access verification failed', details: accessError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-
-    if (!hasAccess) {
-      console.error('Access denied: User does not have permission to access this content')
-      return new Response(
-        JSON.stringify({ error: 'Access denied to content' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-
-    console.log('Access granted: Creating signed URL')
-    
-    // Check if the storage bucket exists
-    const { data: buckets, error: bucketsError } = await supabaseClient
-      .storage
-      .listBuckets();
-      
-    if (bucketsError) {
-      console.error('Error listing buckets:', bucketsError)
-      return new Response(
-        JSON.stringify({ error: 'Storage error', details: bucketsError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-    
-    const contentMediaBucket = buckets.find(b => b.name === 'content-media');
-    if (!contentMediaBucket) {
-      console.error('Storage bucket "content-media" not found')
-      return new Response(
-        JSON.stringify({ error: 'Storage configuration error: bucket not found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
-    }
-    
-    console.log('Storage bucket "content-media" found')
-    
-    // Check if the file exists in storage
-    try {
-      const { data: fileInfo, error: fileError } = await supabaseClient
-        .storage
-        .from('content-media')
-        .getPublicUrl(filePath, { download: false });
-        
-      if (fileError) {
-        console.error('Error checking file existence:', fileError)
+      if (!cachedAccess.hasAccess) {
         return new Response(
-          JSON.stringify({ error: 'File not found', details: fileError.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          JSON.stringify({ error: 'Access denied to content' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        )
+      }
+    } else {
+      console.log(`Checking if user ${user.id} has access to content ${contentId}`);
+      
+      // Check if the user has access using the database function
+      const { data: hasAccess, error: accessError } = await supabaseClient
+        .rpc('has_purchased_content', {
+          user_id_param: user.id,
+          content_id_param: contentId
+        });
+
+      if (accessError) {
+        console.error('Error checking content access:', accessError)
+        return new Response(
+          JSON.stringify({ error: 'Access verification failed', details: accessError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        )
+      }
+
+      if (!hasAccess) {
+        // Cache the negative access check
+        accessCache.set(cacheKey, {
+          hasAccess: false,
+          timestamp: Date.now()
+        });
+        
+        console.error('Access denied: User does not have permission to access this content')
+        return new Response(
+          JSON.stringify({ error: 'Access denied to content' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
         )
       }
       
-      console.log('File exists in storage, public URL:', fileInfo.publicUrl)
-    } catch (e) {
-      console.error('Error checking file existence:', e)
+      // Cache the positive access check
+      accessCache.set(cacheKey, {
+        hasAccess: true,
+        timestamp: Date.now()
+      });
     }
 
     // Get signed URL with short expiry
@@ -182,39 +142,50 @@ serve(async (req) => {
     if (urlError) {
       console.error('Error generating signed URL:', urlError)
       
-      // If file not found, try with the file_path from the database
-      if (urlError.message && urlError.message.includes('Object not found') && contentData.file_path && contentData.file_path !== filePath) {
-        console.log(`Trying with file path from database: ${contentData.file_path}`)
+      // Try getting content info from database if available
+      const { data: contentData, error: contentError } = await supabaseClient
+        .from('contents')
+        .select('file_path')
+        .eq('id', contentId)
+        .single();
+      
+      if (contentError || !contentData || !contentData.file_path) {
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        )
+      }
+      
+      // Try with file path from the database if different
+      if (contentData.file_path !== filePath) {
+        console.log(`Trying with file path from database: ${contentData.file_path}`);
         const { data: altUrlData, error: altUrlError } = await supabaseClient
           .storage
           .from('content-media')
           .createSignedUrl(contentData.file_path, 300) // 5 minutes
           
         if (altUrlError) {
-          console.error('Error generating signed URL with alternate path:', altUrlError)
+          console.error('Error generating signed URL with alternate path:', altUrlError);
           return new Response(
-            JSON.stringify({ 
-              error: 'Failed to generate secure URL', 
-              details: `Tried both ${filePath} and ${contentData.file_path}, errors: ${urlError.message}, ${altUrlError.message}` 
-            }),
+            JSON.stringify({ error: 'Failed to generate secure URL' }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
           )
         }
         
-        console.log('Secure URL generated successfully using database file path')
+        console.log('Secure URL generated successfully using database file path');
         return new Response(
           JSON.stringify({ secureUrl: altUrlData.signedUrl }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
+      } else {
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        )
       }
-      
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-      )
     }
 
-    console.log('Secure URL generated successfully')
+    console.log('Secure URL generated successfully');
 
     return new Response(
       JSON.stringify({ secureUrl: urlData.signedUrl }),
@@ -223,7 +194,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error in secure-media function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message, stack: error.stack }),
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
