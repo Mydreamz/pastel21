@@ -1,3 +1,4 @@
+
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -94,9 +95,11 @@ export const useSecureFileUrl = () => {
     
     try {
       // Create a new request and track it
+      // FIX: Ensure we're not wrapping a promise in another promise
       const promise = getCachedSecureFileUrl(contentId, filePath);
       requestInProgress.current[cacheKey] = promise;
       
+      // Use await to unwrap the promise and get the actual string value
       const url = await promise;
       
       if (!url) {
