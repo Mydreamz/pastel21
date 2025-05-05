@@ -24,16 +24,14 @@ const WithdrawalModal = ({ isOpen, onClose, userId, balance }: WithdrawalModalPr
     bankForm,
     upiForm,
     handleBankSubmit,
-    handleUpiSubmit,
-    loadSavedDetails
+    handleUpiSubmit
   } = useWithdrawal(userId, balance);
 
-  // Only load saved details when the modal is open
+  // Only fetch data when the modal is open
   useEffect(() => {
-    if (isOpen) {
-      loadSavedDetails();
-    }
-  }, [isOpen, loadSavedDetails]);
+    // This effect will only trigger when the modal opens
+    // No explicit data loading here - it's handled by useWithdrawal hook
+  }, [isOpen]);
 
   // Handle successful submission
   const handleFormSuccess = () => {

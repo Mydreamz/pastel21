@@ -14,10 +14,19 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardTabs from '@/components/dashboard/DashboardTabs';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import { supabase } from "@/integrations/supabase/client";
-import { createCacheableRequest } from '@/utils/requestUtils';
+import { createCacheableRequest, useCacheUtils } from '@/utils/requestUtils';
 
-// Cacheable function to fetch all user content in a single go
+// Cacheable function to fetch all user content in a single go with a stable function reference
 const fetchAllUserContent = async (userId: string) => {
+  if (!userId) {
+    console.warn("Cannot fetch content: Missing user ID");
+    return {
+      publishedContents: [],
+      purchasedContents: [],
+      marketplaceContents: []
+    };
+  }
+  
   // Use Promise.all to parallelize requests
   const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
     supabase
@@ -65,24 +74,24 @@ const Dashboard = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
-  const [dataFetched, setDataFetched] = useState(false); // Track if data has been fetched
+  const { invalidateCache } = useCacheUtils();
+  
+  // Use a stable reference for user ID
+  const userId = useMemo(() => user?.id || null, [user?.id]);
 
-  // Memoized function to fetch content data
+  // Memoized function to fetch content data with better dependency tracking
   const fetchUserContents = useCallback(async () => {
-    if (loading && dataFetched) return; // Prevent duplicate fetches
+    if (!userId) return;
     
     setLoading(true);
     
     try {
-      if (!user) return;
-      
-      // Use our cached fetch function
-      const results = await getCachedUserContent(user.id);
+      // Use our cached fetch function with stable reference
+      const results = await getCachedUserContent(userId);
       
       setPublishedContents(results.publishedContents);
       setPurchasedContents(results.purchasedContents);
       setMarketplaceContents(results.marketplaceContents);
-      setDataFetched(true);
     } catch (error) {
       console.error("Error fetching content:", error);
       toast({
@@ -93,8 +102,9 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, toast, loading, dataFetched]);
+  }, [userId, toast]);
 
+  // Fetch data only when session/user changes
   useEffect(() => {
     if (!session) {
       navigate('/');
@@ -103,11 +113,10 @@ const Dashboard = () => {
         description: "Please sign in to access your dashboard",
         variant: "destructive"
       });
-    } else if (!dataFetched) {
-      // Only fetch data once per component mount
+    } else if (userId) {
       fetchUserContents();
     }
-  }, [session, navigate, fetchUserContents, dataFetched, toast]);
+  }, [session, userId, navigate, fetchUserContents, toast]);
 
   const handleCreateContent = () => {
     navigate('/create');

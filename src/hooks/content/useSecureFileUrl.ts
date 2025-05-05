@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +47,7 @@ const fetchSecureFileUrl = async (
 
 /**
  * Cached version of fetchSecureFileUrl with a cache duration of 5 minutes
+ * Using a stable reference to prevent unnecessary rerenders
  */
 const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, 5 * 60 * 1000);
 
@@ -59,11 +59,18 @@ export const useSecureFileUrl = () => {
   const [secureFileLoading, setSecureFileLoading] = useState(false);
   const [secureFileError, setSecureFileError] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Keep track of in-flight requests to prevent duplicates
+  const requestInProgress = useRef<Record<string, Promise<string | null>>>({});
 
   /**
    * Function to get secure URL for protected content with improved caching
    */
-  const getSecureFileUrl = useCallback(async (contentId: string, filePath: string | undefined, userId?: string) => {
+  const getSecureFileUrl = useCallback(async (
+    contentId: string, 
+    filePath: string | undefined, 
+    userId?: string
+  ) => {
     if (!filePath) {
       console.log("Cannot get secure URL: Missing file path");
       return null;
@@ -74,11 +81,23 @@ export const useSecureFileUrl = () => {
       return null;
     }
 
+    // Generate a cache key for this specific request
+    const cacheKey = `${contentId}-${filePath}`;
+    
+    // If we already have a request in progress for this key, return that promise
+    if (requestInProgress.current[cacheKey]) {
+      return requestInProgress.current[cacheKey];
+    }
+
     setSecureFileLoading(true);
     setSecureFileError(null);
     
     try {
-      const url = await getCachedSecureFileUrl(contentId, filePath);
+      // Create a new request and track it
+      const promise = getCachedSecureFileUrl(contentId, filePath);
+      requestInProgress.current[cacheKey] = promise;
+      
+      const url = await promise;
       
       if (!url) {
         setSecureFileError("Failed to get secure file URL");
@@ -101,6 +120,8 @@ export const useSecureFileUrl = () => {
       });
       return null;
     } finally {
+      // Remove the in-flight request tracking
+      delete requestInProgress.current[cacheKey];
       setSecureFileLoading(false);
     }
   }, [toast]);

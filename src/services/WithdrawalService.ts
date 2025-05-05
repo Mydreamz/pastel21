@@ -4,9 +4,21 @@ import { SavedUserDetails } from "@/types/transaction";
 import { createCacheableRequest } from "@/utils/requestUtils";
 
 /**
- * Service for handling withdrawal-related API calls
+ * Service for handling withdrawal-related API calls with improved caching
  */
 export class WithdrawalService {
+  /**
+   * Internal request tracking to prevent duplicate in-flight requests
+   */
+  private static inFlightRequests: Record<string, Promise<any>> = {};
+  
+  /**
+   * Get a unique key for tracking requests
+   */
+  private static getRequestKey(method: string, userId: string): string {
+    return `${method}-${userId}`;
+  }
+  
   /**
    * Fetch saved withdrawal details for a user
    */
@@ -38,72 +50,132 @@ export class WithdrawalService {
   );
 
   /**
-   * Submit a bank withdrawal request
+   * Submit a bank withdrawal request with deduplication for in-flight requests
    */
-  static async submitBankWithdrawal(values: any, userId: string, accessToken: string): Promise<{success: boolean, error?: string}> {
-    try {
-      // Use the edge function to submit bank withdrawal request
-      const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: {
-          account_holder_name: values.accountHolderName,
-          account_number: values.accountNumber,
-          ifsc_code: values.ifscCode,
-          bank_name: values.bankName,
-          pan_number: values.panNumber,
-          pan_name: values.panName,
-          phone_number: values.phoneNumber,
-          amount: values.amount,
-          payment_method: 'bank_transfer',
-          saveDetails: values.saveDetails
-        }
-      });
-      
-      if (error) throw new Error(error.message);
-      
-      return { success: true };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || "Failed to submit withdrawal request" 
-      };
+  static async submitBankWithdrawal(
+    values: any, 
+    userId: string, 
+    accessToken: string
+  ): Promise<{success: boolean, error?: string}> {
+    // Create a unique request key
+    const requestKey = WithdrawalService.getRequestKey('bank-withdrawal', userId);
+    
+    // If we already have a request in progress, wait for it
+    if (WithdrawalService.inFlightRequests[requestKey]) {
+      try {
+        return await WithdrawalService.inFlightRequests[requestKey];
+      } catch (error: any) {
+        return { 
+          success: false, 
+          error: error.message || "Failed to submit withdrawal request" 
+        };
+      }
     }
+    
+    // Create a new request
+    const requestPromise = (async () => {
+      try {
+        // Use the edge function to submit bank withdrawal request
+        const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          body: {
+            account_holder_name: values.accountHolderName,
+            account_number: values.accountNumber,
+            ifsc_code: values.ifscCode,
+            bank_name: values.bankName,
+            pan_number: values.panNumber,
+            pan_name: values.panName,
+            phone_number: values.phoneNumber,
+            amount: values.amount,
+            payment_method: 'bank_transfer',
+            saveDetails: values.saveDetails
+          }
+        });
+        
+        if (error) throw new Error(error.message);
+        
+        return { success: true };
+      } catch (error: any) {
+        return { 
+          success: false, 
+          error: error.message || "Failed to submit withdrawal request" 
+        };
+      } finally {
+        // Remove the in-flight request tracking
+        delete WithdrawalService.inFlightRequests[requestKey];
+      }
+    })();
+    
+    // Track this request
+    WithdrawalService.inFlightRequests[requestKey] = requestPromise;
+    
+    return requestPromise;
   }
 
   /**
-   * Submit a UPI withdrawal request
+   * Submit a UPI withdrawal request with deduplication for in-flight requests
    */
-  static async submitUpiWithdrawal(values: any, userId: string, accessToken: string): Promise<{success: boolean, error?: string}> {
-    try {
-      // Use the edge function to submit UPI withdrawal request
-      const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: {
-          upi_id: values.upiId,
-          pan_number: values.panNumber,
-          pan_name: values.panName,
-          phone_number: values.phoneNumber,
-          amount: values.amount,
-          payment_method: 'upi',
-          saveDetails: values.saveDetails
-        }
-      });
-      
-      if (error) throw new Error(error.message);
-      
-      return { success: true };
-    } catch (error: any) {
-      return { 
-        success: false, 
-        error: error.message || "Failed to submit withdrawal request" 
-      };
+  static async submitUpiWithdrawal(
+    values: any, 
+    userId: string, 
+    accessToken: string
+  ): Promise<{success: boolean, error?: string}> {
+    // Create a unique request key
+    const requestKey = WithdrawalService.getRequestKey('upi-withdrawal', userId);
+    
+    // If we already have a request in progress, wait for it
+    if (WithdrawalService.inFlightRequests[requestKey]) {
+      try {
+        return await WithdrawalService.inFlightRequests[requestKey];
+      } catch (error: any) {
+        return { 
+          success: false, 
+          error: error.message || "Failed to submit withdrawal request" 
+        };
+      }
     }
+    
+    // Create a new request
+    const requestPromise = (async () => {
+      try {
+        // Use the edge function to submit UPI withdrawal request
+        const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          body: {
+            upi_id: values.upiId,
+            pan_number: values.panNumber,
+            pan_name: values.panName,
+            phone_number: values.phoneNumber,
+            amount: values.amount,
+            payment_method: 'upi',
+            saveDetails: values.saveDetails
+          }
+        });
+        
+        if (error) throw new Error(error.message);
+        
+        return { success: true };
+      } catch (error: any) {
+        return { 
+          success: false, 
+          error: error.message || "Failed to submit withdrawal request" 
+        };
+      } finally {
+        // Remove the in-flight request tracking
+        delete WithdrawalService.inFlightRequests[requestKey];
+      }
+    })();
+    
+    // Track this request
+    WithdrawalService.inFlightRequests[requestKey] = requestPromise;
+    
+    return requestPromise;
   }
 
   /**

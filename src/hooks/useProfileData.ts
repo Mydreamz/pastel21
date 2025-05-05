@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,10 +26,16 @@ export const useProfileData = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [fetchedData, setFetchedData] = useState(false);
+  
+  // Use a ref to track if a fetch is already in progress
+  const fetchInProgress = useRef(false);
 
   // Use a memoized fetchUserData function to prevent multiple re-renders
   const fetchUserData = useCallback(async () => {
-    if (!user) return;
+    if (!user || fetchInProgress.current) return;
+    
+    // Set flag to prevent concurrent fetches
+    fetchInProgress.current = true;
     
     try {
       setIsLoadingData(true);
@@ -86,11 +92,13 @@ export const useProfileData = () => {
     } finally {
       setIsLoadingData(false);
       setFetchedData(true);
+      // Reset the in-progress flag
+      fetchInProgress.current = false;
     }
   }, [user, session, toast]);
 
   useEffect(() => {
-    if (!isLoading && user && session && !fetchedData) {
+    if (!isLoading && user && session && !fetchedData && !fetchInProgress.current) {
       fetchUserData();
     } else if (!isLoading && !session) {
       // Only redirect if we've checked auth status and user is not logged in
@@ -154,8 +162,14 @@ export const useProfileData = () => {
     }
   };
   
+  // Use a ref to track in-progress profile updates
+  const updateInProgress = useRef(false);
+  
   const updateProfile = async (profileData: Partial<ProfileData>) => {
     if (!user || !session) return { error: new Error("User not authenticated") };
+    if (updateInProgress.current) return { error: new Error("Update already in progress") };
+    
+    updateInProgress.current = true;
     
     try {
       // Call the Edge Function to update profile data
@@ -173,13 +187,18 @@ export const useProfileData = () => {
         throw error;
       }
       
-      // Refresh profile data after update
-      fetchUserData();
+      // Update local state instead of refetching
+      setProfileData(prev => ({
+        ...prev,
+        ...profileData
+      }) as ProfileData);
       
       return { success: true };
     } catch (error: any) {
       console.error("Profile update error:", error);
       return { error };
+    } finally {
+      updateInProgress.current = false;
     }
   };
 

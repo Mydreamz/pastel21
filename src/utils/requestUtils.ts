@@ -1,7 +1,8 @@
+
 import { useRef, useCallback } from 'react';
 
 /**
- * Cache store for API responses
+ * Cache store for API responses with improved key management
  */
 const responseCache = new Map<string, {
   data: any;
@@ -15,7 +16,19 @@ const responseCache = new Map<string, {
 const DEFAULT_CACHE_TIME = 5 * 60 * 1000;
 
 /**
- * Utility to create a cacheable request function
+ * Create consistent cache keys to ensure proper cache hit rate
+ */
+const createCacheKey = (fnName: string, args: any[]): string => {
+  try {
+    return `${fnName}-${JSON.stringify(args)}`;
+  } catch (error) {
+    // If JSON stringify fails (circular references), use a simpler approach
+    return `${fnName}-${new Date().getTime()}`;
+  }
+};
+
+/**
+ * Utility to create a cacheable request function with improved deduplication
  * @param requestFn The original request function
  * @param cacheTime How long to cache the response (in milliseconds)
  * @returns A cached version of the request function
@@ -24,9 +37,12 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
   requestFn: T,
   cacheTime: number = DEFAULT_CACHE_TIME
 ) => {
+  // Store the function name for better cache keys
+  const fnName = requestFn.name || 'anonymous-request';
+  
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     // Create a cache key based on the function name and arguments
-    const cacheKey = `${requestFn.name}-${JSON.stringify(args)}`;
+    const cacheKey = createCacheKey(fnName, args);
     
     const now = Date.now();
     const cached = responseCache.get(cacheKey);
@@ -74,7 +90,7 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
 };
 
 /**
- * Hook for cache invalidation
+ * Hook for cache invalidation with improved debugging
  * @returns Functions to manage the cache
  */
 export const useCacheUtils = () => {
@@ -110,8 +126,16 @@ export const useCacheUtils = () => {
     console.log(`Cleared entire cache (${size} entries)`);
   }, []);
   
+  /**
+   * Get cache size (for debugging)
+   */
+  const getCacheSize = useCallback(() => {
+    return cacheRef.current.size;
+  }, []);
+  
   return {
     invalidateCache,
-    clearCache
+    clearCache,
+    getCacheSize
   };
 };
