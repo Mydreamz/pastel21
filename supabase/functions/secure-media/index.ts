@@ -13,8 +13,17 @@ const accessCache = new Map<string, {
   timestamp: number
 }>();
 
-// Cache duration: 15 minutes
-const CACHE_TTL = 15 * 60 * 1000;
+// URL cache to reduce storage signed URL generation
+const urlCache = new Map<string, {
+  url: string,
+  timestamp: number
+}>();
+
+// Cache duration: 30 minutes
+const CACHE_TTL = 30 * 60 * 1000;
+
+// URL cache duration: 4 minutes (slightly less than the 5 minute signed URL TTL)
+const URL_CACHE_TTL = 4 * 60 * 1000;
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -80,24 +89,32 @@ serve(async (req) => {
       )
     }
 
-    // Check cache first
-    const cacheKey = `${user.id}:${contentId}`;
-    const cachedAccess = accessCache.get(cacheKey);
+    // Generate cache keys
+    const accessCacheKey = `${user.id}:${contentId}`;
+    const urlCacheKey = `${user.id}:${filePath}`;
+    
+    // Check URL cache first (fastest path)
+    const cachedUrl = urlCache.get(urlCacheKey);
+    if (cachedUrl && (Date.now() - cachedUrl.timestamp < URL_CACHE_TTL)) {
+      console.log(`Using cached URL for ${urlCacheKey}`);
+      return new Response(
+        JSON.stringify({ secureUrl: cachedUrl.url }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    // Check access cache next
+    const cachedAccess = accessCache.get(accessCacheKey);
+    let hasAccess = false;
     
     if (cachedAccess && (Date.now() - cachedAccess.timestamp < CACHE_TTL)) {
-      console.log(`Using cached access check for ${cacheKey}: ${cachedAccess.hasAccess}`);
-      
-      if (!cachedAccess.hasAccess) {
-        return new Response(
-          JSON.stringify({ error: 'Access denied to content' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-        )
-      }
+      console.log(`Using cached access check for ${accessCacheKey}: ${cachedAccess.hasAccess}`);
+      hasAccess = cachedAccess.hasAccess;
     } else {
       console.log(`Checking if user ${user.id} has access to content ${contentId}`);
       
       // Check if the user has access using the database function
-      const { data: hasAccess, error: accessError } = await supabaseClient
+      const { data: accessData, error: accessError } = await supabaseClient
         .rpc('has_purchased_content', {
           user_id_param: user.id,
           content_id_param: contentId
@@ -111,25 +128,21 @@ serve(async (req) => {
         )
       }
 
-      if (!hasAccess) {
-        // Cache the negative access check
-        accessCache.set(cacheKey, {
-          hasAccess: false,
-          timestamp: Date.now()
-        });
-        
-        console.error('Access denied: User does not have permission to access this content')
-        return new Response(
-          JSON.stringify({ error: 'Access denied to content' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-        )
-      }
+      hasAccess = !!accessData;
       
-      // Cache the positive access check
-      accessCache.set(cacheKey, {
-        hasAccess: true,
+      // Cache the access check result
+      accessCache.set(accessCacheKey, {
+        hasAccess,
         timestamp: Date.now()
       });
+    }
+    
+    if (!hasAccess) {
+      console.error('Access denied: User does not have permission to access this content')
+      return new Response(
+        JSON.stringify({ error: 'Access denied to content' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      )
     }
 
     // Get signed URL with short expiry
@@ -141,49 +154,17 @@ serve(async (req) => {
       
     if (urlError) {
       console.error('Error generating signed URL:', urlError)
-      
-      // Try getting content info from database if available
-      const { data: contentData, error: contentError } = await supabaseClient
-        .from('contents')
-        .select('file_path')
-        .eq('id', contentId)
-        .single();
-      
-      if (contentError || !contentData || !contentData.file_path) {
-        return new Response(
-          JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        )
-      }
-      
-      // Try with file path from the database if different
-      if (contentData.file_path !== filePath) {
-        console.log(`Trying with file path from database: ${contentData.file_path}`);
-        const { data: altUrlData, error: altUrlError } = await supabaseClient
-          .storage
-          .from('content-media')
-          .createSignedUrl(contentData.file_path, 300) // 5 minutes
-          
-        if (altUrlError) {
-          console.error('Error generating signed URL with alternate path:', altUrlError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to generate secure URL' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-          )
-        }
-        
-        console.log('Secure URL generated successfully using database file path');
-        return new Response(
-          JSON.stringify({ secureUrl: altUrlData.signedUrl }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      } else {
-        return new Response(
-          JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
-        )
-      }
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate secure URL', details: urlError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
     }
+
+    // Cache the URL
+    urlCache.set(urlCacheKey, {
+      url: urlData.signedUrl,
+      timestamp: Date.now()
+    });
 
     console.log('Secure URL generated successfully');
 

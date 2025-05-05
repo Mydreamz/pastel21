@@ -10,8 +10,8 @@ const secureUrlCache = new Map<string, {
   timestamp: number
 }>();
 
-// Cache duration increased to 30 minutes to reduce requests
-const CACHE_DURATION = 30 * 60 * 1000;
+// Cache duration increased to 60 minutes to reduce requests
+const CACHE_DURATION = 60 * 60 * 1000;
 
 /**
  * Private implementation function to get a secure file URL
@@ -110,10 +110,9 @@ export const useSecureFileUrl = () => {
     
     try {      
       // Create a new request and store the promise
-      const requestPromise = getCachedSecureFileUrl(contentId, filePath);
-      pendingRequestRef.current = requestPromise;
+      pendingRequestRef.current = getCachedSecureFileUrl(contentId, filePath);
       
-      const url = await requestPromise;
+      const url = await pendingRequestRef.current;
       
       if (!url) {
         throw new Error('Failed to get secure URL');

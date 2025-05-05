@@ -112,9 +112,6 @@ export const useViewContent = (id: string | undefined) => {
       } else if (parseFloat(content.price) === 0) {
         // Free content is automatically unlocked
         setIsUnlocked(true);
-      } else if (window.location.pathname.startsWith('/view/')) {
-        // Redirect to preview page if paid content that user hasn't purchased
-        navigate(`/preview/${content.id}`);
       }
     } catch (err: any) {
       console.error("[ViewContent] Error checking permissions:", err);
@@ -171,9 +168,6 @@ export const useViewContent = (id: string | undefined) => {
         // Only check permissions if user is authenticated
         if (user && content) {
           await handlePermissions();
-        } else if (content && parseFloat(content.price) > 0 && window.location.pathname.startsWith('/view/')) {
-          // Redirect unauthenticated users for paid content
-          navigate(`/preview/${id}`);
         }
       } catch (err: any) {
         console.error("[ViewContent] Error loading content:", err);
