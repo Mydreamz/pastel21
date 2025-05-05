@@ -1,3 +1,4 @@
+
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -93,13 +94,13 @@ export const useSecureFileUrl = () => {
     setSecureFileError(null);
     
     try {
-      // Get the promise from the cached function
+      // Store the promise from the cached function - fixing the nested promise issue
       const promise = getCachedSecureFileUrl(contentId, filePath);
       
       // Store the promise reference for deduplication
       requestInProgress.current[cacheKey] = promise;
       
-      // Await the result directly
+      // Await the result - this unwraps the first promise layer
       const url = await promise;
       
       if (!url) {
