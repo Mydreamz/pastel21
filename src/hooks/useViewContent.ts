@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
@@ -77,7 +78,7 @@ export const useViewContent = (id: string | undefined) => {
     } catch (e: any) {
       console.error("[ViewContent] Error loading content:", e);
       // Ensure we set a string error, not an Error object
-      setError(e.message || "Error loading content");
+      setError(typeof e === 'string' ? e : (e?.message || "Error loading content"));
     } finally {
       setLoading(false);
     }
@@ -115,8 +116,10 @@ export const useViewContent = (id: string | undefined) => {
         // Redirect to preview page if paid content that user hasn't purchased
         navigate(`/preview/${content.id}`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("[ViewContent] Error checking permissions:", err);
+      // Make sure we convert any errors to strings
+      setError(typeof err === 'string' ? err : (err?.message || "Error checking content permissions"));
     }
   }, [content, user, getSecureFileUrl, checkPurchaseStatus, navigate, setPurchasedContentId]);
 

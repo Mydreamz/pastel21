@@ -43,8 +43,8 @@ const ViewContent = () => {
   }
 
   if (error || !content) {
-    // Convert Error object to string if needed
-    const errorMessage = error ? (typeof error === 'string' ? error : error.message || "Unknown error") : "Content not found";
+    // Error is already a string from our hook, but add a fallback just in case
+    const errorMessage = error || "Content not found";
     return <ContentError error={errorMessage} />;
   }
 
