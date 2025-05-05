@@ -94,12 +94,13 @@ export const useSecureFileUrl = () => {
     setSecureFileError(null);
     
     try {
-      // Store the raw promise directly - no additional Promise wrapping
+      // Call the cached function directly without wrapping in another Promise
       const promise = getCachedSecureFileUrl(contentId, filePath);
-      // Store the promise reference
+      
+      // Store the promise reference for deduplication
       requestInProgress.current[cacheKey] = promise;
       
-      // Await the promise
+      // Await the result directly
       const url = await promise;
       
       if (!url) {
