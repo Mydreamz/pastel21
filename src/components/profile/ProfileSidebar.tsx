@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Wallet, Calendar, Mail, IndianRupee } from 'lucide-react';
+import { User, Wallet, Calendar, Mail, IndianRupee, RefreshCw } from 'lucide-react';
 import WithdrawalModal from './WithdrawalModal';
 import { calculatePendingWithdrawals } from '@/utils/paymentUtils';
 import { useToast } from '@/hooks/use-toast';
+import { reconcileUserBalance } from '@/utils/balanceUtils';
 
 interface ProfileSidebarProps {
   userData: any;
@@ -20,6 +21,7 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [isLoadingPending, setIsLoadingPending] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Log the balance prop to help with debugging
   useEffect(() => {
@@ -64,6 +66,39 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
     }
   }, [userData?.id, toast]);
   
+  // Function to manually refresh balance
+  const handleRefreshBalance = async () => {
+    if (!userData?.id || isRefreshing) return;
+    
+    setIsRefreshing(true);
+    try {
+      const result = await reconcileUserBalance(userData.id);
+      if (result.success) {
+        toast({
+          title: "Balance Updated",
+          description: "Your wallet balance has been refreshed",
+        });
+        // Force a page reload to update all components
+        window.location.reload();
+      } else {
+        toast({
+          title: "Refresh Failed",
+          description: "Could not refresh your balance. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error refreshing balance:", error);
+      toast({
+        title: "Refresh Error",
+        description: "An error occurred while refreshing your balance",
+        variant: "destructive"
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+  
   // Calculate available balance
   const availableBalance = Math.max(0, balance - pendingWithdrawals);
   console.log("Calculated available balance:", availableBalance, "from balance:", balance, "and pending withdrawals:", pendingWithdrawals);
@@ -100,9 +135,20 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
           <Separator className="bg-pastel-200/50" />
           
           <div className="bg-pastel-500/10 p-4 rounded-lg border border-pastel-500/20">
-            <div className="flex items-center mb-2">
-              <Wallet className="h-5 w-5 text-pastel-700 mr-2" />
-              <h3 className="font-medium text-gray-800">Wallet Balance</h3>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center">
+                <Wallet className="h-5 w-5 text-pastel-700 mr-2" />
+                <h3 className="font-medium text-gray-800">Wallet Balance</h3>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleRefreshBalance}
+                disabled={isRefreshing}
+                className="h-7 w-7 p-0"
+              >
+                <RefreshCw className={`h-4 w-4 text-pastel-700 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
             <p className="text-2xl font-bold text-gray-800">
               <span className="flex items-center">

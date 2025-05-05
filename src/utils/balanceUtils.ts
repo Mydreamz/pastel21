@@ -10,24 +10,86 @@ export async function reconcileUserBalance(userId: string) {
   try {
     console.log(`Starting balance reconciliation for user: ${userId}`);
     
-    const result = await PaymentDistributionService.reconcileUserEarnings(userId);
-    
-    if (result.success) {
-      console.log(`Reconciliation successful - Total earnings: ${result.totalEarnings}, Available balance: ${result.availableBalance}`);
-      return {
-        success: true,
-        message: "Balance successfully reconciled",
-        totalEarnings: result.totalEarnings,
-        availableBalance: result.availableBalance
-      };
-    } else {
-      console.error("Reconciliation failed:", result.error);
+    // Get all completed transactions for this user
+    const { data: transactions, error: txError } = await supabase
+      .from('transactions')
+      .select('creator_earnings')
+      .eq('creator_id', userId)
+      .eq('status', 'completed')
+      .eq('is_deleted', false);
+      
+    if (txError) {
+      console.error("Error fetching transactions for reconciliation:", txError);
       return {
         success: false,
-        message: "Failed to reconcile balance",
-        error: result.error
+        message: "Failed to fetch transactions",
+        error: txError.message
       };
     }
+    
+    // Calculate total earnings from transactions
+    let totalEarnings = 0;
+    if (transactions && transactions.length > 0) {
+      totalEarnings = transactions.reduce((sum, tx) => 
+        sum + (tx.creator_earnings ? parseFloat(tx.creator_earnings) : 0), 0);
+    }
+    
+    console.log(`Calculated total earnings from ${transactions?.length || 0} transactions: ${totalEarnings}`);
+    
+    // Get withdrawal requests to calculate available balance
+    const { data: withdrawals, error: wdError } = await supabase
+      .from('withdrawal_requests')
+      .select('amount')
+      .eq('user_id', userId)
+      .in('status', ['completed', 'processing', 'pending']);
+      
+    if (wdError) {
+      console.error("Error fetching withdrawals for reconciliation:", wdError);
+      return {
+        success: false,
+        message: "Failed to fetch withdrawals",
+        error: wdError.message
+      };
+    }
+    
+    // Calculate total withdrawn amount
+    let totalWithdrawn = 0;
+    if (withdrawals && withdrawals.length > 0) {
+      totalWithdrawn = withdrawals.reduce((sum, wd) => sum + (wd.amount || 0), 0);
+    }
+    
+    console.log(`Calculated total withdrawals from ${withdrawals?.length || 0} requests: ${totalWithdrawn}`);
+    
+    // Calculate available balance
+    const availableBalance = Math.max(0, totalEarnings - totalWithdrawn);
+    console.log(`Calculated available balance: ${availableBalance}`);
+    
+    // Update the profile with reconciled values
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        total_earnings: totalEarnings.toFixed(2),
+        available_balance: availableBalance.toFixed(2),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+      
+    if (updateError) {
+      console.error("Error updating profile with reconciled earnings:", updateError);
+      return {
+        success: false,
+        message: "Failed to update profile",
+        error: updateError.message
+      };
+    }
+    
+    console.log("Balance reconciliation completed successfully");
+    return {
+      success: true,
+      message: "Balance successfully reconciled",
+      totalEarnings,
+      availableBalance
+    };
   } catch (error) {
     console.error("Error in reconcileUserBalance:", error);
     return {
@@ -68,24 +130,9 @@ export async function refreshUserBalance(userId: string) {
       };
     }
     
-    // Get the latest earnings summary to ensure we have the most up-to-date data
-    const summary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
-    
-    console.log(`Refreshed balance - Profile: ${profile?.available_balance || 0}, Summary: ${summary.available_balance}`);
-    
-    // If there's a significant discrepancy, reconcile
-    const profileBalance = profile?.available_balance ? parseFloat(profile.available_balance) : 0;
-    if (Math.abs(profileBalance - summary.available_balance) > 0.01) {
-      console.log("Balance discrepancy detected, reconciling...");
-      return reconcileUserBalance(userId);
-    }
-    
-    return {
-      success: true,
-      message: "Balance refreshed successfully",
-      totalEarnings: summary.total_earnings,
-      availableBalance: summary.available_balance
-    };
+    // Force reconciliation to ensure accurate balance
+    console.log("Performing full reconciliation to ensure accurate balance");
+    return reconcileUserBalance(userId);
   } catch (error) {
     console.error("Error in refreshUserBalance:", error);
     return {

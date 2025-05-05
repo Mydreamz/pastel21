@@ -28,6 +28,8 @@ export async function updateCreatorEarnings(creatorId: string, earnings: number)
         await createNewProfile(creatorId, earnings);
         return;
       }
+      
+      throw error; // Rethrow error to be caught and logged
     } else if (creatorProfile) {
       // Access properties safely
       console.log("Current profile data:", creatorProfile);
@@ -62,13 +64,15 @@ export async function updateCreatorEarnings(creatorId: string, earnings: number)
       }
       
       console.log("Profile updated successfully:", updateData);
+      return true;
     } catch (updateException) {
       console.error("Exception during profile update:", updateException);
       throw updateException;
     }
   } catch (error) {
     console.error("Error updating creator earnings:", error);
-    // We don't throw here to prevent transaction failure, but we log it
+    // Throw the error so it can be handled by the calling function
+    throw error;
   }
 }
 
@@ -96,6 +100,7 @@ async function createNewProfile(userId: string, initialEarnings: number) {
     console.log("New profile created successfully with initial earnings");
   } catch (error) {
     console.error("Exception creating new profile:", error);
+    throw error; // Rethrow to be caught by caller
   }
 }
 
@@ -136,7 +141,7 @@ export async function reconcileUserEarnings(userId: string) {
       .from('withdrawal_requests')
       .select('amount')
       .eq('user_id', userId)
-      .in('status', ['completed', 'processing']);
+      .in('status', ['completed', 'processing', 'pending']);
       
     if (wdError) {
       console.error("Error fetching withdrawals for reconciliation:", wdError);

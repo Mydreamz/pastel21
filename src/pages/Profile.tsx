@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +11,12 @@ import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
 import EarningsSummary from '@/components/profile/EarningsSummary';
-import { refreshUserBalance } from '@/utils/balanceUtils';
+import { reconcileUserBalance } from '@/utils/balanceUtils';
+import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { 
     isAuthenticated, 
     userData, 
@@ -29,22 +32,26 @@ const Profile = () => {
     // Force refresh user data when the profile page loads
     if (isAuthenticated && userData) {
       console.log("Profile page mounted, refreshing user data including balance");
-      fetchUserData();
       
-      // Also try to reconcile balance if needed
+      // First reconcile the user's balance to ensure it's accurate
       if (userData.id) {
-        refreshUserBalance(userData.id).then(result => {
+        reconcileUserBalance(userData.id).then(result => {
           if (result.success) {
-            console.log("Balance refresh successful:", result);
-            // Force refresh data again if balance was updated
+            console.log("Balance reconciliation successful:", result);
+            // Now fetch the updated data to refresh the UI
             fetchUserData();
           } else {
-            console.error("Balance refresh failed:", result.error);
+            console.error("Balance reconciliation failed:", result.error);
+            toast({
+              title: "Balance update issue",
+              description: "We encountered an issue updating your balance. Try refreshing the page.",
+              variant: "destructive"
+            });
           }
         });
       }
     }
-  }, [isAuthenticated, userData, fetchUserData]);
+  }, [isAuthenticated, userData, fetchUserData, toast]);
 
   // Log the current balance value to help with debugging
   useEffect(() => {
