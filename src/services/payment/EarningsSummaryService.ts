@@ -19,6 +19,14 @@ export async function getCreatorEarningsSummary(creatorId: string): Promise<Earn
 
     if (profileError) {
       console.error("Error fetching profile for earnings:", profileError);
+      
+      // If profile doesn't exist, we'll return zeros but also try to reconcile
+      if (profileError.code === 'PGRST116') {
+        console.log("Profile not found, attempting reconciliation...");
+        // Import here to avoid circular dependency
+        const { reconcileUserEarnings } = await import('./CreatorEarningsService');
+        await reconcileUserEarnings(creatorId);
+      }
     }
 
     // Initialize values
@@ -30,19 +38,38 @@ export async function getCreatorEarningsSummary(creatorId: string): Promise<Earn
     if (profile) {
       console.log("Profile data for earnings:", profile);
       // Use type assertion to access custom fields
-      const profileData = profile as any;
-      totalEarnings = profileData.total_earnings ? parseFloat(profileData.total_earnings) : 0;
-      availableBalance = profileData.available_balance ? parseFloat(profileData.available_balance) : 0;
+      totalEarnings = profile.total_earnings ? parseFloat(profile.total_earnings) : 0;
+      availableBalance = profile.available_balance ? parseFloat(profile.available_balance) : 0;
       
       console.log("Extracted from profile - Total earnings:", totalEarnings, "Available balance:", availableBalance);
     } else {
-      console.log("No profile data found for earnings calculation");
+      console.log("No profile data found, calculating earnings from transactions...");
+      
+      // Calculate earnings from transactions if profile is missing
+      const { data: transactions, error: txError } = await supabase
+        .from('transactions')
+        .select('creator_earnings')
+        .eq('creator_id', creatorId)
+        .eq('status', 'completed')
+        .eq('is_deleted', false);
+        
+      if (!txError && transactions) {
+        totalEarnings = transactions.reduce((sum, tx) => 
+          sum + (tx.creator_earnings ? parseFloat(tx.creator_earnings) : 0), 0);
+        availableBalance = totalEarnings; // Initially set to same as earnings, will subtract withdrawals
+        console.log("Calculated from transactions - Total earnings:", totalEarnings);
+      }
     }
     
     // Get pending withdrawals total using direct calculation
     try {
       pendingWithdrawalsTotal = await calculatePendingWithdrawals(creatorId);
       console.log("Pending withdrawals calculated:", pendingWithdrawalsTotal);
+      
+      // Ensure available balance is properly reduced by pending withdrawals
+      if (!profile) {
+        availableBalance = Math.max(0, availableBalance - pendingWithdrawalsTotal);
+      }
     } catch (withdrawalError) {
       console.error("Error calculating pending withdrawals:", withdrawalError);
     }

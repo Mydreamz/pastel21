@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
 import EarningsSummary from '@/components/profile/EarningsSummary';
+import { refreshUserBalance } from '@/utils/balanceUtils';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -30,6 +30,19 @@ const Profile = () => {
     if (isAuthenticated && userData) {
       console.log("Profile page mounted, refreshing user data including balance");
       fetchUserData();
+      
+      // Also try to reconcile balance if needed
+      if (userData.id) {
+        refreshUserBalance(userData.id).then(result => {
+          if (result.success) {
+            console.log("Balance refresh successful:", result);
+            // Force refresh data again if balance was updated
+            fetchUserData();
+          } else {
+            console.error("Balance refresh failed:", result.error);
+          }
+        });
+      }
     }
   }, [isAuthenticated, userData, fetchUserData]);
 

@@ -36,7 +36,7 @@ export interface WithdrawalRequest {
   created_at?: string;
 }
 
-// Standardized transaction result type
+// Standardized transaction result type with additional fields
 export interface TransactionResult {
   success: boolean;
   alreadyPurchased?: boolean;
@@ -44,6 +44,7 @@ export interface TransactionResult {
   error?: string;
   platformFee?: number;
   creatorEarnings?: number;
+  transactionId?: string; // Added transactionId field
 }
 
 // Updated interface for saved user withdrawal details

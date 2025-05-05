@@ -14,6 +14,8 @@ export async function processPurchaseTransaction(
   feePercentage: number
 ): Promise<TransactionResult> {
   try {
+    console.log(`Starting transaction processing - Content: ${contentId}, User: ${userId}, Creator: ${creatorId}, Amount: ${amount}`);
+    
     // Check if transaction already exists (prevent duplicate purchases)
     const { data: existingTransactions, error: checkError } = await supabase
       .from('transactions')
@@ -56,6 +58,11 @@ export async function processPurchaseTransaction(
       creatorEarnings
     );
 
+    if (result.success && !result.alreadyPurchased) {
+      // Log successful transaction
+      console.log(`Transaction completed successfully - ID: ${result.transactionId}, Creator: ${creatorId}, Earnings: ${creatorEarnings}`);
+    }
+
     return result;
   } catch (error: any) {
     console.error("Transaction processing error:", error);
@@ -84,79 +91,44 @@ async function createTransactionRecord(
       user_id: userId,
       creator_id: creatorId,
       amount: amount.toString(),
+      platform_fee: platformFee.toString(),
+      creator_earnings: creatorEarnings.toString(),
       timestamp: new Date().toISOString(),
+      status: 'completed',
       is_deleted: false
     };
     
-    // Handle potential schema cache issues by inserting in two stages if needed
-    try {
-      // First attempt: Try inserting with all fields including fee distribution
-      const fullTransactionData = {
-        ...baseTransactionData,
-        platform_fee: platformFee.toString(),
-        creator_earnings: creatorEarnings.toString(),
-        status: 'completed'
-      };
-      
-      const { data, error } = await supabase
-        .from('transactions')
-        .insert(fullTransactionData)
-        .select();
+    console.log("Creating transaction with data:", baseTransactionData);
+    
+    // Insert the transaction record
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert(baseTransactionData)
+      .select();
         
-      if (error) {
-        // If schema cache error, throw to trigger fallback
-        if (error.message?.includes("column") || error.message?.includes("schema cache")) {
-          console.warn("Schema cache issue detected, trying fallback insertion:", error);
-          throw new Error("Schema cache error");
-        }
-        
-        // If the error indicates a duplicate purchase
-        if (error.code === '23505' || error.message?.includes("duplicate")) {
-          console.log("Duplicate transaction detected via error, treating as success");
-          return {
-            success: true,
-            alreadyPurchased: true,
-            message: "Content already purchased"
-          };
-        }
-        
-        throw error;
+    if (error) {
+      // If the error indicates a duplicate purchase
+      if (error.code === '23505' || error.message?.includes("duplicate")) {
+        console.log("Duplicate transaction detected via error, treating as success");
+        return {
+          success: true,
+          alreadyPurchased: true,
+          message: "Content already purchased"
+        };
       }
       
-      console.log("Transaction recorded successfully with full data:", data);
-      return {
-        success: true,
-        platformFee,
-        creatorEarnings
-      };
-      
-    } catch (schemaError: any) {
-      // Fallback: Try inserting with just the base fields if there was a schema error
-      const { data: baseData, error: baseError } = await supabase
-        .from('transactions')
-        .insert(baseTransactionData)
-        .select();
-        
-      if (baseError) {
-        // If this also fails with a duplicate error, treat as success
-        if (baseError.code === '23505' || baseError.message?.includes("duplicate")) {
-          return {
-            success: true,
-            alreadyPurchased: true,
-            message: "Content already purchased"
-          };
-        }
-        
-        throw baseError;
-      }
-      
-      console.log("Transaction recorded successfully with basic data:", baseData);
-      return {
-        success: true,
-        platformFee,
-        creatorEarnings
-      };
+      throw error;
     }
+    
+    const transactionId = data?.[0]?.id;
+    console.log("Transaction recorded successfully with ID:", transactionId);
+      
+    return {
+      success: true,
+      platformFee,
+      creatorEarnings,
+      transactionId
+    };
   } catch (insertError: any) {
     console.error("Exception during transaction insert:", insertError);
     
