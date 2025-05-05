@@ -109,9 +109,10 @@ export const useSecureFileUrl = () => {
     setError(null);
     
     try {      
-      // Create a new request and store the promise
+      // Fix: Avoid nesting promises incorrectly
       pendingRequestRef.current = getCachedSecureFileUrl(contentId, filePath);
       
+      // Await the promise to get the actual string result
       const url = await pendingRequestRef.current;
       
       if (!url) {

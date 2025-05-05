@@ -17,7 +17,6 @@ import EditContent from "./pages/EditContent";
 import Profile from "./pages/Profile";
 import ContentSuccess from "./pages/ContentSuccess";
 import NotFound from "./pages/NotFound";
-import PreviewContent from "./pages/PreviewContent";
 import Search from "./pages/Search";
 import ForgotPassword from "./pages/ForgotPassword";
 import Marketplace from "./pages/Marketplace";
@@ -136,9 +135,8 @@ const App = () => {
                         <CreateContent />
                       </ProtectedRoute>
                     } />
-                    {/* Make view and preview routes public */}
+                    {/* Make view route public */}
                     <Route path="/view/:id" element={<ViewContent />} />
-                    <Route path="/preview/:id" element={<PreviewContent />} />
                     <Route path="/edit/:id" element={
                       <ProtectedRoute>
                         <EditContent />

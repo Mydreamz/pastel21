@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, memo } from 'react';
 import { useParams } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
@@ -15,6 +16,7 @@ import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, 
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { memo as reactMemo } from 'react';
+import { Button } from '@/components/ui/button';
 
 // Memoized related content item component to prevent re-renders
 const RelatedContentItem = reactMemo(({ item, navigate }: { item: any, navigate: any }) => (
