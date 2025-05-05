@@ -2,6 +2,7 @@
 import { processPurchaseTransaction } from './TransactionProcessingService';
 import { updateCreatorEarnings } from './CreatorEarningsService';
 import { getCreatorEarningsSummary } from './EarningsSummaryService';
+import { TransactionResult } from '@/types/transaction';
 
 export class PaymentDistributionService {
   private static PLATFORM_FEE_PERCENTAGE = 7;
@@ -9,11 +10,14 @@ export class PaymentDistributionService {
   /**
    * Process a payment, distributing funds between platform and creator
    */
-  static async processPayment(contentId: string, userId: string, creatorId: string, amount: number) {
+  static async processPayment(contentId: string, userId: string, creatorId: string, amount: number): Promise<TransactionResult> {
     try {
       // Validate inputs
       if (!contentId || !userId || !creatorId || amount <= 0) {
-        throw new Error("Invalid payment parameters");
+        return {
+          success: false,
+          error: "Invalid payment parameters"
+        };
       }
       
       // Process the transaction

@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { calculateFees } from "@/utils/paymentUtils";
+import { TransactionResult } from "@/types/transaction";
 
 /**
  * Process a purchase transaction
@@ -11,7 +12,7 @@ export async function processPurchaseTransaction(
   creatorId: string, 
   amount: number,
   feePercentage: number
-) {
+): Promise<TransactionResult> {
   try {
     // Check if transaction already exists (prevent duplicate purchases)
     const { data: existingTransactions, error: checkError } = await supabase
@@ -24,7 +25,10 @@ export async function processPurchaseTransaction(
     
     if (checkError) {
       console.error("Error checking for existing transactions:", checkError);
-      throw new Error("Failed to validate transaction uniqueness");
+      return {
+        success: false,
+        error: "Failed to validate transaction uniqueness"
+      };
     }
     
     // If transaction already exists, prevent duplicate purchase
@@ -55,7 +59,10 @@ export async function processPurchaseTransaction(
     return result;
   } catch (error: any) {
     console.error("Transaction processing error:", error);
-    throw error;
+    return {
+      success: false,
+      error: error.message || "Unknown transaction error"
+    };
   }
 }
 
@@ -69,7 +76,7 @@ async function createTransactionRecord(
   amount: number,
   platformFee: number,
   creatorEarnings: number
-) {
+): Promise<TransactionResult> {
   try {
     // Create the basic transaction object first (required fields only)
     const baseTransactionData = {
@@ -170,6 +177,9 @@ async function createTransactionRecord(
       };
     }
     
-    throw new Error("Failed to process payment: " + (insertError.message || "Unknown error"));
+    return {
+      success: false,
+      error: "Failed to process payment: " + (insertError.message || "Unknown error")
+    };
   }
 }

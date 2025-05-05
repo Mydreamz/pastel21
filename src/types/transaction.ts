@@ -1,4 +1,3 @@
-
 export interface Transaction {
   id: string;
   content_id: string;
@@ -34,6 +33,16 @@ export interface WithdrawalRequest {
   pan_name: string;
   phone_number: string;
   created_at?: string;
+}
+
+// Standardized transaction result type to fix TypeScript errors
+export interface TransactionResult {
+  success: boolean;
+  alreadyPurchased?: boolean;
+  message?: string;
+  error?: string;
+  platformFee?: number;
+  creatorEarnings?: number;
 }
 
 // Updated interface for saved user withdrawal details

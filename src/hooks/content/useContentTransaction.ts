@@ -1,11 +1,12 @@
+
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from '@/contexts/NotificationContext';
-import { supabase } from '@/integrations/supabase/client';
 import { Content } from '@/types/content';
 import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 import { useContentCache } from '@/contexts/ContentCacheContext';
+import { TransactionResult } from '@/types/transaction';
 
 /**
  * Hook for handling content transactions (purchases) with improved caching and deduplication
@@ -93,7 +94,7 @@ export const useContentTransaction = () => {
         console.log(`User ${userId} purchasing content ${content.id} for ${content.price}`);
         
         // Use the PaymentDistributionService for processing
-        const paymentResult = await PaymentDistributionService.processPayment(
+        const paymentResult: TransactionResult = await PaymentDistributionService.processPayment(
           content.id,
           userId,
           content.creatorId,
@@ -121,9 +122,14 @@ export const useContentTransaction = () => {
         setPurchasedContentId(content.id);
         
         // Purchase successful
+        let successMessage = `Thank you for your purchase of ₹${parseFloat(content.price).toFixed(2)}`;
+        if (paymentResult.creatorEarnings) {
+          successMessage += `. Creator receives ₹${paymentResult.creatorEarnings.toFixed(2)}.`;
+        }
+        
         toast({
           title: "Content unlocked",
-          description: `Thank you for your purchase of ₹${parseFloat(content.price).toFixed(2)}${paymentResult.creatorEarnings ? `. Creator receives ₹${paymentResult.creatorEarnings.toFixed(2)}.` : ''}`
+          description: successMessage
         });
         
         navigate(`/view/${content.id}`);
