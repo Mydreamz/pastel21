@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,11 +18,19 @@ const Profile = () => {
     isAuthenticated, 
     userData, 
     userContents, 
-    balance, 
+    balance,
+    fetchUserData, 
     handleLogout, 
     handleEditContent, 
     handleDeleteContent 
   } = useProfileData();
+
+  useEffect(() => {
+    // Force refresh user data when the profile page loads
+    if (isAuthenticated && userData) {
+      fetchUserData();
+    }
+  }, [isAuthenticated, userData, fetchUserData]);
 
   if (!isAuthenticated || !userData) {
     return null;

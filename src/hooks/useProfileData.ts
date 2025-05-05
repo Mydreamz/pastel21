@@ -1,8 +1,10 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 
 // Define a ProfileData type to use throughout the application
 export interface ProfileData {
@@ -14,6 +16,8 @@ export interface ProfileData {
   linkedin_url?: string;
   github_url?: string;
   updated_at?: string;
+  total_earnings?: string;
+  available_balance?: string;
 }
 
 // Global cache and in-flight request tracking
@@ -41,50 +45,85 @@ export const useProfileData = () => {
   const fetchUserData = useCallback(async () => {
     if (!user) return;
     const userId = user.id;
-    // Profile cache
-    const profileCache = globalProfileCache[userId];
-    if (profileCache && Date.now() - profileCache.timestamp < CACHE_TIME) {
-      setProfileData(profileCache.data);
-    } else if (globalInFlightProfile[userId]) {
-      setProfileData(await globalInFlightProfile[userId]);
-    } else {
-      globalInFlightProfile[userId] = (async () => {
+    
+    setIsLoadingData(true);
+    
+    try {
+      // Profile cache
+      const profileCache = globalProfileCache[userId];
+      if (profileCache && Date.now() - profileCache.timestamp < CACHE_TIME) {
+        setProfileData(profileCache.data);
+      } else if (globalInFlightProfile[userId]) {
+        setProfileData(await globalInFlightProfile[userId]);
+      } else {
+        globalInFlightProfile[userId] = (async () => {
+          try {
+            if (userId && session?.access_token) {
+              const { data, error } = await supabase.functions.invoke('get-profile', {
+                body: { action: 'get' },
+                headers: { Authorization: `Bearer ${session.access_token}` }
+              });
+              if (!error && data?.data) {
+                globalProfileCache[userId] = { data: data.data as ProfileData, timestamp: Date.now() };
+                setProfileData(data.data as ProfileData);
+                
+                // Update balance from profile data
+                if (data.data.available_balance) {
+                  setBalance(parseFloat(data.data.available_balance));
+                }
+                
+                return data.data as ProfileData;
+              }
+            }
+          } catch (e) { console.error(e); }
+          return null;
+        })();
+        
+        const profileResult = await globalInFlightProfile[userId];
+        setProfileData(profileResult);
+        
+        // Now let's also fetch the earnings summary
         try {
-          if (userId && session?.access_token) {
-            const { data, error } = await supabase.functions.invoke('get-profile', {
-              body: { action: 'get' },
-              headers: { Authorization: `Bearer ${session.access_token}` }
-            });
-            if (!error && data?.data) {
-              globalProfileCache[userId] = { data: data.data as ProfileData, timestamp: Date.now() };
-              setProfileData(data.data as ProfileData);
-              return data.data as ProfileData;
+          if (userId) {
+            const earningsSummary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
+            if (earningsSummary) {
+              // Update balance from earnings summary
+              setBalance(earningsSummary.available_balance);
             }
           }
-        } catch (e) { console.error(e); }
-        return null;
-      })();
-      setProfileData(await globalInFlightProfile[userId]);
-      delete globalInFlightProfile[userId];
-    }
-    // User contents cache
-    const contentsCache = globalUserContentsCache[userId];
-    if (contentsCache && Date.now() - contentsCache.timestamp < CACHE_TIME) {
-      setUserContents(contentsCache.data);
-    } else if (globalInFlightContents[userId]) {
-      setUserContents(await globalInFlightContents[userId]);
-    } else {
-      globalInFlightContents[userId] = (async () => {
-        const { data: contents, error } = await supabase.from('contents').select('*').eq('creator_id', userId);
-        if (!error) {
-          globalUserContentsCache[userId] = { data: contents || [], timestamp: Date.now() };
-          setUserContents(contents || []);
-          return contents || [];
+        } catch (e) {
+          console.error("Error fetching earnings summary:", e);
         }
-        return [];
-      })();
-      setUserContents(await globalInFlightContents[userId]);
-      delete globalInFlightContents[userId];
+        
+        delete globalInFlightProfile[userId];
+      }
+      
+      // User contents cache
+      const contentsCache = globalUserContentsCache[userId];
+      if (contentsCache && Date.now() - contentsCache.timestamp < CACHE_TIME) {
+        setUserContents(contentsCache.data);
+      } else if (globalInFlightContents[userId]) {
+        setUserContents(await globalInFlightContents[userId]);
+      } else {
+        globalInFlightContents[userId] = (async () => {
+          const { data: contents, error } = await supabase.from('contents').select('*').eq('creator_id', userId);
+          if (!error) {
+            globalUserContentsCache[userId] = { data: contents || [], timestamp: Date.now() };
+            setUserContents(contents || []);
+            return contents || [];
+          }
+          return [];
+        })();
+        setUserContents(await globalInFlightContents[userId]);
+        delete globalInFlightContents[userId];
+      }
+      
+      setFetchedData(true);
+      hasFetchedRef.current = true;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setIsLoadingData(false);
     }
   }, [user, session]);
 

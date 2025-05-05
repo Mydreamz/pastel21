@@ -2,7 +2,7 @@
 import { processPurchaseTransaction } from './TransactionProcessingService';
 import { updateCreatorEarnings } from './CreatorEarningsService';
 import { getCreatorEarningsSummary } from './EarningsSummaryService';
-import { TransactionResult } from '@/types/transaction';
+import { TransactionResult, EarningsSummary } from '@/types/transaction';
 
 export class PaymentDistributionService {
   private static PLATFORM_FEE_PERCENTAGE = 7;
@@ -52,7 +52,7 @@ export class PaymentDistributionService {
   /**
    * Get a creator's earnings summary
    */
-  static async getCreatorEarningsSummary(creatorId: string) {
+  static async getCreatorEarningsSummary(creatorId: string): Promise<EarningsSummary> {
     return getCreatorEarningsSummary(creatorId);
   }
 }
