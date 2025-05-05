@@ -1,11 +1,8 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { useToast } from "@/hooks/use-toast";
+import React, { useState } from 'react';
 import LockedContent from './LockedContent';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { PaymentDistributionService } from '@/services/PaymentDistributionService';
 import AuthDialog from '@/components/auth/AuthDialog';
+import { usePaymentFlow } from './payment/usePaymentFlow';
 
 interface PaymentFlowProps {
   content: any;
@@ -22,79 +19,22 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   isPurchased,
   refreshPermissions
 }) => {
-  const { toast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { user, session } = useAuth();
-  const [hasCheckedPurchase, setHasCheckedPurchase] = useState(false);
-  const [isAlreadyPurchased, setIsAlreadyPurchased] = useState(isPurchased);
   
-  // Check if the user has already purchased this content - using useCallback to prevent extra renders
-  const checkPurchaseStatus = useCallback(async () => {
-    if (!user || !content?.id) return;
-    
-    try {
-      // Direct query for purchase check
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('content_id', content.id)
-        .eq('user_id', user.id)
-        .eq('is_deleted', false)
-        .limit(1);
-        
-      if (error) {
-        console.error("Error checking purchase status:", error);
-        return;
-      }
-      
-      const hasPurchased = data && data.length > 0;
-      if (hasPurchased !== isAlreadyPurchased) {
-        setIsAlreadyPurchased(hasPurchased);
-      }
-      setHasCheckedPurchase(true);
-    } catch (e) {
-      console.error("Exception checking purchase status:", e);
-    }
-  }, [user, content?.id, isAlreadyPurchased]);
-  
-  useEffect(() => {
-    if ((user && content?.id) && (!hasCheckedPurchase || isPurchased !== isAlreadyPurchased)) {
-      checkPurchaseStatus();
-    }
-  }, [user, content?.id, isPurchased, isAlreadyPurchased, hasCheckedPurchase, checkPurchaseStatus]);
+  // Use our custom hook to handle all payment flow logic
+  const { isProcessing, isAlreadyPurchased, handleUnlock } = usePaymentFlow(
+    content,
+    user?.id,
+    isCreator,
+    isPurchased,
+    refreshPermissions,
+    onUnlock
+  );
 
-  const handleUnlock = async () => {
-    if (isProcessing) {
-      return; // Prevent multiple clicks
-    }
-
-    if (isCreator) {
-      toast({
-        title: "Creator Access",
-        description: "You have full access as the content creator",
-        variant: "default"
-      });
-      onUnlock();
-      return;
-    }
-
-    if (isAlreadyPurchased || isPurchased) {
-      toast({
-        title: "Already Purchased",
-        description: "You've already purchased this content and have full access",
-        variant: "default"
-      });
-      onUnlock();
-      return;
-    }
-
-    if (parseFloat(content.price) === 0) {
-      onUnlock();
-      return;
-    }
-
+  // Handle unlock request including authentication check
+  const handleUnlockRequest = async () => {
     // If user is not authenticated, show auth dialog
     if (!session || !user) {
       setAuthTab('login');
@@ -102,77 +42,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       return;
     }
     
-    setIsProcessing(true);
-    
-    try {
-      // Use the simplified transaction processing approach
-      const result = await PaymentDistributionService.processPayment(
-        content.id,
-        user.id,
-        content.creatorId,
-        parseFloat(content.price)
-      );
-
-      if (!result.success) {
-        if (result.alreadyPurchased) {
-          toast({
-            title: "Already In Your Library",
-            description: "You've already purchased this content. You can access it from your purchased content section.",
-            variant: "default"
-          });
-          setIsAlreadyPurchased(true);
-          refreshPermissions();
-          onUnlock();
-        } else {
-          throw new Error(result.error || "Failed to process payment");
-        }
-      } else {
-        // Refresh the permissions to update the UI
-        refreshPermissions();
-        setIsAlreadyPurchased(true);
-        onUnlock();
-        
-        toast({
-          title: "Payment Successful",
-          description: `You've unlocked "${content.title}" and it's now in your library`,
-          variant: "default"
-        });
-      }
-    } catch (error: any) {
-      // One final check to see if the transaction actually went through
-      try {
-        const { data } = await supabase
-          .from('transactions')
-          .select('id')
-          .eq('content_id', content.id)
-          .eq('user_id', user.id)
-          .eq('is_deleted', false)
-          .limit(1);
-          
-        if (data && data.length > 0) {
-          // Transaction exists despite the error!
-          toast({
-            title: "Payment Successful",
-            description: `You've unlocked "${content.title}" and it's now in your library`,
-            variant: "default"
-          });
-          refreshPermissions();
-          setIsAlreadyPurchased(true);
-          onUnlock();
-          return;
-        }
-      } catch (finalCheckError) {
-        // If this fails too, proceed to the error message
-      }
-      
-      toast({
-        title: "Payment Failed",
-        description: error.message || "Unable to process your payment. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+    // Otherwise process the unlock request
+    await handleUnlock();
   };
 
   // Show the LockedContent component for paid content when not unlocked and not already purchased
@@ -182,7 +53,7 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
       <>
         <LockedContent 
           price={content.price} 
-          onUnlock={handleUnlock}
+          onUnlock={handleUnlockRequest}
           contentTitle={content.title}
           isProcessing={isProcessing}
           isPurchased={actuallyPurchased}
