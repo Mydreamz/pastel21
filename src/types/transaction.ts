@@ -36,7 +36,7 @@ export interface WithdrawalRequest {
   created_at?: string;
 }
 
-// Standardized transaction result type to fix TypeScript errors
+// Standardized transaction result type
 export interface TransactionResult {
   success: boolean;
   alreadyPurchased?: boolean;

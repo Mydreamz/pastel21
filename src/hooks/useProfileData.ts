@@ -46,61 +46,101 @@ export const useProfileData = () => {
     if (!user) return;
     const userId = user.id;
     
+    console.log("Fetching user data for userId:", userId);
     setIsLoadingData(true);
     
     try {
       // Profile cache
       const profileCache = globalProfileCache[userId];
-      if (profileCache && Date.now() - profileCache.timestamp < CACHE_TIME) {
+      const now = Date.now();
+      const shouldRefreshCache = !profileCache || (now - profileCache.timestamp) >= CACHE_TIME;
+      
+      console.log("Should refresh profile cache:", shouldRefreshCache);
+      
+      if (!shouldRefreshCache && profileCache) {
+        console.log("Using cached profile data");
         setProfileData(profileCache.data);
+        
+        // Set balance from cached profile data if available
+        if (profileCache.data?.available_balance) {
+          const cachedBalance = parseFloat(profileCache.data.available_balance);
+          console.log("Setting balance from cached profile:", cachedBalance);
+          setBalance(cachedBalance);
+        }
       } else if (globalInFlightProfile[userId]) {
-        setProfileData(await globalInFlightProfile[userId]);
+        console.log("Using in-flight profile request");
+        const profileResult = await globalInFlightProfile[userId];
+        setProfileData(profileResult);
+        
+        // Set balance from profile if available
+        if (profileResult?.available_balance) {
+          const profileBalance = parseFloat(profileResult.available_balance);
+          console.log("Setting balance from in-flight profile:", profileBalance);
+          setBalance(profileBalance);
+        }
       } else {
+        console.log("Fetching fresh profile data");
         globalInFlightProfile[userId] = (async () => {
           try {
             if (userId && session?.access_token) {
+              console.log("Invoking get-profile function");
               const { data, error } = await supabase.functions.invoke('get-profile', {
                 body: { action: 'get' },
                 headers: { Authorization: `Bearer ${session.access_token}` }
               });
-              if (!error && data?.data) {
-                globalProfileCache[userId] = { data: data.data as ProfileData, timestamp: Date.now() };
+              
+              if (error) {
+                console.error("Error fetching profile:", error);
+                return null;
+              }
+              
+              if (data?.data) {
+                console.log("Profile data received:", data.data);
+                globalProfileCache[userId] = { data: data.data as ProfileData, timestamp: now };
                 setProfileData(data.data as ProfileData);
                 
                 // Update balance from profile data
                 if (data.data.available_balance) {
-                  setBalance(parseFloat(data.data.available_balance));
+                  const profileBalance = parseFloat(data.data.available_balance);
+                  console.log("Setting balance from fresh profile:", profileBalance);
+                  setBalance(profileBalance);
                 }
                 
                 return data.data as ProfileData;
               }
             }
-          } catch (e) { console.error(e); }
+          } catch (e) { 
+            console.error("Exception fetching profile:", e); 
+          }
           return null;
         })();
         
         const profileResult = await globalInFlightProfile[userId];
         setProfileData(profileResult);
-        
-        // Now let's also fetch the earnings summary
-        try {
-          if (userId) {
-            const earningsSummary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
-            if (earningsSummary) {
-              // Update balance from earnings summary
-              setBalance(earningsSummary.available_balance);
-            }
-          }
-        } catch (e) {
-          console.error("Error fetching earnings summary:", e);
-        }
-        
         delete globalInFlightProfile[userId];
+      }
+      
+      // Always fetch the latest earnings summary to get the most accurate balance
+      try {
+        if (userId) {
+          console.log("Fetching earnings summary");
+          const earningsSummary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
+          if (earningsSummary) {
+            console.log("Earnings summary received:", earningsSummary);
+            // Update balance from earnings summary as it's the most accurate
+            console.log("Setting balance from earnings summary:", earningsSummary.available_balance);
+            setBalance(earningsSummary.available_balance);
+          } else {
+            console.log("No earnings summary received");
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching earnings summary:", e);
       }
       
       // User contents cache
       const contentsCache = globalUserContentsCache[userId];
-      if (contentsCache && Date.now() - contentsCache.timestamp < CACHE_TIME) {
+      if (contentsCache && (now - contentsCache.timestamp) < CACHE_TIME) {
         setUserContents(contentsCache.data);
       } else if (globalInFlightContents[userId]) {
         setUserContents(await globalInFlightContents[userId]);
@@ -108,7 +148,7 @@ export const useProfileData = () => {
         globalInFlightContents[userId] = (async () => {
           const { data: contents, error } = await supabase.from('contents').select('*').eq('creator_id', userId);
           if (!error) {
-            globalUserContentsCache[userId] = { data: contents || [], timestamp: Date.now() };
+            globalUserContentsCache[userId] = { data: contents || [], timestamp: now };
             setUserContents(contents || []);
             return contents || [];
           }

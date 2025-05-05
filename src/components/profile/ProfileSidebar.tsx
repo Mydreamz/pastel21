@@ -21,6 +21,11 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [isLoadingPending, setIsLoadingPending] = useState(true);
   
+  // Log the balance prop to help with debugging
+  useEffect(() => {
+    console.log("Balance in ProfileSidebar:", balance);
+  }, [balance]);
+  
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
@@ -39,7 +44,9 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
       const loadPendingWithdrawals = async () => {
         try {
           setIsLoadingPending(true);
+          console.log("Loading pending withdrawals for user:", userData.id);
           const amount = await calculatePendingWithdrawals(userData.id);
+          console.log("Pending withdrawals calculated:", amount);
           setPendingWithdrawals(amount);
         } catch (error) {
           console.error("Error loading pending withdrawals:", error);
@@ -59,6 +66,7 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   
   // Calculate available balance
   const availableBalance = Math.max(0, balance - pendingWithdrawals);
+  console.log("Calculated available balance:", availableBalance, "from balance:", balance, "and pending withdrawals:", pendingWithdrawals);
   
   return (
     <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">

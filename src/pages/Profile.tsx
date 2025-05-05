@@ -28,9 +28,15 @@ const Profile = () => {
   useEffect(() => {
     // Force refresh user data when the profile page loads
     if (isAuthenticated && userData) {
+      console.log("Profile page mounted, refreshing user data including balance");
       fetchUserData();
     }
   }, [isAuthenticated, userData, fetchUserData]);
+
+  // Log the current balance value to help with debugging
+  useEffect(() => {
+    console.log("Current balance in Profile component:", balance);
+  }, [balance]);
 
   if (!isAuthenticated || !userData) {
     return null;

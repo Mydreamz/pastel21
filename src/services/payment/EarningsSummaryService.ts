@@ -8,6 +8,8 @@ import { calculatePendingWithdrawals } from "@/utils/paymentUtils";
  */
 export async function getCreatorEarningsSummary(creatorId: string): Promise<EarningsSummary> {
   try {
+    console.log("Getting earnings summary for creator:", creatorId);
+    
     // Get creator profile with earnings data
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -16,7 +18,7 @@ export async function getCreatorEarningsSummary(creatorId: string): Promise<Earn
       .single();
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
+      console.error("Error fetching profile for earnings:", profileError);
     }
 
     // Initialize values
@@ -26,14 +28,24 @@ export async function getCreatorEarningsSummary(creatorId: string): Promise<Earn
     
     // Extract profile data if available
     if (profile) {
+      console.log("Profile data for earnings:", profile);
       // Use type assertion to access custom fields
       const profileData = profile as any;
       totalEarnings = profileData.total_earnings ? parseFloat(profileData.total_earnings) : 0;
       availableBalance = profileData.available_balance ? parseFloat(profileData.available_balance) : 0;
+      
+      console.log("Extracted from profile - Total earnings:", totalEarnings, "Available balance:", availableBalance);
+    } else {
+      console.log("No profile data found for earnings calculation");
     }
     
     // Get pending withdrawals total using direct calculation
-    pendingWithdrawalsTotal = await calculatePendingWithdrawals(creatorId);
+    try {
+      pendingWithdrawalsTotal = await calculatePendingWithdrawals(creatorId);
+      console.log("Pending withdrawals calculated:", pendingWithdrawalsTotal);
+    } catch (withdrawalError) {
+      console.error("Error calculating pending withdrawals:", withdrawalError);
+    }
 
     // Get transaction count
     const { count: transactionCount, error: countError } = await supabase
@@ -44,13 +56,18 @@ export async function getCreatorEarningsSummary(creatorId: string): Promise<Earn
     if (countError) {
       console.error("Error counting transactions:", countError);
     }
+    
+    console.log("Transaction count:", transactionCount);
 
-    return {
+    const summary = {
       total_earnings: totalEarnings,
       available_balance: availableBalance,
       pending_withdrawals: pendingWithdrawalsTotal,
       total_transactions: transactionCount || 0
     };
+    
+    console.log("Final earnings summary:", summary);
+    return summary;
   } catch (error) {
     console.error("Error getting earnings summary:", error);
     return {
