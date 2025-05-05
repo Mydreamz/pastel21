@@ -1,4 +1,3 @@
-
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, Tag, AlertCircle, Lock, Loader2 } from 'lucide-react';
@@ -35,12 +34,6 @@ const ContentDisplay = ({
       <div className="text-center p-8">
         <h3 className="text-xl font-semibold mb-4">Premium Content</h3>
         <p className="text-gray-400 mb-6">Please purchase this content to view it.</p>
-        <Button 
-          onClick={() => window.location.href = `/view/${content.id}`}
-          variant="outline"
-        >
-          Buy Content
-        </Button>
       </div>
     );
   }

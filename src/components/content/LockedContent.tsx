@@ -32,16 +32,27 @@ const LockedContent: React.FC<LockedContentProps> = ({
   const { platformFee, creatorEarnings } = calculateFees(priceNum);
   
   const handlePurchaseClick = () => {
+    console.log("[LockedContent] Purchase button clicked", { 
+      isPurchased, 
+      isProcessing, 
+      isUserLoggedIn: !!user,
+      price 
+    });
+    
     if (!user) {
+      console.log("[LockedContent] User not logged in, showing auth dialog");
       setAuthTab('login');
       setShowAuthDialog(true);
     } else {
       if (isPurchased) {
+        console.log("[LockedContent] Content already purchased");
         toast({
           title: "Already Purchased",
           description: "You've already purchased this content",
         });
       }
+      console.log("[LockedContent] Calling onUnlock function directly");
+      // Ensuring onUnlock is called directly without any additional wrapping
       onUnlock();
     }
   };
@@ -123,6 +134,7 @@ const LockedContent: React.FC<LockedContentProps> = ({
             <Button 
               variant="outline"
               onClick={() => {
+                console.log("[LockedContent] Sign in button clicked");
                 setAuthTab('login');
                 setShowAuthDialog(true);
               }}
@@ -133,6 +145,7 @@ const LockedContent: React.FC<LockedContentProps> = ({
             <Button 
               variant="outline"
               onClick={() => {
+                console.log("[LockedContent] Create account button clicked");
                 setAuthTab('signup');
                 setShowAuthDialog(true);
               }}

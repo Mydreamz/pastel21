@@ -1,6 +1,6 @@
 
 import { useEffect, useRef, memo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentLoader from '@/components/content/ContentLoader';
@@ -14,9 +14,10 @@ import { useRelatedContent } from '@/hooks/useRelatedContent';
 import ContentReadingProgress from '@/components/content/ContentReadingProgress';
 import { Share, DollarSign, Clock, Eye, Calendar, User, FileText, Video, Image, Link as LinkIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
 import { memo as reactMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import PaymentFlow from '@/components/content/PaymentFlow';
+import { useToast } from '@/hooks/use-toast';
 
 // Memoized related content item component to prevent re-renders
 const RelatedContentItem = reactMemo(({ item, navigate }: { item: any, navigate: any }) => (
@@ -55,6 +56,9 @@ const RelatedContentItem = reactMemo(({ item, navigate }: { item: any, navigate:
 // Main content component with error handling fixes
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const { 
     content, 
     loading, 
@@ -62,13 +66,61 @@ const ViewContent = () => {
     secureFileUrl, 
     secureFileLoading,
     secureFileError,
-    handleUnlock
+    handleUnlock,
+    isUnlocked,
+    isAuthenticated,
+    isProcessing
   } = useViewContent(id);
+  
   const { isCreator, isPurchased, refreshPermissions } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
-  const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  console.log(`[ViewContent] Content state:`, { 
+    isLoading: loading,
+    contentLoaded: !!content,
+    isCreator,
+    isPurchased,
+    isUnlocked,
+    hasError: !!error,
+    isProcessingPayment: isProcessing
+  });
+
+  // Function to directly handle purchase from the ViewContent component
+  const handlePurchase = async () => {
+    console.log("[ViewContent] Purchase button clicked");
+    
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to purchase this content",
+        variant: "destructive"
+      });
+      navigate('/');
+      return;
+    }
+    
+    if (isProcessing) {
+      toast({
+        title: "Processing",
+        description: "Your purchase is being processed",
+      });
+      return;
+    }
+    
+    if (content && handleUnlock) {
+      console.log("[ViewContent] Calling handleUnlock function");
+      await handleUnlock();
+    } else {
+      console.error("[ViewContent] Cannot process purchase: content or handleUnlock missing");
+      toast({
+        title: "Error",
+        description: "Unable to process your request. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Initialize share URL only once when content loads
   useEffect(() => {
@@ -86,6 +138,8 @@ const ViewContent = () => {
     const errorMessage = error || "Content not found";
     return <ContentError error={errorMessage} />;
   }
+
+  const canViewContent = isUnlocked || isCreator || isPurchased || parseFloat(content.price) === 0;
 
   return (
     <ViewContentContainer>
@@ -108,19 +162,48 @@ const ViewContent = () => {
             isCreator={isCreator}
           />
 
-          <div ref={contentRef} className="overflow-auto max-h-[600px]">
-            <ContentDisplay 
-              content={content} 
-              isCreator={isCreator} 
+          {/* Payment flow component for paid content */}
+          {parseFloat(content.price) > 0 && !canViewContent && (
+            <PaymentFlow
+              content={content}
+              onUnlock={handleUnlock}
+              isCreator={isCreator}
               isPurchased={isPurchased}
-              secureFileUrl={secureFileUrl}
-              secureFileLoading={secureFileLoading}
-              secureFileError={secureFileError}
+              refreshPermissions={refreshPermissions}
             />
-          </div>
+          )}
 
-          {content.contentType === 'text' && (
-            <ContentReadingProgress contentRef={contentRef} />
+          {/* Display direct purchase button if needed */}
+          {parseFloat(content.price) > 0 && !canViewContent && !isProcessing && (
+            <div className="my-4 text-center">
+              <Button 
+                onClick={handlePurchase}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                size="lg"
+              >
+                Purchase Now (₹{parseFloat(content.price).toFixed(2)})
+              </Button>
+            </div>
+          )}
+
+          {/* Only show content if unlocked or free */}
+          {canViewContent && (
+            <>
+              <div ref={contentRef} className="overflow-auto max-h-[600px]">
+                <ContentDisplay 
+                  content={content} 
+                  isCreator={isCreator} 
+                  isPurchased={canViewContent}
+                  secureFileUrl={secureFileUrl}
+                  secureFileLoading={secureFileLoading}
+                  secureFileError={secureFileError}
+                />
+              </div>
+
+              {content.contentType === 'text' && (
+                <ContentReadingProgress contentRef={contentRef} />
+              )}
+            </>
           )}
 
           {relatedContents.length > 0 && (

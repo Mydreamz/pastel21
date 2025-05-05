@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
@@ -6,6 +7,7 @@ import { useSecureFileUrl } from './useSecureFileUrl';
 import { useContentTransaction } from './content/useContentTransaction';
 import { useViewTracking } from './useViewTracking';
 import { useContentCache } from '@/contexts/ContentCacheContext';
+import { useToast } from "@/hooks/use-toast";
 
 // Memoize handlers outside the component to ensure stable references
 const memoizedTrackView = (trackView: any, id: string | undefined, userId: string | undefined) => {
@@ -20,6 +22,7 @@ export const useViewContent = (id: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const { user, session } = useAuth();
+  const { toast } = useToast();
   
   // Track content loaded state to prevent duplicate operations
   const contentLoadedRef = useRef(false);
@@ -178,13 +181,60 @@ export const useViewContent = (id: string | undefined) => {
     // Only depend on id and user to avoid unnecessary re-runs
   }, [id, user]);
 
-  const handleUnlock = async () => {
-    if (!session || !user) return;
-    if (!content || !id) return;
+  const handleUnlock = useCallback(async () => {
+    console.log(`[useViewContent] handleUnlock called, isProcessing: ${isProcessing}`);
     
-    console.log(`[useViewContent] Unlocking content: ${id}`);
+    if (!session || !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to purchase content",
+        variant: "destructive"
+      });
+      navigate('/');
+      return;
+    }
+    
+    if (!content || !id) {
+      toast({
+        title: "Error",
+        description: "Content not available",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log(`[useViewContent] Unlocking content: ${id} for user: ${user.id}`);
+    
+    // Check if it's free content
+    if (parseFloat(content.price) === 0) {
+      setIsUnlocked(true);
+      return;
+    }
+    
+    // Check if user is creator
+    if (content.creatorId === user.id) {
+      setIsUnlocked(true);
+      toast({
+        title: "Access granted",
+        description: "You have full access as the creator",
+      });
+      return;
+    }
+    
+    // Check if already purchased
+    const isPurchased = await checkPurchaseStatus(content.id, user.id);
+    if (isPurchased) {
+      setIsUnlocked(true);
+      toast({
+        title: "Content unlocked",
+        description: "You already own this content",
+      });
+      return;
+    }
     
     const userName = user.user_metadata?.name || user.email;
+    console.log(`[useViewContent] Processing purchase - price: ${content.price}`);
+    
     const result = await handleContentPurchase(content, user.id, userName);
     
     if (result) {
@@ -196,10 +246,14 @@ export const useViewContent = (id: string | undefined) => {
           ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
           !secureUrlRequestedRef.current) {
         secureUrlRequestedRef.current = true;
-        await getSecureFileUrl(id, content.filePath, user.id);
+        try {
+          await getSecureFileUrl(id, content.filePath, user.id);
+        } catch (e) {
+          console.error("[useViewContent] Error getting secure file after purchase:", e);
+        }
       }
     }
-  };
+  }, [session, user, content, id, checkPurchaseStatus, handleContentPurchase, setPurchasedContentId, getSecureFileUrl, navigate, toast]);
 
   return {
     content,
