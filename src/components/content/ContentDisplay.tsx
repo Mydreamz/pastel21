@@ -1,9 +1,10 @@
-
 import { Content } from '@/types/content';
 import { Badge } from "@/components/ui/badge";
 import { Clock, Eye, Tag, AlertCircle, Lock, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import ContentLoader from '@/components/content/ContentLoader';
 
 interface ContentDisplayProps {
   content: Content;
@@ -24,6 +25,40 @@ const ContentDisplay = ({
 }: ContentDisplayProps) => {
   const [mediaError, setMediaError] = useState<string | null>(null);
   
+  // Early return if content is not available
+  if (!content) return null;
+
+  // For paid content, only show if user is creator or has purchased
+  if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
+    return (
+      <div className="text-center p-8">
+        <h3 className="text-xl font-semibold mb-4">Premium Content</h3>
+        <p className="text-gray-400 mb-6">Please purchase this content to view it.</p>
+        <Button onClick={() => window.location.href = `/preview/${content.id}`}>
+          View Preview
+        </Button>
+      </div>
+    );
+  }
+
+  // For secure files, only show if we have a valid secure URL
+  if (['image', 'video', 'audio', 'document'].includes(content.contentType)) {
+    if (secureFileLoading) {
+      return <ContentLoader />;
+    }
+    
+    if (!secureFileUrl || secureFileError) {
+      return (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {secureFileError || "Failed to load secure content"}
+          </AlertDescription>
+        </Alert>
+      );
+    }
+  }
+
   // Determine which file URL to use (secure URL takes precedence)
   const displayFileUrl = secureFileUrl || content.fileUrl;
   

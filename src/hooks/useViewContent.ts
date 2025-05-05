@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
@@ -128,28 +127,36 @@ export const useViewContent = (id: string | undefined) => {
     if (id !== undefined) {
       contentLoadedRef.current = false;
       permissionsCheckedRef.current = false;
-      trackViewCompletedRef.current = false;
       secureUrlRequestedRef.current = false;
-      setContent(null);
       setIsUnlocked(false);
-      setError(null);
-      console.log(`[ViewContent] Reset for new content ID: ${id}`);
     }
   }, [id]);
 
-  // Load content when ID is available (only once)
+  // Load content and check permissions
   useEffect(() => {
-    if (id && !contentLoadedRef.current) {
-      handleContentLoad(id);
-    }
-  }, [id, handleContentLoad]);
+    if (!id || contentLoadedRef.current) return;
 
-  // Check permissions when content and user are available (only once)
-  useEffect(() => {
-    if (content && user && !permissionsCheckedRef.current) {
-      handlePermissions();
-    }
-  }, [content, user, handlePermissions]);
+    const loadContentAndCheckPermissions = async () => {
+      try {
+        // First load the content
+        await loadContent(id);
+        contentLoadedRef.current = true;
+
+        // Then check permissions
+        if (user) {
+          await handlePermissions();
+        } else if (parseFloat(content?.price || '0') > 0) {
+          // If not logged in and content is paid, redirect to preview
+          navigate(`/preview/${id}`);
+        }
+      } catch (err: any) {
+        console.error("[ViewContent] Error loading content:", err);
+        setError(typeof err === 'string' ? err : (err?.message || "Error loading content"));
+      }
+    };
+
+    loadContentAndCheckPermissions();
+  }, [id, user, loadContent, handlePermissions, navigate, content?.price]);
 
   const handleUnlock = async () => {
     if (!session || !user) return;
