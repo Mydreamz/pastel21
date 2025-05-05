@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
@@ -15,6 +16,9 @@ import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import { supabase } from "@/integrations/supabase/client";
 import { createCacheableRequest, useCacheUtils } from '@/utils/requestUtils';
 
+// Trackable request counter for debugging
+let requestCounter = 0;
+
 // Cacheable function to fetch all user content in a single go with a stable function reference
 const fetchAllUserContent = async (userId: string) => {
   if (!userId) {
@@ -27,6 +31,10 @@ const fetchAllUserContent = async (userId: string) => {
   }
   
   try {
+    // Track requests for debugging
+    requestCounter++;
+    console.log(`[Request ${requestCounter}] Fetching user content for ${userId}`);
+    
     // Use Promise.all to parallelize requests
     const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
       supabase
@@ -68,8 +76,8 @@ const fetchAllUserContent = async (userId: string) => {
   }
 };
 
-// Create a cached version of this function with a longer cache time (3 minutes instead of 1)
-const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 3 * 60 * 1000);
+// Create a cached version of this function with a longer cache time (5 minutes instead of 3)
+const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 5 * 60 * 1000);
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -90,10 +98,19 @@ const Dashboard = () => {
 
   // Add a ref to ensure we only fetch once per session/mount
   const hasFetchedRef = useRef(false);
+  const previousUserIdRef = useRef<string | null>(null);
 
   // Memoized function to fetch content data with better dependency tracking
   const fetchUserContents = useCallback(async () => {
-    if (!userId || hasFetchedRef.current) return;
+    // Only fetch if user ID changed or we haven't fetched yet
+    if (!userId || 
+        (hasFetchedRef.current && userId === previousUserIdRef.current)) {
+      return;
+    }
+    
+    console.log(`[Dashboard] Fetching content for user: ${userId}, previous: ${previousUserIdRef.current}`);
+    previousUserIdRef.current = userId;
+    
     setLoading(true);
     try {
       const results = await getCachedUserContent(userId);
@@ -116,12 +133,14 @@ const Dashboard = () => {
   }, [userId, toast]);
 
   useEffect(() => {
-    // Only fetch if not already fetched
-    if (userId && !hasFetchedRef.current) {
+    // Fetch content when userId changes but reset flag if userId changes
+    if (userId && userId !== previousUserIdRef.current) {
+      hasFetchedRef.current = false;
       fetchUserContents();
     }
+    
     // Only redirect if we've checked auth status and user is not logged in
-    if (!session) {
+    if (session === null) {
       navigate('/');
       toast({
         title: "Authentication required",

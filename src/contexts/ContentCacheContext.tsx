@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Content } from '@/types/content';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,18 +40,48 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
   const pendingRequests = React.useRef<Record<string, Promise<Content | null>>>({});
   // Track pending purchase checks to prevent duplicate database queries
   const pendingPurchaseChecks = React.useRef<Record<string, Promise<boolean>>>({});
+  
+  // Stats for monitoring
+  const cacheStatsRef = React.useRef({
+    hits: 0,
+    misses: 0,
+    deduplicated: 0
+  });
+
+  // Log cache stats periodically
+  useEffect(() => {
+    const logStats = () => {
+      console.log('[ContentCache] Stats:', {
+        cacheSize: Object.keys(cachedContents).length,
+        purchasedIdsSize: purchasedContentIds.size,
+        pendingRequestsSize: Object.keys(pendingRequests.current).length,
+        pendingPurchaseChecksSize: Object.keys(pendingPurchaseChecks.current).length,
+        hits: cacheStatsRef.current.hits,
+        misses: cacheStatsRef.current.misses,
+        deduplicated: cacheStatsRef.current.deduplicated
+      });
+    };
+    
+    const interval = setInterval(logStats, 60000); // Log every minute
+    return () => clearInterval(interval);
+  }, [cachedContents, purchasedContentIds]);
 
   const getCachedContent = useCallback((contentId: string): Content | null => {
-    return cachedContents[contentId] || null;
+    if (cachedContents[contentId]) {
+      cacheStatsRef.current.hits++;
+      console.log(`[ContentCache] HIT for content ${contentId} (hit #${cacheStatsRef.current.hits})`);
+      return cachedContents[contentId];
+    }
+    return null;
   }, [cachedContents]);
 
   const addToCache = useCallback((content: Content) => {
     if (!content || !content.id) return;
     
-    setCachedContents(prev => ({
-      ...prev,
-      [content.id]: content
-    }));
+    setCachedContents(prev => {
+      if (prev[content.id]) return prev; // No change if already cached
+      return { ...prev, [content.id]: content };
+    });
   }, []);
 
   const invalidateCache = useCallback((contentId?: string) => {
@@ -59,10 +90,12 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
       setCachedContents(prev => {
         const newCache = { ...prev };
         delete newCache[contentId];
+        console.log(`[ContentCache] Invalidated content: ${contentId}`);
         return newCache;
       });
     } else {
       // Clear entire cache
+      console.log('[ContentCache] Cleared entire cache');
       setCachedContents({});
     }
   }, []);
@@ -72,20 +105,24 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // First check if content is already in cache
     if (cachedContents[contentId]) {
-      console.log(`Using cached content for ${contentId}`);
+      cacheStatsRef.current.hits++;
+      console.log(`[ContentCache] HIT for content ${contentId} (hit #${cacheStatsRef.current.hits})`);
       return cachedContents[contentId];
     }
 
     // Check if there's already a request in progress for this content
     if (pendingRequests.current[contentId]) {
-      console.log(`Using pending request for ${contentId}`);
+      cacheStatsRef.current.deduplicated++;
+      console.log(`[ContentCache] DEDUP for content ${contentId} (dedup #${cacheStatsRef.current.deduplicated})`);
       return pendingRequests.current[contentId];
     }
 
     // Create a new request and store it
+    cacheStatsRef.current.misses++;
+    console.log(`[ContentCache] MISS for content ${contentId} (miss #${cacheStatsRef.current.misses})`);
+    
     const request = (async () => {
       try {
-        console.log(`Loading content with ID: ${contentId}`);
         const { data: foundContent, error: contentError } = await supabase
           .from('contents')
           .select('*')
@@ -106,7 +143,7 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
         addToCache(mapped);
         return mapped;
       } catch (e: any) {
-        console.error("Error loading content:", e);
+        console.error("[ContentCache] Error loading content:", e);
         toast({
           title: "Error",
           description: e.message || "Failed to load content",
@@ -126,8 +163,10 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setPurchasedContentId = useCallback((contentId: string) => {
     setPurchasedContentIds(prev => {
+      if (prev.has(contentId)) return prev; // No change if already in set
       const newSet = new Set(prev);
       newSet.add(contentId);
+      console.log(`[ContentCache] Added purchased content: ${contentId}`);
       return newSet;
     });
   }, []);
@@ -137,6 +176,7 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     
     // If we already know it's purchased, return immediately
     if (purchasedContentIds.has(contentId)) {
+      console.log(`[ContentCache] Already know ${contentId} is purchased`);
       return true;
     }
 
@@ -145,48 +185,36 @@ export const ContentCacheProvider: React.FC<{ children: React.ReactNode }> = ({
     
     // If there's already a check in progress, return that
     if (pendingPurchaseChecks.current[cacheKey]) {
+      console.log(`[ContentCache] Reusing in-flight purchase check for ${cacheKey}`);
       return pendingPurchaseChecks.current[cacheKey];
     }
+    
+    console.log(`[ContentCache] Checking purchase status for ${cacheKey}`);
     
     // Create a new purchase check
     const checkPromise = (async () => {
       try {
-        // Check if the user is the creator first (more efficient than querying transactions)
-        const { data: content } = await supabase
-          .from('contents')
-          .select('creator_id')
-          .eq('id', contentId)
-          .single();
+        // Efficient check using Supabase's database function instead of multiple queries
+        const { data: hasAccess, error: accessError } = await supabase
+          .rpc('has_purchased_content', {
+            user_id_param: userId,
+            content_id_param: contentId
+          });
           
-        if (content && content.creator_id === userId) {
-          // User is the creator, automatically has access
-          setPurchasedContentId(contentId);
-          return true;
+        if (accessError) {
+          throw accessError;
         }
         
-        // Otherwise, check transactions
-        const { data: transactions, error } = await supabase
-          .from('transactions')
-          .select('id')
-          .eq('content_id', contentId)
-          .eq('user_id', userId)
-          .eq('is_deleted', false)
-          .limit(1);
-          
-        if (error) {
-          throw error;
-        }
-        
-        const hasPurchased = transactions && transactions.length > 0;
+        console.log(`[ContentCache] Purchase check result for ${cacheKey}: ${hasAccess}`);
         
         // If purchased, add to our cache
-        if (hasPurchased) {
+        if (hasAccess) {
           setPurchasedContentId(contentId);
         }
         
-        return hasPurchased;
+        return !!hasAccess;
       } catch (err) {
-        console.error("Error checking purchase status:", err);
+        console.error("[ContentCache] Error checking purchase status:", err);
         return false;
       } finally {
         // Remove from pending checks

@@ -2,9 +2,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Content } from '@/types/content';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSecureFileUrl } from './content/useSecureFileUrl';
+import { useSecureFileUrl } from './useSecureFileUrl';
 import { useContentTransaction } from './content/useContentTransaction';
 import { useViewTracking } from './useViewTracking';
 import { useContentCache } from '@/contexts/ContentCacheContext';
@@ -25,9 +24,9 @@ export const useViewContent = (id: string | undefined) => {
   
   // Import sub-hooks
   const { 
-    secureFileUrl, 
-    secureFileLoading, 
-    secureFileError, 
+    secureUrl: secureFileUrl, 
+    isLoading: secureFileLoading, 
+    error: secureFileError, 
     getSecureFileUrl 
   } = useSecureFileUrl();
   
@@ -45,6 +44,8 @@ export const useViewContent = (id: string | undefined) => {
   const handleContentLoad = useCallback(async (contentId: string) => {
     if (!contentId || contentLoadedRef.current) return;
     
+    console.log(`[ViewContent] Loading content: ${contentId}`);
+    
     try {
       setLoading(true);
       setError(null);
@@ -54,7 +55,7 @@ export const useViewContent = (id: string | undefined) => {
       let loadedContent: Content | null;
       
       if (cachedContent) {
-        console.log("Using cached content data");
+        console.log("[ViewContent] Using cached content data");
         loadedContent = cachedContent;
       } else {
         loadedContent = await loadContent(contentId);
@@ -75,7 +76,7 @@ export const useViewContent = (id: string | undefined) => {
       }
       
     } catch (e: any) {
-      console.error("Error loading content:", e);
+      console.error("[ViewContent] Error loading content:", e);
       setError(e.message || "Error loading content");
     } finally {
       setLoading(false);
@@ -86,14 +87,16 @@ export const useViewContent = (id: string | undefined) => {
   const handlePermissions = useCallback(async () => {
     if (!content || !content.id || !user || permissionsCheckedRef.current) return;
     
+    console.log(`[ViewContent] Checking permissions for content: ${content.id}, user: ${user.id}`);
+    permissionsCheckedRef.current = true;
+    
     try {
-      permissionsCheckedRef.current = true;
+      // Use centralized purchase check
+      const hasAccess = await checkPurchaseStatus(content.id, user.id);
       
-      // Check if user is creator or has purchased the content
-      const isCreator = content.creatorId === user.id;
+      setIsUnlocked(hasAccess);
       
-      if (isCreator) {
-        setIsUnlocked(true);
+      if (hasAccess) {
         // Mark as purchased/owned in global cache
         setPurchasedContentId(content.id);
         
@@ -102,41 +105,33 @@ export const useViewContent = (id: string | undefined) => {
             ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
             !secureUrlRequestedRef.current) {
           secureUrlRequestedRef.current = true;
+          console.log(`[ViewContent] Requesting secure URL for: ${content.id}, ${content.filePath}`);
           await getSecureFileUrl(content.id, content.filePath, user.id);
         }
-      } else {
-        // Use centralized purchase check
-        const userHasTransaction = await checkPurchaseStatus(content.id, user.id);
-        
-        if (parseFloat(content.price) === 0 || userHasTransaction) {
-          setIsUnlocked(true);
-          
-          // If has file path, get secure URL (only once)
-          if (content.filePath && 
-              ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
-              !secureUrlRequestedRef.current) {
-            secureUrlRequestedRef.current = true;
-            await getSecureFileUrl(content.id, content.filePath, user.id);
-          }
-        } else if (window.location.pathname.startsWith('/view/')) {
-          // Redirect to preview page if paid content that user hasn't purchased
-          navigate(`/preview/${content.id}`);
-        }
+      } else if (parseFloat(content.price) === 0) {
+        // Free content is automatically unlocked
+        setIsUnlocked(true);
+      } else if (window.location.pathname.startsWith('/view/')) {
+        // Redirect to preview page if paid content that user hasn't purchased
+        navigate(`/preview/${content.id}`);
       }
     } catch (err) {
-      console.error("Error checking permissions:", err);
+      console.error("[ViewContent] Error checking permissions:", err);
     }
   }, [content, user, getSecureFileUrl, checkPurchaseStatus, navigate, setPurchasedContentId]);
 
   // Reset refs if id changes
   useEffect(() => {
-    contentLoadedRef.current = false;
-    permissionsCheckedRef.current = false;
-    trackViewCompletedRef.current = false;
-    secureUrlRequestedRef.current = false;
-    setContent(null);
-    setIsUnlocked(false);
-    setError(null);
+    if (id !== undefined) {
+      contentLoadedRef.current = false;
+      permissionsCheckedRef.current = false;
+      trackViewCompletedRef.current = false;
+      secureUrlRequestedRef.current = false;
+      setContent(null);
+      setIsUnlocked(false);
+      setError(null);
+      console.log(`[ViewContent] Reset for new content ID: ${id}`);
+    }
   }, [id]);
 
   // Load content when ID is available (only once)
@@ -156,6 +151,8 @@ export const useViewContent = (id: string | undefined) => {
   const handleUnlock = async () => {
     if (!session || !user) return;
     if (!content || !id) return;
+    
+    console.log(`[ViewContent] Unlocking content: ${id}`);
     
     const userName = user.user_metadata?.name || user.email;
     const result = await handleContentPurchase(content, user.id, userName);

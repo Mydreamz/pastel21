@@ -1,3 +1,4 @@
+
 import { useRef, useCallback } from 'react';
 
 /**
@@ -10,9 +11,9 @@ const responseCache = new Map<string, {
 }>();
 
 /**
- * Default cache time in milliseconds (15 minutes instead of 5)
+ * Default cache time in milliseconds (30 minutes instead of 15)
  */
-const DEFAULT_CACHE_TIME = 15 * 60 * 1000;
+const DEFAULT_CACHE_TIME = 30 * 60 * 1000;
 
 /**
  * Create consistent cache keys to ensure proper cache hit rate
@@ -20,9 +21,23 @@ const DEFAULT_CACHE_TIME = 15 * 60 * 1000;
 const createCacheKey = (fnName: string, args: any[]): string => {
   try {
     // Use a stable, string-based cache key (avoid object/array references)
-    return `${fnName}-${args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join('-')}`;
+    const argString = args.map(arg => {
+      if (arg === null) return 'null';
+      if (arg === undefined) return 'undefined';
+      if (typeof arg === 'object') {
+        try {
+          return JSON.stringify(arg);
+        } catch (e) {
+          return String(arg);
+        }
+      }
+      return String(arg);
+    }).join('::');
+    
+    return `${fnName}::${argString}`;
   } catch (error) {
-    return `${fnName}-${new Date().getTime()}`;
+    console.error('Error creating cache key:', error);
+    return `${fnName}::${Date.now()}`;
   }
 };
 
@@ -37,26 +52,42 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
   cacheTime: number = DEFAULT_CACHE_TIME
 ): ((...args: Parameters<T>) => Promise<ReturnType<T>>) => {
   const fnName = requestFn.name || 'anonymous-request';
+  
+  // Tracking info for debugging
+  let cacheHits = 0;
+  let cacheMisses = 0;
+  let deduplications = 0;
+  
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     const cacheKey = createCacheKey(fnName, args);
     const now = Date.now();
     const cached = responseCache.get(cacheKey);
+    
+    // Return from cache if valid
     if (cached && now - cached.timestamp < cacheTime) {
-      // Remove or comment out logging in production
-      // console.log(`Using cached result for ${cacheKey}`);
+      cacheHits++;
+      console.log(`[Cache] HIT #${cacheHits} for ${cacheKey} (age: ${Math.round((now - cached.timestamp)/1000)}s)`);
       return cached.data as ReturnType<T>;
     }
+    
+    // Deduplicate in-flight requests
     if (cached?.promise) {
-      // console.log(`Using pending request for ${cacheKey}`);
+      deduplications++;
+      console.log(`[Cache] DEDUP #${deduplications} for ${cacheKey} (reusing in-flight request)`);
       return cached.promise as ReturnType<T>;
     }
-    // console.log(`Making new request for ${cacheKey}`);
+    
+    // Cache miss - make new request
+    cacheMisses++;
+    console.log(`[Cache] MISS #${cacheMisses} for ${cacheKey}`);
+    
     const promise = requestFn(...args);
     responseCache.set(cacheKey, {
       data: null,
       timestamp: now,
       promise
     });
+    
     try {
       const result = await promise;
       responseCache.set(cacheKey, {
@@ -65,6 +96,7 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
       });
       return result;
     } catch (error) {
+      console.error(`[Cache] Error fetching ${cacheKey}:`, error);
       responseCache.delete(cacheKey);
       throw error;
     }
@@ -96,7 +128,7 @@ export const useCacheUtils = () => {
       }
     });
     
-    console.log(`Invalidated ${invalidatedCount} cache entries matching ${keyPattern}`);
+    console.log(`[Cache] Invalidated ${invalidatedCount} entries matching ${keyPattern}`);
   }, []);
   
   /**
@@ -105,7 +137,7 @@ export const useCacheUtils = () => {
   const clearCache = useCallback(() => {
     const size = cacheRef.current.size;
     cacheRef.current.clear();
-    console.log(`Cleared entire cache (${size} entries)`);
+    console.log(`[Cache] Cleared entire cache (${size} entries)`);
   }, []);
   
   /**
@@ -115,9 +147,25 @@ export const useCacheUtils = () => {
     return cacheRef.current.size;
   }, []);
   
+  /**
+   * Get a summary of the cache contents
+   */
+  const getCacheSummary = useCallback(() => {
+    const categories: Record<string, number> = {};
+    
+    cacheRef.current.forEach((_, key) => {
+      const category = key.split('::')[0];
+      categories[category] = (categories[category] || 0) + 1;
+    });
+    
+    console.log('[Cache] Summary:', categories);
+    return categories;
+  }, []);
+  
   return {
     invalidateCache,
     clearCache,
-    getCacheSize
+    getCacheSize,
+    getCacheSummary
   };
 };
