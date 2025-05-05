@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, User, FileText, BarChart } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
-import { useProfileData } from '@/hooks/useProfileData';
+import { useProfileData } from '@/hooks/profile/useProfileData';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
@@ -52,11 +52,6 @@ const Profile = () => {
       }
     }
   }, [isAuthenticated, userData, fetchUserData, toast]);
-
-  // Log the current balance value to help with debugging
-  useEffect(() => {
-    console.log("Current balance in Profile component:", balance);
-  }, [balance]);
 
   if (!isAuthenticated || !userData) {
     return null;
