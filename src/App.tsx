@@ -6,28 +6,44 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { ThemeProvider } from "@/hooks/useTheme";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ContentCacheProvider } from "@/contexts/ContentCacheContext";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import CreateContent from "./pages/CreateContent";
-import ViewContent from "./pages/ViewContent";
-import EditContent from "./pages/EditContent";
-import Profile from "./pages/Profile";
-import ContentSuccess from "./pages/ContentSuccess";
-import NotFound from "./pages/NotFound";
-import Search from "./pages/Search";
-import ForgotPassword from "./pages/ForgotPassword";
-import Marketplace from "./pages/Marketplace";
+import AdminRoute from "./components/admin/AdminRoute";
+
+// Lazy-loaded components for better performance
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CreateContent = lazy(() => import("./pages/CreateContent"));
+const ViewContent = lazy(() => import("./pages/ViewContent"));
+const EditContent = lazy(() => import("./pages/EditContent"));
+const Profile = lazy(() => import("./pages/Profile"));
+const ContentSuccess = lazy(() => import("./pages/ContentSuccess"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Search = lazy(() => import("./pages/Search"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+
+// Loading component for suspense fallback
+const Loading = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+      <p>Loading...</p>
+    </div>
+  </div>
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      // Add stale time to reduce redundant refetches
       staleTime: 60000, // 1 minute
+      // Add caching for better performance
+      cacheTime: 300000, // 5 minutes
     },
   },
 });
@@ -42,14 +58,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isLoading, session } = useAuth();
   
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Authenticating...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
   
   if (!session) {
@@ -65,14 +74,7 @@ const HomePageRoute = () => {
   const { isLoading, session } = useAuth();
   
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Authenticating...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
   
   // Redirect to dashboard if user is logged in, otherwise show the landing page
@@ -103,14 +105,7 @@ const App = () => {
   }, []);
   
   if (!isInitialized) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Initializing application...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -123,48 +118,59 @@ const App = () => {
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<HomePageRoute />} />
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/create" element={
-                      <ProtectedRoute>
-                        <CreateContent />
-                      </ProtectedRoute>
-                    } />
-                    {/* Make view route public */}
-                    <Route path="/view/:id" element={<ViewContent />} />
-                    <Route path="/edit/:id" element={
-                      <ProtectedRoute>
-                        <EditContent />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/profile" element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/success" element={
-                      <ProtectedRoute>
-                        <ContentSuccess />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/search" element={
-                      <ProtectedRoute>
-                        <Search />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/marketplace" element={
-                      <ProtectedRoute>
-                        <Marketplace />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+                  <Suspense fallback={<Loading />}>
+                    <Routes>
+                      <Route path="/" element={<HomePageRoute />} />
+                      <Route path="/dashboard" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/create" element={
+                        <ProtectedRoute>
+                          <CreateContent />
+                        </ProtectedRoute>
+                      } />
+                      {/* Make view route public */}
+                      <Route path="/view/:id" element={<ViewContent />} />
+                      <Route path="/edit/:id" element={
+                        <ProtectedRoute>
+                          <EditContent />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/profile" element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/success" element={
+                        <ProtectedRoute>
+                          <ContentSuccess />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/search" element={
+                        <ProtectedRoute>
+                          <Search />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/marketplace" element={
+                        <ProtectedRoute>
+                          <Marketplace />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      
+                      {/* Admin Routes */}
+                      <Route path="/admin" element={<AdminLogin />} />
+                      <Route path="/admin/dashboard" element={
+                        <AdminRoute>
+                          <AdminDashboard />
+                        </AdminRoute>
+                      } />
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
                 </BrowserRouter>
               </NotificationProvider>
             </ThemeProvider>

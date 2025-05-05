@@ -157,6 +157,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_fees: {
+        Row: {
+          amount: string
+          created_at: string | null
+          id: string
+          is_deleted: boolean | null
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: string
+          created_at?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: string
+          created_at?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_fees_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "processed_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_fees_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           available_balance: string | null
