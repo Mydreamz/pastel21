@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { createCacheableRequest } from "./requestUtils";
 
@@ -17,8 +16,8 @@ export const calculateFees = (amount: number, feePercentage: number = 7) => {
   const creatorEarnings = safeAmount - platformFee;
   
   // Debug logging to verify calculations
-  console.log(`Payment amount: ${safeAmount}, Fee percentage: ${safeFeePercentage}%`);
-  console.log(`Platform fee: ${platformFee.toFixed(2)}, Creator earnings: ${creatorEarnings.toFixed(2)}`);
+  // console.log(`Payment amount: ${safeAmount}, Fee percentage: ${safeFeePercentage}%`);
+  // console.log(`Platform fee: ${platformFee.toFixed(2)}, Creator earnings: ${creatorEarnings.toFixed(2)}`);
   
   return {
     platformFee: parseFloat(platformFee.toFixed(2)),
@@ -43,9 +42,9 @@ export const validateTransaction = (transaction: any): boolean => {
   const isValid = requiredFields.every(field => transaction[field] !== undefined && transaction[field] !== null);
   
   if (!isValid) {
-    console.error("Transaction validation failed:", transaction);
+    // console.error("Transaction validation failed:", transaction);
     const missingFields = requiredFields.filter(field => transaction[field] === undefined || transaction[field] === null);
-    console.error("Missing fields:", missingFields);
+    // console.error("Missing fields:", missingFields);
   }
   
   return isValid;
@@ -70,7 +69,7 @@ const _hasUserPurchasedContent = async (contentId: string, userId: string) => {
       }
     } catch (e) {
       // Silently continue to fallback
-      console.warn("RPC function not available, using fallback");
+      // console.warn("RPC function not available, using fallback");
     }
     
     // Fallback to direct query
@@ -83,13 +82,13 @@ const _hasUserPurchasedContent = async (contentId: string, userId: string) => {
       .limit(1);
       
     if (error) {
-      console.error("Error checking purchase status:", error);
+      // console.error("Error checking purchase status:", error);
       return false;
     }
     
     return data && data.length > 0;
   } catch (e) {
-    console.error("Exception checking purchase status:", e);
+    // console.error("Exception checking purchase status:", e);
     return false;
   }
 };
@@ -111,14 +110,14 @@ const _calculatePendingWithdrawals = async (userId: string): Promise<number> => 
     });
     
     if (error) {
-      console.error('Error fetching pending withdrawals:', error);
+      // console.error('Error fetching pending withdrawals:', error);
       return 0;
     }
     
     // Ensure we're returning a number
     return typeof data === 'number' ? data : 0;
   } catch (error) {
-    console.error('Error calculating pending withdrawals:', error);
+    // console.error('Error calculating pending withdrawals:', error);
     return 0;
   }
 };

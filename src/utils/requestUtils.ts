@@ -1,4 +1,3 @@
-
 import { useRef, useCallback } from 'react';
 
 /**
@@ -20,10 +19,9 @@ const DEFAULT_CACHE_TIME = 15 * 60 * 1000;
  */
 const createCacheKey = (fnName: string, args: any[]): string => {
   try {
-    // Stable serialization to ensure consistent cache keys
-    return `${fnName}-${JSON.stringify(args)}`;
+    // Use a stable, string-based cache key (avoid object/array references)
+    return `${fnName}-${args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join('-')}`;
   } catch (error) {
-    // If JSON stringify fails (circular references), use a simpler approach
     return `${fnName}-${new Date().getTime()}`;
   }
 };
@@ -38,52 +36,35 @@ export const createCacheableRequest = <T extends (...args: any[]) => Promise<any
   requestFn: T,
   cacheTime: number = DEFAULT_CACHE_TIME
 ): ((...args: Parameters<T>) => Promise<ReturnType<T>>) => {
-  // Store the function name for better cache keys
   const fnName = requestFn.name || 'anonymous-request';
-  
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
-    // Create a cache key based on the function name and arguments
     const cacheKey = createCacheKey(fnName, args);
-    
     const now = Date.now();
     const cached = responseCache.get(cacheKey);
-    
-    // If we have a valid cache entry, return it
     if (cached && now - cached.timestamp < cacheTime) {
-      console.log(`Using cached result for ${cacheKey}`);
+      // Remove or comment out logging in production
+      // console.log(`Using cached result for ${cacheKey}`);
       return cached.data as ReturnType<T>;
     }
-    
-    // If there's already a request in flight, return that promise
     if (cached?.promise) {
-      console.log(`Using pending request for ${cacheKey}`);
+      // console.log(`Using pending request for ${cacheKey}`);
       return cached.promise as ReturnType<T>;
     }
-    
-    // Otherwise, make the request and cache the promise
-    console.log(`Making new request for ${cacheKey}`);
+    // console.log(`Making new request for ${cacheKey}`);
     const promise = requestFn(...args);
-    
-    // Store the promise in cache to deduplicate in-flight requests
     responseCache.set(cacheKey, {
       data: null,
       timestamp: now,
       promise
     });
-    
     try {
-      // Wait for the request to complete
       const result = await promise;
-      
-      // Update the cache with the result and reset the promise
       responseCache.set(cacheKey, {
         data: result,
         timestamp: Date.now()
       });
-      
       return result;
     } catch (error) {
-      // If the request fails, remove it from cache
       responseCache.delete(cacheKey);
       throw error;
     }

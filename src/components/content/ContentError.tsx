@@ -1,4 +1,3 @@
-
 import { FileText, ArrowLeft, Eye } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,9 +10,8 @@ const ContentError = ({ error }: ContentErrorProps) => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   
-  // Add debugging to help understand the error
-  console.log("ContentError: Displayed with error:", error);
-  console.log("ContentError: Content ID from params:", id);
+  // console.log("ContentError: Displayed with error:", error);
+  // console.log("ContentError: Content ID from params:", id);
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">

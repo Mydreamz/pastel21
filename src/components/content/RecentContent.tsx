@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +7,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { IndianRupee } from 'lucide-react';
+import { createCacheableRequest } from '@/utils/requestUtils';
 
 interface RecentContentProps {
   isAuthenticated: boolean;
   openAuthDialog: (tab: 'login' | 'signup') => void;
 }
+
+// Move this outside the component to ensure a stable reference
+const fetchRecentContentCached = createCacheableRequest(async () => {
+  const { data, error } = await supabase
+    .from('contents')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(6);
+  if (error) throw error;
+  return data || [];
+}, 3 * 60 * 1000); // cache for 3 minutes
 
 const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) => {
   const navigate = useNavigate();
@@ -20,34 +31,24 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
   const { toast } = useToast();
   const [recentContents, setRecentContents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasFetchedRef = React.useRef(false);
 
   useEffect(() => {
-    const fetchRecentContent = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('contents')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(6);
-
-        if (error) throw error;
-        
-        setRecentContents(data || []);
-      } catch (error: any) {
+    if (hasFetchedRef.current) return;
+    setLoading(true);
+    fetchRecentContentCached()
+      .then(async data => setRecentContents(await data))
+      .catch(error => {
         console.error('Error fetching recent content:', error);
         toast({
           title: 'Error',
           description: 'Failed to load recent content',
           variant: 'destructive',
         });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecentContent();
-  }, [toast]);
+      })
+      .finally(() => setLoading(false));
+    hasFetchedRef.current = true;
+  }, []); // Only run once on mount
 
   return (
     <section className="py-16" id="contents">

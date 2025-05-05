@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
@@ -89,19 +88,15 @@ const Dashboard = () => {
   // Use a stable reference for user ID with better null handling
   const userId = useMemo(() => user?.id || '', [user?.id]);
 
-  // Add a flag to prevent duplicate fetching
+  // Add a ref to ensure we only fetch once per session/mount
   const hasFetchedRef = useRef(false);
 
   // Memoized function to fetch content data with better dependency tracking
   const fetchUserContents = useCallback(async () => {
     if (!userId || hasFetchedRef.current) return;
-    
     setLoading(true);
-    
     try {
-      // Use our cached fetch function
       const results = await getCachedUserContent(userId);
-      
       if (results) {
         setPublishedContents(results.publishedContents);
         setPurchasedContents(results.purchasedContents);
@@ -120,13 +115,12 @@ const Dashboard = () => {
     }
   }, [userId, toast]);
 
-  // Fetch data only when session/user changes and we haven't already fetched
   useEffect(() => {
-    // Reset fetch flag on user change
-    if (userId) {
-      hasFetchedRef.current = false;
+    // Only fetch if not already fetched
+    if (userId && !hasFetchedRef.current) {
+      fetchUserContents();
     }
-    
+    // Only redirect if we've checked auth status and user is not logged in
     if (!session) {
       navigate('/');
       toast({
@@ -134,8 +128,6 @@ const Dashboard = () => {
         description: "Please sign in to access your dashboard",
         variant: "destructive"
       });
-    } else if (userId && !hasFetchedRef.current) {
-      fetchUserContents();
     }
   }, [session, userId, navigate, fetchUserContents, toast]);
 

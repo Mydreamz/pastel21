@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -55,86 +54,39 @@ const getCachedSecureFileUrl = createCacheableRequest(fetchSecureFileUrl, 10 * 6
 /**
  * Hook for handling secure file URLs with caching to prevent repeated requests
  */
-export const useSecureFileUrl = () => {
-  const [secureFileUrl, setSecureFileUrl] = useState<string | null>(null);
-  const [secureFileLoading, setSecureFileLoading] = useState(false);
-  const [secureFileError, setSecureFileError] = useState<string | null>(null);
+export const useSecureFileUrl = (contentId: string, filePath: string | undefined) => {
   const { toast } = useToast();
-  
-  // Keep track of in-flight requests to prevent duplicates
-  const requestInProgress = useRef<Record<string, Promise<string | null>>>({});
+  const [secureUrl, setSecureUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const hasFetchedRef = useRef(false);
 
-  /**
-   * Function to get secure URL for protected content with improved caching
-   */
-  const getSecureFileUrl = useCallback(async (
-    contentId: string, 
-    filePath: string | undefined, 
-    userId?: string
-  ): Promise<string | null> => {
-    if (!filePath) {
-      console.log("Cannot get secure URL: Missing file path");
-      return null;
-    }
-    
-    if (!userId) {
-      console.log("Cannot get secure URL: User not authenticated");
-      return null;
-    }
-
-    // Generate a cache key for this specific request
-    const cacheKey = `${contentId}-${filePath}`;
-    
-    // If we already have a request in progress for this key, return that promise
-    if (requestInProgress.current[cacheKey]) {
-      return requestInProgress.current[cacheKey];
-    }
-
-    setSecureFileLoading(true);
-    setSecureFileError(null);
+  const getSecureUrl = useCallback(async () => {
+    if (!contentId || !filePath || hasFetchedRef.current) return;
     
     try {
-      // Store the promise from the cached function - fixing the nested promise issue
-      const promise = getCachedSecureFileUrl(contentId, filePath);
-      
-      // Store the promise reference for deduplication
-      requestInProgress.current[cacheKey] = promise;
-      
-      // Await the result - this unwraps the first promise layer
-      const url = await promise;
-      
-      if (!url) {
-        setSecureFileError("Failed to get secure file URL");
-        toast({
-          title: "Error loading file",
-          description: "Could not load the secure file. Please try again.",
-          variant: "destructive"
-        });
-        return null;
-      }
-      
-      setSecureFileUrl(url);
-      return url;
-    } catch (err: any) {
-      setSecureFileError(`Error: ${err.message || "Unknown error"}`);
+      setIsLoading(true);
+      setError(null);
+      const url = await getCachedSecureFileUrl(contentId, filePath);
+      setSecureUrl(url);
+      hasFetchedRef.current = true;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Failed to get secure URL');
+      setError(error);
       toast({
-        title: "Error loading file",
-        description: "Could not load the secure file. Please try again.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load secure content URL',
+        variant: 'destructive',
       });
-      return null;
     } finally {
-      // Remove the in-flight request tracking
-      delete requestInProgress.current[cacheKey];
-      setSecureFileLoading(false);
+      setIsLoading(false);
     }
-  }, [toast]);
+  }, [contentId, filePath, toast]);
 
   return {
-    secureFileUrl,
-    secureFileLoading,
-    secureFileError,
-    getSecureFileUrl,
-    setSecureFileUrl
+    secureUrl,
+    isLoading,
+    error,
+    getSecureUrl
   };
 };

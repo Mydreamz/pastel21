@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -22,25 +21,28 @@ export const useProfileData = () => {
   const { toast } = useToast();
   const { user, session, isLoading } = useAuth();
   const [userContents, setUserContents] = useState<any[]>([]);
-  const [balance, setBalance] = useState(0);
-  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [balance, setBalance] = useState<number>(0);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [fetchedData, setFetchedData] = useState(false);
   
-  // Use a ref to track if a fetch is already in progress
+  // Use refs to track request state
   const fetchInProgress = useRef(false);
+  const hasFetchedRef = useRef(false);
+  const lastFetchTime = useRef<number>(0);
+  const CACHE_TIME = 5 * 60 * 1000; // 5 minutes cache
 
-  // Use a memoized fetchUserData function to prevent multiple re-renders
   const fetchUserData = useCallback(async () => {
-    if (!user || fetchInProgress.current) return;
-    
-    // Set flag to prevent concurrent fetches
+    if (!user || fetchInProgress.current || hasFetchedRef.current) return;
+    if (Date.now() - lastFetchTime.current < CACHE_TIME) return;
+
     fetchInProgress.current = true;
+    lastFetchTime.current = Date.now();
     
     try {
       setIsLoadingData(true);
       
-      // Get user contents from Supabase
+      // Get user contents from Supabase with caching
       const { data: contents, error: contentsError } = await supabase
         .from('contents')
         .select('*')
@@ -65,7 +67,6 @@ export const useProfileData = () => {
       // Fetch user profile data using Edge Function
       if (user.id && session?.access_token) {
         try {
-          // Call the get-profile Edge Function with auth token
           const { data, error } = await supabase.functions.invoke('get-profile', {
             body: { action: 'get' },
             headers: {
@@ -92,19 +93,19 @@ export const useProfileData = () => {
     } finally {
       setIsLoadingData(false);
       setFetchedData(true);
-      // Reset the in-progress flag
+      hasFetchedRef.current = true;
       fetchInProgress.current = false;
     }
   }, [user, session, toast]);
 
   useEffect(() => {
-    if (!isLoading && user && session && !fetchedData && !fetchInProgress.current) {
+    if (!isLoading && user && session && !hasFetchedRef.current) {
       fetchUserData();
     } else if (!isLoading && !session) {
       // Only redirect if we've checked auth status and user is not logged in
       redirectToHome();
     }
-  }, [user, session, isLoading, fetchUserData, fetchedData]);
+  }, [user, session, isLoading, fetchUserData]);
   
   const redirectToHome = () => {
     toast({
@@ -212,6 +213,8 @@ export const useProfileData = () => {
     handleLogout,
     handleEditContent,
     handleDeleteContent,
-    updateProfile
+    updateProfile,
+    fetchedData,
+    fetchUserData
   };
 };

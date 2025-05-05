@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -55,7 +54,7 @@ export const useViewTracking = () => {
         // Only make the API call if there are views to insert
         if (viewsToInsert.length > 0) {
           await supabase.from('content_views').insert(viewsToInsert);
-          console.log(`Tracked ${viewsToInsert.length} content views in batch`);
+          // console.log(`Tracked ${viewsToInsert.length} content views in batch`);
         }
       } catch (error) {
         console.error("Error processing view queue:", error);
@@ -98,7 +97,7 @@ export const useViewTracking = () => {
     if (!processedViews.current.has(viewKey)) {
       queuedViews.current.push({ contentId, userId });
       processedViews.current.add(viewKey);
-      console.log(`View queued for tracking: ${contentId}`);
+      // console.log(`View queued for tracking: ${contentId}`);
     }
   }, []);
 

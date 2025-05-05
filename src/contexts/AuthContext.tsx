@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,23 +22,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isInitialized = useRef(false);
 
   // Function to refresh auth state manually if needed
   const refresh = async () => {
-    try {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setUser(data.session?.user || null);
-    } catch (error) {
-      console.error("Error refreshing session:", error);
+    if (isInitialized.current) {
+      try {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        setUser(data.session?.user || null);
+      } catch (error) {
+        console.error("Error refreshing session:", error);
+      }
     }
   };
 
   useEffect(() => {
-    // Set up the auth state listener first
+    if (isInitialized.current) return;
+    
+    // Set up the auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
-        console.log("Auth state changed:", event);
         setSession(newSession);
         setUser(newSession?.user || null);
         
@@ -57,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
     
-    // Then check for existing session (only once during initialization)
+    // Check for existing session
     const initSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
@@ -67,6 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Error getting session:", error);
       } finally {
         setIsLoading(false);
+        isInitialized.current = true;
       }
     };
 

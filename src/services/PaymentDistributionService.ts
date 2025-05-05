@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { calculateFees } from "@/utils/paymentUtils";
 import { EarningsSummary } from "@/types/transaction";
@@ -105,7 +104,15 @@ export class PaymentDistributionService {
           
         } catch (schemaError: any) {
           // Fallback: Try inserting with just the base fields if there was a schema error
-          console.warn("Using fallback transaction insertion with base fields only");
+          // console.warn("Using fallback transaction insertion with base fields only");
+          // console.log("Transaction recorded successfully with basic data:", baseData);
+          // console.log("Transaction exists after error check, treating as success");
+          // console.log("Fetching profile data error:", error);
+          // console.log(`Updating creator earnings. Current total: ${currentTotalEarnings}, Current balance: ${currentAvailableBalance}`);
+          // console.log(`Adding creator earnings (after fee): ${earnings}`);
+          // console.log(`New total earnings: ${newTotalEarnings}, New balance: ${newAvailableBalance}`);
+          // console.log("Creator earnings updated successfully");
+          // console.warn("Could not update creator earnings, but transaction was recorded:", earningsError);
           
           const { data: baseData, error: baseError } = await supabase
             .from('transactions')
@@ -200,14 +207,14 @@ export class PaymentDistributionService {
       }
       
       // Debug log to verify the earnings are being added correctly
-      console.log(`Updating creator earnings. Current total: ${currentTotalEarnings}, Current balance: ${currentAvailableBalance}`);
-      console.log(`Adding creator earnings (after fee): ${earnings}`);
+      // console.log(`Updating creator earnings. Current total: ${currentTotalEarnings}, Current balance: ${currentAvailableBalance}`);
+      // console.log(`Adding creator earnings (after fee): ${earnings}`);
       
       // Update existing profile with new values
       const newTotalEarnings = currentTotalEarnings + earnings;
       const newAvailableBalance = currentAvailableBalance + earnings;
       
-      console.log(`New total earnings: ${newTotalEarnings}, New balance: ${newAvailableBalance}`);
+      // console.log(`New total earnings: ${newTotalEarnings}, New balance: ${newAvailableBalance}`);
       
       try {
         const { error: updateError } = await supabase
@@ -222,7 +229,7 @@ export class PaymentDistributionService {
         if (updateError) {
           console.error("Error updating creator earnings:", updateError);
         } else {
-          console.log("Creator earnings updated successfully");
+          // console.log("Creator earnings updated successfully");
         }
       } catch (updateException) {
         console.error("Exception during profile update:", updateException);
