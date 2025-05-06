@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,6 +51,24 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
     hasFetchedRef.current = true;
   }, []); // Only run once on mount
 
+  // Function to handle content view action
+  const handleViewContent = (content: any) => {
+    // For paid content, user must be logged in
+    const isPaidContent = parseFloat(content.price) > 0;
+    
+    if (isPaidContent && !isAuthenticated) {
+      // Prompt login for paid content
+      openAuthDialog('login');
+      toast({
+        title: "Authentication Required",
+        description: "You need to sign in to access paid content",
+      });
+    } else {
+      // Free content or authenticated user can view
+      navigate(`/view/${content.id}`);
+    }
+  };
+
   return (
     <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
@@ -86,6 +105,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                     <div className="flex items-center text-pastel-700">
                       <IndianRupee className="h-4 w-4 mr-1" />
                       {parseFloat(content.price).toFixed(2)}
+                      {!isAuthenticated && <Lock className="h-3 w-3 ml-1" />}
                     </div>
                   )}
                 </div>
@@ -101,13 +121,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                     </Button>
                   )}
                   <Button
-                    onClick={() => {
-                      if (isAuthenticated) {
-                        navigate(`/view/${content.id}`);
-                      } else {
-                        openAuthDialog('login');
-                      }
-                    }}
+                    onClick={() => handleViewContent(content)}
                     variant="secondary"
                     size="sm"
                     className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
