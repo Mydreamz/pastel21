@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { IndianRupee } from 'lucide-react';
 import { createCacheableRequest } from '@/utils/requestUtils';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RecentContentProps {
   isAuthenticated: boolean;
@@ -24,7 +25,7 @@ const fetchRecentContentCached = createCacheableRequest(async () => {
     .limit(6);
   if (error) throw error;
   return data || [];
-}, 3 * 60 * 1000); // cache for 3 minutes
+}, 5 * 60 * 1000); // cache for 5 minutes for better performance
 
 const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) => {
   const navigate = useNavigate();
@@ -36,19 +37,26 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
-    setLoading(true);
-    fetchRecentContentCached()
-      .then(async data => setRecentContents(await data))
-      .catch(error => {
+    
+    const fetchContent = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchRecentContentCached();
+        setRecentContents(data);
+      } catch (error: any) {
         console.error('Error fetching recent content:', error);
         toast({
           title: 'Error',
           description: 'Failed to load recent content',
           variant: 'destructive',
         });
-      })
-      .finally(() => setLoading(false));
-    hasFetchedRef.current = true;
+      } finally {
+        setLoading(false);
+        hasFetchedRef.current = true;
+      }
+    };
+    
+    fetchContent();
   }, []); // Only run once on mount
 
   // Function to handle content view action
@@ -69,6 +77,27 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
     }
   };
 
+  const renderSkeletonCards = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[...Array(6)].map((_, index) => (
+        <Card key={`skeleton-${index}`} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+          <CardHeader>
+            <Skeleton className="h-5 w-3/4 bg-pastel-200/50" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-full mb-2 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-4/5 mb-2 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-2/3 bg-pastel-200/40" />
+          </CardContent>
+          <CardFooter className="flex justify-between items-center">
+            <Skeleton className="h-4 w-12 bg-pastel-200/40" />
+            <Skeleton className="h-8 w-16 bg-pastel-200/40" />
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
     <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
@@ -82,9 +111,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       </div>
       
       {loading ? (
-        <div className="flex justify-center py-10">
-          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full"></div>
-        </div>
+        renderSkeletonCards()
       ) : recentContents.length === 0 ? (
         <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
           <p className="text-gray-600">No content available yet</p>
