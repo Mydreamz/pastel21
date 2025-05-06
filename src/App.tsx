@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -162,7 +161,7 @@ const App = () => {
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       
-                      {/* Admin Routes */}
+                      {/* Admin Routes - keeping these routes but removing UI buttons */}
                       <Route path="/admin" element={<AdminLogin />} />
                       <Route path="/admin/dashboard" element={
                         <AdminRoute>
