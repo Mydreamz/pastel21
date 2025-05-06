@@ -15,23 +15,35 @@ const ForgotPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/reset-password",
-    });
-    setLoading(false);
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
+    
+    try {
+      // Get the current origin to use for the redirectTo URL
+      const origin = window.location.origin;
+      const redirectTo = `${origin}/reset-password`;
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectTo,
       });
-    } else {
+      
+      if (error) {
+        throw error;
+      }
+      
       toast({
         title: "Check your inbox",
         description:
           "We've sent you a password reset email if the address is registered.",
       });
       setEmail("");
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -22,6 +22,7 @@ const ContentSuccess = lazy(() => import("./pages/ContentSuccess"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Search = lazy(() => import("./pages/Search"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -42,8 +43,8 @@ const queryClient = new QueryClient({
       retry: 1,
       refetchOnWindowFocus: false,
       staleTime: 60000, // 1 minute
-      // Add caching for better performance
-      cacheTime: 300000, // 5 minutes
+      // Updated to use gcTime instead of cacheTime
+      gcTime: 300000, // 5 minutes
     },
   },
 });
@@ -159,6 +160,7 @@ const App = () => {
                         </ProtectedRoute>
                       } />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
                       
                       {/* Admin Routes */}
                       <Route path="/admin" element={<AdminLogin />} />
