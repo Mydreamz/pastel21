@@ -29,7 +29,10 @@ const ContentDisplay = ({
   if (!content) return null;
 
   // For paid content, only show if user is creator or has purchased
-  if (parseFloat(content.price) > 0 && !isCreator && !isPurchased) {
+  const isPaidContent = parseFloat(content.price) > 0;
+  const canAccessContent = isCreator || isPurchased || !isPaidContent;
+  
+  if (isPaidContent && !canAccessContent) {
     return (
       <div className="text-center p-8">
         <h3 className="text-xl font-semibold mb-4">Premium Content</h3>
@@ -46,7 +49,6 @@ const ContentDisplay = ({
     (displayFileUrl.startsWith('http') || displayFileUrl.startsWith('/'));
   
   const isMediaContent = ['image', 'video', 'audio', 'document'].includes(content.contentType || '');
-  const canAccessMedia = isCreator || isPurchased || parseFloat(content.price) === 0;
 
   return (
     <div className="mt-8 border-t border-gray-200 pt-8">
@@ -75,7 +77,7 @@ const ContentDisplay = ({
             contentType={content.contentType}
             displayFileUrl={displayFileUrl}
             isValidFileUrl={isValidFileUrl}
-            canAccessMedia={canAccessMedia}
+            canAccessMedia={canAccessContent}
             secureFileLoading={secureFileLoading}
             secureFileError={secureFileError}
             title={content.title}

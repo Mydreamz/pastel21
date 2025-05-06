@@ -46,7 +46,8 @@ const ViewContent = () => {
     isPurchased,
     isUnlocked,
     hasError: !!error,
-    isProcessingPayment: isProcessing
+    isProcessingPayment: isProcessing,
+    contentPrice: content?.price
   });
 
   // Function to directly handle purchase from the ViewContent component
@@ -101,7 +102,9 @@ const ViewContent = () => {
     return <ContentError error={errorMessage} />;
   }
 
-  const canViewContent = isUnlocked || isCreator || isPurchased || parseFloat(content.price) === 0;
+  // Strict access control for paid content
+  const isPaidContent = parseFloat(content.price) > 0;
+  const canViewContent = isUnlocked || isCreator || isPurchased || !isPaidContent;
 
   return (
     <ViewContentContainer>
@@ -124,8 +127,8 @@ const ViewContent = () => {
             isCreator={isCreator}
           />
 
-          {/* Payment flow component for paid content */}
-          {parseFloat(content.price) > 0 && !canViewContent && (
+          {/* Always show payment flow for paid content if not unlocked */}
+          {isPaidContent && !canViewContent && (
             <PaymentFlow
               content={content}
               onUnlock={handleUnlock}
@@ -136,7 +139,7 @@ const ViewContent = () => {
           )}
 
           {/* Display direct purchase button if needed */}
-          {parseFloat(content.price) > 0 && !canViewContent && !isProcessing && (
+          {isPaidContent && !canViewContent && !isProcessing && (
             <DirectPurchaseButton 
               price={content.price}
               isProcessing={isProcessing}
@@ -148,6 +151,7 @@ const ViewContent = () => {
           <ContentViewWrapper 
             content={content}
             isCreator={isCreator}
+            isPurchased={isPurchased}
             canViewContent={canViewContent}
             secureFileUrl={secureFileUrl}
             secureFileLoading={secureFileLoading}
