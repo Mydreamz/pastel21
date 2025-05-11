@@ -27,89 +27,84 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 // Loading component for suspense fallback
-const Loading = () => (
-  <div className="min-h-screen flex items-center justify-center">
+const Loading = () => <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
-      <div className="animate-spin h-8 w-8 border-t-2 border-emerald-500 border-r-2 rounded-full mx-auto mb-4"></div>
+      <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
       <p>Loading...</p>
     </div>
-  </div>
-);
-
+  </div>;
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 60000, // 1 minute
+      staleTime: 60000,
+      // 1 minute
       // Updated to use gcTime instead of cacheTime
-      gcTime: 300000, // 5 minutes
-    },
-  },
+      gcTime: 300000 // 5 minutes
+    }
+  }
 });
 
 // Protected route component to handle authentication
 interface ProtectedRouteProps {
   children: JSX.Element;
 }
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({
+  children
+}: ProtectedRouteProps) => {
   const location = useLocation();
-  const { isLoading, session } = useAuth();
-  
+  const {
+    isLoading,
+    session
+  } = useAuth();
   if (isLoading) {
     return <Loading />;
   }
-  
   if (!session) {
     // Redirect to home page if not authenticated
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to="/" state={{
+      from: location
+    }} replace />;
   }
-
   return children;
 };
 
 // Component to handle home page redirection based on auth status
 const HomePageRoute = () => {
-  const { isLoading, session } = useAuth();
-  
+  const {
+    isLoading,
+    session
+  } = useAuth();
   if (isLoading) {
     return <Loading />;
   }
-  
+
   // Redirect to dashboard if user is logged in, otherwise show the landing page
   if (session) {
     return <Navigate to="/dashboard" replace />;
   }
-  
   return <Index />;
 };
-
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
-  
   useEffect(() => {
     // Handle email confirmation from hash
     const handleEmailConfirmation = async () => {
       const hash = window.location.hash;
-      
       if (hash && hash.includes('access_token')) {
-        setIsInitialized(true);  // Will be handled by AuthProvider
+        setIsInitialized(true); // Will be handled by AuthProvider
         window.location.hash = '';
       } else {
         setIsInitialized(true);
       }
     };
-    
     handleEmailConfirmation();
   }, []);
-  
   if (!isInitialized) {
     return <Loading />;
   }
-
-  return (
-    <AuthProvider>
+  return <AuthProvider>
       <ContentCacheProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
@@ -121,53 +116,37 @@ const App = () => {
                   <Suspense fallback={<Loading />}>
                     <Routes>
                       <Route path="/" element={<HomePageRoute />} />
-                      <Route path="/dashboard" element={
-                        <ProtectedRoute>
+                      <Route path="/dashboard" element={<ProtectedRoute>
                           <Dashboard />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/create" element={
-                        <ProtectedRoute>
+                        </ProtectedRoute>} />
+                      <Route path="/create" element={<ProtectedRoute>
                           <CreateContent />
-                        </ProtectedRoute>
-                      } />
+                        </ProtectedRoute>} />
                       {/* Make view route public */}
                       <Route path="/view/:id" element={<ViewContent />} />
-                      <Route path="/edit/:id" element={
-                        <ProtectedRoute>
+                      <Route path="/edit/:id" element={<ProtectedRoute>
                           <EditContent />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/profile" element={
-                        <ProtectedRoute>
+                        </ProtectedRoute>} />
+                      <Route path="/profile" element={<ProtectedRoute>
                           <Profile />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/success" element={
-                        <ProtectedRoute>
+                        </ProtectedRoute>} />
+                      <Route path="/success" element={<ProtectedRoute>
                           <ContentSuccess />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/search" element={
-                        <ProtectedRoute>
+                        </ProtectedRoute>} />
+                      <Route path="/search" element={<ProtectedRoute>
                           <Search />
-                        </ProtectedRoute>
-                      } />
-                      <Route path="/marketplace" element={
-                        <ProtectedRoute>
+                        </ProtectedRoute>} />
+                      <Route path="/marketplace" element={<ProtectedRoute>
                           <Marketplace />
-                        </ProtectedRoute>
-                      } />
+                        </ProtectedRoute>} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       
                       {/* Admin Routes - keeping these routes but removing UI buttons */}
                       <Route path="/admin" element={<AdminLogin />} />
-                      <Route path="/admin/dashboard" element={
-                        <AdminRoute>
+                      <Route path="/admin/dashboard" element={<AdminRoute>
                           <AdminDashboard />
-                        </AdminRoute>
-                      } />
+                        </AdminRoute>} />
                       
                       <Route path="*" element={<NotFound />} />
                     </Routes>
@@ -178,8 +157,6 @@ const App = () => {
           </TooltipProvider>
         </QueryClientProvider>
       </ContentCacheProvider>
-    </AuthProvider>
-  );
+    </AuthProvider>;
 };
-
 export default App;
