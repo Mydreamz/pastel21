@@ -48,7 +48,7 @@ const ForgotPassword = () => {
         <h2 className="text-2xl font-bold mb-4 text-pastel-600">Forgot your password?</h2>
         <p className="mb-6 text-gray-400">Enter your email to receive a password reset link.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" placeholder="Email address" value={email} required onChange={e => setEmail(e.target.value)} className="bg-white/5 border-white/10 text-black" />
+          <Input type="email" placeholder="Email address" value={email} required onChange={e => setEmail(e.target.value)} className="bg-white/5 border-pastel-300 text-black" />
           <Button type="submit" disabled={loading} className="w-full bg-pastel-500 hover:bg-pastel-600 text-white">
             {loading ? <>
                 <div className="mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
