@@ -98,13 +98,13 @@ const LockedContent: React.FC<LockedContentProps> = ({
         disabled={isProcessing}
         className={`w-full transition-all duration-300 ${
           isPurchased 
-            ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700' 
+            ? 'bg-gradient-to-r from-pastel-500 to-pastel-600 hover:from-pastel-600 hover:to-pastel-700' 
             : 'bg-gradient-to-r from-pastel-500 to-pastel-600 hover:from-pastel-600 hover:to-pastel-700'
         } text-white shadow-md hover:shadow-lg animate-fade-in`}
       >
         {isProcessing ? (
           <span className="flex items-center justify-center">
-            <span className="animate-spin mr-2">●</span>
+            <span className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
             Processing...
           </span>
         ) : isPurchased ? (

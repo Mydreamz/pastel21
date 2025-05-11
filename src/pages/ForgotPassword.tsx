@@ -41,7 +41,7 @@ const ForgotPassword = () => {
       console.error("Reset password error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to send reset email",
         variant: "destructive",
       });
     } finally {
@@ -66,15 +66,20 @@ const ForgotPassword = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
           >
-            {loading ? "Sending..." : "Send reset link"}
+            {loading ? (
+              <>
+                <div className="mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                Sending...
+              </>
+            ) : "Send reset link"}
           </Button>
         </form>
         <div className="mt-4 text-center">
           <Button
             variant="link"
-            className="text-emerald-400"
+            className="text-pastel-400"
             onClick={() => navigate("/")}
             type="button"
           >

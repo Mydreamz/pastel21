@@ -105,7 +105,7 @@ const ResetPassword = () => {
           
           <Button 
             onClick={() => navigate("/forgot-password")} 
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
           >
             <RefreshCcw className="mr-2 h-4 w-4" />
             Request New Reset Link
@@ -114,7 +114,7 @@ const ResetPassword = () => {
           <div className="mt-4 text-center">
             <Button
               variant="link"
-              className="text-emerald-400"
+              className="text-pastel-400"
               onClick={() => navigate("/")}
               type="button"
             >
@@ -132,7 +132,7 @@ const ResetPassword = () => {
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="glass-card w-full max-w-md p-8 rounded-lg border border-white/10 text-white">
           <div className="flex justify-center mb-4">
-            <CheckCircle className="h-16 w-16 text-emerald-500" />
+            <CheckCircle className="h-16 w-16 text-pastel-500" />
           </div>
           <h2 className="text-2xl font-bold mb-4 text-center">Password Reset Successful</h2>
           <p className="mb-6 text-gray-400 text-center">
@@ -140,7 +140,7 @@ const ResetPassword = () => {
           </p>
           <Button 
             onClick={() => navigate("/")} 
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
           >
             Go to Login
           </Button>
@@ -200,7 +200,7 @@ const ResetPassword = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+            className="w-full bg-pastel-500 hover:bg-pastel-600 text-white"
           >
             {loading ? (
               <>
@@ -214,7 +214,7 @@ const ResetPassword = () => {
         <div className="mt-4 text-center">
           <Button
             variant="link"
-            className="text-emerald-400"
+            className="text-pastel-400"
             onClick={() => navigate("/")}
             type="button"
           >
