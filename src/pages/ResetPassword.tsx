@@ -222,7 +222,7 @@ const ResetPassword = () => {
             />
             
             <div className="space-y-1">
-              <Progress value={passwordStrength} className="h-2" indicatorClassName={getPasswordStrengthColor()} />
+              <Progress value={passwordStrength} className="h-2" />
               <div className="flex justify-between text-xs">
                 <span className={passwordStrength >= 25 ? "text-pastel-400" : "text-gray-500"}>Weak</span>
                 <span className={passwordStrength >= 50 ? "text-pastel-400" : "text-gray-500"}>Medium</span>

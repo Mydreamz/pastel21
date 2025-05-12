@@ -67,13 +67,13 @@ export const encryptionUtils = {
     obj: T,
     fieldsToEncrypt: string[]
   ): Promise<T> {
-    const result = { ...obj };
+    const result = { ...obj } as T;
     
     for (const field of fieldsToEncrypt) {
       if (obj[field] && typeof obj[field] === 'string') {
         const encrypted = await this.encrypt(obj[field]);
         if (encrypted) {
-          result[field] = encrypted;
+          result[field as keyof T] = encrypted as any;
         }
       }
     }
@@ -91,13 +91,13 @@ export const encryptionUtils = {
     obj: T,
     fieldsToDecrypt: string[]
   ): Promise<T> {
-    const result = { ...obj };
+    const result = { ...obj } as T;
     
     for (const field of fieldsToDecrypt) {
       if (obj[field] && typeof obj[field] === 'string') {
         const decrypted = await this.decrypt(obj[field]);
         if (decrypted) {
-          result[field] = decrypted;
+          result[field as keyof T] = decrypted as any;
         }
       }
     }
