@@ -65,7 +65,7 @@ serve(async (req) => {
       const requestData = await req.json();
       const { saveDetails, ...withdrawalData } = requestData;
       
-      // Create withdrawal request
+      // Create withdrawal request - data is already encrypted from the client
       const { error: withdrawalError } = await supabaseClient
         .from('withdrawal_requests')
         .insert({
@@ -85,13 +85,13 @@ serve(async (req) => {
         const detailsToSave = {
           user_id: user.id,
           account_holder_name: withdrawalData.account_holder_name,
-          account_number: withdrawalData.account_number,
-          ifsc_code: withdrawalData.ifsc_code,
+          account_number: withdrawalData.account_number, // Already encrypted
+          ifsc_code: withdrawalData.ifsc_code, // Already encrypted
           bank_name: withdrawalData.bank_name,
-          upi_id: withdrawalData.upi_id,
-          pan_number: withdrawalData.pan_number,
+          upi_id: withdrawalData.upi_id, // Already encrypted
+          pan_number: withdrawalData.pan_number, // Already encrypted
           pan_name: withdrawalData.pan_name,
-          phone_number: withdrawalData.phone_number,
+          phone_number: withdrawalData.phone_number // Already encrypted
         };
 
         // Check if details already exist

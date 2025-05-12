@@ -2,15 +2,27 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SavedUserDetails } from "@/types/transaction";
 import { createCacheableRequest } from "@/utils/requestUtils";
+import { encryptionUtils } from "@/utils/encryptionUtils";
 
 /**
- * Service for handling withdrawal-related API calls with improved caching
+ * Service for handling withdrawal-related API calls with improved caching and encryption
  */
 export class WithdrawalService {
   /**
    * Internal request tracking to prevent duplicate in-flight requests
    */
   private static inFlightRequests: Record<string, Promise<any>> = {};
+  
+  /**
+   * Fields that should be encrypted when saving withdrawal details
+   */
+  private static SENSITIVE_FIELDS = [
+    'account_number',
+    'ifsc_code',
+    'upi_id',
+    'pan_number',
+    'phone_number'
+  ];
   
   /**
    * Get a unique key for tracking requests
@@ -33,7 +45,16 @@ export class WithdrawalService {
       });
       
       if (error) throw error;
-      return data?.data as SavedUserDetails || null;
+      
+      // Decrypt sensitive fields if data exists
+      if (data?.data) {
+        return await encryptionUtils.decryptFields(
+          data.data as SavedUserDetails, 
+          this.SENSITIVE_FIELDS
+        );
+      }
+      
+      return null;
     } catch (error) {
       console.error('Error fetching saved details:', error);
       return null;
@@ -75,7 +96,17 @@ export class WithdrawalService {
     // Create a new request
     const requestPromise = (async () => {
       try {
-        // Use the edge function to submit bank withdrawal request
+        // Encrypt sensitive data before sending to the edge function
+        const sensitiveData = {
+          account_number: values.accountNumber,
+          ifsc_code: values.ifscCode,
+          pan_number: values.panNumber,
+          phone_number: values.phoneNumber
+        };
+        
+        const encryptedData = await encryptionUtils.encryptFields(sensitiveData, Object.keys(sensitiveData));
+        
+        // Use the edge function to submit bank withdrawal request with encrypted data
         const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
           method: 'POST',
           headers: {
@@ -83,12 +114,12 @@ export class WithdrawalService {
           },
           body: {
             account_holder_name: values.accountHolderName,
-            account_number: values.accountNumber,
-            ifsc_code: values.ifscCode,
+            account_number: encryptedData.account_number,
+            ifsc_code: encryptedData.ifsc_code,
             bank_name: values.bankName,
-            pan_number: values.panNumber,
+            pan_number: encryptedData.pan_number,
             pan_name: values.panName,
-            phone_number: values.phoneNumber,
+            phone_number: encryptedData.phone_number,
             amount: values.amount,
             payment_method: 'bank_transfer',
             saveDetails: values.saveDetails
@@ -141,17 +172,26 @@ export class WithdrawalService {
     // Create a new request
     const requestPromise = (async () => {
       try {
-        // Use the edge function to submit UPI withdrawal request
+        // Encrypt sensitive data before sending to the edge function
+        const sensitiveData = {
+          upi_id: values.upiId,
+          pan_number: values.panNumber,
+          phone_number: values.phoneNumber
+        };
+        
+        const encryptedData = await encryptionUtils.encryptFields(sensitiveData, Object.keys(sensitiveData));
+        
+        // Use the edge function to submit UPI withdrawal request with encrypted data
         const { data, error } = await supabase.functions.invoke('withdrawal-requests', {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${accessToken}`
           },
           body: {
-            upi_id: values.upiId,
-            pan_number: values.panNumber,
+            upi_id: encryptedData.upi_id,
+            pan_number: encryptedData.pan_number,
             pan_name: values.panName,
-            phone_number: values.phoneNumber,
+            phone_number: encryptedData.phone_number,
             amount: values.amount,
             payment_method: 'upi',
             saveDetails: values.saveDetails

@@ -157,6 +157,27 @@ export type Database = {
         }
         Relationships: []
       }
+      encryption_keys: {
+        Row: {
+          created_at: string | null
+          id: string
+          key_name: string
+          key_value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          key_name: string
+          key_value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          key_name?: string
+          key_value?: string
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           amount: string
@@ -438,6 +459,14 @@ export type Database = {
       }
     }
     Functions: {
+      decrypt_data: {
+        Args: { encrypted_data: string }
+        Returns: string
+      }
+      encrypt_data: {
+        Args: { data: string }
+        Returns: string
+      }
       get_pending_withdrawals: {
         Args: { user_id_param: string }
         Returns: number
@@ -449,6 +478,10 @@ export type Database = {
       has_purchased_content: {
         Args: { user_id_param: string; content_id_param: string }
         Returns: boolean
+      }
+      reencrypt_column: {
+        Args: { table_name: string; column_name: string }
+        Returns: undefined
       }
     }
     Enums: {
