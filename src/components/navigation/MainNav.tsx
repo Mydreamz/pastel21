@@ -7,6 +7,15 @@ import { User, LayoutDashboard, Shield } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle 
+} from '@/components/ui/navigation-menu';
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -27,6 +36,14 @@ const MainNav = ({
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const userEmail = user?.email || '';
   
+  // Function to scroll to section when using hash links
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
       <div className="container flex h-16 items-center justify-between py-4">
@@ -41,20 +58,36 @@ const MainNav = ({
           </Link>
           
           {!isAuthenticated && (
-            <nav className="hidden md:flex items-center space-x-6 ml-10">
-              <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors">
-                Home
-              </Link>
-              <Link to="/#features" className="text-gray-700 hover:text-pastel-700 transition-colors">
-                Features
-              </Link>
-              <Link to="/#pricing" className="text-gray-700 hover:text-pastel-700 transition-colors">
-                Pricing
-              </Link>
-              <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors">
-                Explore
-              </Link>
-            </nav>
+            <NavigationMenu className="hidden md:flex items-center ml-10">
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
+                    Home
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink 
+                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
+                    onClick={() => scrollToSection('features')}
+                  >
+                    Features
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuLink 
+                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
+                    onClick={() => scrollToSection('pricing')}
+                  >
+                    Pricing
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
+                    Explore
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           )}
         </div>
         
