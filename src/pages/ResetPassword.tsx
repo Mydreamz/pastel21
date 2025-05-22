@@ -167,8 +167,8 @@ const ResetPassword = () => {
 
   if (validatingToken) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="glass-card w-full max-w-md p-8 rounded-lg border border-white/10 text-white text-center">
+      <div className="flex min-h-screen items-center justify-center bg-cream-100">
+        <div className="glass-card w-full max-w-md p-8 rounded-lg border border-cream-200/50 text-gray-800 text-center">
           <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
           <p>Validating reset link...</p>
         </div>
@@ -178,15 +178,15 @@ const ResetPassword = () => {
 
   if (!tokenValid) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="glass-card w-full max-w-md p-8 rounded-lg border border-white/10 text-white">
+      <div className="flex min-h-screen items-center justify-center bg-cream-100">
+        <div className="glass-card w-full max-w-md p-8 rounded-lg border border-cream-200/50 text-gray-800">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-red-500/20 rounded-full">
               <AlertCircle className="h-8 w-8 text-red-500" />
             </div>
           </div>
           <h2 className="text-2xl font-bold mb-4 text-center">Invalid Reset Link</h2>
-          <p className="mb-6 text-center text-gray-400">
+          <p className="mb-6 text-center text-gray-600">
             This password reset link is invalid or has expired. Please request a new password reset.
           </p>
           <Button onClick={() => navigate("/forgot-password")} className="w-full bg-pastel-500 hover:bg-pastel-600 text-white">
@@ -198,15 +198,15 @@ const ResetPassword = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="glass-card w-full max-w-md p-8 rounded-lg border border-white/10 text-white">
+    <div className="flex min-h-screen items-center justify-center bg-cream-100">
+      <div className="glass-card w-full max-w-md p-8 rounded-lg border border-cream-200/50 text-gray-800">
         <div className="flex justify-center mb-4">
           <div className="p-3 bg-pastel-500/20 rounded-full">
             <Key className="h-8 w-8 text-pastel-500" />
           </div>
         </div>
         <h2 className="text-2xl font-bold mb-4 text-center">Reset Your Password</h2>
-        <p className="mb-6 text-center text-gray-400">
+        <p className="mb-6 text-center text-gray-600">
           Please enter a new password for your account. Use a strong, unique password to better protect your account.
         </p>
 
@@ -218,16 +218,16 @@ const ResetPassword = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-white/5 border-pastel-300 text-white"
+              className="bg-cream-50/80 border-cream-300 text-gray-800"
             />
             
             <div className="space-y-1">
-              <Progress value={passwordStrength} className="h-2" />
+              <Progress value={passwordStrength} className="h-2" indicatorClassName={getPasswordStrengthColor()} />
               <div className="flex justify-between text-xs">
-                <span className={passwordStrength >= 25 ? "text-pastel-400" : "text-gray-500"}>Weak</span>
-                <span className={passwordStrength >= 50 ? "text-pastel-400" : "text-gray-500"}>Medium</span>
-                <span className={passwordStrength >= 75 ? "text-pastel-400" : "text-gray-500"}>Strong</span>
-                <span className={passwordStrength >= 100 ? "text-pastel-400" : "text-gray-500"}>Very Strong</span>
+                <span className={passwordStrength >= 25 ? "text-pastel-600" : "text-gray-500"}>Weak</span>
+                <span className={passwordStrength >= 50 ? "text-pastel-600" : "text-gray-500"}>Medium</span>
+                <span className={passwordStrength >= 75 ? "text-pastel-600" : "text-gray-500"}>Strong</span>
+                <span className={passwordStrength >= 100 ? "text-pastel-600" : "text-gray-500"}>Very Strong</span>
               </div>
             </div>
             
@@ -257,7 +257,7 @@ const ResetPassword = () => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="bg-white/5 border-pastel-300 text-white"
+            className="bg-cream-50/80 border-cream-300 text-gray-800"
           />
 
           <Button
@@ -277,7 +277,7 @@ const ResetPassword = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <Button variant="link" className="text-pastel-400" onClick={() => navigate("/")} type="button">
+          <Button variant="link" className="text-pastel-600" onClick={() => navigate("/")} type="button">
             Back to login
           </Button>
         </div>

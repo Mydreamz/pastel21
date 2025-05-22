@@ -1,5 +1,4 @@
 
-
 @layer utilities {
   .scrollbar-none {
     -ms-overflow-style: none;
@@ -11,7 +10,7 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-xl bg-gradient-to-br from-white/60 to-pastel-200/60 border border-pastel-200/50 shadow-neumorphic rounded-2xl;
+    @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/60 to-cream-200/60 border border-cream-300/50 shadow-neumorphic rounded-2xl;
   }
   
   .text-gradient-pastel {

@@ -6,12 +6,12 @@
 
 /* Neumorphic style for standard inputs */
 .input-neumorphic {
-  @apply bg-white/70 border border-pastel-100 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-500/30 outline-none transition-all duration-300;
+  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
 }
 
 /* Auth form improvements */
 .auth-form-input {
-  @apply bg-white/70 border border-pastel-100 rounded-xl focus:ring-2 focus:ring-pastel-500/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
 }
 
 .auth-form-button {
@@ -20,7 +20,7 @@
 
 /* Top-up component styling */
 .top-up-component {
-  @apply bg-white/70 border border-pastel-200/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
 }
 
 /* High contrast text styles for better visibility */
@@ -38,7 +38,7 @@
 
 /* Dashboard card improvements */
 .dashboard-card {
-  @apply bg-white/80 border border-pastel-200/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
 }
 
 /* Marketplace content text */

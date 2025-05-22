@@ -2,23 +2,24 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
 type ThemeContextType = {
-  theme: 'light';
+  theme: 'cream';
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
+  theme: 'cream',
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme] = useState<'light'>('light');
+  const [theme] = useState<'cream'>('cream');
 
   useEffect(() => {
-    // Apply light theme to document
-    document.documentElement.classList.add('light');
+    // Apply cream theme to document
+    document.documentElement.classList.add('cream');
+    document.documentElement.classList.remove('light');
     document.documentElement.classList.remove('dark');
     
     // Save theme preference
-    localStorage.setItem('theme', 'light');
+    localStorage.setItem('theme', 'cream');
   }, []);
 
   return (
