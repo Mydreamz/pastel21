@@ -10,7 +10,7 @@ type PasswordStrengthMeterProps = {
 
 const PasswordStrengthMeter = ({ password, passwordStrength }: PasswordStrengthMeterProps) => {
   const getPasswordStrengthColor = () => {
-    if (passwordStrength <= 25) return "bg-red-500";
+    if (passwordStrength <= 25) return "bg-[#7FB069]";
     if (passwordStrength <= 50) return "bg-orange-500";
     if (passwordStrength <= 75) return "bg-yellow-500";
     return "bg-green-500";
@@ -30,20 +30,20 @@ const PasswordStrengthMeter = ({ password, passwordStrength }: PasswordStrengthM
       
       <div className="space-y-1 text-xs">
         <div className="flex items-center gap-1">
-          <Check className={`h-3 w-3 ${password.length >= 8 ? "text-green-500" : "text-gray-500"}`} />
-          <span className={password.length >= 8 ? "text-green-500" : "text-gray-500"}>At least 8 characters</span>
+          <Check className={`h-3 w-3 ${password.length >= 8 ? "text-[#7FB069]" : "text-gray-500"}`} />
+          <span className={password.length >= 8 ? "text-[#7FB069]" : "text-gray-500"}>At least 8 characters</span>
         </div>
         <div className="flex items-center gap-1">
-          <Check className={`h-3 w-3 ${/[A-Z]/.test(password) ? "text-green-500" : "text-gray-500"}`} />
-          <span className={/[A-Z]/.test(password) ? "text-green-500" : "text-gray-500"}>Contains uppercase letter</span>
+          <Check className={`h-3 w-3 ${/[A-Z]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}`} />
+          <span className={/[A-Z]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}>Contains uppercase letter</span>
         </div>
         <div className="flex items-center gap-1">
-          <Check className={`h-3 w-3 ${/[0-9]/.test(password) ? "text-green-500" : "text-gray-500"}`} />
-          <span className={/[0-9]/.test(password) ? "text-green-500" : "text-gray-500"}>Contains number</span>
+          <Check className={`h-3 w-3 ${/[0-9]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}`} />
+          <span className={/[0-9]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}>Contains number</span>
         </div>
         <div className="flex items-center gap-1">
-          <Check className={`h-3 w-3 ${/[^A-Za-z0-9]/.test(password) ? "text-green-500" : "text-gray-500"}`} />
-          <span className={/[^A-Za-z0-9]/.test(password) ? "text-green-500" : "text-gray-500"}>Contains special character</span>
+          <Check className={`h-3 w-3 ${/[^A-Za-z0-9]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}`} />
+          <span className={/[^A-Za-z0-9]/.test(password) ? "text-[#7FB069]" : "text-gray-500"}>Contains special character</span>
         </div>
       </div>
     </div>
