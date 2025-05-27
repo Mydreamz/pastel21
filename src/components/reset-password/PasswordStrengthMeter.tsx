@@ -10,10 +10,10 @@ type PasswordStrengthMeterProps = {
 
 const PasswordStrengthMeter = ({ password, passwordStrength }: PasswordStrengthMeterProps) => {
   const getPasswordStrengthColor = () => {
-    if (passwordStrength <= 25) return "bg-green-300";
-    if (passwordStrength <= 50) return "bg-green-400";
-    if (passwordStrength <= 75) return "bg-green-500";
-    return "bg-green-600";
+    if (passwordStrength <= 25) return "bg-red-500";
+    if (passwordStrength <= 50) return "bg-orange-500";
+    if (passwordStrength <= 75) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   return (
@@ -21,10 +21,10 @@ const PasswordStrengthMeter = ({ password, passwordStrength }: PasswordStrengthM
       <div className="space-y-1">
         <Progress value={passwordStrength} className="h-2" indicatorClassName={getPasswordStrengthColor()} />
         <div className="flex justify-between text-xs">
-          <span className={passwordStrength >= 25 ? "text-green-600" : "text-gray-500"}>Weak</span>
-          <span className={passwordStrength >= 50 ? "text-green-600" : "text-gray-500"}>Medium</span>
-          <span className={passwordStrength >= 75 ? "text-green-600" : "text-gray-500"}>Strong</span>
-          <span className={passwordStrength >= 100 ? "text-green-600" : "text-gray-500"}>Very Strong</span>
+          <span className={passwordStrength >= 25 ? "text-pastel-600" : "text-gray-500"}>Weak</span>
+          <span className={passwordStrength >= 50 ? "text-pastel-600" : "text-gray-500"}>Medium</span>
+          <span className={passwordStrength >= 75 ? "text-pastel-600" : "text-gray-500"}>Strong</span>
+          <span className={passwordStrength >= 100 ? "text-pastel-600" : "text-gray-500"}>Very Strong</span>
         </div>
       </div>
       
