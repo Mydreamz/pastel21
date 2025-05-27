@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -122,7 +123,7 @@ const MainNav = ({
                     Create Content
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-pastel-200/50" />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-[#7FB069] hover:bg-green-50 hover:text-[#6A9A56]">
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-600">
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

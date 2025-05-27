@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
@@ -114,7 +113,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-black">Dashboard</h3>
           <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#7FB069]"></div>
+            <div className="w-3 h-3 rounded-full bg-red-500"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
             <div className="w-3 h-3 rounded-full bg-pastel-500"></div>
           </div>
