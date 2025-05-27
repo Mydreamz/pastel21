@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
 interface ContentErrorProps {
-  // Explicitly define error as string to ensure type safety
   error: string;
 }
 
@@ -15,10 +14,10 @@ const ContentError = ({ error }: ContentErrorProps) => {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
-      <Alert variant="destructive" className="glass-card border border-red-300/30 mb-6">
+      <Alert variant="destructive" className="glass-card border border-[#7FB069]/30 mb-6">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle className="text-red-500">Error Loading Content</AlertTitle>
-        <AlertDescription className="text-red-400">
+        <AlertTitle className="text-[#7FB069]">Error Loading Content</AlertTitle>
+        <AlertDescription className="text-[#6A9A56]">
           {error}
         </AlertDescription>
       </Alert>

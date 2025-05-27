@@ -30,7 +30,7 @@ const DeleteContentDialog = ({
       <AlertDialogContent className="glass-card border-white/10 text-white">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <Trash2 className="h-5 w-5 text-red-500" />
+            <Trash2 className="h-5 w-5 text-[#7FB069]" />
             Delete Content
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-300">
@@ -43,7 +43,7 @@ const DeleteContentDialog = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-red-500 hover:bg-red-600 text-white"
+            className="bg-[#7FB069] hover:bg-[#6A9A56] text-white"
           >
             Delete Permanently
           </AlertDialogAction>
