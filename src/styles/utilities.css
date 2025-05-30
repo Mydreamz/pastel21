@@ -14,7 +14,7 @@
   }
   
   .text-gradient-pastel {
-    @apply bg-gradient-to-r from-pastel-500 to-pastel-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
   
   .highlight-pastel {
@@ -23,7 +23,7 @@
   
   .highlight-pastel::after {
     content: "";
-    @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-pastel-500 rounded-full opacity-70;
+    @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-primary rounded-full opacity-70;
   }
   
   .star {
