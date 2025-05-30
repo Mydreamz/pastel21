@@ -10,18 +10,18 @@
   }
 
   .glass-card {
-    @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/70 to-cream-200/70 border border-cream-300/60 shadow-neumorphic rounded-2xl;
+    @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/60 to-cream-200/60 border border-cream-300/50 shadow-neumorphic rounded-2xl;
   }
   
-  .text-gradient-green {
+  .text-gradient-pastel {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
   
-  .highlight-green {
+  .highlight-pastel {
     @apply relative inline-block;
   }
   
-  .highlight-green::after {
+  .highlight-pastel::after {
     content: "";
     @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-primary rounded-full opacity-70;
   }
@@ -36,21 +36,5 @@
 
   .bg-grid {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-  }
-
-  .neumorphic-button {
-    @apply shadow-neumorphic hover:shadow-neumorphic-inset transition-all duration-200 ease-in-out;
-  }
-
-  .neumorphic-input {
-    @apply shadow-neumorphic-inset focus:shadow-neumorphic transition-all duration-200 ease-in-out;
-  }
-
-  .neumorphic-card {
-    @apply shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-300 ease-in-out;
-  }
-
-  .professional-elevation {
-    @apply shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200 ease-in-out;
   }
 }
