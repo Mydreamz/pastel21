@@ -15,7 +15,7 @@ const DirectPurchaseButton = ({ price, isProcessing, onPurchase }: DirectPurchas
     <div className="my-4 text-center">
       <Button 
         onClick={onPurchase}
-        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="bg-primary hover:bg-primary/90 text-white shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-200"
         size="lg"
         disabled={isProcessing}
       >

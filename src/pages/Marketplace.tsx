@@ -84,14 +84,14 @@ const Marketplace = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate('/dashboard')}
-            className="text-gray-700 hover:bg-white/10"
+            className="text-gray-700 hover:bg-white/10 shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-800">Marketplace</h1>
         </div>
         
-        <Card className="glass-card border-white/10 text-gray-800 mb-8">
+        <Card className="glass-card border-cream-200/50 text-gray-800 mb-8 shadow-neumorphic">
           <CardContent className="p-0">
             <DashboardSearch 
               onFilter={setFilters}
@@ -111,7 +111,7 @@ const Marketplace = () => {
                   <Button 
                     onClick={loadMore} 
                     variant="outline"
-                    className="border-pastel-300 text-pastel-700 hover:bg-pastel-50"
+                    className="border-primary/50 text-primary hover:bg-primary/10 shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200"
                   >
                     Load More
                   </Button>

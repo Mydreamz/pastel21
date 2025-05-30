@@ -71,7 +71,7 @@ const Index = () => {
                 icon: "💰"
               }
             ].map((feature, i) => (
-              <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-6">
+              <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-6 hover:shadow-neumorphic-lg transition-all duration-300">
                 <div className="text-3xl mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
@@ -81,7 +81,7 @@ const Index = () => {
         </section>
         
         <section id="pricing" className="py-16 md:py-24">
-          <div className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-8 md:p-12">
+          <div className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-8 md:p-12 hover:shadow-neumorphic-lg transition-all duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Ready to start monetizing your content with Monitize.club?</h2>
@@ -90,14 +90,14 @@ const Index = () => {
                 <ul className="space-y-3 mb-8">
                   {["Free to get started", "No credit card required", "Cancel anytime"].map((item, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-pastel-500" />
+                      <CheckCircle className="h-5 w-5 text-primary" />
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
                 
                 <Button 
-                  className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
+                  className="bg-primary hover:bg-primary/90 text-white rounded-full px-6 h-12 text-base font-medium shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-200"
                   onClick={() => openAuthDialog('signup')}
                 >
                   Start for free
@@ -105,10 +105,10 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="glass-card p-6 backdrop-blur-xl bg-white/60 rounded-2xl border border-pastel-200/50">
+              <div className="glass-card p-6 backdrop-blur-xl bg-white/60 rounded-2xl border border-cream-200/50 shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-300">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl font-bold text-gray-800">Pro Plan</h3>
-                  <div className="px-3 py-1 rounded-full bg-pastel-100 text-pastel-700 text-sm font-medium">Popular</div>
+                  <div className="px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium shadow-neumorphic-sm">Popular</div>
                 </div>
                 
                 <div className="mb-6">
@@ -128,13 +128,13 @@ const Index = () => {
                     "Multiple payment methods"
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-2">
-                      <CheckCircle className="h-5 w-5 text-pastel-500" />
+                      <CheckCircle className="h-5 w-5 text-primary" />
                       <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <Button className="w-full bg-pastel-500 hover:bg-pastel-600 text-white rounded-2xl">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-200">
                   Get Started
                 </Button>
               </div>

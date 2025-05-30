@@ -11,7 +11,7 @@ interface TutorialDialogProps {
 const TutorialDialog = ({ isOpen, onClose }: TutorialDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-white/80 border-pastel-200/50 backdrop-blur-lg rounded-2xl p-0 w-full max-w-md">
+      <DialogContent className="bg-cream-50/90 border-cream-200/50 backdrop-blur-lg rounded-2xl p-0 w-full max-w-md shadow-neumorphic">
         <TutorialContent onClose={onClose} />
       </DialogContent>
     </Dialog>
