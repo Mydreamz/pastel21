@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
 import { useToast } from "@/hooks/use-toast";
 import MainNav from '@/components/navigation/MainNav';
+import BottomNav from '@/components/navigation/BottomNav';
 import Footer from '@/components/navigation/Footer';
 import AuthDialog from '@/components/auth/AuthDialog';
 import RecentContent from '@/components/content/RecentContent';
@@ -31,10 +32,10 @@ const Index = () => {
       
       <MainNav openAuthDialog={openAuthDialog} />
       
-      <main className="flex-1">
+      <main className="flex-1 mobile-content">
         <div className="container">
-          <section className="py-12 md:py-20 lg:py-24">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <section className="py-8 md:py-12 lg:py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
               <Hero openAuthDialog={openAuthDialog} />
               <div className="hidden lg:block">
                 <Dashboard />
@@ -47,17 +48,17 @@ const Index = () => {
             openAuthDialog={openAuthDialog}
           />
           
-          <section id="features" className="py-16 md:py-24">
-            <div className="text-center mb-12">
+          <section id="features" className="py-12 md:py-16 lg:py-20">
+            <div className="text-center mb-8 md:mb-12">
               <h2 className="font-lora text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
                 Everything creators need to monetize
               </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 All the tools you need to create, grow, and monetize your audience in one powerful platform.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {[
                 {
                   title: "Content Creation",
@@ -75,7 +76,7 @@ const Index = () => {
                   icon: "💰"
                 }
               ].map((feature, i) => (
-                <div key={i} className="bg-card rounded-lg border p-6 hover:shadow-md transition-shadow">
+                <div key={i} className="bg-card rounded-xl border p-6 hover:shadow-md transition-shadow touch-target">
                   <div className="text-3xl mb-4">{feature.icon}</div>
                   <h3 className="font-lora text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-muted-foreground">{feature.description}</p>
@@ -84,14 +85,14 @@ const Index = () => {
             </div>
           </section>
           
-          <section id="pricing" className="py-16 md:py-24">
-            <div className="bg-card rounded-lg border p-8 md:p-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <section id="pricing" className="py-12 md:py-16 lg:py-20">
+            <div className="bg-card rounded-xl border p-6 md:p-8 lg:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
                 <div>
                   <h2 className="font-lora text-2xl md:text-3xl font-bold mb-4">
                     Ready to start monetizing your content?
                   </h2>
-                  <p className="text-muted-foreground mb-6 text-lg">
+                  <p className="text-muted-foreground mb-6 text-base md:text-lg leading-relaxed">
                     Join thousands of creators who are earning more with our platform.
                   </p>
                   
@@ -105,7 +106,7 @@ const Index = () => {
                   </ul>
                   
                   <Button 
-                    className="w-full sm:w-auto h-12 px-8 text-base font-medium"
+                    className="w-full sm:w-auto h-12 px-8 text-base font-medium touch-target"
                     onClick={() => openAuthDialog('signup')}
                   >
                     Start for free
@@ -113,7 +114,7 @@ const Index = () => {
                   </Button>
                 </div>
                 
-                <div className="bg-background rounded-lg border p-6">
+                <div className="bg-background rounded-xl border p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="font-lora text-xl font-semibold">Pro Plan</h3>
                     <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
@@ -144,7 +145,7 @@ const Index = () => {
                     ))}
                   </ul>
                   
-                  <Button className="w-full h-12">
+                  <Button className="w-full h-12 touch-target">
                     Get Started
                   </Button>
                 </div>
@@ -154,7 +155,14 @@ const Index = () => {
         </div>
       </main>
 
-      <Footer />
+      {/* Desktop Footer - Hidden on mobile */}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <BottomNav openAuthDialog={openAuthDialog} />
+      
       <BackToTop />
       
       <AuthDialog

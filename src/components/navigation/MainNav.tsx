@@ -39,43 +39,43 @@ const MainNav = ({
   const MobileNav = () => (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="md:hidden">
+        <Button variant="outline" size="icon" className="md:hidden touch-target">
           <Menu className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-80">
+      <SheetContent side="left" className="w-80 bg-card">
         <div className="flex flex-col space-y-4 mt-8">
           {!isAuthenticated ? (
             <>
-              <Link to="/" className="text-lg font-medium hover:text-primary transition-colors">
+              <Link to="/" className="text-lg font-medium hover:text-primary transition-colors touch-target py-2">
                 Home
               </Link>
               <button 
                 onClick={() => scrollToSection('features')}
-                className="text-lg font-medium hover:text-primary transition-colors text-left"
+                className="text-lg font-medium hover:text-primary transition-colors text-left touch-target py-2"
               >
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection('pricing')}
-                className="text-lg font-medium hover:text-primary transition-colors text-left"
+                className="text-lg font-medium hover:text-primary transition-colors text-left touch-target py-2"
               >
                 Pricing
               </button>
-              <Link to="/#contents" className="text-lg font-medium hover:text-primary transition-colors">
+              <Link to="/#contents" className="text-lg font-medium hover:text-primary transition-colors touch-target py-2">
                 Explore
               </Link>
               <div className="pt-4 space-y-3">
                 <Button 
                   variant="outline" 
                   onClick={() => openAuthDialog('login')} 
-                  className="w-full h-12"
+                  className="w-full h-12 touch-target"
                 >
                   Sign In
                 </Button>
                 <Button 
                   onClick={() => openAuthDialog('signup')} 
-                  className="w-full h-12"
+                  className="w-full h-12 touch-target"
                 >
                   Sign Up
                 </Button>
@@ -83,13 +83,13 @@ const MainNav = ({
             </>
           ) : (
             <>
-              <Link to="/dashboard" className="text-lg font-medium hover:text-primary transition-colors">
+              <Link to="/dashboard" className="text-lg font-medium hover:text-primary transition-colors touch-target py-2">
                 Dashboard
               </Link>
-              <Link to="/create" className="text-lg font-medium hover:text-primary transition-colors">
+              <Link to="/create" className="text-lg font-medium hover:text-primary transition-colors touch-target py-2">
                 Create Content
               </Link>
-              <Link to="/profile" className="text-lg font-medium hover:text-primary transition-colors">
+              <Link to="/profile" className="text-lg font-medium hover:text-primary transition-colors touch-target py-2">
                 Profile
               </Link>
               <div className="pt-4 border-t">
@@ -98,7 +98,7 @@ const MainNav = ({
                 <Button 
                   variant="outline" 
                   onClick={handleLogout} 
-                  className="mt-3 w-full h-12 text-destructive hover:text-destructive"
+                  className="mt-3 w-full h-12 text-destructive hover:text-destructive touch-target"
                 >
                   Logout
                 </Button>
@@ -111,7 +111,7 @@ const MainNav = ({
   );
   
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center space-x-4">
           <MobileNav />
@@ -154,17 +154,17 @@ const MainNav = ({
             <>
               <NotificationDropdown />
               
-              <Button onClick={() => navigate('/create')} className="hidden md:flex h-9">
+              <Button onClick={() => navigate('/create')} className="hidden md:flex h-9 touch-target">
                 Create Content
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9">
+                  <Button variant="outline" size="icon" className="h-9 w-9 touch-target">
                     <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 bg-card">
                   <div className="px-2 py-1.5">
                     <p className="font-medium">{userName}</p>
                     <p className="text-sm text-muted-foreground">{userEmail}</p>
@@ -187,10 +187,10 @@ const MainNav = ({
             </>
           ) : (
             <div className="hidden md:flex items-center space-x-2">
-              <Button variant="outline" onClick={() => openAuthDialog('login')}>
+              <Button variant="outline" onClick={() => openAuthDialog('login')} className="touch-target">
                 Sign In
               </Button>
-              <Button onClick={() => openAuthDialog('signup')}>
+              <Button onClick={() => openAuthDialog('signup')} className="touch-target">
                 Sign Up
               </Button>
             </div>

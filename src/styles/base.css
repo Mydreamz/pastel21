@@ -5,13 +5,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 45 100% 96%; /* Cream background instead of pure white */
     --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 100%;
+    --card: 45 100% 98%; /* Slightly lighter cream for cards */
     --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 0 0% 100%;
+    --popover: 45 100% 98%;
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 222.2 47.4% 11.2%;
@@ -35,7 +35,7 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 45 100% 96%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
@@ -93,6 +93,7 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-color: hsl(45 100% 96%); /* Cream background */
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -132,8 +133,20 @@
       max-width: 1280px;
     }
   }
+
+  /* Mobile app-like safe area handling */
+  .mobile-content {
+    padding-bottom: env(safe-area-inset-bottom, 80px);
+  }
+
+  /* Touch-optimized interactive elements */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 #root {
   @apply min-h-screen flex flex-col;
+  background-color: hsl(45 100% 96%); /* Cream background */
 }
