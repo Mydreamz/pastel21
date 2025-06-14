@@ -1,56 +1,89 @@
 
 /* App button */
 .app-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+}
+
+.dark .app-button {
+  @apply bg-neon-blue hover:bg-neon-blue/90 text-background shadow-glow;
 }
 
 /* Neumorphic style for standard inputs */
 .input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
+  @apply bg-background border border-border rounded-xl shadow-neumorphic focus:ring-2 focus:ring-primary/30 outline-none transition-all duration-300;
+}
+
+.dark .input-neumorphic {
+  @apply bg-glass-light backdrop-blur-xl border-glass-border focus:ring-neon-blue/30 focus:border-neon-blue/50;
 }
 
 /* Auth form improvements */
 .auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+  @apply bg-background/70 border border-border rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary/50 outline-none text-foreground transition-all duration-300;
+}
+
+.dark .auth-form-input {
+  @apply bg-glass-light backdrop-blur-xl border-glass-border focus:ring-neon-blue/30 focus:border-neon-blue/50;
 }
 
 .auth-form-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+}
+
+.dark .auth-form-button {
+  @apply bg-neon-blue hover:bg-neon-blue/90 text-background shadow-glow hover:shadow-glow;
 }
 
 /* Top-up component styling */
 .top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+  @apply bg-background/70 border border-border/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+}
+
+.dark .top-up-component {
+  @apply bg-glass-light backdrop-blur-xl border-glass-border shadow-glass;
 }
 
 /* High contrast text styles for better visibility */
 .text-high-contrast {
-  @apply text-gray-800;
+  @apply text-foreground;
 }
 
 .text-medium-contrast {
-  @apply text-gray-700;
+  @apply text-muted-foreground;
 }
 
 .text-low-contrast {
-  @apply text-gray-600;
+  @apply text-muted-foreground/70;
 }
 
 /* Dashboard card improvements */
 .dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+  @apply bg-card/80 border border-border/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+}
+
+.dark .dashboard-card {
+  @apply bg-glass-light backdrop-blur-xl border-glass-border shadow-glass hover:shadow-glow;
 }
 
 /* Marketplace content text */
 .marketplace-content-text {
-  @apply text-gray-800;
+  @apply text-foreground;
 }
 
 /* Profile page text improvements */
 .profile-text {
-  @apply text-gray-800;
+  @apply text-foreground;
 }
 
 .profile-subtext {
-  @apply text-gray-600;
+  @apply text-muted-foreground;
+}
+
+/* Navigation glass effect */
+.nav-glass {
+  @apply bg-background/80 backdrop-blur-xl border-b border-border/50;
+}
+
+.dark .nav-glass {
+  @apply bg-glass-dark backdrop-blur-xl border-glass-border;
 }

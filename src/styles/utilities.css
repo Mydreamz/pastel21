@@ -9,12 +9,31 @@
     display: none;
   }
 
+  /* Light mode glass card */
   .glass-card {
     @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/60 to-cream-200/60 border border-cream-300/50 shadow-neumorphic rounded-2xl;
+  }
+
+  /* Dark mode glass card */
+  .dark .glass-card {
+    @apply backdrop-blur-xl bg-gradient-to-br from-glass-dark to-glass-darker border border-glass-border shadow-glass rounded-2xl;
+  }
+
+  /* Enhanced glass card with glow */
+  .glass-card-glow {
+    @apply glass-card transition-all duration-300 hover:shadow-glow hover:border-neon-blue/30;
+  }
+
+  .dark .glass-card-glow:hover {
+    @apply shadow-glow border-neon-blue/50;
   }
   
   .text-gradient-pastel {
     @apply bg-gradient-to-r from-pastel-500 to-pastel-400 bg-clip-text text-transparent;
+  }
+
+  .dark .text-gradient-neon {
+    @apply bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent;
   }
   
   .highlight-pastel {
@@ -24,6 +43,10 @@
   .highlight-pastel::after {
     content: "";
     @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-pastel-500 rounded-full opacity-70;
+  }
+
+  .dark .highlight-pastel::after {
+    @apply bg-neon-blue;
   }
   
   .star {
@@ -36,5 +59,56 @@
 
   .bg-grid {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+  }
+
+  .dark .bg-grid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.03)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+  }
+
+  /* Interactive glow effects */
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    @apply shadow-glow;
+  }
+
+  .dark .hover-glow:hover {
+    @apply shadow-glow;
+  }
+
+  /* Glassmorphism input */
+  .glass-input {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 text-foreground placeholder:text-muted-foreground;
+  }
+
+  .dark .glass-input {
+    @apply bg-glass-light backdrop-blur-xl border border-glass-border;
+  }
+
+  /* Glassmorphism button */
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300;
+  }
+
+  .dark .glass-button {
+    @apply bg-glass-light backdrop-blur-xl border border-glass-border hover:bg-white/20 hover:border-neon-blue/50;
+  }
+
+  /* Neon text effects */
+  .text-neon-blue {
+    @apply text-neon-blue;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+  }
+
+  .text-neon-purple {
+    @apply text-neon-purple;
+    text-shadow: 0 0 10px rgba(139, 95, 191, 0.5);
+  }
+
+  .text-neon-magenta {
+    @apply text-neon-magenta;
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);
   }
 }
