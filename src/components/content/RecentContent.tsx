@@ -42,7 +42,8 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       try {
         setLoading(true);
         const data = await fetchRecentContentCached();
-        setRecentContents(data);
+        // Ensure data is always an array
+        setRecentContents(Array.isArray(data) ? data : []);
       } catch (error: any) {
         console.error('Error fetching recent content:', error);
         toast({
@@ -50,6 +51,8 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
           description: 'Failed to load recent content',
           variant: 'destructive',
         });
+        // Set empty array on error
+        setRecentContents([]);
       } finally {
         setLoading(false);
         hasFetchedRef.current = true;
@@ -79,19 +82,19 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
 
   const renderSkeletonCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, index) => (
-        <Card key={`skeleton-${index}`} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+      {Array.from({ length: 6 }, (_, index) => (
+        <Card key={`skeleton-${index}`} className="glass-card border-border/50 shadow-sm rounded-2xl overflow-hidden">
           <CardHeader>
-            <Skeleton className="h-5 w-3/4 bg-pastel-200/50" />
+            <Skeleton className="h-5 w-3/4 bg-muted/50" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-4 w-full mb-2 bg-pastel-200/40" />
-            <Skeleton className="h-4 w-4/5 mb-2 bg-pastel-200/40" />
-            <Skeleton className="h-4 w-2/3 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-full mb-2 bg-muted/40" />
+            <Skeleton className="h-4 w-4/5 mb-2 bg-muted/40" />
+            <Skeleton className="h-4 w-2/3 bg-muted/40" />
           </CardContent>
           <CardFooter className="flex justify-between items-center">
-            <Skeleton className="h-4 w-12 bg-pastel-200/40" />
-            <Skeleton className="h-8 w-16 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-12 bg-muted/40" />
+            <Skeleton className="h-8 w-16 bg-muted/40" />
           </CardFooter>
         </Card>
       ))}
@@ -101,9 +104,9 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
   return (
     <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Recent Content</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground">Recent Content</h2>
         {isAuthenticated && (
-          <Button onClick={() => navigate('/create')} className="bg-pastel-500 hover:bg-pastel-600 text-white">
+          <Button onClick={() => navigate('/create')} className="bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="mr-2 h-4 w-4" />
             Create Content
           </Button>
@@ -112,24 +115,24 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       
       {loading ? (
         renderSkeletonCards()
-      ) : recentContents.length === 0 ? (
-        <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
-          <p className="text-gray-600">No content available yet</p>
+      ) : (!recentContents || recentContents.length === 0) ? (
+        <Card className="glass-card border-border/50 text-center p-8 shadow-sm">
+          <p className="text-muted-foreground">No content available yet</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recentContents.map((content) => (
-            <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+            <Card key={content.id} className="glass-card border-border/50 shadow-sm rounded-2xl overflow-hidden">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold truncate text-gray-800">{content.title}</CardTitle>
+                <CardTitle className="text-lg font-semibold truncate text-foreground">{content.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 text-sm line-clamp-3">{content.teaser}</p>
+                <p className="text-muted-foreground text-sm line-clamp-3">{content.teaser}</p>
               </CardContent>
               <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   {parseFloat(content.price) > 0 && (
-                    <div className="flex items-center text-pastel-700">
+                    <div className="flex items-center text-primary">
                       <IndianRupee className="h-4 w-4 mr-1" />
                       {parseFloat(content.price).toFixed(2)}
                       {!isAuthenticated && <Lock className="h-3 w-3 ml-1" />}
@@ -142,7 +145,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                       variant="outline" 
                       size="sm" 
                       onClick={() => navigate(`/edit/${content.id}`)}
-                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+                      className="border-border hover:bg-accent text-foreground"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -151,7 +154,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                     onClick={() => handleViewContent(content)}
                     variant="secondary"
                     size="sm"
-                    className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
+                    className="bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                   >
                     View
                   </Button>
