@@ -7,25 +7,21 @@ import { ArrowLeft, User, FileText, BarChart } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useProfileData } from '@/hooks/profile/useProfileData';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
-import MobileProfileHeader from '@/components/profile/MobileProfileHeader';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
 import EarningsSummary from '@/components/profile/EarningsSummary';
 import { reconcileUserBalance } from '@/utils/balanceUtils';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const { 
     isAuthenticated, 
     userData, 
     userContents, 
     balance,
-    isLoading,
     fetchUserData, 
     handleLogout, 
     handleEditContent, 
@@ -57,38 +53,9 @@ const Profile = () => {
     }
   }, [isAuthenticated, userData, fetchUserData, toast]);
 
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Loading profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If not authenticated, redirect to home
-  if (!isAuthenticated) {
-    navigate('/');
+  if (!isAuthenticated || !userData) {
     return null;
   }
-
-  // If user data is not available, show loading
-  if (!userData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Loading user data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log("Rendering Profile with userData:", userData);
-  console.log("Current balance:", balance);
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden">
@@ -101,38 +68,21 @@ const Profile = () => {
           Back to Home
         </button>
         
-        {/* Mobile Profile Header - only show on mobile */}
-        {isMobile && (
-          <MobileProfileHeader 
-            userData={userData} 
-            balance={balance} 
-            onLogout={handleLogout}
-          />
-        )}
-        
-        {/* Desktop layout with sidebar and main content */}
-        <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
-          {/* Desktop Sidebar - only show on desktop */}
-          {!isMobile && (
-            <div className="lg:col-span-1">
-              <ProfileSidebar 
-                userData={userData} 
-                balance={balance} 
-                onLogout={handleLogout}
-              />
-            </div>
-          )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <ProfileSidebar 
+              userData={userData} 
+              balance={balance} 
+              onLogout={handleLogout}
+            />
+          </div>
           
-          {/* Main content */}
-          <div className={isMobile ? 'col-span-1' : 'lg:col-span-2'}>
-            {/* Earnings Summary - only show on desktop since mobile header shows wallet */}
-            {!isMobile && (
-              <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
-                <CardContent className="pt-6">
-                  <EarningsSummary userId={userData.id} />
-                </CardContent>
-              </Card>
-            )}
+          <div className="lg:col-span-2">
+            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
+              <CardContent className="pt-6">
+                <EarningsSummary userId={userData.id} />
+              </CardContent>
+            </Card>
             
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
               <CardHeader>

@@ -9,7 +9,6 @@ import WithdrawalModal from './WithdrawalModal';
 import { calculatePendingWithdrawals } from '@/utils/paymentUtils';
 import { useToast } from '@/hooks/use-toast';
 import { reconcileUserBalance } from '@/utils/balanceUtils';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileSidebarProps {
   userData: any;
@@ -19,16 +18,15 @@ interface ProfileSidebarProps {
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [isLoadingPending, setIsLoadingPending] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Hide sidebar completely on mobile devices
-  if (isMobile) {
-    return null;
-  }
+  // Log the balance prop to help with debugging
+  useEffect(() => {
+    console.log("Balance in ProfileSidebar:", balance);
+  }, [balance]);
   
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
@@ -103,6 +101,7 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   
   // Calculate available balance
   const availableBalance = Math.max(0, balance - pendingWithdrawals);
+  console.log("Calculated available balance:", availableBalance, "from balance:", balance, "and pending withdrawals:", pendingWithdrawals);
   
   return (
     <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
