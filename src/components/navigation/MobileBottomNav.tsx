@@ -46,6 +46,12 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
       show: true,
     },
     {
+      name: 'Create',
+      href: '/create',
+      icon: Plus,
+      show: true,
+    },
+    {
       name: 'Marketplace',
       href: '/marketplace',
       icon: Store,
@@ -68,15 +74,15 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
       show: true,
     },
     {
-      name: 'Marketplace',
-      href: '/marketplace',
-      icon: Store,
-      show: true,
-    },
-    {
       name: 'Create',
       href: '/create',
       icon: Plus,
+      show: true,
+    },
+    {
+      name: 'Marketplace',
+      href: '/marketplace',
+      icon: Store,
       show: true,
     },
     {
@@ -126,6 +132,15 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     if (path === '/dashboard') {
       return location.pathname === '/dashboard' && !location.search;
     }
+    if (path === '/create') {
+      return location.pathname === '/create';
+    }
+    if (path === '/marketplace') {
+      return location.pathname === '/marketplace';
+    }
+    if (path === '/profile') {
+      return location.pathname === '/profile';
+    }
     if (path.includes('?tab=')) {
       const [basePath, tabParam] = path.split('?tab=');
       if (location.pathname === basePath) {
@@ -143,7 +158,7 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
           if (!item.show) return null;
 
           const content = (
-            <div className="flex flex-col items-center py-2 px-2 min-w-0">
+            <div className="flex flex-col items-center py-2 px-1 min-w-0">
               <item.icon 
                 className={`h-5 w-5 ${
                   isActive(item.href) 
