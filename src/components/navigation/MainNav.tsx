@@ -3,7 +3,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, LayoutDashboard, Shield } from 'lucide-react';
+import { User, LayoutDashboard, Shield, LogOut } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,7 +48,7 @@ const MainNav = ({
     <header className="sticky top-0 z-40 w-full border-b border-gray-200/50 backdrop-blur-lg backdrop-filter bg-white/80">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
-          <Link to="/" className="flex items-center group">
+          <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center group">
             <div className="h-8 w-8 mr-3 relative">
               <Shield className="absolute inset-0 text-pastel-600 h-full w-full group-hover:text-pastel-700 transition-colors" />
             </div>
@@ -82,8 +82,8 @@ const MainNav = ({
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 font-medium">
-                    Explore
+                  <Link to="/marketplace" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 font-medium">
+                    Marketplace
                   </Link>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -107,8 +107,8 @@ const MainNav = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-lg border border-gray-200 shadow-elevated">
                   <div className="px-3 py-3 border-b border-gray-200">
-                    <p className="font-medium text-gray-900">{userName}</p>
-                    <p className="text-sm text-gray-600">{userEmail}</p>
+                    <p className="font-medium text-gray-900 truncate">{userName}</p>
+                    <p className="text-sm text-gray-600 truncate">{userEmail}</p>
                   </div>
                   <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-gray-50 py-2">
                     <LayoutDashboard className="mr-3 h-4 w-4" />
@@ -123,15 +123,16 @@ const MainNav = ({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 py-2">
+                    <LogOut className="mr-3 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </> : <>
-              <Button variant="outline" onClick={() => openAuthDialog('login')}>
+              <Button variant="outline" onClick={() => openAuthDialog('login')} className="text-sm">
                 Sign In
               </Button>
-              <Button onClick={() => openAuthDialog('signup')}>
+              <Button onClick={() => openAuthDialog('signup')} className="text-sm">
                 Sign Up
               </Button>
             </>}
