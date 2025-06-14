@@ -27,7 +27,7 @@
 }
 
 .dark .input-neumorphic {
-  @apply glass-input text-white placeholder:text-gray-400;
+  @apply glass-input-base text-white placeholder:text-gray-400;
 }
 
 /* Auth form improvements */
@@ -40,7 +40,7 @@
 }
 
 .dark .auth-form-input {
-  @apply glass-input text-white placeholder:text-gray-400;
+  @apply glass-input-base text-white placeholder:text-gray-400;
 }
 
 .auth-form-button {

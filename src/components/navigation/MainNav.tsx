@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -20,7 +19,7 @@ interface MainNavProps {
 }
 
 const MainNav = ({ openAuthDialog }: MainNavProps) => {
-  const { user, session, signOut } = useAuth();
+  const { user, session, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +28,7 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
       toast({
         title: "Signed out successfully",
         description: "Come back soon!",

@@ -106,21 +106,26 @@
     filter: brightness(1.2);
   }
 
-  /* Form input glassmorphism */
-  .glass-input {
+  /* Form input glassmorphism - Fixed circular dependency */
+  .glass-input-base {
     @apply backdrop-blur-md transition-all duration-300;
   }
 
-  .light .glass-input {
+  .light .glass-input-base {
     @apply bg-white/50 border border-white/50 focus:bg-white/70 focus:border-pastel-300;
   }
 
-  .dark .glass-input {
+  .dark .glass-input-base {
     @apply bg-white/5 border border-white/20 focus:bg-white/10 focus:border-neon-purple/50;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
-  .dark .glass-input:focus {
+  .dark .glass-input-base:focus {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 20px rgba(139, 92, 246, 0.2);
+  }
+
+  /* Alias for backward compatibility */
+  .glass-input {
+    @apply glass-input-base;
   }
 }
