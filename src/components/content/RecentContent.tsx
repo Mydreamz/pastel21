@@ -42,9 +42,12 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       try {
         setLoading(true);
         const data = await fetchRecentContentCached();
-        setRecentContents(data);
+        // Ensure data is always an array
+        setRecentContents(Array.isArray(data) ? data : []);
       } catch (error: any) {
         console.error('Error fetching recent content:', error);
+        // Set to empty array on error instead of leaving as null
+        setRecentContents([]);
         toast({
           title: 'Error',
           description: 'Failed to load recent content',
@@ -80,18 +83,18 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
   const renderSkeletonCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(6)].map((_, index) => (
-        <Card key={`skeleton-${index}`} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+        <Card key={`skeleton-${index}`} className="glass-card border-emerald-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
           <CardHeader>
-            <Skeleton className="h-5 w-3/4 bg-pastel-200/50" />
+            <Skeleton className="h-5 w-3/4 bg-emerald-200/50" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-4 w-full mb-2 bg-pastel-200/40" />
-            <Skeleton className="h-4 w-4/5 mb-2 bg-pastel-200/40" />
-            <Skeleton className="h-4 w-2/3 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-full mb-2 bg-emerald-200/40" />
+            <Skeleton className="h-4 w-4/5 mb-2 bg-emerald-200/40" />
+            <Skeleton className="h-4 w-2/3 bg-emerald-200/40" />
           </CardContent>
           <CardFooter className="flex justify-between items-center">
-            <Skeleton className="h-4 w-12 bg-pastel-200/40" />
-            <Skeleton className="h-8 w-16 bg-pastel-200/40" />
+            <Skeleton className="h-4 w-12 bg-emerald-200/40" />
+            <Skeleton className="h-8 w-16 bg-emerald-200/40" />
           </CardFooter>
         </Card>
       ))}
@@ -103,7 +106,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Recent Content</h2>
         {isAuthenticated && (
-          <Button onClick={() => navigate('/create')} className="bg-pastel-500 hover:bg-pastel-600 text-white">
+          <Button onClick={() => navigate('/create')} className="bg-emerald-500 hover:bg-emerald-600 text-white">
             <Plus className="mr-2 h-4 w-4" />
             Create Content
           </Button>
@@ -112,14 +115,14 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       
       {loading ? (
         renderSkeletonCards()
-      ) : recentContents.length === 0 ? (
-        <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
+      ) : (!recentContents || recentContents.length === 0) ? (
+        <Card className="glass-card border-emerald-200/50 text-center p-8 shadow-neumorphic">
           <p className="text-gray-600">No content available yet</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recentContents.map((content) => (
-            <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+            <Card key={content.id} className="glass-card border-emerald-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold truncate text-gray-800">{content.title}</CardTitle>
               </CardHeader>
@@ -129,7 +132,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
               <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   {parseFloat(content.price) > 0 && (
-                    <div className="flex items-center text-pastel-700">
+                    <div className="flex items-center text-emerald-700">
                       <IndianRupee className="h-4 w-4 mr-1" />
                       {parseFloat(content.price).toFixed(2)}
                       {!isAuthenticated && <Lock className="h-3 w-3 ml-1" />}
@@ -142,7 +145,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                       variant="outline" 
                       size="sm" 
                       onClick={() => navigate(`/edit/${content.id}`)}
-                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+                      className="border-emerald-200 hover:bg-emerald-100 text-gray-700"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -151,7 +154,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
                     onClick={() => handleViewContent(content)}
                     variant="secondary"
                     size="sm"
-                    className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
+                    className="bg-emerald-100 hover:bg-emerald-200 text-gray-700"
                   >
                     View
                   </Button>
