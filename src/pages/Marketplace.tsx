@@ -9,6 +9,7 @@ import StarsBackground from '@/components/StarsBackground';
 import { BackToTop } from '@/components/ui/back-to-top';
 import MarketplaceContent from '@/components/dashboard/MarketplaceContent';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
+import AuthDialog from '@/components/auth/AuthDialog';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import { useContentCache } from '@/contexts/ContentCacheContext';
@@ -24,8 +25,11 @@ const Marketplace = () => {
   const [contents, setContents] = React.useState<any[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
-  const { user } = useAuth();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
+  const { user, session } = useAuth();
   const { purchasedContentIds } = useContentCache();
+  const isAuthenticated = !!session;
   
   // Memoized function to fetch marketplace contents efficiently
   const fetchMarketplaceContents = useCallback(async (pageNumber: number) => {
@@ -71,24 +75,48 @@ const Marketplace = () => {
     fetchMarketplaceContents(nextPage);
   };
 
+  // Handle auth dialog opening
+  const openAuthDialog = (tab: 'login' | 'signup') => {
+    setAuthTab(tab);
+    setShowAuthDialog(true);
+  };
+
+  const handleBackNavigation = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <MainNav openAuthDialog={() => {}} />
+      <MainNav openAuthDialog={openAuthDialog} />
       
       <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBackNavigation}
             className="text-gray-700 hover:bg-white/10"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-800">Marketplace</h1>
+          {!isAuthenticated && (
+            <div className="ml-auto">
+              <Button 
+                onClick={() => openAuthDialog('signup')}
+                className="bg-pastel-500 hover:bg-pastel-600"
+              >
+                Sign Up to Purchase
+              </Button>
+            </div>
+          )}
         </div>
         
         <Card className="glass-card border-white/10 text-gray-800 mb-8">
@@ -121,6 +149,13 @@ const Marketplace = () => {
           </CardContent>
         </Card>
       </main>
+      
+      <AuthDialog 
+        showAuthDialog={showAuthDialog}
+        setShowAuthDialog={setShowAuthDialog}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+      />
       
       <BackToTop />
     </div>

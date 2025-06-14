@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Plus, User, Grid3X3, Store } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, Plus, User, Store, FileText, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileBottomNavProps {
@@ -18,13 +18,48 @@ interface NavigationItem {
 
 const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
 
-  // Navigation for authenticated users
+  // Get current dashboard tab from URL
+  const getDashboardTab = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('tab') || 'my-content';
+  };
+
+  // Navigation for authenticated users on dashboard
+  const dashboardNavigation: NavigationItem[] = [
+    {
+      name: 'My Content',
+      href: '/dashboard?tab=my-content',
+      icon: FileText,
+      show: true,
+    },
+    {
+      name: 'Purchased',
+      href: '/dashboard?tab=purchased',
+      icon: DollarSign,
+      show: true,
+    },
+    {
+      name: 'Marketplace',
+      href: '/marketplace',
+      icon: Store,
+      show: true,
+    },
+    {
+      name: 'Profile',
+      href: '/profile',
+      icon: User,
+      show: true,
+    },
+  ];
+
+  // Navigation for authenticated users outside dashboard
   const authenticatedNavigation: NavigationItem[] = [
     {
-      name: 'Home',
+      name: 'Dashboard',
       href: '/dashboard',
       icon: Home,
       show: true,
@@ -72,7 +107,14 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     },
   ];
 
-  const navigation = isAuthenticated ? authenticatedNavigation : guestNavigation;
+  // Determine which navigation to use
+  const getNavigation = () => {
+    if (!isAuthenticated) return guestNavigation;
+    if (location.pathname === '/dashboard') return dashboardNavigation;
+    return authenticatedNavigation;
+  };
+
+  const navigation = getNavigation();
 
   const isActive = (path: string) => {
     if (path === '/') {
@@ -80,6 +122,13 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     }
     if (path === '/dashboard') {
       return location.pathname === '/dashboard' || location.pathname === '/';
+    }
+    if (path.includes('?tab=')) {
+      const [basePath, tabParam] = path.split('?tab=');
+      if (location.pathname === basePath) {
+        const currentTab = getDashboardTab();
+        return currentTab === tabParam;
+      }
     }
     return location.pathname.startsWith(path);
   };

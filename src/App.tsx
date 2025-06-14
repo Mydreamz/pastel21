@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -136,9 +137,8 @@ const App = () => {
                       <Route path="/search" element={<ProtectedRoute>
                           <Search />
                         </ProtectedRoute>} />
-                      <Route path="/marketplace" element={<ProtectedRoute>
-                          <Marketplace />
-                        </ProtectedRoute>} />
+                      {/* Make marketplace route public */}
+                      <Route path="/marketplace" element={<Marketplace />} />
                       <Route path="/forgot-password" element={<ForgotPassword />} />
                       <Route path="/reset-password" element={<ResetPassword />} />
                       

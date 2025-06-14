@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { User, LayoutDashboard, Shield, LogOut } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -27,6 +27,7 @@ const MainNav = ({
   const navigate = useNavigate();
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
+  const isMobile = useIsMobile();
   
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -57,7 +58,8 @@ const MainNav = ({
             </span>
           </Link>
           
-          {!isAuthenticated && (
+          {/* Hide desktop navigation on mobile and for guest users on non-home pages */}
+          {!isMobile && !isAuthenticated && (
             <NavigationMenu className="hidden md:flex items-center ml-10">
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -91,13 +93,16 @@ const MainNav = ({
           )}
         </div>
         
+        {/* Hide auth buttons on mobile to keep header clean */}
         <div className="flex items-center space-x-3">
           {isAuthenticated && user ? <>
-              <NotificationDropdown />
+              {!isMobile && <NotificationDropdown />}
               
-              <Button onClick={() => navigate('/create')} className="hidden md:flex">
-                Create Content
-              </Button>
+              {!isMobile && (
+                <Button onClick={() => navigate('/create')} className="hidden md:flex">
+                  Create Content
+                </Button>
+              )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -118,9 +123,11 @@ const MainNav = ({
                     <User className="mr-3 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-gray-50 py-2 md:hidden">
-                    Create Content
-                  </DropdownMenuItem>
+                  {isMobile && (
+                    <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-gray-50 py-2">
+                      Create Content
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 py-2">
                     <LogOut className="mr-3 h-4 w-4" />
@@ -129,12 +136,16 @@ const MainNav = ({
                 </DropdownMenuContent>
               </DropdownMenu>
             </> : <>
-              <Button variant="outline" onClick={() => openAuthDialog('login')} className="text-sm">
-                Sign In
-              </Button>
-              <Button onClick={() => openAuthDialog('signup')} className="text-sm">
-                Sign Up
-              </Button>
+              {!isMobile && (
+                <>
+                  <Button variant="outline" onClick={() => openAuthDialog('login')} className="text-sm">
+                    Sign In
+                  </Button>
+                  <Button onClick={() => openAuthDialog('signup')} className="text-sm">
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </>}
         </div>
       </div>

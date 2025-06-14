@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -83,13 +84,21 @@ const globalDashboardInFlight: Record<string, Promise<any>> = {};
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, session } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [publishedContents, setPublishedContents] = useState<any[]>([]);
   const [purchasedContents, setPurchasedContents] = useState<any[]>([]);
   const [marketplaceContents, setMarketplaceContents] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("my-content");
+  
+  // Get initial tab from URL or default to 'my-content'
+  const getInitialTab = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('tab') || 'my-content';
+  };
+  
+  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
@@ -156,14 +165,27 @@ const Dashboard = () => {
     // Only depend on userId and session
   }, [session, userId]);
 
+  // Update tab when URL changes
+  useEffect(() => {
+    const currentTab = getInitialTab();
+    if (currentTab !== activeTab) {
+      setActiveTab(currentTab);
+    }
+  }, [location.search]);
+
   const handleCreateContent = () => {
     navigate('/create');
   };
 
-  // Reset processed data when switching tabs to prevent stale data
+  // Update URL when tab changes and handle mobile navigation
   const handleTabChange = useCallback((tabValue: string) => {
     setActiveTab(tabValue);
-  }, []);
+    
+    // Update URL with tab parameter
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('tab', tabValue);
+    navigate(`/dashboard?${searchParams.toString()}`, { replace: true });
+  }, [navigate, location.search]);
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
@@ -198,7 +220,8 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {isMobile && (
+        {/* Remove floating create button on mobile as it's now in navigation */}
+        {!isMobile && (
           <Button
             onClick={handleCreateContent}
             className="fixed right-4 bottom-4 rounded-full bg-pastel-500 hover:bg-pastel-600 text-white shadow-lg h-14 w-14 p-0"

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Store, Check } from 'lucide-react';
+import { Store, Check, Lock } from 'lucide-react';
 import ContentCard from './ContentCard';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,8 +20,9 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   filters,
   searchQuery
 }) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const { purchasedContentIds } = useContentCache();
+  const isAuthenticated = !!session;
   
   // Filter logic now uses memoization to avoid unnecessary re-filters
   const filteredContents = React.useMemo(() => {
@@ -71,18 +72,31 @@ const MarketplaceContent: React.FC<MarketplaceContentProps> = ({
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {filteredContents.map((content) => (
-        <div key={content.id} className="relative">
-          {purchasedContentIds.has(content.id) && (
-            <Badge 
-              className="absolute top-2 right-2 z-10 bg-pastel-500 text-white flex items-center gap-1 px-2 py-1"
-            >
-              <Check className="h-3 w-3" /> Purchased
-            </Badge>
-          )}
-          <ContentCard key={content.id} content={content} />
-        </div>
-      ))}
+      {filteredContents.map((content) => {
+        const isPaid = parseFloat(content.price) > 0;
+        const isPurchased = isAuthenticated && purchasedContentIds.has(content.id);
+        const needsAuth = !isAuthenticated && isPaid;
+        
+        return (
+          <div key={content.id} className="relative">
+            {isPurchased && (
+              <Badge 
+                className="absolute top-2 right-2 z-10 bg-pastel-500 text-white flex items-center gap-1 px-2 py-1"
+              >
+                <Check className="h-3 w-3" /> Purchased
+              </Badge>
+            )}
+            {needsAuth && (
+              <Badge 
+                className="absolute top-2 right-2 z-10 bg-orange-500 text-white flex items-center gap-1 px-2 py-1"
+              >
+                <Lock className="h-3 w-3" /> Sign in required
+              </Badge>
+            )}
+            <ContentCard key={content.id} content={content} />
+          </div>
+        );
+      })}
     </div>
   );
 };
