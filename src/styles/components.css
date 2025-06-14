@@ -1,89 +1,188 @@
 
 /* App button */
 .app-button {
-  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.app-button:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  transform: scale(1.05);
 }
 
 .dark .app-button {
-  @apply bg-neon-blue hover:bg-neon-blue/90 text-background shadow-glow;
+  background-color: #00D4FF;
+  color: hsl(var(--background));
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.dark .app-button:hover {
+  background-color: rgba(0, 212, 255, 0.9);
 }
 
 /* Neumorphic style for standard inputs */
 .input-neumorphic {
-  @apply bg-background border border-border rounded-xl shadow-neumorphic focus:ring-2 focus:ring-primary/30 outline-none transition-all duration-300;
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-neumorphic:focus {
+  ring: 2px;
+  ring-color: hsl(var(--primary) / 0.3);
 }
 
 .dark .input-neumorphic {
-  @apply bg-glass-light backdrop-blur-xl border-glass-border focus:ring-neon-blue/30 focus:border-neon-blue/50;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .input-neumorphic:focus {
+  ring-color: rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.5);
 }
 
 /* Auth form improvements */
 .auth-form-input {
-  @apply bg-background/70 border border-border rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary/50 outline-none text-foreground transition-all duration-300;
+  background: hsl(var(--background) / 0.7);
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  color: hsl(var(--foreground));
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.auth-form-input:focus {
+  ring: 2px;
+  ring-color: hsl(var(--primary) / 0.3);
+  border-color: hsl(var(--primary) / 0.5);
 }
 
 .dark .auth-form-input {
-  @apply bg-glass-light backdrop-blur-xl border-glass-border focus:ring-neon-blue/30 focus:border-neon-blue/50;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .auth-form-input:focus {
+  ring-color: rgba(0, 212, 255, 0.3);
+  border-color: rgba(0, 212, 255, 0.5);
 }
 
 .auth-form-button {
-  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.auth-form-button:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .dark .auth-form-button {
-  @apply bg-neon-blue hover:bg-neon-blue/90 text-background shadow-glow hover:shadow-glow;
+  background-color: #00D4FF;
+  color: hsl(var(--background));
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+}
+
+.dark .auth-form-button:hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
 }
 
 /* Top-up component styling */
 .top-up-component {
-  @apply bg-background/70 border border-border/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+  background: hsl(var(--background) / 0.7);
+  border: 1px solid hsl(var(--border) / 0.5);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.top-up-component:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .dark .top-up-component {
-  @apply bg-glass-light backdrop-blur-xl border-glass-border shadow-glass;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
 /* High contrast text styles for better visibility */
 .text-high-contrast {
-  @apply text-foreground;
+  color: hsl(var(--foreground));
 }
 
 .text-medium-contrast {
-  @apply text-muted-foreground;
+  color: hsl(var(--muted-foreground));
 }
 
 .text-low-contrast {
-  @apply text-muted-foreground/70;
+  color: hsl(var(--muted-foreground) / 0.7);
 }
 
 /* Dashboard card improvements */
 .dashboard-card {
-  @apply bg-card/80 border border-border/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  transition: all 0.5s ease;
+  transform: scale(1);
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: scale(1.01);
 }
 
 .dark .dashboard-card {
-  @apply bg-glass-light backdrop-blur-xl border-glass-border shadow-glass hover:shadow-glow;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.dark .dashboard-card:hover {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
 }
 
 /* Marketplace content text */
 .marketplace-content-text {
-  @apply text-foreground;
+  color: hsl(var(--foreground));
 }
 
 /* Profile page text improvements */
 .profile-text {
-  @apply text-foreground;
+  color: hsl(var(--foreground));
 }
 
 .profile-subtext {
-  @apply text-muted-foreground;
+  color: hsl(var(--muted-foreground));
 }
 
 /* Navigation glass effect */
 .nav-glass {
-  @apply bg-background/80 backdrop-blur-xl border-b border-border/50;
+  background: hsl(var(--background) / 0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
 }
 
 .dark .nav-glass {
-  @apply bg-glass-dark backdrop-blur-xl border-glass-border;
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(16px);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
 }

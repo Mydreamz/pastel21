@@ -11,50 +11,94 @@
 
   /* Light mode glass card */
   .glass-card {
-    @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/60 to-cream-200/60 border border-cream-300/50 shadow-neumorphic rounded-2xl;
+    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(248, 240, 229, 0.6), rgba(248, 240, 229, 0.4));
+    border: 1px solid rgba(232, 213, 188, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
   }
 
   /* Dark mode glass card */
   .dark .glass-card {
-    @apply backdrop-blur-xl bg-gradient-to-br from-glass-dark to-glass-darker border border-glass-border shadow-glass rounded-2xl;
+    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.7), rgba(0, 0, 0, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
   }
 
   /* Enhanced glass card with glow */
   .glass-card-glow {
-    @apply glass-card transition-all duration-300 hover:shadow-glow hover:border-neon-blue/30;
+    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(248, 240, 229, 0.6), rgba(248, 240, 229, 0.4));
+    border: 1px solid rgba(232, 213, 188, 0.5);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .glass-card-glow:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.3);
+  }
+
+  .dark .glass-card-glow {
+    backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(17, 24, 39, 0.7), rgba(0, 0, 0, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
   }
 
   .dark .glass-card-glow:hover {
-    @apply shadow-glow border-neon-blue/50;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.5);
   }
   
   .text-gradient-pastel {
-    @apply bg-gradient-to-r from-pastel-500 to-pastel-400 bg-clip-text text-transparent;
+    background: linear-gradient(to right, #E91E63, #EC407A);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .dark .text-gradient-neon {
-    @apply bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent;
+    background: linear-gradient(to right, #00D4FF, #8B5FBF);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
   
   .highlight-pastel {
-    @apply relative inline-block;
+    position: relative;
+    display: inline-block;
   }
   
   .highlight-pastel::after {
     content: "";
-    @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-pastel-500 rounded-full opacity-70;
+    position: absolute;
+    bottom: -0.125rem;
+    left: 0;
+    width: 100%;
+    height: 0.125rem;
+    background-color: #E91E63;
+    border-radius: 9999px;
+    opacity: 0.7;
   }
 
   .dark .highlight-pastel::after {
-    @apply bg-neon-blue;
+    background-color: #00D4FF;
   }
   
   .star {
-    @apply absolute rounded-full bg-white;
+    position: absolute;
+    border-radius: 50%;
+    background-color: white;
   }
   
   .glow-effect {
-    @apply relative overflow-hidden;
+    position: relative;
+    overflow: hidden;
   }
 
   .bg-grid {
@@ -67,48 +111,71 @@
 
   /* Interactive glow effects */
   .hover-glow {
-    @apply transition-all duration-300;
+    transition: all 0.3s ease;
   }
 
   .hover-glow:hover {
-    @apply shadow-glow;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
   }
 
   .dark .hover-glow:hover {
-    @apply shadow-glow;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1);
   }
 
   /* Glassmorphism input */
   .glass-input {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 text-foreground placeholder:text-muted-foreground;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: hsl(var(--foreground));
+  }
+
+  .glass-input::placeholder {
+    color: hsl(var(--muted-foreground));
   }
 
   .dark .glass-input {
-    @apply bg-glass-light backdrop-blur-xl border border-glass-border;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   /* Glassmorphism button */
   .glass-button {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-300;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 
   .dark .glass-button {
-    @apply bg-glass-light backdrop-blur-xl border border-glass-border hover:bg-white/20 hover:border-neon-blue/50;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dark .glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.5);
   }
 
   /* Neon text effects */
   .text-neon-blue {
-    @apply text-neon-blue;
+    color: #00D4FF;
     text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
   }
 
   .text-neon-purple {
-    @apply text-neon-purple;
+    color: #8B5FBF;
     text-shadow: 0 0 10px rgba(139, 95, 191, 0.5);
   }
 
   .text-neon-magenta {
-    @apply text-neon-magenta;
+    color: #FF006E;
     text-shadow: 0 0 10px rgba(255, 0, 110, 0.5);
   }
 }
