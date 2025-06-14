@@ -18,12 +18,19 @@ interface RecentContentProps {
 
 // Move this outside the component to ensure a stable reference
 const fetchRecentContentCached = createCacheableRequest(async () => {
+  console.log('Fetching recent content from database...');
   const { data, error } = await supabase
     .from('contents')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(6);
-  if (error) throw error;
+  
+  if (error) {
+    console.error('Error fetching recent content:', error);
+    throw error;
+  }
+  
+  console.log('Recent content fetched successfully:', data);
   return data || [];
 }, 5 * 60 * 1000); // cache for 5 minutes for better performance
 
@@ -41,10 +48,17 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
     const fetchContent = async () => {
       try {
         setLoading(true);
+        console.log('Starting to fetch recent content...');
         const data = await fetchRecentContentCached();
-        setRecentContents(data);
+        
+        // Ensure data is always an array, never null
+        const safeData = Array.isArray(data) ? data : [];
+        console.log('Setting recent contents:', safeData);
+        setRecentContents(safeData);
       } catch (error: any) {
         console.error('Error fetching recent content:', error);
+        // Set to empty array on error to prevent null issues
+        setRecentContents([]);
         toast({
           title: 'Error',
           description: 'Failed to load recent content',
@@ -61,8 +75,13 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
 
   // Function to handle content view action
   const handleViewContent = (content: any) => {
+    if (!content || !content.id) {
+      console.error('Invalid content object:', content);
+      return;
+    }
+    
     // For paid content, user must be logged in
-    const isPaidContent = parseFloat(content.price) > 0;
+    const isPaidContent = parseFloat(content.price || 0) > 0;
     
     if (isPaidContent && !isAuthenticated) {
       // Prompt login for paid content
@@ -79,7 +98,7 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
 
   const renderSkeletonCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[...Array(6)].map((_, index) => (
+      {Array.from({ length: 6 }, (_, index) => (
         <Card key={`skeleton-${index}`} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
           <CardHeader>
             <Skeleton className="h-5 w-3/4 bg-pastel-200/50" />
@@ -98,6 +117,8 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
     </div>
   );
 
+  console.log('RecentContent render state:', { loading, recentContents, contentsLength: recentContents?.length });
+
   return (
     <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
@@ -112,53 +133,64 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       
       {loading ? (
         renderSkeletonCards()
-      ) : recentContents.length === 0 ? (
+      ) : !Array.isArray(recentContents) || recentContents.length === 0 ? (
         <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
           <p className="text-gray-600">No content available yet</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recentContents.map((content) => (
-            <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold truncate text-gray-800">{content.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm line-clamp-3">{content.teaser}</p>
-              </CardContent>
-              <CardFooter className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  {parseFloat(content.price) > 0 && (
-                    <div className="flex items-center text-pastel-700">
-                      <IndianRupee className="h-4 w-4 mr-1" />
-                      {parseFloat(content.price).toFixed(2)}
-                      {!isAuthenticated && <Lock className="h-3 w-3 ml-1" />}
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  {user && content.creator_id === user.id && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => navigate(`/edit/${content.id}`)}
-                      className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+          {recentContents.map((content) => {
+            if (!content || !content.id) {
+              console.warn('Invalid content item:', content);
+              return null;
+            }
+            
+            return (
+              <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="text-lg font-semibold truncate text-gray-800">
+                    {content.title || 'Untitled'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 text-sm line-clamp-3">
+                    {content.teaser || 'No description available'}
+                  </p>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    {parseFloat(content.price || 0) > 0 && (
+                      <div className="flex items-center text-pastel-700">
+                        <IndianRupee className="h-4 w-4 mr-1" />
+                        {parseFloat(content.price || 0).toFixed(2)}
+                        {!isAuthenticated && <Lock className="h-3 w-3 ml-1" />}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {user && content.creator_id === user.id && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => navigate(`/edit/${content.id}`)}
+                        className="border-pastel-200 hover:bg-pastel-100 text-gray-700"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => handleViewContent(content)}
+                      variant="secondary"
+                      size="sm"
+                      className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
                     >
-                      <Edit className="h-4 w-4" />
+                      View
                     </Button>
-                  )}
-                  <Button
-                    onClick={() => handleViewContent(content)}
-                    variant="secondary"
-                    size="sm"
-                    className="bg-pastel-100 hover:bg-pastel-200 text-gray-700"
-                  >
-                    View
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
+                  </div>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
       )}
     </section>
