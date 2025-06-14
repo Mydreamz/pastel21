@@ -8,13 +8,21 @@ interface MobileBottomNavProps {
   openAuthDialog: (tab: 'login' | 'signup') => void;
 }
 
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+  show: boolean;
+  action?: () => void;
+}
+
 const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   const location = useLocation();
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
 
   // Navigation for authenticated users
-  const authenticatedNavigation = [
+  const authenticatedNavigation: NavigationItem[] = [
     {
       name: 'Home',
       href: '/dashboard',
@@ -42,7 +50,7 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   ];
 
   // Navigation for guest users
-  const guestNavigation = [
+  const guestNavigation: NavigationItem[] = [
     {
       name: 'Home',
       href: '/',
