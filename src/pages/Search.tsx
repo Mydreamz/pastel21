@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Search as SearchIcon } from 'lucide-react';
-import MainNav from '@/components/navigation/MainNav';
 import StarsBackground from '@/components/StarsBackground';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,8 +65,6 @@ const Search = () => {
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
-
-      <MainNav openAuthDialog={() => {}} />
 
       <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
         <div className="flex items-center gap-4 mb-6">

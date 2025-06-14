@@ -13,15 +13,18 @@ import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
 import EarningsSummary from '@/components/profile/EarningsSummary';
 import { reconcileUserBalance } from '@/utils/balanceUtils';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const { 
     isAuthenticated, 
     userData, 
     userContents, 
     balance,
+    isLoading,
     fetchUserData, 
     handleLogout, 
     handleEditContent, 
@@ -54,7 +57,25 @@ const Profile = () => {
   }, [isAuthenticated, userData, fetchUserData, toast]);
 
   if (!isAuthenticated || !userData) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -68,16 +89,21 @@ const Profile = () => {
           Back to Home
         </button>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <ProfileSidebar 
-              userData={userData} 
-              balance={balance} 
-              onLogout={handleLogout}
-            />
-          </div>
+        {/* Responsive layout that adapts to mobile */}
+        <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
+          {/* Sidebar - only show on desktop */}
+          {!isMobile && (
+            <div className="lg:col-span-1">
+              <ProfileSidebar 
+                userData={userData} 
+                balance={balance} 
+                onLogout={handleLogout}
+              />
+            </div>
+          )}
           
-          <div className="lg:col-span-2">
+          {/* Main content - full width on mobile, 2/3 on desktop */}
+          <div className={isMobile ? 'col-span-1' : 'lg:col-span-2'}>
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
               <CardContent className="pt-6">
                 <EarningsSummary userId={userData.id} />
