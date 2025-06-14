@@ -19,10 +19,6 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				'lora': ['Lora', 'serif'],
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -84,20 +80,6 @@ export default {
 					800: '#D50029',
 					900: '#B20022',
 					950: '#90001B',
-				},
-				green: {
-					DEFAULT: '#7FB069',
-					50: '#F0F7EC',
-					100: '#E1F0D9',
-					200: '#C3E1B3',
-					300: '#A5D28D',
-					400: '#87C367',
-					500: '#7FB069',
-					600: '#6A9A56',
-					700: '#558444',
-					800: '#406E32',
-					900: '#2B5820',
-					950: '#16420E',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -191,13 +173,7 @@ export default {
 			},
 			boxShadow: {
 				'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.05), -8px -8px 16px rgba(255, 255, 255, 0.7)',
-				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)',
-				'app-shadow': '0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05)',
-				'app-shadow-lg': '0 8px 30px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.08)'
-			},
-			spacing: {
-				'safe-bottom': 'env(safe-area-inset-bottom)',
-				'safe-top': 'env(safe-area-inset-top)',
+				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)'
 			}
 		}
 	},
