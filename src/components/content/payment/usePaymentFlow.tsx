@@ -30,7 +30,9 @@ export const usePaymentFlow = (
       content.price,
       content.title,
       () => {
+        console.log('[usePaymentFlow] Payment successful, calling onUnlock');
         setIsAlreadyPurchased(true);
+        refreshPermissions();
         onUnlock();
       },
       refreshPermissions
@@ -46,14 +48,16 @@ export const usePaymentFlow = (
     if (!userId || !content?.id) return;
     
     try {
+      console.log('[usePaymentFlow] Checking purchase status for:', content.id, userId);
       const hasPurchased = await verifyPurchaseStatus();
+      console.log('[usePaymentFlow] Purchase status result:', hasPurchased);
       
       if (hasPurchased !== isAlreadyPurchased) {
         setIsAlreadyPurchased(hasPurchased);
       }
       setHasCheckedPurchase(true);
     } catch (e) {
-      console.error("Exception checking purchase status:", e);
+      console.error("[usePaymentFlow] Exception checking purchase status:", e);
     }
   }, [userId, content?.id, isAlreadyPurchased, verifyPurchaseStatus]);
   
@@ -64,11 +68,21 @@ export const usePaymentFlow = (
   }, [userId, content?.id, isPurchased, isAlreadyPurchased, hasCheckedPurchase, checkPurchaseStatus]);
   
   const handleUnlock = async () => {
+    console.log('[usePaymentFlow] handleUnlock called', {
+      isProcessing,
+      isCreator,
+      isAlreadyPurchased,
+      isPurchased,
+      contentPrice: content?.price
+    });
+
     if (isProcessing) {
+      console.log('[usePaymentFlow] Already processing, returning');
       return; // Prevent multiple clicks
     }
 
     if (isCreator) {
+      console.log('[usePaymentFlow] User is creator, granting access');
       toast({
         title: "Creator Access",
         description: "You have full access as the content creator",
@@ -79,6 +93,7 @@ export const usePaymentFlow = (
     }
 
     if (isAlreadyPurchased || isPurchased) {
+      console.log('[usePaymentFlow] Content already purchased, granting access');
       toast({
         title: "Already Purchased",
         description: "You've already purchased this content and have full access",
@@ -89,11 +104,13 @@ export const usePaymentFlow = (
     }
 
     if (parseFloat(content.price) === 0) {
+      console.log('[usePaymentFlow] Free content, granting access');
       onUnlock();
       return;
     }
 
     // Process the payment
+    console.log('[usePaymentFlow] Processing payment for content:', content.id);
     await processPayment();
   };
   

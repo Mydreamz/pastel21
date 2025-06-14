@@ -44,8 +44,12 @@ export const usePaymentProcessor = (
   const [isProcessing, setIsProcessing] = useState(false);
   
   const processPayment = async () => {
-    if (isProcessing) return;
+    if (isProcessing) {
+      console.log('[PaymentProcessor] Already processing payment, skipping');
+      return;
+    }
     
+    console.log('[PaymentProcessor] Starting payment process for:', contentId, userId, price);
     setIsProcessing(true);
     
     try {
@@ -57,8 +61,11 @@ export const usePaymentProcessor = (
         parseFloat(price)
       );
 
+      console.log('[PaymentProcessor] Payment result:', result);
+
       if (!result.success) {
         if (result.alreadyPurchased) {
+          console.log('[PaymentProcessor] Content already purchased');
           toast({
             title: "Already In Your Library",
             description: "You've already purchased this content. You can access it from your purchased content section.",
@@ -70,6 +77,7 @@ export const usePaymentProcessor = (
           throw new Error(result.error || "Failed to process payment");
         }
       } else {
+        console.log('[PaymentProcessor] Payment successful');
         // Refresh the permissions to update the UI
         refreshPermissions();
         onSuccess();
@@ -81,6 +89,7 @@ export const usePaymentProcessor = (
         });
       }
     } catch (error: any) {
+      console.error('[PaymentProcessor] Payment error:', error);
       // Handle payment errors
       toast({
         title: "Payment Failed",

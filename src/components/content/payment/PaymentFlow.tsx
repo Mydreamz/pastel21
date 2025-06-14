@@ -23,6 +23,14 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { user, session } = useAuth();
   
+  console.log('[PaymentFlow] Rendering with props:', {
+    contentId: content?.id,
+    contentPrice: content?.price,
+    isCreator,
+    isPurchased,
+    isUserLoggedIn: !!user
+  });
+  
   // Use our custom hook to handle all payment flow logic
   const { isProcessing, isAlreadyPurchased, handleUnlock } = usePaymentFlow(
     content,
@@ -35,20 +43,34 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
 
   // Handle unlock request including authentication check
   const handleUnlockRequest = async () => {
+    console.log('[PaymentFlow] Unlock request initiated');
+    
     // If user is not authenticated, show auth dialog
     if (!session || !user) {
+      console.log('[PaymentFlow] User not authenticated, showing auth dialog');
       setAuthTab('login');
       setShowAuthDialog(true);
       return;
     }
     
     // Otherwise process the unlock request
+    console.log('[PaymentFlow] User authenticated, processing unlock');
     await handleUnlock();
   };
 
   // Show the LockedContent component for paid content when not unlocked and not already purchased
   const actuallyPurchased = isAlreadyPurchased || isPurchased;
-  if (parseFloat(content.price) > 0 && !isCreator && !actuallyPurchased) {
+  const shouldShowLockedContent = parseFloat(content?.price || '0') > 0 && !isCreator && !actuallyPurchased;
+  
+  console.log('[PaymentFlow] Render decision:', {
+    shouldShowLockedContent,
+    contentPrice: content?.price,
+    isCreator,
+    actuallyPurchased,
+    isProcessing
+  });
+  
+  if (shouldShowLockedContent) {
     return (
       <>
         <LockedContent 
