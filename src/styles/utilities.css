@@ -9,29 +9,12 @@
     display: none;
   }
 
-  /* Light theme glass card */
-  .light .glass-card {
+  .glass-card {
     @apply backdrop-blur-xl bg-gradient-to-br from-cream-50/60 to-cream-200/60 border border-cream-300/50 shadow-neumorphic rounded-2xl;
-  }
-
-  /* Dark theme glass card */
-  .dark .glass-card {
-    @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-glass-dark rounded-2xl;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  }
-
-  /* Dark theme glass card with hover glow */
-  .dark .glass-card:hover {
-    @apply shadow-neon-glow;
-    border-color: rgba(0, 212, 255, 0.3);
   }
   
   .text-gradient-pastel {
     @apply bg-gradient-to-r from-pastel-500 to-pastel-400 bg-clip-text text-transparent;
-  }
-
-  .dark .text-gradient-neon {
-    @apply bg-neon-gradient bg-clip-text text-transparent;
   }
   
   .highlight-pastel {
@@ -42,11 +25,6 @@
     content: "";
     @apply absolute -bottom-0.5 left-0 w-full h-0.5 bg-pastel-500 rounded-full opacity-70;
   }
-
-  .dark .highlight-neon::after {
-    @apply bg-neon-blue;
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-  }
   
   .star {
     @apply absolute rounded-full bg-white;
@@ -56,67 +34,7 @@
     @apply relative overflow-hidden;
   }
 
-  .dark .glow-effect {
-    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1), transparent);
-  }
-
   .bg-grid {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(148 163 184 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-  }
-
-  .dark .bg-grid {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.02)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
-  }
-
-  /* Glass input styles */
-  .glass-input {
-    @apply backdrop-blur-md transition-all duration-300;
-  }
-
-  .light .glass-input {
-    @apply bg-white/70 border border-cream-200/50 focus:bg-white/90 focus:border-pastel-300/50;
-  }
-
-  .dark .glass-input {
-    @apply bg-white/5 border border-white/20 focus:bg-white/10 focus:border-neon-blue/50;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  .dark .glass-input:focus {
-    box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  }
-
-  /* Glass button styles */
-  .glass-button {
-    @apply backdrop-blur-md transition-all duration-300 transform hover:scale-105;
-  }
-
-  .light .glass-button {
-    @apply bg-pastel-500/80 hover:bg-pastel-600/90 text-white shadow-neumorphic;
-  }
-
-  .dark .glass-button {
-    @apply bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 hover:from-neon-blue/30 hover:to-neon-purple/30 text-white border border-neon-blue/30 hover:border-neon-blue/50;
-  }
-
-  .dark .glass-button:hover {
-    @apply shadow-neon-glow-hover;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
-
-  /* Neon accent utilities */
-  .neon-accent {
-    @apply text-neon-blue;
-    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-  }
-
-  .neon-border {
-    border-color: rgba(0, 212, 255, 0.3);
-    box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
-  }
-
-  .neon-border:hover {
-    border-color: rgba(0, 212, 255, 0.6);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
   }
 }

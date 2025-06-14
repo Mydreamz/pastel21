@@ -1,50 +1,29 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
 
-type Theme = 'dark' | 'light';
-
 type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
+  theme: 'cream';
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
-  toggleTheme: () => {},
+  theme: 'cream',
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme] = useState<'cream'>('cream');
 
   useEffect(() => {
-    // Check for saved theme preference or default to dark
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    const preferredTheme = savedTheme || 'dark';
-    
-    setTheme(preferredTheme);
-    
-    // Apply theme classes to document
-    document.documentElement.classList.remove('light', 'dark', 'cream');
-    document.documentElement.classList.add(preferredTheme);
+    // Apply cream theme to document
+    document.documentElement.classList.add('cream');
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.remove('dark');
     
     // Save theme preference
-    localStorage.setItem('theme', preferredTheme);
+    localStorage.setItem('theme', 'cream');
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    
-    // Apply theme classes to document
-    document.documentElement.classList.remove('light', 'dark', 'cream');
-    document.documentElement.classList.add(newTheme);
-    
-    // Save theme preference
-    localStorage.setItem('theme', newTheme);
-  };
-
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );

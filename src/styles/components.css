@@ -1,114 +1,56 @@
 
-/* Light theme button */
-.light .app-button {
+/* App button */
+.app-button {
   @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
 }
 
-/* Dark theme button */
-.dark .app-button {
-  @apply bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 hover:from-neon-blue/30 hover:to-neon-purple/30 text-white rounded-xl border border-neon-blue/30 hover:border-neon-blue/50 transition-all duration-300 transform hover:scale-105;
-}
-
-.dark .app-button:hover {
-  @apply shadow-neon-glow;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
 /* Neumorphic style for standard inputs */
-.light .input-neumorphic {
+.input-neumorphic {
   @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
 }
 
-.dark .input-neumorphic {
-  @apply bg-white/5 border border-white/20 rounded-xl backdrop-blur-md focus:ring-2 focus:ring-neon-blue/30 focus:border-neon-blue/50 outline-none transition-all duration-300;
-}
-
 /* Auth form improvements */
-.light .auth-form-input {
+.auth-form-input {
   @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
 }
 
-.dark .auth-form-input {
-  @apply bg-white/5 border border-white/20 rounded-xl backdrop-blur-md focus:ring-2 focus:ring-neon-blue/30 focus:border-neon-blue/50 outline-none text-white transition-all duration-300;
-}
-
-.light .auth-form-button {
+.auth-form-button {
   @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
 }
 
-.dark .auth-form-button {
-  @apply bg-gradient-to-r from-neon-blue/20 to-neon-purple/20 hover:from-neon-blue/30 hover:to-neon-purple/30 text-white rounded-xl border border-neon-blue/30 hover:border-neon-blue/50 transition-all duration-300 transform hover:scale-105;
-}
-
-.dark .auth-form-button:hover {
-  @apply shadow-neon-glow;
-}
-
 /* Top-up component styling */
-.light .top-up-component {
+.top-up-component {
   @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
 }
 
-.dark .top-up-component {
-  @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-glass-dark transition-all duration-300 hover:shadow-neon-glow hover:border-neon-blue/30;
-}
-
 /* High contrast text styles for better visibility */
-.light .text-high-contrast {
+.text-high-contrast {
   @apply text-gray-800;
 }
 
-.dark .text-high-contrast {
-  @apply text-white;
-}
-
-.light .text-medium-contrast {
+.text-medium-contrast {
   @apply text-gray-700;
 }
 
-.dark .text-medium-contrast {
-  @apply text-dark-text-secondary;
-}
-
-.light .text-low-contrast {
+.text-low-contrast {
   @apply text-gray-600;
-}
-
-.dark .text-low-contrast {
-  @apply text-gray-400;
 }
 
 /* Dashboard card improvements */
-.light .dashboard-card {
+.dashboard-card {
   @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
 }
 
-.dark .dashboard-card {
-  @apply bg-white/5 border border-white/10 backdrop-blur-xl shadow-glass-dark rounded-2xl transition-all duration-500 hover:shadow-neon-glow hover:border-neon-blue/30 transform hover:scale-[1.01];
-}
-
 /* Marketplace content text */
-.light .marketplace-content-text {
+.marketplace-content-text {
   @apply text-gray-800;
-}
-
-.dark .marketplace-content-text {
-  @apply text-white;
 }
 
 /* Profile page text improvements */
-.light .profile-text {
+.profile-text {
   @apply text-gray-800;
 }
 
-.dark .profile-text {
-  @apply text-white;
-}
-
-.light .profile-subtext {
+.profile-subtext {
   @apply text-gray-600;
-}
-
-.dark .profile-subtext {
-  @apply text-gray-400;
 }

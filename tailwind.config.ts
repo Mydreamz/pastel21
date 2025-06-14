@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -20,9 +19,9 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
-				'display': ['Poppins', 'Inter', 'sans-serif'],
-				'body': ['Inter', 'system-ui', 'sans-serif'],
+				'sans': ['Lora', 'serif'],
+				'display': ['Playfair Display', 'serif'],
+				'body': ['Lora', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -58,22 +57,6 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Dark theme colors
-				dark: {
-					bg: '#0a0a0a',
-					surface: '#1a1a1a',
-					border: '#333333',
-					text: '#ffffff',
-					'text-secondary': '#a1a1aa',
-				},
-				// Neon accent colors
-				neon: {
-					blue: '#00d4ff',
-					purple: '#8b5cf6',
-					magenta: '#ff0080',
-					cyan: '#06b6d4',
-				},
-				// Light theme colors (cream-based)
 				cream: {
 					DEFAULT: '#F8F0E5',
 					50: '#FEFCF9',
@@ -202,16 +185,6 @@ export default {
 					'0%': { transform: 'translateX(0)', opacity: '1' },
 					'100%': { transform: 'translateX(-100%)', opacity: '0' }
 				},
-				'neon-glow': {
-					'0%, 100%': { 
-						boxShadow: '0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor',
-						opacity: '0.8'
-					},
-					'50%': { 
-						boxShadow: '0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor',
-						opacity: '1'
-					}
-				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -225,26 +198,16 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out forwards',
 				'slide-in-right': 'slide-in-right 0.5s ease-out forwards',
 				'slide-out-left': 'slide-out-left 0.5s ease-out forwards',
-				'neon-glow': 'neon-glow 2s ease-in-out infinite alternate',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'glow-cream': 'radial-gradient(circle, rgba(248, 240, 229, 0.3) 0%, rgba(248, 240, 229, 0) 70%)',
 				'glow-pastel': 'radial-gradient(circle, rgba(255, 202, 212, 0.2) 0%, rgba(255, 202, 212, 0) 70%)',
-				'dark-radial': 'radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
-				'neon-gradient': 'linear-gradient(135deg, #00d4ff 0%, #8b5cf6 50%, #ff0080 100%)',
 			},
 			boxShadow: {
 				'neumorphic': '0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)',
 				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)',
 				'elevated': '0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
-				'glass': '0 8px 32px rgba(0, 0, 0, 0.37)',
-				'glass-dark': '0 8px 32px rgba(0, 0, 0, 0.6)',
-				'neon-glow': '0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(139, 92, 246, 0.2)',
-				'neon-glow-hover': '0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(139, 92, 246, 0.3)',
-			},
-			backdropBlur: {
-				'xs': '2px',
 			}
 		}
 	},
