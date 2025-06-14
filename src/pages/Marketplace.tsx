@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
+import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import StarsBackground from '@/components/StarsBackground';
 import { BackToTop } from '@/components/ui/back-to-top';
 import MarketplaceContent from '@/components/dashboard/MarketplaceContent';
@@ -96,7 +97,7 @@ const Marketplace = () => {
       
       <MainNav openAuthDialog={openAuthDialog} />
       
-      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
+      <main className="relative z-10 flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8 pb-20 md:pb-8">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
@@ -149,6 +150,8 @@ const Marketplace = () => {
           </CardContent>
         </Card>
       </main>
+      
+      <MobileBottomNav openAuthDialog={openAuthDialog} />
       
       <AuthDialog 
         showAuthDialog={showAuthDialog}

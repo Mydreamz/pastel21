@@ -1,10 +1,10 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, User, FileText, BarChart } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
+import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import { useProfileData } from '@/hooks/profile/useProfileData';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
@@ -17,6 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { 
     isAuthenticated, 
     userData, 
@@ -53,6 +55,11 @@ const Profile = () => {
     }
   }, [isAuthenticated, userData, fetchUserData, toast]);
 
+  const openAuthDialog = (tab: 'login' | 'signup') => {
+    setAuthTab(tab);
+    setShowAuthDialog(true);
+  };
+
   if (!isAuthenticated || !userData) {
     return null;
   }
@@ -62,7 +69,7 @@ const Profile = () => {
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6">
+      <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-6 pb-20 md:pb-6">
         <button onClick={() => navigate('/')} className="mb-6 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home
@@ -129,6 +136,8 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      
+      <MobileBottomNav openAuthDialog={openAuthDialog} />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus } from 'lucide-react';
@@ -8,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from "@/hooks/use-toast";
 import StarsBackground from '@/components/StarsBackground';
 import MainNav from '@/components/navigation/MainNav';
+import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import { Card, CardContent } from "@/components/ui/card";
 import { BackToTop } from '@/components/ui/back-to-top';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -91,6 +91,8 @@ const Dashboard = () => {
   const [publishedContents, setPublishedContents] = useState<any[]>([]);
   const [purchasedContents, setPurchasedContents] = useState<any[]>([]);
   const [marketplaceContents, setMarketplaceContents] = useState<any[]>([]);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   
   // Get initial tab from URL or default to 'my-content'
   const getInitialTab = () => {
@@ -187,14 +189,19 @@ const Dashboard = () => {
     navigate(`/dashboard?${searchParams.toString()}`, { replace: true });
   }, [navigate, location.search]);
 
+  const openAuthDialog = (tab: 'login' | 'signup') => {
+    setAuthTab(tab);
+    setShowAuthDialog(true);
+  };
+
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
-      <MainNav openAuthDialog={() => {}} />
+      <MainNav openAuthDialog={openAuthDialog} />
       
-      <main className="relative z-10 flex-1 flex flex-col w-full">
+      <main className="relative z-10 flex-1 flex flex-col w-full pb-20 md:pb-0">
         <div className="container px-2 sm:px-4">
           <DashboardHeader />
           
@@ -232,6 +239,7 @@ const Dashboard = () => {
         )}
       </main>
       
+      <MobileBottomNav openAuthDialog={openAuthDialog} />
       <BackToTop />
     </div>
   );

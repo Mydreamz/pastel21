@@ -28,7 +28,10 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     return searchParams.get('tab') || 'my-content';
   };
 
-  // Navigation for authenticated users on dashboard
+  // Check if we're on dashboard page
+  const isDashboardPage = location.pathname === '/dashboard';
+
+  // Navigation for authenticated users on dashboard - this is the main mobile app navigation
   const dashboardNavigation: NavigationItem[] = [
     {
       name: 'My Content',
@@ -110,7 +113,7 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   // Determine which navigation to use
   const getNavigation = () => {
     if (!isAuthenticated) return guestNavigation;
-    if (location.pathname === '/dashboard') return dashboardNavigation;
+    if (isDashboardPage) return dashboardNavigation;
     return authenticatedNavigation;
   };
 
@@ -121,7 +124,7 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
       return location.pathname === '/';
     }
     if (path === '/dashboard') {
-      return location.pathname === '/dashboard' || location.pathname === '/';
+      return location.pathname === '/dashboard' && !location.search;
     }
     if (path.includes('?tab=')) {
       const [basePath, tabParam] = path.split('?tab=');
@@ -130,12 +133,12 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
         return currentTab === tabParam;
       }
     }
-    return location.pathname.startsWith(path);
+    return location.pathname === path;
   };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-gray-200 md:hidden">
-      <div className="flex justify-around items-center py-2 px-2">
+      <div className="flex justify-around items-center py-2 px-2 safe-area-inset-bottom">
         {navigation.map((item) => {
           if (!item.show) return null;
 
