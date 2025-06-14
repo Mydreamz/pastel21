@@ -72,7 +72,7 @@ const Dashboard = () => {
             marketplaceContents={marketplaceContents}
             loading={loading}
             activeFilters={activeFilters}
-            searchQuery={debouncedQuery} // Use debounced query for filtering
+            searchQuery={debouncedQuery}
             setActiveFilters={setActiveFilters}
             setSearchQuery={setSearchQuery}
           />
@@ -89,7 +89,11 @@ const Dashboard = () => {
         )}
       </main>
       
-      <MobileBottomNav openAuthDialog={openAuthDialog} />
+      <MobileBottomNav 
+        openAuthDialog={openAuthDialog}
+        onDashboardTabChange={handleTabChange}
+        activeDashboardTab={activeTab}
+      />
       <BackToTop />
     </div>
   );

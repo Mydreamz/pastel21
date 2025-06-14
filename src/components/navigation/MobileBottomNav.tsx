@@ -6,27 +6,30 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileBottomNavProps {
   openAuthDialog: (tab: 'login' | 'signup') => void;
+  // New props for dashboard navigation
+  onDashboardTabChange?: (tab: string) => void;
+  activeDashboardTab?: string;
 }
 
 interface NavigationItem {
   name: string;
-  href: string;
+  href?: string;
   icon: React.ElementType;
   show: boolean;
   action?: () => void;
+  isDashboardTab?: boolean;
+  tabValue?: string;
 }
 
-const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
+const MobileBottomNav = ({ 
+  openAuthDialog, 
+  onDashboardTabChange,
+  activeDashboardTab 
+}: MobileBottomNavProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
-
-  // Get current dashboard tab from URL
-  const getDashboardTab = () => {
-    const searchParams = new URLSearchParams(location.search);
-    return searchParams.get('tab') || 'my-content';
-  };
 
   // Check if we're on dashboard page
   const isDashboardPage = location.pathname === '/dashboard';
@@ -35,15 +38,19 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   const dashboardNavigation: NavigationItem[] = [
     {
       name: 'My Content',
-      href: '/dashboard?tab=my-content',
       icon: FileText,
       show: true,
+      isDashboardTab: true,
+      tabValue: 'my-content',
+      action: () => onDashboardTabChange?.('my-content'),
     },
     {
       name: 'Purchased',
-      href: '/dashboard?tab=purchased',
       icon: DollarSign,
       show: true,
+      isDashboardTab: true,
+      tabValue: 'purchased',
+      action: () => onDashboardTabChange?.('purchased'),
     },
     {
       name: 'Create',
@@ -109,7 +116,6 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     },
     {
       name: 'Sign In',
-      href: '#',
       icon: User,
       show: true,
       action: () => openAuthDialog('login'),
@@ -125,30 +131,24 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
 
   const navigation = getNavigation();
 
-  const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
+  const isActive = (item: NavigationItem) => {
+    // For dashboard tabs, check against activeDashboardTab
+    if (item.isDashboardTab && isDashboardPage) {
+      return activeDashboardTab === item.tabValue;
     }
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard' && !location.search;
-    }
-    if (path === '/create') {
-      return location.pathname === '/create';
-    }
-    if (path === '/marketplace') {
-      return location.pathname === '/marketplace';
-    }
-    if (path === '/profile') {
-      return location.pathname === '/profile';
-    }
-    if (path.includes('?tab=')) {
-      const [basePath, tabParam] = path.split('?tab=');
-      if (location.pathname === basePath) {
-        const currentTab = getDashboardTab();
-        return currentTab === tabParam;
+    
+    // For regular navigation
+    if (item.href) {
+      if (item.href === '/') {
+        return location.pathname === '/';
       }
+      if (item.href === '/dashboard') {
+        return location.pathname === '/dashboard';
+      }
+      return location.pathname === item.href;
     }
-    return location.pathname === path;
+    
+    return false;
   };
 
   return (
@@ -157,18 +157,20 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
         {navigation.map((item) => {
           if (!item.show) return null;
 
+          const active = isActive(item);
+
           const content = (
             <div className="flex flex-col items-center py-2 px-1 min-w-0">
               <item.icon 
                 className={`h-5 w-5 ${
-                  isActive(item.href) 
+                  active 
                     ? 'text-pastel-600' 
                     : 'text-gray-500'
                 }`} 
               />
               <span 
                 className={`text-xs mt-1 truncate max-w-full ${
-                  isActive(item.href) 
+                  active 
                     ? 'text-pastel-600 font-medium' 
                     : 'text-gray-500'
                 }`}
@@ -190,15 +192,19 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
             );
           }
 
-          return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className="flex-1 flex justify-center min-w-0"
-            >
-              {content}
-            </Link>
-          );
+          if (item.href) {
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className="flex-1 flex justify-center min-w-0"
+              >
+                {content}
+              </Link>
+            );
+          }
+
+          return null;
         })}
       </div>
     </nav>
