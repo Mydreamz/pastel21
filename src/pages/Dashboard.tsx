@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -86,18 +85,15 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, session } = useAuth();
   const { toast } = useToast();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [publishedContents, setPublishedContents] = useState<any[]>([]);
   const [purchasedContents, setPurchasedContents] = useState<any[]>([]);
   const [marketplaceContents, setMarketplaceContents] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("my-content");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
   const { invalidateCache } = useCacheUtils();
-
-  // Get active tab from URL params or default to "my-content"
-  const activeTab = searchParams.get('tab') || 'my-content';
   
   // Use a stable reference for user ID with better null handling
   const userId = useMemo(() => user?.id || '', [user?.id]);
@@ -164,10 +160,10 @@ const Dashboard = () => {
     navigate('/create');
   };
 
-  // Handle tab changes via URL params
+  // Reset processed data when switching tabs to prevent stale data
   const handleTabChange = useCallback((tabValue: string) => {
-    setSearchParams({ tab: tabValue });
-  }, [setSearchParams]);
+    setActiveTab(tabValue);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
@@ -205,7 +201,7 @@ const Dashboard = () => {
         {isMobile && (
           <Button
             onClick={handleCreateContent}
-            className="fixed right-4 bottom-20 rounded-full bg-pastel-500 hover:bg-pastel-600 text-white shadow-lg h-14 w-14 p-0 z-40"
+            className="fixed right-4 bottom-4 rounded-full bg-pastel-500 hover:bg-pastel-600 text-white shadow-lg h-14 w-14 p-0"
             size="icon"
           >
             <Plus className="h-6 w-6" />

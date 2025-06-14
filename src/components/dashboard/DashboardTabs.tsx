@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, DollarSign, Store } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -30,16 +30,9 @@ const DashboardTabs = ({
   searchQuery
 }: DashboardTabsProps) => {
   const isMobile = useIsMobile();
-  const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Handle tab changes and update URL params
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setSearchParams({ tab: value });
-  };
   
   return (
-    <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="w-full grid grid-cols-2 md:grid-cols-3 bg-white/5 rounded-none border-b border-white/10">
         <TabsTrigger 
           value="my-content" 
