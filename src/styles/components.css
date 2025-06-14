@@ -1,56 +1,101 @@
 
-/* App button */
+/* Modern button styles */
 .app-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+  @apply gradient-primary text-primary-foreground rounded-xl shadow-md transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95 touch-target;
 }
 
-/* Neumorphic style for standard inputs */
-.input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
+.app-button-outline {
+  @apply bg-transparent border-2 border-primary text-primary rounded-xl transition-all duration-300 hover:bg-primary hover:text-primary-foreground active:scale-95 touch-target;
 }
 
-/* Auth form improvements */
-.auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+/* Modern input styles */
+.app-input {
+  @apply bg-muted/50 border border-border rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none transition-all duration-300 text-foreground min-h-[44px];
 }
 
-.auth-form-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+/* Card animations */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
 }
 
-/* Top-up component styling */
-.top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+/* Mobile-first navigation */
+.mobile-nav {
+  @apply fixed bottom-0 left-0 right-0 ios-blur border-t border-border/50 mobile-nav-safe z-40;
 }
 
-/* High contrast text styles for better visibility */
-.text-high-contrast {
-  @apply text-gray-800;
+.mobile-nav-item {
+  @apply flex flex-col items-center justify-center py-2 px-3 text-xs font-medium transition-colors duration-200 touch-target;
 }
 
-.text-medium-contrast {
-  @apply text-gray-700;
+.mobile-nav-item.active {
+  @apply text-primary;
 }
 
-.text-low-contrast {
-  @apply text-gray-600;
+/* Desktop navigation */
+.desktop-nav {
+  @apply hidden md:flex items-center space-x-6;
 }
 
-/* Dashboard card improvements */
-.dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+/* Loading states */
+.skeleton {
+  @apply animate-pulse bg-muted rounded;
 }
 
-/* Marketplace content text */
-.marketplace-content-text {
-  @apply text-gray-800;
+/* Toast positioning for mobile */
+.toast-mobile {
+  @apply bottom-20 left-4 right-4;
 }
 
-/* Profile page text improvements */
-.profile-text {
-  @apply text-gray-800;
+/* Form improvements */
+.form-group {
+  @apply space-y-2;
 }
 
-.profile-subtext {
-  @apply text-gray-600;
+.form-label {
+  @apply text-sm font-medium text-foreground;
+}
+
+.form-error {
+  @apply text-sm text-destructive;
+}
+
+/* Modern modal */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50;
+}
+
+.modal-content {
+  @apply ios-blur rounded-t-3xl md:rounded-3xl shadow-2xl;
+}
+
+/* Pull-to-refresh indicator */
+.pull-refresh {
+  @apply flex items-center justify-center py-4 text-muted-foreground;
+}
+
+/* Hero section mobile optimization */
+.hero-mobile {
+  @apply px-4 py-8 text-center;
+}
+
+.hero-desktop {
+  @apply px-6 py-12 md:py-16 lg:py-20;
+}
+
+/* Content grid responsive */
+.content-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
+}
+
+/* Tab bar styles */
+.tab-bar {
+  @apply flex border-b border-border bg-background;
+}
+
+.tab-item {
+  @apply flex-1 py-3 px-4 text-center font-medium transition-colors duration-200 border-b-2 border-transparent hover:text-primary;
+}
+
+.tab-item.active {
+  @apply text-primary border-primary;
 }

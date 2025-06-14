@@ -34,19 +34,20 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
   };
   
   return (
-    <div className="relative flex flex-col items-start gap-6 py-10 md:py-12 lg:py-16 w-full max-w-screen-xl mx-auto px-4 md:px-6">
-      <div className="flex flex-col gap-3 max-w-[720px]">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-800">
-          Create, Share, and <span className="text-gradient-pastel">Monetize</span> Your Content
+    <div className="relative flex flex-col items-start gap-6 py-10 md:py-12 lg:py-16 w-full">
+      <div className="flex flex-col gap-6 animate-fade-in">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight">
+          Create, Share, and <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Monetize</span> Your Content
         </h1>
         
-        <p className="text-lg md:text-xl text-gray-600 max-w-[600px]">
+        <p className="text-lg md:text-xl text-muted-foreground max-w-[600px]">
           All-in-one platform for creators to build, grow, and monetize their audience with powerful insights and analytics.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <Button 
-            className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
+            size="lg"
+            className="smooth-bounce"
             onClick={handleGetStarted}
           >
             Get Started Free
@@ -55,7 +56,7 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
           
           <Button 
             variant="outline" 
-            className="border-gray-400 hover:border-pastel-500 hover:bg-pastel-500/10 text-gray-700 rounded-full px-6 h-12 text-base font-medium"
+            size="lg"
             onClick={handleTutorialOpen}
           >
             See How It Works
@@ -67,7 +68,6 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
         </div>
       </div>
       
-      {/* Show tutorial in dialog on desktop, drawer on mobile */}
       {isMobile ? (
         <TutorialDrawer isOpen={showTutorial} onClose={handleTutorialClose} />
       ) : (
