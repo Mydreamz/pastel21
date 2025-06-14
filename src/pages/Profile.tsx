@@ -58,7 +58,7 @@ const Profile = () => {
   }, [isAuthenticated, userData, fetchUserData, toast]);
 
   // Show loading state while checking authentication
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -67,6 +67,12 @@ const Profile = () => {
         </div>
       </div>
     );
+  }
+
+  // If not authenticated, redirect to home
+  if (!isAuthenticated) {
+    navigate('/');
+    return null;
   }
 
   // If user data is not available, show loading
@@ -80,6 +86,9 @@ const Profile = () => {
       </div>
     );
   }
+
+  console.log("Rendering Profile with userData:", userData);
+  console.log("Current balance:", balance);
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden">
@@ -101,7 +110,7 @@ const Profile = () => {
           />
         )}
         
-        {/* Desktop layout with sidebar */}
+        {/* Desktop layout with sidebar and main content */}
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
           {/* Desktop Sidebar - only show on desktop */}
           {!isMobile && (

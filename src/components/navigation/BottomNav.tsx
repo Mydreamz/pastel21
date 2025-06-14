@@ -75,7 +75,7 @@ const BottomNav = ({ openAuthDialog }: BottomNavProps) => {
       icon: Grid3x3,
       label: 'Explore',
       action: () => scrollToSection('contents'),
-      isActive: location.hash === '#contents' || location.pathname.includes('marketplace'),
+      isActive: location.hash === '#contents',
     },
     {
       icon: Plus,

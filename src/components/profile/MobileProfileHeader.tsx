@@ -12,6 +12,10 @@ interface MobileProfileHeaderProps {
 }
 
 const MobileProfileHeader = ({ userData, balance, onLogout }: MobileProfileHeaderProps) => {
+  // Enhanced debug logs
+  console.log("MobileProfileHeader rendering with userData:", userData);
+  console.log("MobileProfileHeader balance:", balance);
+  
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
