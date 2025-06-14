@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -8,15 +7,13 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   refresh: () => Promise<void>;
-  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
-  refresh: async () => {},
-  logout: async () => {}
+  refresh: async () => {}
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -37,17 +34,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error("Error refreshing session:", error);
       }
-    }
-  };
-
-  // Function to log out the user
-  const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch (error) {
-      console.error("Error logging out:", error);
-      throw error;
     }
   };
 
@@ -99,11 +85,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     user,
     isLoading,
-    refresh,
-    logout
+    refresh
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContextProvider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // A simpler hook to replace the current useAuth in App.tsx
