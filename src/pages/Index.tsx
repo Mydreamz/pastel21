@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
 import { useToast } from "@/hooks/use-toast";
 import MainNav from '@/components/navigation/MainNav';
+import MobileNavigation from '@/components/navigation/MobileNavigation';
 import Footer from '@/components/navigation/Footer';
 import AuthDialog from '@/components/auth/AuthDialog';
 import RecentContent from '@/components/content/RecentContent';
@@ -32,7 +33,7 @@ const Index = () => {
       
       <MainNav openAuthDialog={openAuthDialog} />
       
-      <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 relative z-10">
+      <main className="flex-1 w-full max-w-screen-xl mx-auto px-4 md:px-6 relative z-10 pb-20 md:pb-0">
         <section className="py-10 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             <Hero openAuthDialog={openAuthDialog} />
@@ -47,7 +48,7 @@ const Index = () => {
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Everything creators need to monetize with Monitize.club</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800 font-lora">Everything creators need to monetize with Monitize.club</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               All the tools you need to create, grow, and monetize your audience in one powerful platform.
             </p>
@@ -71,9 +72,9 @@ const Index = () => {
                 icon: "💰"
               }
             ].map((feature, i) => (
-              <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-6">
+              <div key={i} className="glass-card shadow-app-shadow backdrop-blur-xl bg-white/50 rounded-2xl p-6 transition-all duration-300 hover:shadow-app-shadow-lg">
                 <div className="text-3xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold mb-2 text-gray-800">{feature.title}</h3>
+                <h3 className="text-xl font-bold mb-2 text-gray-800 font-lora">{feature.title}</h3>
                 <p className="text-gray-600">{feature.description}</p>
               </div>
             ))}
@@ -81,10 +82,10 @@ const Index = () => {
         </section>
         
         <section id="pricing" className="py-16 md:py-24">
-          <div className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/50 rounded-2xl p-8 md:p-12">
+          <div className="glass-card shadow-app-shadow backdrop-blur-xl bg-white/50 rounded-2xl p-8 md:p-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800">Ready to start monetizing your content with Monitize.club?</h2>
+                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 font-lora">Ready to start monetizing your content with Monitize.club?</h2>
                 <p className="text-gray-600 mb-6">Join thousands of creators who are earning more with our platform.</p>
                 
                 <ul className="space-y-3 mb-8">
@@ -97,7 +98,7 @@ const Index = () => {
                 </ul>
                 
                 <Button 
-                  className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
+                  className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium shadow-app-shadow hover:shadow-app-shadow-lg transition-all duration-300"
                   onClick={() => openAuthDialog('signup')}
                 >
                   Start for free
@@ -105,9 +106,9 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="glass-card p-6 backdrop-blur-xl bg-white/60 rounded-2xl border border-pastel-200/50">
+              <div className="glass-card p-6 backdrop-blur-xl bg-white/60 rounded-2xl border border-pastel-200/50 shadow-app-shadow">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-800">Pro Plan</h3>
+                  <h3 className="text-xl font-bold text-gray-800 font-lora">Pro Plan</h3>
                   <div className="px-3 py-1 rounded-full bg-pastel-100 text-pastel-700 text-sm font-medium">Popular</div>
                 </div>
                 
@@ -134,7 +135,7 @@ const Index = () => {
                   ))}
                 </ul>
                 
-                <Button className="w-full bg-pastel-500 hover:bg-pastel-600 text-white rounded-2xl">
+                <Button className="w-full bg-pastel-500 hover:bg-pastel-600 text-white rounded-2xl shadow-app-shadow hover:shadow-app-shadow-lg transition-all duration-300">
                   Get Started
                 </Button>
               </div>
@@ -144,6 +145,7 @@ const Index = () => {
       </main>
 
       <Footer />
+      <MobileNavigation openAuthDialog={openAuthDialog} />
       <BackToTop />
       
       <AuthDialog

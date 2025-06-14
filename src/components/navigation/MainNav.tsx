@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { User, LayoutDashboard, Shield } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -51,7 +53,7 @@ const MainNav = ({
             <div className="h-8 w-8 mr-2 relative">
               <Shield className="absolute inset-0 text-pastel-500 h-full w-full animate-pulse-gentle" />
             </div>
-            <span className="text-2xl font-bold text-gray-800">
+            <span className="text-2xl font-bold text-gray-800 font-lora">
               Monitize<span className="text-pastel-500">.club</span>
             </span>
           </Link>
@@ -91,6 +93,8 @@ const MainNav = ({
         </div>
         
         <div className="flex items-center space-x-3">
+          <ThemeToggle />
+          
           {isAuthenticated && user ? <>
               <NotificationDropdown />
               
