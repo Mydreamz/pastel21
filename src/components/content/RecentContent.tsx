@@ -42,9 +42,12 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       try {
         setLoading(true);
         const data = await fetchRecentContentCached();
-        setRecentContents(data);
+        // Ensure data is always an array, never null
+        setRecentContents(Array.isArray(data) ? data : []);
       } catch (error: any) {
         console.error('Error fetching recent content:', error);
+        // Set to empty array on error, not null
+        setRecentContents([]);
         toast({
           title: 'Error',
           description: 'Failed to load recent content',
@@ -98,6 +101,9 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
     </div>
   );
 
+  // Ensure recentContents is always an array before checking length
+  const contentArray = Array.isArray(recentContents) ? recentContents : [];
+
   return (
     <section className="py-16" id="contents">
       <div className="flex justify-between items-center mb-8">
@@ -112,13 +118,13 @@ const RecentContent = ({ isAuthenticated, openAuthDialog }: RecentContentProps) 
       
       {loading ? (
         renderSkeletonCards()
-      ) : recentContents.length === 0 ? (
+      ) : contentArray.length === 0 ? (
         <Card className="glass-card border-pastel-200/50 text-center p-8 shadow-neumorphic">
           <p className="text-gray-600">No content available yet</p>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recentContents.map((content) => (
+          {contentArray.map((content) => (
             <Card key={content.id} className="glass-card border-pastel-200/50 shadow-neumorphic rounded-2xl overflow-hidden">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold truncate text-gray-800">{content.title}</CardTitle>
