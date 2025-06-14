@@ -1,56 +1,191 @@
 
-/* App button */
-.app-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+/* Premium Component Styles */
+
+/* Button Variants */
+.btn-primary {
+  background: linear-gradient(135deg, #8B5CF6, #EC4899);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 }
 
-/* Neumorphic style for standard inputs */
-.input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
 }
 
-/* Auth form improvements */
-.auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+.btn-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.auth-form-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
-/* Top-up component styling */
-.top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+.dark .btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* High contrast text styles for better visibility */
+.dark .btn-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Input Styles */
+.input-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.input-glass:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  outline: none;
+}
+
+.dark .input-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .input-glass:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Card Styles */
+.card-premium {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  transition: all 0.3s ease;
+}
+
+.card-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
+}
+
+.dark .card-premium {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Navigation Styles */
+.nav-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .nav-glass {
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Content Area Styles */
+.content-area {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+.dark .content-area {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Mobile File Upload Styles */
+.mobile-upload-area {
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px dashed rgba(139, 92, 246, 0.3);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.mobile-upload-area:hover,
+.mobile-upload-area.drag-over {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: scale(1.02);
+}
+
+.mobile-upload-button {
+  background: linear-gradient(135deg, #8B5CF6, #EC4899);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  width: 100%;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.mobile-upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+}
+
+/* Loading States */
+.loading-spinner {
+  border: 3px solid rgba(139, 92, 246, 0.1);
+  border-top: 3px solid #8B5CF6;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* High contrast text for accessibility */
 .text-high-contrast {
-  @apply text-gray-800;
+  color: hsl(var(--foreground));
 }
 
 .text-medium-contrast {
-  @apply text-gray-700;
+  color: hsl(var(--muted-foreground));
 }
 
-.text-low-contrast {
-  @apply text-gray-600;
-}
-
-/* Dashboard card improvements */
-.dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
-}
-
-/* Marketplace content text */
-.marketplace-content-text {
-  @apply text-gray-800;
-}
-
-/* Profile page text improvements */
-.profile-text {
-  @apply text-gray-800;
-}
-
-.profile-subtext {
-  @apply text-gray-600;
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .card-premium:hover {
+    transform: none;
+  }
+  
+  .mobile-upload-area {
+    padding: 1.5rem;
+  }
+  
+  .mobile-upload-button {
+    padding: 0.875rem 1.5rem;
+  }
 }
