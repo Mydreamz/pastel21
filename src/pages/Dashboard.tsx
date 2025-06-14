@@ -1,193 +1,39 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+
+import React, { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from "@/hooks/use-toast";
 import StarsBackground from '@/components/StarsBackground';
 import MainNav from '@/components/navigation/MainNav';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
-import { Card, CardContent } from "@/components/ui/card";
 import { BackToTop } from '@/components/ui/back-to-top';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardTabs from '@/components/dashboard/DashboardTabs';
-import DashboardSearch from '@/components/dashboard/DashboardSearch';
-import { supabase } from "@/integrations/supabase/client";
-import { createCacheableRequest, useCacheUtils } from '@/utils/requestUtils';
-
-// Trackable request counter for debugging
-let requestCounter = 0;
-
-// Cacheable function to fetch all user content in a single go with a stable function reference
-const fetchAllUserContent = async (userId: string) => {
-  if (!userId) {
-    console.warn("Cannot fetch content: Missing user ID");
-    return {
-      publishedContents: [],
-      purchasedContents: [],
-      marketplaceContents: []
-    };
-  }
-  
-  try {
-    // Track requests for debugging
-    requestCounter++;
-    console.log(`[Request ${requestCounter}] Fetching user content for ${userId}`);
-    
-    // Use Promise.all to parallelize requests
-    const [publishedResult, transactionsResult, marketplaceResult] = await Promise.all([
-      supabase
-        .from('contents')
-        .select('*')
-        .eq('creator_id', userId),
-        
-      supabase
-        .from('transactions')
-        .select('*, contents(*)')
-        .eq('user_id', userId),
-        
-      supabase
-        .from('contents')
-        .select('*')
-        .neq('creator_id', userId)
-        .eq('status', 'published')
-        .limit(20) // Limit market content to reduce load
-    ]);
-    
-    if (publishedResult.error) throw publishedResult.error;
-    if (transactionsResult.error) throw transactionsResult.error;
-    if (marketplaceResult.error) throw marketplaceResult.error;
-    
-    const purchased = transactionsResult.data?.map(tx => tx.contents).filter(Boolean) || [];
-    
-    return {
-      publishedContents: publishedResult.data || [],
-      purchasedContents: purchased,
-      marketplaceContents: marketplaceResult.data || []
-    };
-  } catch (error) {
-    console.error("Error in fetchAllUserContent:", error);
-    return {
-      publishedContents: [],
-      purchasedContents: [],
-      marketplaceContents: []
-    };
-  }
-};
-
-// Create a cached version of this function with a longer cache time (5 minutes instead of 3)
-const getCachedUserContent = createCacheableRequest(fetchAllUserContent, 5 * 60 * 1000);
-
-// Global in-flight request deduplication for dashboard content
-const globalDashboardInFlight: Record<string, Promise<any>> = {};
+import DashboardContent from '@/components/dashboard/DashboardContent';
+import { useDashboardData } from '@/hooks/dashboard/useDashboardData';
+import { useDashboardNavigation } from '@/hooks/dashboard/useDashboardNavigation';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user, session } = useAuth();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [publishedContents, setPublishedContents] = useState<any[]>([]);
-  const [purchasedContents, setPurchasedContents] = useState<any[]>([]);
-  const [marketplaceContents, setMarketplaceContents] = useState<any[]>([]);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  
-  // Get initial tab from URL or default to 'my-content'
-  const getInitialTab = () => {
-    const searchParams = new URLSearchParams(location.search);
-    return searchParams.get('tab') || 'my-content';
-  };
-  
-  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const isMobile = useIsMobile();
-  const { invalidateCache } = useCacheUtils();
-  
-  // Use a stable reference for user ID with better null handling
-  const userId = useMemo(() => user?.id || '', [user?.id]);
 
-  // Add a ref to ensure we only fetch once per session/mount
-  const hasFetchedRef = useRef(false);
-  const previousUserIdRef = useRef<string | null>(null);
+  // Use custom hooks for data and navigation
+  const {
+    loading,
+    publishedContents,
+    purchasedContents,
+    marketplaceContents
+  } = useDashboardData();
 
-  // Memoized function to fetch content data with better dependency tracking
-  const fetchUserContents = useCallback(async () => {
-    if (!userId) return;
-    if (globalDashboardInFlight[userId]) {
-      console.log(`[Dashboard] Deduplicated fetch for user: ${userId}`);
-      const results = await globalDashboardInFlight[userId];
-      setPublishedContents(results.publishedContents);
-      setPurchasedContents(results.purchasedContents);
-      setMarketplaceContents(results.marketplaceContents);
-      hasFetchedRef.current = true;
-      return;
-    }
-    if (hasFetchedRef.current && userId === previousUserIdRef.current) return;
-    console.log(`[Dashboard] Fetching content for user: ${userId}, previous: ${previousUserIdRef.current}`);
-    previousUserIdRef.current = userId;
-    setLoading(true);
-    globalDashboardInFlight[userId] = getCachedUserContent(userId);
-    try {
-      const results = await globalDashboardInFlight[userId];
-      if (results) {
-        setPublishedContents(results.publishedContents);
-        setPurchasedContents(results.purchasedContents);
-        setMarketplaceContents(results.marketplaceContents);
-        hasFetchedRef.current = true;
-      }
-    } catch (error) {
-      console.error("[Dashboard] Error fetching content:", error);
-      toast({
-        title: "Failed to load content",
-        description: "There was an error loading your content",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-      delete globalDashboardInFlight[userId];
-    }
-  }, [userId, toast]);
-
-  useEffect(() => {
-    if (userId && userId !== previousUserIdRef.current) {
-      hasFetchedRef.current = false;
-      fetchUserContents();
-    }
-    if (session === null) {
-      navigate('/');
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to access your dashboard",
-        variant: "destructive"
-      });
-    }
-    // Only depend on userId and session
-  }, [session, userId]);
-
-  // Update tab when URL changes
-  useEffect(() => {
-    const currentTab = getInitialTab();
-    if (currentTab !== activeTab) {
-      setActiveTab(currentTab);
-    }
-  }, [location.search]);
-
-  const handleCreateContent = () => {
-    navigate('/create');
-  };
-
-  // Update URL when tab changes and handle mobile navigation
-  const handleTabChange = useCallback((tabValue: string) => {
-    setActiveTab(tabValue);
-    
-    // Update URL with tab parameter
-    const searchParams = new URLSearchParams(location.search);
-    searchParams.set('tab', tabValue);
-    navigate(`/dashboard?${searchParams.toString()}`, { replace: true });
-  }, [navigate, location.search]);
+  const {
+    activeTab,
+    activeFilters,
+    searchQuery,
+    setActiveFilters,
+    setSearchQuery,
+    handleTabChange,
+    handleCreateContent
+  } = useDashboardNavigation();
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
@@ -205,26 +51,18 @@ const Dashboard = () => {
         <div className="container px-2 sm:px-4">
           <DashboardHeader />
           
-          <Card className="glass-card border-white/10 text-gray-800 flex-1">
-            <CardContent className="p-0">
-              <DashboardSearch 
-                onFilter={setActiveFilters}
-                searchQuery={searchQuery}
-                onSearchChange={(e) => setSearchQuery(e.target.value)}
-              />
-              
-              <DashboardTabs 
-                activeTab={activeTab}
-                setActiveTab={handleTabChange}
-                publishedContents={publishedContents}
-                purchasedContents={purchasedContents}
-                marketplaceContents={marketplaceContents}
-                loading={loading}
-                filters={activeFilters}
-                searchQuery={searchQuery}
-              />
-            </CardContent>
-          </Card>
+          <DashboardContent 
+            activeTab={activeTab}
+            handleTabChange={handleTabChange}
+            publishedContents={publishedContents}
+            purchasedContents={purchasedContents}
+            marketplaceContents={marketplaceContents}
+            loading={loading}
+            activeFilters={activeFilters}
+            searchQuery={searchQuery}
+            setActiveFilters={setActiveFilters}
+            setSearchQuery={setSearchQuery}
+          />
         </div>
 
         {/* Remove floating create button on mobile as it's now in navigation */}

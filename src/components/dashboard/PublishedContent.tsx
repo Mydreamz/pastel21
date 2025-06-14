@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { FileText } from 'lucide-react';
-import { useProfileData } from '@/hooks/useProfileData';
+import { useProfileData } from '@/hooks/profile/useProfileData';
 import ContentCard from './ContentCard';
 
 interface PublishedContentProps {
