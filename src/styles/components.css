@@ -1,29 +1,29 @@
 
-/* App button */
+/* App button with professional green styling */
 .app-button {
-  @apply bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+  @apply bg-primary hover:bg-primary/90 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105 hover:shadow-neumorphic-lg;
 }
 
-/* Neumorphic style for standard inputs */
+/* Professional neumorphic inputs */
 .input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-emerald-300/30 outline-none transition-all duration-300;
+  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic-inset focus:ring-2 focus:ring-primary/30 focus:shadow-neumorphic outline-none transition-all duration-300;
 }
 
-/* Auth form improvements */
+/* Auth form improvements with green accents */
 .auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-emerald-300/30 focus:border-emerald-200 outline-none text-gray-800 transition-all duration-300;
+  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary/50 outline-none text-gray-800 transition-all duration-300 shadow-neumorphic-inset focus:shadow-neumorphic-sm;
 }
 
 .auth-form-button {
-  @apply bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+  @apply bg-primary hover:bg-primary/90 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-neumorphic-lg shadow-neumorphic;
 }
 
-/* Top-up component styling */
+/* Professional card styling */
 .top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-neumorphic-lg;
 }
 
-/* High contrast text styles for better visibility */
+/* Enhanced text contrast for better readability */
 .text-high-contrast {
   @apply text-gray-800;
 }
@@ -36,17 +36,17 @@
   @apply text-gray-600;
 }
 
-/* Dashboard card improvements */
+/* Professional dashboard cards */
 .dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-neumorphic-lg transform hover:scale-[1.02];
 }
 
-/* Marketplace content text */
+/* Content text with improved readability */
 .marketplace-content-text {
   @apply text-gray-800;
 }
 
-/* Profile page text improvements */
+/* Profile page styling */
 .profile-text {
   @apply text-gray-800;
 }
@@ -55,21 +55,47 @@
   @apply text-gray-600;
 }
 
-/* Mobile app-like components */
-@media (max-width: 768px) {
-  .mobile-nav {
-    @apply fixed bottom-0 left-0 right-0 bg-cream-50/95 backdrop-blur-lg border-t border-emerald-200/50 shadow-neumorphic z-50;
-  }
-  
-  .mobile-fab {
-    @apply fixed bottom-20 right-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-neumorphic w-14 h-14 flex items-center justify-center z-40;
-  }
-  
-  .mobile-card-stack {
-    @apply space-y-2 px-4;
-  }
-  
-  .mobile-touch-feedback {
-    @apply active:scale-95 transition-transform duration-100;
-  }
+/* Professional green accent elements */
+.green-accent {
+  @apply text-primary;
+}
+
+.green-accent-bg {
+  @apply bg-primary text-white;
+}
+
+.green-accent-border {
+  @apply border-primary;
+}
+
+/* Interactive elements with subtle neumorphism */
+.interactive-element {
+  @apply shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200 ease-in-out;
+}
+
+/* Status indicators with green theme */
+.status-active {
+  @apply bg-primary/20 text-primary border-primary/30;
+}
+
+.status-success {
+  @apply bg-green-100 text-green-800 border-green-300;
+}
+
+/* Professional progress bars */
+.progress-green {
+  @apply bg-primary;
+}
+
+/* Enhanced buttons with neumorphic effects */
+.button-primary {
+  @apply bg-primary hover:bg-primary/90 text-white shadow-neumorphic hover:shadow-neumorphic-lg transition-all duration-200;
+}
+
+.button-secondary {
+  @apply bg-cream-100 hover:bg-cream-200 text-gray-800 shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200;
+}
+
+.button-outline {
+  @apply border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-neumorphic-sm hover:shadow-neumorphic transition-all duration-200;
 }

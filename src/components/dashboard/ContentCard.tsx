@@ -36,13 +36,13 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const isValidUrl = fileUrl && (fileUrl.startsWith('http') || fileUrl.startsWith('/'));
   
   return (
-    <Card className="glass-card hover:border-emerald-300/50 transition-colors shadow-neumorphic border-emerald-200/50 mobile-card mobile-touch-feedback">
+    <Card className="glass-card hover:border-pastel-300/50 transition-colors shadow-neumorphic border-pastel-200/50">
       <div className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-2">
             <ContentTypeBadge contentType={contentType} />
             {(isPurchased || showPurchaseDate) && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-pastel-500/20 text-pastel-700 border border-pastel-500/30">
                 <Check className="h-3 w-3 mr-1" /> Purchased
               </span>
             )}
@@ -76,7 +76,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
             </div>
           )}
           {contentType !== 'text' && contentType !== 'link' && !isValidUrl && (
-            <div className="text-emerald-700">
+            <div className="text-pastel-700">
               Media files pending migration
             </div>
           )}
@@ -87,7 +87,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
             onClick={() => navigate(`/view/${contentId}`)} 
             variant="outline" 
             size="sm" 
-            className="border-emerald-200 bg-white/50 hover:bg-emerald-100 text-gray-700 rounded-xl touch-target mobile-touch-feedback"
+            className="border-pastel-200 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
           >
             <Eye className="h-4 w-4 mr-1" />
             {showPurchaseDate ? 'View Content' : 'View'}
@@ -99,7 +99,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => navigate(`/edit/${contentId}`)} 
                 variant="outline" 
                 size="sm" 
-                className="border-emerald-200 bg-white/50 hover:bg-emerald-100 text-gray-700 rounded-xl touch-target mobile-touch-feedback"
+                className="border-pastel-200 bg-white/50 hover:bg-pastel-100 text-gray-700 rounded-xl"
               >
                 <Edit className="h-4 w-4 mr-1" />
                 Edit
@@ -108,7 +108,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
                 onClick={() => onDelete?.(contentId)}
                 variant="outline" 
                 size="sm" 
-                className="border-emerald-200 bg-white/50 hover:bg-emerald-100 hover:text-emerald-600 ml-auto rounded-xl touch-target mobile-touch-feedback"
+                className="border-pastel-200 bg-white/50 hover:bg-pastel-100 hover:text-pastel-600 ml-auto rounded-xl"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

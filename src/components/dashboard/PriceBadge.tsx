@@ -12,15 +12,15 @@ const PriceBadge: React.FC<PriceBadgeProps> = ({ price }) => {
   
   if (isPaid) {
     return (
-      <Badge variant="outline" className="bg-emerald-500/20 text-emerald-700 border-emerald-500/30 rounded-full">
-        <IndianRupee className="h-3 w-3 mr-1 text-emerald-700" />
+      <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30 rounded-full shadow-neumorphic-sm">
+        <IndianRupee className="h-3 w-3 mr-1 text-primary" />
         {parseFloat(price).toFixed(2)}
       </Badge>
     );
   }
   
   return (
-    <Badge variant="outline" className="bg-emerald-300/20 text-emerald-700 border-emerald-300/30 rounded-full">
+    <Badge variant="outline" className="bg-green-100/50 text-primary border-green-300/50 rounded-full shadow-neumorphic-sm">
       Free
     </Badge>
   );

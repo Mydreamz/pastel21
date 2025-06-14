@@ -67,19 +67,19 @@ export default {
 					900: '#95794F',
 					950: '#7D6642',
 				},
-				emerald: {
-					DEFAULT: '#10B981',
-					50: '#ECFDF5',
-					100: '#D1FAE5',
-					200: '#A7F3D0',
-					300: '#6EE7B7',
-					400: '#34D399',
-					500: '#10B981',
-					600: '#059669',
-					700: '#047857',
-					800: '#065F46',
-					900: '#064E3B',
-					950: '#022C22',
+				green: {
+					DEFAULT: '#08A97C',
+					50: '#E8F8F5',
+					100: '#D1F2EB',
+					200: '#A3E5D6',
+					300: '#75D8C2',
+					400: '#47CBAD',
+					500: '#08A97C',
+					600: '#07966B',
+					700: '#06835A',
+					800: '#057049',
+					900: '#045D38',
+					950: '#033E26',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -169,13 +169,14 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'glow-cream': 'radial-gradient(circle, rgba(248, 240, 229, 0.3) 0%, rgba(248, 240, 229, 0) 70%)',
-				'glow-emerald': 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0) 70%)',
+				'glow-green': 'radial-gradient(circle, rgba(8, 169, 124, 0.2) 0%, rgba(8, 169, 124, 0) 70%)',
 			},
 			boxShadow: {
-				'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.05), -8px -8px 16px rgba(255, 255, 255, 0.7)',
-				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)',
-				'mobile-neumorphic': '4px 4px 8px rgba(0, 0, 0, 0.05), -4px -4px 8px rgba(255, 255, 255, 0.7)',
-				'mobile-neumorphic-inset': 'inset 1px 1px 3px rgba(0, 0, 0, 0.05), inset -1px -1px 3px rgba(255, 255, 255, 0.7)'
+				'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8)',
+				'neumorphic-inset': 'inset 4px 4px 8px rgba(0, 0, 0, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.8)',
+				'neumorphic-sm': '4px 4px 8px rgba(0, 0, 0, 0.08), -4px -4px 8px rgba(255, 255, 255, 0.9)',
+				'neumorphic-lg': '12px 12px 24px rgba(0, 0, 0, 0.12), -12px -12px 24px rgba(255, 255, 255, 0.7)',
+				'neumorphic-xl': '16px 16px 32px rgba(0, 0, 0, 0.15), -16px -16px 32px rgba(255, 255, 255, 0.6)'
 			}
 		}
 	},
