@@ -17,18 +17,18 @@ const MobileNavigation = ({ openAuthDialog }: MobileNavigationProps) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-pastel-200/50 px-4 py-2 md:hidden">
-        <div className="flex items-center justify-center gap-4">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border px-4 py-3 md:hidden safe-area-pb">
+        <div className="flex items-center justify-center gap-3">
           <Button 
             variant="outline" 
             onClick={() => openAuthDialog('login')}
-            className="flex-1 border-pastel-200 hover:bg-pastel-100"
+            className="flex-1 h-12"
           >
             Sign In
           </Button>
           <Button 
             onClick={() => openAuthDialog('signup')}
-            className="flex-1 bg-pastel-500 hover:bg-pastel-600 text-white"
+            className="flex-1 h-12"
           >
             Sign Up
           </Button>
@@ -71,7 +71,7 @@ const MobileNavigation = ({ openAuthDialog }: MobileNavigationProps) => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-pastel-200/50 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border md:hidden safe-area-pb">
       <div className="flex items-center justify-around py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -79,10 +79,10 @@ const MobileNavigation = ({ openAuthDialog }: MobileNavigationProps) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-200 min-w-[44px] ${
+              className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-colors duration-200 min-w-[60px] ${
                 item.isActive
-                  ? 'text-pastel-600 bg-pastel-100'
-                  : 'text-gray-600 hover:text-pastel-600 hover:bg-pastel-50'
+                  ? 'text-primary bg-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
               <Icon className="h-5 w-5" />

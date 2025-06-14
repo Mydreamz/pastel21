@@ -1,58 +1,44 @@
 
-/* App button */
+/* Clean app button styles */
 .app-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-app-shadow transition-all duration-300 transform hover:scale-105 hover:shadow-app-shadow-lg;
+  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg shadow-sm transition-colors duration-200 font-medium;
 }
 
-/* Enhanced neumorphic style for inputs */
-.input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300 min-h-[44px];
+/* Clean input styles */
+.input-clean {
+  @apply bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition-all duration-200 min-h-[44px] px-3 py-2;
 }
 
-/* Auth form improvements with mobile optimization */
+/* Auth form clean styles */
 .auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300 min-h-[44px] px-4;
+  @apply bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition-all duration-200 min-h-[44px] px-4 py-3;
 }
 
 .auth-form-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-app-shadow-lg min-h-[44px] font-medium;
+  @apply bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors duration-200 min-h-[44px] font-medium;
 }
 
-/* Top-up component styling with app-like design */
-.top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-app-shadow transition-all duration-300 hover:shadow-app-shadow-lg;
+/* Clean card styles */
+.clean-card {
+  @apply bg-card border border-border rounded-lg shadow-sm;
 }
 
-/* High contrast text styles for better visibility across themes */
+/* High contrast text styles */
 .text-high-contrast {
-  @apply text-gray-800 dark:text-gray-100;
+  @apply text-foreground;
 }
 
 .text-medium-contrast {
-  @apply text-gray-700 dark:text-gray-200;
+  @apply text-muted-foreground;
 }
 
 .text-low-contrast {
-  @apply text-gray-600 dark:text-gray-300;
+  @apply text-muted-foreground/70;
 }
 
-/* Enhanced dashboard card improvements */
+/* Dashboard card styles */
 .dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-app-shadow rounded-2xl transition-all duration-500 hover:shadow-app-shadow-lg transform hover:scale-[1.01];
-}
-
-/* Marketplace content text with theme support */
-.marketplace-content-text {
-  @apply text-gray-800 dark:text-gray-100;
-}
-
-/* Profile page text improvements with theme support */
-.profile-text {
-  @apply text-gray-800 dark:text-gray-100;
-}
-
-.profile-subtext {
-  @apply text-gray-600 dark:text-gray-300;
+  @apply bg-card border border-border shadow-sm rounded-lg transition-all duration-200 hover:shadow-md;
 }
 
 /* Mobile-first touch targets */
@@ -60,54 +46,51 @@
   @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
 }
 
-/* App-like button styles */
+/* Clean button variants */
 .app-button-primary {
-  @apply bg-pastel-500 hover:bg-pastel-600 active:bg-pastel-700 text-white rounded-xl shadow-app-shadow hover:shadow-app-shadow-lg active:scale-95 transition-all duration-200 font-medium touch-target;
+  @apply bg-primary hover:bg-primary/90 active:bg-primary/80 text-primary-foreground rounded-lg shadow-sm active:scale-[0.98] transition-all duration-150 font-medium touch-target;
 }
 
 .app-button-secondary {
-  @apply bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-800 border border-gray-200 rounded-xl shadow-app-shadow hover:shadow-app-shadow-lg active:scale-95 transition-all duration-200 font-medium touch-target;
+  @apply bg-secondary hover:bg-secondary/80 active:bg-secondary/70 text-secondary-foreground border border-border rounded-lg shadow-sm active:scale-[0.98] transition-all duration-150 font-medium touch-target;
 }
 
 /* Mobile navigation styles */
 .mobile-nav-item {
-  @apply flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-200 touch-target;
+  @apply flex flex-col items-center justify-center p-3 rounded-lg transition-colors duration-200 touch-target;
 }
 
 .mobile-nav-item.active {
-  @apply text-pastel-600 bg-pastel-100/80;
+  @apply text-primary bg-primary/10;
 }
 
 .mobile-nav-item:not(.active) {
-  @apply text-gray-600 hover:text-pastel-600 hover:bg-pastel-50/50;
+  @apply text-muted-foreground hover:text-foreground hover:bg-accent;
 }
 
-/* Enhanced glass effect */
-.glass-card-enhanced {
-  @apply backdrop-blur-xl bg-white/60 dark:bg-gray-900/60 border border-white/20 dark:border-gray-700/20 shadow-app-shadow rounded-2xl;
-}
-
-/* Smooth theme transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
-/* App-like focus styles */
+/* Clean focus styles */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-pastel-400/50 focus:ring-offset-2 focus:ring-offset-background;
+  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
 }
 
-/* Modern typography hierarchy */
+/* Typography hierarchy */
 .text-display {
-  @apply font-lora font-bold tracking-tight;
+  @apply font-lora font-bold tracking-tight text-foreground;
 }
 
 .text-heading {
-  @apply font-lora font-semibold;
+  @apply font-lora font-semibold text-foreground;
 }
 
 .text-body {
-  @apply font-sans;
+  @apply font-sans text-foreground;
+}
+
+/* Remove all transitions for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
