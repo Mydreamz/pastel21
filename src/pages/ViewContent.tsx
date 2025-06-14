@@ -11,7 +11,7 @@ import { useContentPermissions } from '@/hooks/useContentPermissions';
 import { useContentSharing } from '@/hooks/useContentSharing';
 import { useRelatedContent } from '@/hooks/useRelatedContent';
 import { useToast } from '@/hooks/use-toast';
-import PaymentFlow from '@/components/content/PaymentFlow';
+import PaymentFlow from '@/components/content/payment/PaymentFlow';
 import DirectPurchaseButton from '@/components/content/DirectPurchaseButton';
 import ContentViewWrapper from '@/components/content/ContentViewWrapper';
 import RelatedContentList from '@/components/content/RelatedContentList';
