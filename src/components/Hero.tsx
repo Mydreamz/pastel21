@@ -34,35 +34,43 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
   };
   
   return (
-    <div className="relative flex flex-col items-start gap-6 py-10 md:py-12 lg:py-16 w-full max-w-screen-xl mx-auto px-4 md:px-6">
-      <div className="flex flex-col gap-3 max-w-[720px]">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-800">
-          Create, Share, and <span className="text-gradient-pastel">Monetize</span> Your Content
-        </h1>
+    <div className="relative flex flex-col items-start gap-8 py-12 md:py-16 lg:py-20 w-full max-w-4xl">
+      <div className="flex flex-col gap-6 max-w-3xl">
+        <div className="space-y-4">
+          <h1 className="font-display font-bold text-gray-900 leading-tight">
+            Create, Share, and{' '}
+            <span className="bg-gradient-to-r from-pastel-600 to-pastel-500 bg-clip-text text-transparent">
+              Monetize
+            </span>{' '}
+            Your Content
+          </h1>
+          
+          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
+            The all-in-one platform for creators to build, grow, and monetize their audience with powerful insights and analytics.
+          </p>
+        </div>
         
-        <p className="text-lg md:text-xl text-gray-600 max-w-[600px]">
-          All-in-one platform for creators to build, grow, and monetize their audience with powerful insights and analytics.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <Button 
-            className="bg-pastel-500 hover:bg-pastel-600 text-white rounded-full px-6 h-12 text-base font-medium"
+            size="lg"
+            className="bg-pastel-600 hover:bg-pastel-700 text-white shadow-elevated hover:shadow-lg transition-all duration-200 px-8 py-3"
             onClick={handleGetStarted}
           >
             Get Started Free
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           
           <Button 
             variant="outline" 
-            className="border-gray-400 hover:border-pastel-500 hover:bg-pastel-500/10 text-gray-700 rounded-full px-6 h-12 text-base font-medium"
+            size="lg"
+            className="border-gray-300 hover:border-pastel-500 hover:bg-pastel-50 text-gray-700 px-8 py-3 transition-all duration-200"
             onClick={handleTutorialOpen}
           >
             See How It Works
           </Button>
         </div>
 
-        <div className="mt-6">
+        <div className="pt-4">
           <UserCountBadge count={5200} />
         </div>
       </div>

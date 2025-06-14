@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'sans': ['Inter', 'system-ui', 'sans-serif'],
+				'display': ['Playfair Display', 'serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -55,7 +58,7 @@ export default {
 				},
 				cream: {
 					DEFAULT: '#F8F0E5',
-					50: '#FEF9F5',
+					50: '#FEFCF9',
 					100: '#F8F0E5',
 					200: '#F2E5D5',
 					300: '#E8D5BC',
@@ -68,18 +71,31 @@ export default {
 					950: '#7D6642',
 				},
 				pastel: {
-					DEFAULT: '#FFCAD4',
-					50: '#FFEDF0',
-					100: '#FFCAD4',
-					200: '#FFA7B9',
-					300: '#FF849E',
-					400: '#FF6283',
-					500: '#FF3F68',
-					600: '#FF1C4D',
-					700: '#F80032',
-					800: '#D50029',
-					900: '#B20022',
-					950: '#90001B',
+					DEFAULT: '#E91E63',
+					50: '#FCE4EC',
+					100: '#F8BBD9',
+					200: '#F48FB1',
+					300: '#F06292',
+					400: '#EC407A',
+					500: '#E91E63',
+					600: '#D81B60',
+					700: '#C2185B',
+					800: '#AD1457',
+					900: '#880E4F',
+					950: '#4A0E2F',
+				},
+				gray: {
+					50: '#FAFAF9',
+					100: '#F4F4F3',
+					200: '#E5E5E2',
+					300: '#D6D6D0',
+					400: '#ABABAB',
+					500: '#808080',
+					600: '#666666',
+					700: '#4D4D4D',
+					800: '#333333',
+					900: '#1A1A1A',
+					950: '#0D0D0D',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -91,6 +107,22 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
+			},
+			fontSize: {
+				'xs': ['0.75rem', { lineHeight: '1rem' }],
+				'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+				'base': ['1rem', { lineHeight: '1.5rem' }],
+				'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+				'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+				'2xl': ['1.5rem', { lineHeight: '2rem' }],
+				'3xl': ['1.875rem', { lineHeight: '2.25rem' }],
+				'4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+				'5xl': ['3rem', { lineHeight: '1' }],
+				'6xl': ['3.75rem', { lineHeight: '1' }],
+			},
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -172,8 +204,9 @@ export default {
 				'glow-pastel': 'radial-gradient(circle, rgba(255, 202, 212, 0.2) 0%, rgba(255, 202, 212, 0) 70%)',
 			},
 			boxShadow: {
-				'neumorphic': '8px 8px 16px rgba(0, 0, 0, 0.05), -8px -8px 16px rgba(255, 255, 255, 0.7)',
-				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)'
+				'neumorphic': '0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)',
+				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)',
+				'elevated': '0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
 			}
 		}
 	},

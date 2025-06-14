@@ -6,34 +6,34 @@
 @layer base {
   :root {
     --background: 40 30% 96%;
-    --foreground: 240 10% 18%;
+    --foreground: 218 11% 15%;
 
     --card: 40 30% 98%;
-    --card-foreground: 240 10% 18%;
+    --card-foreground: 218 11% 15%;
 
     --popover: 40 30% 98%;
-    --popover-foreground: 240 10% 18%;
+    --popover-foreground: 218 11% 15%;
 
-    --primary: 320 70% 85%;
-    --primary-foreground: 240 5% 12%;
+    --primary: 340 82% 52%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 40 30% 92%;
-    --secondary-foreground: 240 10% 18%;
+    --secondary-foreground: 218 11% 15%;
 
     --muted: 40 30% 92%;
-    --muted-foreground: 240 10% 40%;
+    --muted-foreground: 218 11% 45%;
 
-    --accent: 320 70% 90%;
-    --accent-foreground: 240 5% 12%;
+    --accent: 340 82% 92%;
+    --accent-foreground: 218 11% 15%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 320 30% 90%;
-    --input: 320 30% 90%;
-    --ring: 320 70% 75%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 340 82% 52%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 40 30% 96%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -42,7 +42,7 @@
     --sidebar-accent: 40 30% 92%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 40 30% 90%;
-    --sidebar-ring: 320 70% 75%;
+    --sidebar-ring: 340 82% 52%;
   }
 }
 
@@ -52,12 +52,50 @@
   }
   
   body {
-    @apply bg-[#F8F0E5] text-foreground antialiased overflow-x-hidden;
+    @apply bg-cream-50 text-gray-800 antialiased font-sans;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+    line-height: 1.6;
   }
 
   html {
     @apply scroll-smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold text-gray-900;
+    line-height: 1.2;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl;
+  }
+
+  h6 {
+    @apply text-base md:text-lg;
+  }
+
+  p {
+    @apply text-gray-700 leading-relaxed;
+  }
+
+  a {
+    @apply text-pastel-600 hover:text-pastel-700 transition-colors;
   }
 }
 
