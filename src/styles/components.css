@@ -1,4 +1,3 @@
-
 /* App button */
 .app-button {
   @apply rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
@@ -27,7 +26,7 @@
 }
 
 .dark .input-neumorphic {
-  @apply glass-input-base text-white placeholder:text-gray-400;
+  @apply glass-input text-white placeholder:text-gray-400;
 }
 
 /* Auth form improvements */
@@ -40,7 +39,7 @@
 }
 
 .dark .auth-form-input {
-  @apply glass-input-base text-white placeholder:text-gray-400;
+  @apply glass-input text-white placeholder:text-gray-400;
 }
 
 .auth-form-button {
