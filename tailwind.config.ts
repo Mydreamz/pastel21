@@ -19,9 +19,9 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
-				'display': ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
-				'body': ['Inter', 'Poppins', 'system-ui', 'sans-serif'],
+				'sans': ['Lora', 'serif'],
+				'display': ['Playfair Display', 'serif'],
+				'body': ['Lora', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -57,20 +57,6 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Dark theme specific colors
-				neon: {
-					blue: '#00D4FF',
-					purple: '#8B5FBF',
-					magenta: '#FF006E',
-					pink: '#FB49B0',
-				},
-				glass: {
-					'dark': 'rgba(17, 24, 39, 0.7)',
-					'darker': 'rgba(0, 0, 0, 0.8)',
-					'light': 'rgba(255, 255, 255, 0.1)',
-					'border': 'rgba(255, 255, 255, 0.1)',
-				},
-				// Keep existing colors for light mode compatibility
 				cream: {
 					DEFAULT: '#F8F0E5',
 					50: '#FEFCF9',
@@ -217,17 +203,11 @@ export default {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'glow-cream': 'radial-gradient(circle, rgba(248, 240, 229, 0.3) 0%, rgba(248, 240, 229, 0) 70%)',
 				'glow-pastel': 'radial-gradient(circle, rgba(255, 202, 212, 0.2) 0%, rgba(255, 202, 212, 0) 70%)',
-				'glow-neon': 'radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 212, 255, 0) 70%)',
-				'dark-grid': 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
 			},
 			boxShadow: {
 				'neumorphic': '0 8px 32px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.08)',
 				'neumorphic-inset': 'inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.7)',
 				'elevated': '0 10px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06)',
-				'glow': '0 0 20px rgba(0, 212, 255, 0.3), 0 0 40px rgba(0, 212, 255, 0.1)',
-				'glow-purple': '0 0 20px rgba(139, 95, 191, 0.3), 0 0 40px rgba(139, 95, 191, 0.1)',
-				'glow-magenta': '0 0 20px rgba(255, 0, 110, 0.3), 0 0 40px rgba(255, 0, 110, 0.1)',
-				'glass': '0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.1)',
 			}
 		}
 	},

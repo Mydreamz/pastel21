@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User, LayoutDashboard, Shield, LogOut } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -48,15 +46,15 @@ const MainNav = ({
   };
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/50 backdrop-blur-lg backdrop-filter bg-background/80 dark:bg-glass-dark dark:border-glass-border">
+    <header className="sticky top-0 z-40 w-full border-b border-gray-200/50 backdrop-blur-lg backdrop-filter bg-white/80">
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center">
           <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center group">
             <div className="h-8 w-8 mr-3 relative">
-              <Shield className="absolute inset-0 text-primary h-full w-full group-hover:text-primary/80 transition-colors dark:text-neon-blue dark:group-hover:text-neon-blue/80" />
+              <Shield className="absolute inset-0 text-pastel-600 h-full w-full group-hover:text-pastel-700 transition-colors" />
             </div>
-            <span className="text-2xl font-bold text-foreground font-display">
-              Monitize<span className="text-primary dark:text-neon-blue">.club</span>
+            <span className="text-2xl font-bold text-gray-900 font-display">
+              Monitize<span className="text-pastel-600">.club</span>
             </span>
           </Link>
           
@@ -65,13 +63,13 @@ const MainNav = ({
             <NavigationMenu className="hidden md:flex items-center ml-10">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link to="/" className="text-foreground hover:text-primary transition-colors px-4 py-2 font-medium dark:hover:text-neon-blue">
+                  <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 font-medium">
                     Home
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink 
-                    className="text-foreground hover:text-primary transition-colors px-4 py-2 cursor-pointer font-medium dark:hover:text-neon-blue"
+                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer font-medium"
                     onClick={() => scrollToSection('features')}
                   >
                     Features
@@ -79,14 +77,14 @@ const MainNav = ({
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink 
-                    className="text-foreground hover:text-primary transition-colors px-4 py-2 cursor-pointer font-medium dark:hover:text-neon-blue"
+                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer font-medium"
                     onClick={() => scrollToSection('pricing')}
                   >
                     Pricing
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors px-4 py-2 font-medium dark:hover:text-neon-blue">
+                  <Link to="/marketplace" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 font-medium">
                     Marketplace
                   </Link>
                 </NavigationMenuItem>
@@ -97,8 +95,6 @@ const MainNav = ({
         
         {/* Hide auth buttons on mobile to keep header clean */}
         <div className="flex items-center space-x-3">
-          <ThemeToggle />
-          
           {isAuthenticated && user ? <>
               {!isMobile && <NotificationDropdown />}
               
@@ -111,29 +107,29 @@ const MainNav = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="relative h-9 w-9 rounded-full p-0">
-                    <User className="h-5 w-5 text-foreground" />
+                    <User className="h-5 w-5 text-gray-700" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-background/95 backdrop-blur-lg border border-border shadow-elevated dark:bg-glass-dark dark:backdrop-blur-xl dark:border-glass-border dark:shadow-glass">
-                  <div className="px-3 py-3 border-b border-border dark:border-glass-border">
-                    <p className="font-medium text-foreground truncate">{userName}</p>
-                    <p className="text-sm text-muted-foreground truncate">{userEmail}</p>
+                <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-lg border border-gray-200 shadow-elevated">
+                  <div className="px-3 py-3 border-b border-gray-200">
+                    <p className="font-medium text-gray-900 truncate">{userName}</p>
+                    <p className="text-sm text-gray-600 truncate">{userEmail}</p>
                   </div>
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-accent py-2 dark:hover:bg-glass-light">
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-gray-50 py-2">
                     <LayoutDashboard className="mr-3 h-4 w-4" />
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-accent py-2 dark:hover:bg-glass-light">
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-gray-50 py-2">
                     <User className="mr-3 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
                   {isMobile && (
-                    <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-accent py-2 dark:hover:bg-glass-light">
+                    <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-gray-50 py-2">
                       Create Content
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive py-2">
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 py-2">
                     <LogOut className="mr-3 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>

@@ -21,7 +21,7 @@ const DashboardHeader = () => {
           variant="ghost" 
           size="sm" 
           onClick={handleMarketplaceClick} 
-          className="text-primary-foreground bg-primary hover:bg-primary/90 dark:bg-neon-blue dark:hover:bg-neon-blue/90 dark:text-background"
+          className="text-white bg-pastel-700 hover:bg-pastel-600"
         >
           <Store className="h-4 w-4" />
         </Button>
@@ -30,7 +30,7 @@ const DashboardHeader = () => {
           variant="ghost" 
           size="sm" 
           onClick={handleMarketplaceClick} 
-          className="text-primary-foreground bg-primary hover:bg-primary/90 dark:bg-neon-blue dark:hover:bg-neon-blue/90 dark:text-background"
+          className="text-white bg-pastel-700 hover:bg-pastel-600"
         >
           <Store className="h-4 w-4 mr-2" /> Marketplace
         </Button>
