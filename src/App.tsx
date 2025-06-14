@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ContentCacheProvider } from "@/contexts/ContentCacheContext";
 import AdminRoute from "./components/admin/AdminRoute";
+import AppLayout from "./components/layout/AppLayout";
 
 // Lazy-loaded components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -33,15 +35,14 @@ const Loading = () => <div className="min-h-screen flex items-center justify-cen
       <p>Loading...</p>
     </div>
   </div>;
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
       staleTime: 60000,
-      // 1 minute
-      // Updated to use gcTime instead of cacheTime
-      gcTime: 300000 // 5 minutes
+      gcTime: 300000
     }
   }
 });
@@ -50,50 +51,30 @@ const queryClient = new QueryClient({
 interface ProtectedRouteProps {
   children: JSX.Element;
 }
-const ProtectedRoute = ({
-  children
-}: ProtectedRouteProps) => {
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const location = useLocation();
-  const {
-    isLoading,
-    session
-  } = useAuth();
+  const { isLoading, session } = useAuth();
+  
   if (isLoading) {
     return <Loading />;
   }
+  
   if (!session) {
-    // Redirect to home page if not authenticated
-    return <Navigate to="/" state={{
-      from: location
-    }} replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
+  
   return children;
 };
 
-// Component to handle home page redirection based on auth status
-const HomePageRoute = () => {
-  const {
-    isLoading,
-    session
-  } = useAuth();
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  // Redirect to dashboard if user is logged in, otherwise show the landing page
-  if (session) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <Index />;
-};
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
+  
   useEffect(() => {
-    // Handle email confirmation from hash
     const handleEmailConfirmation = async () => {
       const hash = window.location.hash;
       if (hash && hash.includes('access_token')) {
-        setIsInitialized(true); // Will be handled by AuthProvider
+        setIsInitialized(true);
         window.location.hash = '';
       } else {
         setIsInitialized(true);
@@ -101,10 +82,13 @@ const App = () => {
     };
     handleEmailConfirmation();
   }, []);
+  
   if (!isInitialized) {
     return <Loading />;
   }
-  return <AuthProvider>
+  
+  return (
+    <AuthProvider>
       <ContentCacheProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
@@ -113,50 +97,34 @@ const App = () => {
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
-                  <Suspense fallback={<Loading />}>
-                    <Routes>
-                      <Route path="/" element={<HomePageRoute />} />
-                      <Route path="/dashboard" element={<ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>} />
-                      <Route path="/create" element={<ProtectedRoute>
-                          <CreateContent />
-                        </ProtectedRoute>} />
-                      {/* Make view route public */}
-                      <Route path="/view/:id" element={<ViewContent />} />
-                      <Route path="/edit/:id" element={<ProtectedRoute>
-                          <EditContent />
-                        </ProtectedRoute>} />
-                      <Route path="/profile" element={<ProtectedRoute>
-                          <Profile />
-                        </ProtectedRoute>} />
-                      <Route path="/success" element={<ProtectedRoute>
-                          <ContentSuccess />
-                        </ProtectedRoute>} />
-                      <Route path="/search" element={<ProtectedRoute>
-                          <Search />
-                        </ProtectedRoute>} />
-                      <Route path="/marketplace" element={<ProtectedRoute>
-                          <Marketplace />
-                        </ProtectedRoute>} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      
-                      {/* Admin Routes - keeping these routes but removing UI buttons */}
-                      <Route path="/admin" element={<AdminLogin />} />
-                      <Route path="/admin/dashboard" element={<AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>} />
-                      
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
+                  <AppLayout>
+                    <Suspense fallback={<Loading />}>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                        <Route path="/create" element={<ProtectedRoute><CreateContent /></ProtectedRoute>} />
+                        <Route path="/view/:id" element={<ViewContent />} />
+                        <Route path="/edit/:id" element={<ProtectedRoute><EditContent /></ProtectedRoute>} />
+                        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                        <Route path="/success" element={<ProtectedRoute><ContentSuccess /></ProtectedRoute>} />
+                        <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+                        <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
+                        <Route path="/admin" element={<AdminLogin />} />
+                        <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </Suspense>
+                  </AppLayout>
                 </BrowserRouter>
               </NotificationProvider>
             </ThemeProvider>
           </TooltipProvider>
         </QueryClientProvider>
       </ContentCacheProvider>
-    </AuthProvider>;
+    </AuthProvider>
+  );
 };
+
 export default App;

@@ -31,6 +31,14 @@ const BottomNav = ({ openAuthDialog }: BottomNavProps) => {
     }
   };
 
+  const handleHomeClick = () => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
       navigate('/', { replace: true });
@@ -52,14 +60,14 @@ const BottomNav = ({ openAuthDialog }: BottomNavProps) => {
     {
       icon: Home,
       label: 'Home',
-      action: () => navigate('/'),
-      isActive: location.pathname === '/',
+      action: handleHomeClick,
+      isActive: (isAuthenticated && location.pathname === '/dashboard') || (!isAuthenticated && location.pathname === '/'),
     },
     {
       icon: Grid3x3,
       label: 'Explore',
       action: () => scrollToSection('contents'),
-      isActive: location.hash === '#contents',
+      isActive: location.hash === '#contents' || location.pathname.includes('marketplace'),
     },
     {
       icon: Plus,
