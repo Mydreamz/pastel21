@@ -3,19 +3,11 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User, LayoutDashboard, Shield } from 'lucide-react';
+import { User, LayoutDashboard, Shield, Menu } from 'lucide-react';
 import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle 
-} from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type MainNavProps = {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -44,98 +36,165 @@ const MainNav = ({
     }
   };
   
-  return (
-    <header className="sticky top-0 z-40 w-full border-b border-white/10 backdrop-blur-lg backdrop-filter">
-      <div className="container flex h-16 items-center justify-between py-4">
-        <div className="flex items-center">
-          <Link to="/" className="flex items-center">
-            <div className="h-8 w-8 mr-2 relative">
-              <Shield className="absolute inset-0 text-pastel-500 h-full w-full animate-pulse-gentle" />
-            </div>
-            <span className="text-2xl font-bold text-gray-800">
-              Monitize<span className="text-pastel-500">.club</span>
-            </span>
-          </Link>
-          
-          {!isAuthenticated && (
-            <NavigationMenu className="hidden md:flex items-center ml-10">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
-                    Home
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink 
-                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
-                    onClick={() => scrollToSection('features')}
-                  >
-                    Features
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink 
-                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
-                    onClick={() => scrollToSection('pricing')}
-                  >
-                    Pricing
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
-                    Explore
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+  const MobileNav = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="md:hidden">
+          <Menu className="h-5 w-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-80">
+        <div className="flex flex-col space-y-4 mt-8">
+          {!isAuthenticated ? (
+            <>
+              <Link to="/" className="text-lg font-medium hover:text-primary transition-colors">
+                Home
+              </Link>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-lg font-medium hover:text-primary transition-colors text-left"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('pricing')}
+                className="text-lg font-medium hover:text-primary transition-colors text-left"
+              >
+                Pricing
+              </button>
+              <Link to="/#contents" className="text-lg font-medium hover:text-primary transition-colors">
+                Explore
+              </Link>
+              <div className="pt-4 space-y-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => openAuthDialog('login')} 
+                  className="w-full h-12"
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  onClick={() => openAuthDialog('signup')} 
+                  className="w-full h-12"
+                >
+                  Sign Up
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Link to="/dashboard" className="text-lg font-medium hover:text-primary transition-colors">
+                Dashboard
+              </Link>
+              <Link to="/create" className="text-lg font-medium hover:text-primary transition-colors">
+                Create Content
+              </Link>
+              <Link to="/profile" className="text-lg font-medium hover:text-primary transition-colors">
+                Profile
+              </Link>
+              <div className="pt-4 border-t">
+                <p className="font-medium text-foreground">{userName}</p>
+                <p className="text-sm text-muted-foreground">{userEmail}</p>
+                <Button 
+                  variant="outline" 
+                  onClick={handleLogout} 
+                  className="mt-3 w-full h-12 text-destructive hover:text-destructive"
+                >
+                  Logout
+                </Button>
+              </div>
+            </>
           )}
         </div>
+      </SheetContent>
+    </Sheet>
+  );
+  
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <MobileNav />
+          <Link to="/" className="flex items-center space-x-2">
+            <Shield className="h-6 w-6 text-primary" />
+            <span className="font-lora text-xl font-bold">
+              Monitize<span className="text-primary">.club</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6">
+          {!isAuthenticated && (
+            <>
+              <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
+                Home
+              </Link>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('pricing')}
+                className="text-sm font-medium hover:text-primary transition-colors"
+              >
+                Pricing
+              </button>
+              <Link to="/#contents" className="text-sm font-medium hover:text-primary transition-colors">
+                Explore
+              </Link>
+            </>
+          )}
+        </nav>
         
         <div className="flex items-center space-x-3">
-          {isAuthenticated && user ? <>
+          {isAuthenticated && user ? (
+            <>
               <NotificationDropdown />
               
-              <Button onClick={() => navigate('/create')} className="hidden md:flex bg-pastel-500 hover:bg-pastel-600 text-white">
+              <Button onClick={() => navigate('/create')} className="hidden md:flex h-9">
                 Create Content
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="relative h-9 w-9 rounded-full bg-white/5 border-pastel-200 hover:bg-pastel-100/50 p-0">
-                    <User className="h-5 w-5 text-gray-700" />
+                  <Button variant="outline" size="icon" className="h-9 w-9">
+                    <User className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass-card border border-pastel-100 text-gray-700">
-                  <div className="px-3 py-2">
-                    <p className="font-medium text-gray-800">{userName}</p>
-                    <p className="text-sm text-gray-600">{userEmail}</p>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-1.5">
+                    <p className="font-medium">{userName}</p>
+                    <p className="text-sm text-muted-foreground">{userEmail}</p>
                   </div>
-                  <DropdownMenuSeparator className="bg-pastel-200/50" />
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-pastel-100">
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-pastel-100">
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-pastel-100 md:hidden">
-                    Create Content
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-pastel-200/50" />
-                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-600">
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </> : <>
-              <Button variant="outline" onClick={() => openAuthDialog('login')} className="border-pastel-200 hover:border-pastel-500 hover:bg-pastel-100 text-gray-700">
+            </>
+          ) : (
+            <div className="hidden md:flex items-center space-x-2">
+              <Button variant="outline" onClick={() => openAuthDialog('login')}>
                 Sign In
               </Button>
-              <Button onClick={() => openAuthDialog('signup')} className="bg-pastel-500 hover:bg-pastel-600 text-white">
+              <Button onClick={() => openAuthDialog('signup')}>
                 Sign Up
               </Button>
-            </>}
+            </div>
+          )}
         </div>
       </div>
     </header>
