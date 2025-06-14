@@ -50,10 +50,10 @@ const MainNav = ({
         <div className="flex items-center">
           <Link to="/" className="flex items-center">
             <div className="h-8 w-8 mr-2 relative">
-              <Shield className="absolute inset-0 text-pastel-500 h-full w-full animate-pulse-gentle" />
+              <Shield className="absolute inset-0 text-emerald-500 h-full w-full animate-pulse-gentle" />
             </div>
             <span className="text-2xl font-bold text-gray-800">
-              Monitize<span className="text-pastel-500">.club</span>
+              Monitize<span className="text-emerald-500">.club</span>
             </span>
           </Link>
           
@@ -61,13 +61,13 @@ const MainNav = ({
             <NavigationMenu className="hidden md:flex items-center ml-10">
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
+                  <Link to="/" className="text-gray-700 hover:text-emerald-700 transition-colors px-4 py-2">
                     Home
                   </Link>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink 
-                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
+                    className="text-gray-700 hover:text-emerald-700 transition-colors px-4 py-2 cursor-pointer"
                     onClick={() => scrollToSection('features')}
                   >
                     Features
@@ -75,14 +75,14 @@ const MainNav = ({
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <NavigationMenuLink 
-                    className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 cursor-pointer"
+                    className="text-gray-700 hover:text-emerald-700 transition-colors px-4 py-2 cursor-pointer"
                     onClick={() => scrollToSection('pricing')}
                   >
                     Pricing
                   </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
-                  <Link to="/#contents" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2">
+                  <Link to="/#contents" className="text-gray-700 hover:text-emerald-700 transition-colors px-4 py-2">
                     Explore
                   </Link>
                 </NavigationMenuItem>
@@ -95,44 +95,44 @@ const MainNav = ({
           {isAuthenticated && user ? <>
               <NotificationDropdown />
               
-              <Button onClick={() => navigate('/create')} className="hidden md:flex bg-pastel-500 hover:bg-pastel-600 text-white">
+              <Button onClick={() => navigate('/create')} className="hidden md:flex bg-emerald-500 hover:bg-emerald-600 text-white">
                 Create Content
               </Button>
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="relative h-9 w-9 rounded-full bg-white/5 border-pastel-200 hover:bg-pastel-100/50 p-0">
+                  <Button variant="outline" className="relative h-9 w-9 rounded-full bg-white/5 border-emerald-200 hover:bg-emerald-100/50 p-0">
                     <User className="h-5 w-5 text-gray-700" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="glass-card border border-pastel-100 text-gray-700">
+                <DropdownMenuContent align="end" className="glass-card border border-emerald-100 text-gray-700">
                   <div className="px-3 py-2">
                     <p className="font-medium text-gray-800">{userName}</p>
                     <p className="text-sm text-gray-600">{userEmail}</p>
                   </div>
-                  <DropdownMenuSeparator className="bg-pastel-200/50" />
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-pastel-100">
+                  <DropdownMenuSeparator className="bg-emerald-200/50" />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')} className="cursor-pointer hover:bg-emerald-100">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-pastel-100">
+                  <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer hover:bg-emerald-100">
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-pastel-100 md:hidden">
+                  <DropdownMenuItem onClick={() => navigate('/create')} className="cursor-pointer hover:bg-emerald-100 md:hidden">
                     Create Content
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-pastel-200/50" />
+                  <DropdownMenuSeparator className="bg-emerald-200/50" />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-600">
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </> : <>
-              <Button variant="outline" onClick={() => openAuthDialog('login')} className="border-pastel-200 hover:border-pastel-500 hover:bg-pastel-100 text-gray-700">
+              <Button variant="outline" onClick={() => openAuthDialog('login')} className="border-emerald-200 hover:border-emerald-500 hover:bg-emerald-100 text-gray-700">
                 Sign In
               </Button>
-              <Button onClick={() => openAuthDialog('signup')} className="bg-pastel-500 hover:bg-pastel-600 text-white">
+              <Button onClick={() => openAuthDialog('signup')} className="bg-emerald-500 hover:bg-emerald-600 text-white">
                 Sign Up
               </Button>
             </>}

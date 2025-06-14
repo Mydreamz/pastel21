@@ -15,7 +15,7 @@ const DirectPurchaseButton = ({ price, isProcessing, onPurchase }: DirectPurchas
     <div className="my-4 text-center">
       <Button 
         onClick={onPurchase}
-        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        className="bg-emerald-500 hover:bg-emerald-600 text-white touch-target mobile-touch-feedback"
         size="lg"
         disabled={isProcessing}
       >

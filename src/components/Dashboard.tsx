@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
@@ -103,11 +104,11 @@ const Dashboard = () => {
   return (
     <div 
       style={parallaxStyle} 
-      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl border border-pastel-200/60 shadow-neumorphic relative overflow-hidden"
+      className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl border border-emerald-200/60 shadow-neumorphic relative overflow-hidden mobile-card"
     >
       {/* Decorative elements for visual interest */}
-      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pastel-400/20 rounded-full blur-3xl"></div>
-      <div className="absolute -top-10 -left-10 w-32 h-32 bg-pastel-500/20 rounded-full blur-3xl"></div>
+      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-emerald-400/20 rounded-full blur-3xl"></div>
+      <div className="absolute -top-10 -left-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
       
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-6">
@@ -115,7 +116,7 @@ const Dashboard = () => {
           <div className="flex gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-pastel-500"></div>
+            <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
           </div>
         </div>
         
