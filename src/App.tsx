@@ -9,7 +9,6 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ContentCacheProvider } from "@/contexts/ContentCacheContext";
 import AdminRoute from "./components/admin/AdminRoute";
-import MobileNavigation from "./components/navigation/MobileNavigation";
 
 // Lazy-loaded components for better performance
 const Index = lazy(() => import("./pages/Index"));
@@ -89,12 +88,12 @@ const HomePageRoute = () => {
 };
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false);
-  
   useEffect(() => {
+    // Handle email confirmation from hash
     const handleEmailConfirmation = async () => {
       const hash = window.location.hash;
       if (hash && hash.includes('access_token')) {
-        setIsInitialized(true);
+        setIsInitialized(true); // Will be handled by AuthProvider
         window.location.hash = '';
       } else {
         setIsInitialized(true);
@@ -102,70 +101,62 @@ const App = () => {
     };
     handleEmailConfirmation();
   }, []);
-  
   if (!isInitialized) {
     return <Loading />;
   }
-  
-  return (
-    <AuthProvider>
+  return <AuthProvider>
       <ContentCacheProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <ThemeProvider>
               <NotificationProvider>
-                <div className="min-h-screen bg-background">
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter>
-                    <Suspense fallback={<Loading />}>
-                      <Routes>
-                        <Route path="/" element={<HomePageRoute />} />
-                        <Route path="/dashboard" element={<ProtectedRoute>
-                            <Dashboard />
-                          </ProtectedRoute>} />
-                        <Route path="/create" element={<ProtectedRoute>
-                            <CreateContent />
-                          </ProtectedRoute>} />
-                        {/* Make view route public */}
-                        <Route path="/view/:id" element={<ViewContent />} />
-                        <Route path="/edit/:id" element={<ProtectedRoute>
-                            <EditContent />
-                          </ProtectedRoute>} />
-                        <Route path="/profile" element={<ProtectedRoute>
-                            <Profile />
-                          </ProtectedRoute>} />
-                        <Route path="/success" element={<ProtectedRoute>
-                            <ContentSuccess />
-                          </ProtectedRoute>} />
-                        <Route path="/search" element={<ProtectedRoute>
-                            <Search />
-                          </ProtectedRoute>} />
-                        <Route path="/marketplace" element={<ProtectedRoute>
-                            <Marketplace />
-                          </ProtectedRoute>} />
-                        <Route path="/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/reset-password" element={<ResetPassword />} />
-                        
-                        {/* Admin Routes - keeping these routes but removing UI buttons */}
-                        <Route path="/admin" element={<AdminLogin />} />
-                        <Route path="/admin/dashboard" element={<AdminRoute>
-                            <AdminDashboard />
-                          </AdminRoute>} />
-                        
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </Suspense>
-                    <MobileNavigation />
-                  </BrowserRouter>
-                </div>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Suspense fallback={<Loading />}>
+                    <Routes>
+                      <Route path="/" element={<HomePageRoute />} />
+                      <Route path="/dashboard" element={<ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>} />
+                      <Route path="/create" element={<ProtectedRoute>
+                          <CreateContent />
+                        </ProtectedRoute>} />
+                      {/* Make view route public */}
+                      <Route path="/view/:id" element={<ViewContent />} />
+                      <Route path="/edit/:id" element={<ProtectedRoute>
+                          <EditContent />
+                        </ProtectedRoute>} />
+                      <Route path="/profile" element={<ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>} />
+                      <Route path="/success" element={<ProtectedRoute>
+                          <ContentSuccess />
+                        </ProtectedRoute>} />
+                      <Route path="/search" element={<ProtectedRoute>
+                          <Search />
+                        </ProtectedRoute>} />
+                      <Route path="/marketplace" element={<ProtectedRoute>
+                          <Marketplace />
+                        </ProtectedRoute>} />
+                      <Route path="/forgot-password" element={<ForgotPassword />} />
+                      <Route path="/reset-password" element={<ResetPassword />} />
+                      
+                      {/* Admin Routes - keeping these routes but removing UI buttons */}
+                      <Route path="/admin" element={<AdminLogin />} />
+                      <Route path="/admin/dashboard" element={<AdminRoute>
+                          <AdminDashboard />
+                        </AdminRoute>} />
+                      
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
               </NotificationProvider>
             </ThemeProvider>
           </TooltipProvider>
         </QueryClientProvider>
       </ContentCacheProvider>
-    </AuthProvider>
-  );
+    </AuthProvider>;
 };
-
 export default App;

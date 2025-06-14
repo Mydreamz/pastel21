@@ -166,7 +166,7 @@ const ContentActions = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        {isCreator && <Button variant="outline" className="border-red-500/30 hover:border-red-500 text-red-400 hover:text-red-300" onClick={() => setShowDeleteDialog(true)}>
+        {isCreator && <Button variant="outline" className="border-[#7FB069]/30 hover:border-[#7FB069] text-[#7FB069] hover:text-[#6A9A56]" onClick={() => setShowDeleteDialog(true)}>
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </Button>}

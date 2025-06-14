@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -145,7 +144,7 @@ const AuthDialog = ({
         </DialogHeader>
         
         {authError && (
-          <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-700">
+          <Alert variant="destructive" className="bg-green-50 border-[#7FB069] text-[#7FB069]">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{authError}</AlertDescription>
           </Alert>

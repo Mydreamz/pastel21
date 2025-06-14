@@ -11,8 +11,8 @@ const InvalidToken = () => {
     <div className="flex min-h-screen items-center justify-center bg-cream-100">
       <div className="glass-card w-full max-w-md p-8 rounded-lg border border-cream-200/50 text-gray-800">
         <div className="flex justify-center mb-4">
-          <div className="p-3 bg-red-500/20 rounded-full">
-            <AlertCircle className="h-8 w-8 text-red-500" />
+          <div className="p-3 bg-[#7FB069]/20 rounded-full">
+            <AlertCircle className="h-8 w-8 text-[#7FB069]" />
           </div>
         </div>
         <h2 className="text-2xl font-bold mb-4 text-center">Invalid Reset Link</h2>
