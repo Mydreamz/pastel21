@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import MainNav from '@/components/navigation/MainNav';
 import BottomNav from '@/components/navigation/BottomNav';
 import Footer from '@/components/navigation/Footer';
 import AuthDialog from '@/components/auth/AuthDialog';
@@ -28,8 +27,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {showStarsBackground && <StarsBackground />}
-      
-      <MainNav openAuthDialog={openAuthDialog} />
       
       <main className="flex-1 mobile-content">
         {children}

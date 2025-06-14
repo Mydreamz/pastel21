@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Grid3x3, Plus, User, Search } from 'lucide-react';
+import { Home, Grid3x3, Plus, User, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -36,6 +36,14 @@ const BottomNav = ({ openAuthDialog }: BottomNavProps) => {
       navigate('/dashboard');
     } else {
       navigate('/');
+    }
+  };
+
+  const handleMarketplaceClick = () => {
+    if (isAuthenticated) {
+      navigate('/marketplace');
+    } else {
+      openAuthDialog('login');
     }
   };
 
@@ -77,10 +85,10 @@ const BottomNav = ({ openAuthDialog }: BottomNavProps) => {
       highlight: true,
     },
     {
-      icon: Search,
-      label: 'Search',
-      action: () => navigate('/search'),
-      isActive: location.pathname === '/search',
+      icon: Store,
+      label: 'Marketplace',
+      action: handleMarketplaceClick,
+      isActive: location.pathname === '/marketplace',
     },
     {
       icon: User,
