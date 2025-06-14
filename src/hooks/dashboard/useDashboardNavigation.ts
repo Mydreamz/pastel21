@@ -1,19 +1,36 @@
 
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export const useDashboardNavigation = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   
-  // Use pure React state instead of URL-based navigation
-  const [activeTab, setActiveTab] = useState<string>('my-content');
+  // Initialize tab from URL parameters or default to 'my-content'
+  const getInitialTab = () => {
+    const tabFromUrl = searchParams.get('tab');
+    return ['my-content', 'purchased', 'marketplace'].includes(tabFromUrl || '') 
+      ? tabFromUrl! 
+      : 'my-content';
+  };
+
+  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Optimized tab change handler - no URL updates
+  // Update URL when tab changes (for bookmarking/sharing)
   const handleTabChange = useCallback((tabValue: string) => {
     setActiveTab(tabValue);
-  }, []);
+    setSearchParams({ tab: tabValue });
+  }, [setSearchParams]);
+
+  // Sync state with URL changes (browser back/forward)
+  useEffect(() => {
+    const tabFromUrl = getInitialTab();
+    if (tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   const handleCreateContent = useCallback(() => {
     navigate('/create');

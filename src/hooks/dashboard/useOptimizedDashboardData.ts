@@ -50,7 +50,6 @@ export const useOptimizedDashboardData = () => {
       return;
     }
 
-    console.log(`[Optimized Dashboard] Fetching content for user: ${userId}`);
     setLoading(true);
 
     try {
@@ -95,7 +94,7 @@ export const useOptimizedDashboardData = () => {
       hasFetchedRef.current = true;
       
     } catch (error) {
-      console.error("[Optimized Dashboard] Error fetching content:", error);
+      console.error("Error fetching dashboard content:", error);
       toast({
         title: "Failed to load content",
         description: "There was an error loading your content",
