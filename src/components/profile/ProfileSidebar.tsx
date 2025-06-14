@@ -30,11 +30,6 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
     return null;
   }
   
-  // Log the balance prop to help with debugging
-  useEffect(() => {
-    console.log("Balance in ProfileSidebar:", balance);
-  }, [balance]);
-  
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
@@ -108,7 +103,6 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
   
   // Calculate available balance
   const availableBalance = Math.max(0, balance - pendingWithdrawals);
-  console.log("Calculated available balance:", availableBalance, "from balance:", balance, "and pending withdrawals:", pendingWithdrawals);
   
   return (
     <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">

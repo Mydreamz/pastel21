@@ -7,6 +7,7 @@ import { ArrowLeft, User, FileText, BarChart } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useProfileData } from '@/hooks/profile/useProfileData';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
+import MobileProfileHeader from '@/components/profile/MobileProfileHeader';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
@@ -56,7 +57,8 @@ const Profile = () => {
     }
   }, [isAuthenticated, userData, fetchUserData, toast]);
 
-  if (!isAuthenticated || !userData) {
+  // Show loading state while checking authentication
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -67,12 +69,13 @@ const Profile = () => {
     );
   }
 
-  if (isLoading) {
+  // If user data is not available, show loading
+  if (!userData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p>Loading user data...</p>
         </div>
       </div>
     );
@@ -89,9 +92,18 @@ const Profile = () => {
           Back to Home
         </button>
         
-        {/* Responsive layout that adapts to mobile */}
+        {/* Mobile Profile Header - only show on mobile */}
+        {isMobile && (
+          <MobileProfileHeader 
+            userData={userData} 
+            balance={balance} 
+            onLogout={handleLogout}
+          />
+        )}
+        
+        {/* Desktop layout with sidebar */}
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
-          {/* Sidebar - only show on desktop */}
+          {/* Desktop Sidebar - only show on desktop */}
           {!isMobile && (
             <div className="lg:col-span-1">
               <ProfileSidebar 
@@ -102,13 +114,16 @@ const Profile = () => {
             </div>
           )}
           
-          {/* Main content - full width on mobile, 2/3 on desktop */}
+          {/* Main content */}
           <div className={isMobile ? 'col-span-1' : 'lg:col-span-2'}>
-            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
-              <CardContent className="pt-6">
-                <EarningsSummary userId={userData.id} />
-              </CardContent>
-            </Card>
+            {/* Earnings Summary - only show on desktop since mobile header shows wallet */}
+            {!isMobile && (
+              <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
+                <CardContent className="pt-6">
+                  <EarningsSummary userId={userData.id} />
+                </CardContent>
+              </Card>
+            )}
             
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
               <CardHeader>
