@@ -9,6 +9,7 @@ import WithdrawalModal from './WithdrawalModal';
 import { calculatePendingWithdrawals } from '@/utils/paymentUtils';
 import { useToast } from '@/hooks/use-toast';
 import { reconcileUserBalance } from '@/utils/balanceUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProfileSidebarProps {
   userData: any;
@@ -18,10 +19,16 @@ interface ProfileSidebarProps {
 
 const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isWithdrawalModalOpen, setIsWithdrawalModalOpen] = useState(false);
   const [pendingWithdrawals, setPendingWithdrawals] = useState(0);
   const [isLoadingPending, setIsLoadingPending] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Hide sidebar completely on mobile devices
+  if (isMobile) {
+    return null;
+  }
   
   // Log the balance prop to help with debugging
   useEffect(() => {
