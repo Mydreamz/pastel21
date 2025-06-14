@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, Plus, User, Grid3X3, Store } from 'lucide-react';
+import { Home, Search, Plus, User, FileText, DollarSign, Store } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MobileBottomNavProps {
@@ -21,12 +21,18 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
 
-  // Navigation for authenticated users
+  // Navigation for authenticated users - 4 main tabs
   const authenticatedNavigation: NavigationItem[] = [
     {
-      name: 'Home',
-      href: '/dashboard',
-      icon: Home,
+      name: 'My Content',
+      href: '/dashboard?tab=my-content',
+      icon: FileText,
+      show: true,
+    },
+    {
+      name: 'Purchased',
+      href: '/dashboard?tab=purchased',
+      icon: DollarSign,
       show: true,
     },
     {
@@ -39,12 +45,6 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
       name: 'Create',
       href: '/create',
       icon: Plus,
-      show: true,
-    },
-    {
-      name: 'Profile',
-      href: '/profile',
-      icon: User,
       show: true,
     },
   ];
@@ -78,8 +78,14 @@ const MobileBottomNav = ({ openAuthDialog }: MobileBottomNavProps) => {
     if (path === '/') {
       return location.pathname === '/';
     }
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard' || location.pathname === '/';
+    if (path === '/dashboard?tab=my-content') {
+      return location.pathname === '/dashboard' && (!location.search || location.search.includes('tab=my-content'));
+    }
+    if (path === '/dashboard?tab=purchased') {
+      return location.pathname === '/dashboard' && location.search.includes('tab=purchased');
+    }
+    if (path.startsWith('/dashboard')) {
+      return location.pathname === '/dashboard';
     }
     return location.pathname.startsWith(path);
   };

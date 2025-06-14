@@ -47,7 +47,8 @@ const MainNav = ({
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200/50 backdrop-blur-lg backdrop-filter bg-white/80">
       <div className="container flex h-16 items-center justify-between py-4">
-        <div className="flex items-center">
+        {/* Mobile: Only logo and company name in center */}
+        <div className="flex items-center md:justify-start justify-center w-full md:w-auto">
           <Link to={isAuthenticated ? "/dashboard" : "/"} className="flex items-center group">
             <div className="h-8 w-8 mr-3 relative">
               <Shield className="absolute inset-0 text-pastel-600 h-full w-full group-hover:text-pastel-700 transition-colors" />
@@ -56,9 +57,12 @@ const MainNav = ({
               Monitize<span className="text-pastel-600">.club</span>
             </span>
           </Link>
-          
+        </div>
+        
+        {/* Desktop navigation */}
+        <div className="hidden md:flex items-center">
           {!isAuthenticated && (
-            <NavigationMenu className="hidden md:flex items-center ml-10">
+            <NavigationMenu className="flex items-center ml-10">
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <Link to="/" className="text-gray-700 hover:text-pastel-700 transition-colors px-4 py-2 font-medium">
@@ -91,7 +95,8 @@ const MainNav = ({
           )}
         </div>
         
-        <div className="flex items-center space-x-3">
+        {/* Desktop user actions */}
+        <div className="hidden md:flex items-center space-x-3">
           {isAuthenticated && user ? <>
               <NotificationDropdown />
               
