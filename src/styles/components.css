@@ -1,56 +1,228 @@
 
 /* App button */
 .app-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+  @apply rounded-xl shadow-neumorphic transition-all duration-300 transform hover:scale-105;
+}
+
+.light .app-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white;
+}
+
+.dark .app-button {
+  @apply bg-gradient-to-r from-neon-blue to-neon-purple hover:from-neon-purple hover:to-neon-magenta text-white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.dark .app-button:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 30px rgba(139, 92, 246, 0.5);
 }
 
 /* Neumorphic style for standard inputs */
 .input-neumorphic {
-  @apply bg-cream-50 border border-cream-200 rounded-xl shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30 outline-none transition-all duration-300;
+  @apply rounded-xl outline-none transition-all duration-300;
+}
+
+.light .input-neumorphic {
+  @apply bg-cream-50 border border-cream-200 shadow-neumorphic focus:ring-2 focus:ring-pastel-300/30;
+}
+
+.dark .input-neumorphic {
+  @apply glass-input text-white placeholder:text-gray-400;
 }
 
 /* Auth form improvements */
 .auth-form-input {
-  @apply bg-cream-50/70 border border-cream-200 rounded-xl focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 outline-none text-gray-800 transition-all duration-300;
+  @apply rounded-xl outline-none transition-all duration-300;
+}
+
+.light .auth-form-input {
+  @apply bg-cream-50/70 border border-cream-200 focus:ring-2 focus:ring-pastel-300/30 focus:border-pastel-200 text-gray-800;
+}
+
+.dark .auth-form-input {
+  @apply glass-input text-white placeholder:text-gray-400;
 }
 
 .auth-form-button {
-  @apply bg-pastel-500 hover:bg-pastel-600 text-white rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+  @apply rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
+}
+
+.light .auth-form-button {
+  @apply bg-pastel-500 hover:bg-pastel-600 text-white;
+}
+
+.dark .auth-form-button {
+  @apply app-button;
 }
 
 /* Top-up component styling */
 .top-up-component {
-  @apply bg-cream-50/70 border border-cream-300/50 rounded-2xl shadow-neumorphic transition-all duration-300 hover:shadow-lg;
+  @apply rounded-2xl transition-all duration-300 hover:shadow-lg;
+}
+
+.light .top-up-component {
+  @apply bg-cream-50/70 border border-cream-300/50 shadow-neumorphic;
+}
+
+.dark .top-up-component {
+  @apply glass-card;
 }
 
 /* High contrast text styles for better visibility */
 .text-high-contrast {
+  @apply transition-colors duration-300;
+}
+
+.light .text-high-contrast {
   @apply text-gray-800;
 }
 
+.dark .text-high-contrast {
+  @apply text-white;
+}
+
 .text-medium-contrast {
+  @apply transition-colors duration-300;
+}
+
+.light .text-medium-contrast {
   @apply text-gray-700;
 }
 
+.dark .text-medium-contrast {
+  @apply text-gray-200;
+}
+
 .text-low-contrast {
+  @apply transition-colors duration-300;
+}
+
+.light .text-low-contrast {
   @apply text-gray-600;
+}
+
+.dark .text-low-contrast {
+  @apply text-gray-400;
 }
 
 /* Dashboard card improvements */
 .dashboard-card {
-  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+  @apply rounded-2xl transition-all duration-500 hover:shadow-lg transform hover:scale-[1.01];
+}
+
+.light .dashboard-card {
+  @apply bg-cream-50/80 border border-cream-300/50 shadow-neumorphic;
+}
+
+.dark .dashboard-card {
+  @apply glass-card;
 }
 
 /* Marketplace content text */
 .marketplace-content-text {
+  @apply transition-colors duration-300;
+}
+
+.light .marketplace-content-text {
   @apply text-gray-800;
+}
+
+.dark .marketplace-content-text {
+  @apply text-white;
 }
 
 /* Profile page text improvements */
 .profile-text {
+  @apply transition-colors duration-300;
+}
+
+.light .profile-text {
   @apply text-gray-800;
 }
 
+.dark .profile-text {
+  @apply text-white;
+}
+
 .profile-subtext {
+  @apply transition-colors duration-300;
+}
+
+.light .profile-subtext {
   @apply text-gray-600;
+}
+
+.dark .profile-subtext {
+  @apply text-gray-300;
+}
+
+/* Navigation styles */
+.nav-glass {
+  @apply backdrop-blur-xl transition-all duration-300;
+}
+
+.light .nav-glass {
+  @apply bg-white/80 border-b border-cream-200/50;
+}
+
+.dark .nav-glass {
+  @apply bg-black/20 border-b border-white/10;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Modal and dialog styles */
+.modal-glass {
+  @apply backdrop-blur-xl transition-all duration-300;
+}
+
+.light .modal-glass {
+  @apply bg-white/90 border border-cream-200/50;
+}
+
+.dark .modal-glass {
+  @apply bg-black/40 border border-white/20;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Table styles */
+.table-glass {
+  @apply transition-all duration-300;
+}
+
+.light .table-glass {
+  @apply bg-white/70;
+}
+
+.dark .table-glass {
+  @apply bg-white/5 backdrop-blur-md;
+}
+
+.dark .table-glass tr:hover {
+  @apply bg-white/10;
+}
+
+/* Hover glow effects for interactive elements */
+.dark .hover-glow:hover {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Loading spinner dark theme */
+.dark .loading-spinner {
+  border-color: rgba(139, 92, 246, 0.2);
+  border-top-color: #8B5CF6;
+}
+
+/* Badge glassmorphism */
+.badge-glass {
+  @apply backdrop-blur-md transition-all duration-300;
+}
+
+.light .badge-glass {
+  @apply bg-white/60 border border-white/40;
+}
+
+.dark .badge-glass {
+  @apply bg-white/10 border border-white/20;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }

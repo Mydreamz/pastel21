@@ -6,19 +6,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-pastel-600 text-white hover:bg-pastel-700 shadow-sm hover:shadow-md",
+        default: "shadow-sm hover:shadow-md transform hover:scale-105 light:bg-pastel-600 light:text-white light:hover:bg-pastel-700 dark:bg-gradient-to-r dark:from-neon-blue dark:to-neon-purple dark:text-white dark:hover:from-neon-purple dark:hover:to-neon-magenta dark:shadow-neon-glow dark:hover:shadow-neon-glow-hover",
         destructive:
-          "bg-red-500 text-white hover:bg-red-600 shadow-sm hover:shadow-md",
+          "bg-red-500 text-white hover:bg-red-600 shadow-sm hover:shadow-md transform hover:scale-105 dark:shadow-neon-glow",
         outline:
-          "border border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 text-gray-700 shadow-sm hover:shadow-md",
+          "glass-button hover-glow transform hover:scale-105 light:border-gray-300 light:bg-white light:hover:bg-gray-50 light:text-gray-700 dark:border-white/20 dark:text-white dark:hover:bg-white/20",
         secondary:
-          "bg-gray-100 text-gray-900 hover:bg-gray-200 shadow-sm hover:shadow-md",
-        ghost: "hover:bg-gray-100 hover:text-gray-900",
-        link: "text-pastel-600 underline-offset-4 hover:underline hover:text-pastel-700",
+          "glass-button hover-glow transform hover:scale-105 light:bg-gray-100 light:text-gray-900 light:hover:bg-gray-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20",
+        ghost: "glass-button hover-glow light:hover:bg-gray-100 light:hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white dark:text-gray-300",
+        link: "underline-offset-4 hover:underline transition-colors light:text-pastel-600 light:hover:text-pastel-700 dark:text-neon-blue dark:hover:text-neon-purple neon-glow",
       },
       size: {
         default: "h-10 px-4 py-2",
