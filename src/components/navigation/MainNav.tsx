@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { LogIn, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 interface MainNavProps {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -35,8 +34,6 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
           </div>
           
           <div className="flex items-center gap-3">
-            <ThemeToggle />
-            
             {user ? (
               <div className="flex items-center gap-3">
                 <Button 

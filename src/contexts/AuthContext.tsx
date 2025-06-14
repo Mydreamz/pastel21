@@ -9,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
+  signOut: () => Promise<void>; // Add signOut method
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,7 +17,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   refresh: async () => {},
-  logout: async () => {}
+  logout: async () => {},
+  signOut: async () => {} // Add signOut to default context
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -46,6 +48,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await supabase.auth.signOut();
     } catch (error) {
       console.error("Error logging out:", error);
+    }
+  };
+
+  // Add signOut method (same as logout)
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
   };
 
@@ -98,7 +109,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isLoading,
     refresh,
-    logout
+    logout,
+    signOut // Include signOut in the context value
   };
 
   return (

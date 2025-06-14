@@ -1,7 +1,7 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light';
 
 type ThemeContextType = {
   theme: Theme;
@@ -10,46 +10,31 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
   setTheme: () => {},
 });
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Check localStorage first, then system preference, default to dark
-    const stored = localStorage.getItem('theme') as Theme;
-    if (stored && (stored === 'light' || stored === 'dark')) {
-      return stored;
-    }
-    
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      return 'light';
-    }
-    
-    return 'dark'; // Default to dark theme for premium feel
-  });
+  const [theme] = useState<Theme>('light'); // Always light theme
 
   useEffect(() => {
     const root = document.documentElement;
     
-    // Remove all theme classes
+    // Remove all theme classes and ensure light theme
     root.classList.remove('light', 'dark');
+    root.classList.add('light');
     
-    // Add current theme class
-    root.classList.add(theme);
-    
-    // Save to localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    // Remove dark theme from localStorage
+    localStorage.removeItem('theme');
+  }, []);
 
   const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
+    // Do nothing - no theme switching
   };
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+  const setTheme = () => {
+    // Do nothing - always light theme
   };
 
   return (
