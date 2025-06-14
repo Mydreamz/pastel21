@@ -9,36 +9,49 @@ import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import { BackToTop } from '@/components/ui/back-to-top';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardContent from '@/components/dashboard/DashboardContent';
-import { useDashboardData } from '@/hooks/dashboard/useDashboardData';
+import { useOptimizedDashboardData } from '@/hooks/dashboard/useOptimizedDashboardData';
 import { useDashboardNavigation } from '@/hooks/dashboard/useDashboardNavigation';
+import { useOptimizedSearch } from '@/hooks/dashboard/useOptimizedSearch';
 
 const Dashboard = () => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const isMobile = useIsMobile();
 
-  // Use custom hooks for data and navigation
+  // Performance timing
+  console.time('[Dashboard] Render Time');
+
+  // Use optimized hooks
   const {
     loading,
     publishedContents,
     purchasedContents,
     marketplaceContents
-  } = useDashboardData();
+  } = useOptimizedDashboardData();
 
   const {
     activeTab,
     activeFilters,
-    searchQuery,
     setActiveFilters,
-    setSearchQuery,
     handleTabChange,
     handleCreateContent
   } = useDashboardNavigation();
+
+  const {
+    searchQuery,
+    debouncedQuery,
+    setSearchQuery
+  } = useOptimizedSearch();
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
     setShowAuthDialog(true);
   };
+
+  // Log performance
+  React.useEffect(() => {
+    console.timeEnd('[Dashboard] Render Time');
+  });
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden">
@@ -59,13 +72,12 @@ const Dashboard = () => {
             marketplaceContents={marketplaceContents}
             loading={loading}
             activeFilters={activeFilters}
-            searchQuery={searchQuery}
+            searchQuery={debouncedQuery} // Use debounced query for filtering
             setActiveFilters={setActiveFilters}
             setSearchQuery={setSearchQuery}
           />
         </div>
 
-        {/* Remove floating create button on mobile as it's now in navigation */}
         {!isMobile && (
           <Button
             onClick={handleCreateContent}

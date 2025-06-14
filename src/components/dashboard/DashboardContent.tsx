@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import DashboardSearch from './DashboardSearch';
-import DashboardTabs from './DashboardTabs';
+import OptimizedDashboardTabs from './OptimizedDashboardTabs';
 
 interface DashboardContentProps {
   activeTab: string;
@@ -38,7 +38,7 @@ const DashboardContent = ({
           onSearchChange={(e) => setSearchQuery(e.target.value)}
         />
         
-        <DashboardTabs 
+        <OptimizedDashboardTabs 
           activeTab={activeTab}
           setActiveTab={handleTabChange}
           publishedContents={publishedContents}

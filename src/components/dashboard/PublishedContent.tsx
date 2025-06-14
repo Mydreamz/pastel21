@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { FileText } from 'lucide-react';
@@ -21,6 +21,27 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
 }) => {
   const navigate = useNavigate();
   const { handleDeleteContent } = useProfileData();
+  
+  // Memoize filtered contents to avoid unnecessary re-filtering
+  const filteredContents = useMemo(() => {
+    if (!contents) return [];
+    
+    return contents.filter(content => {
+      const isPaid = parseFloat(content.price) > 0;
+      const matchesSearch = searchQuery ? 
+        (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+         content.teaser?.toLowerCase().includes(searchQuery.toLowerCase())) 
+        : true;
+      
+      if (filters.length === 0) return matchesSearch;
+      
+      const matchesPriceFilter = 
+        (filters.includes('Free') && !isPaid) ||
+        (filters.includes('Paid') && isPaid);
+        
+      return matchesPriceFilter && matchesSearch;
+    });
+  }, [contents, filters, searchQuery]);
   
   if (loading) {
     return (
@@ -46,22 +67,6 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
     );
   }
   
-  const filteredContents = contents.filter(content => {
-    const isPaid = parseFloat(content.price) > 0;
-    const matchesSearch = searchQuery ? 
-      (content.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-       content.teaser?.toLowerCase().includes(searchQuery.toLowerCase())) 
-      : true;
-    
-    if (filters.length === 0) return matchesSearch;
-    
-    const matchesPriceFilter = 
-      (filters.includes('Free') && !isPaid) ||
-      (filters.includes('Paid') && isPaid);
-      
-    return matchesPriceFilter && matchesSearch;
-  });
-  
   if (filteredContents.length === 0) {
     return (
       <div className="text-center py-8">
@@ -84,4 +89,4 @@ const PublishedContent: React.FC<PublishedContentProps> = ({
   );
 };
 
-export default PublishedContent;
+export default React.memo(PublishedContent);

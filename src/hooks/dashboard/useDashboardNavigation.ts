@@ -1,42 +1,23 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useDashboardNavigation = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Get initial tab from URL or default to 'my-content'
-  const getInitialTab = () => {
-    const searchParams = new URLSearchParams(location.search);
-    return searchParams.get('tab') || 'my-content';
-  };
-  
-  const [activeTab, setActiveTab] = useState<string>(getInitialTab());
+  // Use pure React state instead of URL-based navigation
+  const [activeTab, setActiveTab] = useState<string>('my-content');
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Update tab when URL changes
-  useEffect(() => {
-    const currentTab = getInitialTab();
-    if (currentTab !== activeTab) {
-      setActiveTab(currentTab);
-    }
-  }, [location.search, activeTab]);
-
-  // Update URL when tab changes and handle mobile navigation
+  // Optimized tab change handler - no URL updates
   const handleTabChange = useCallback((tabValue: string) => {
     setActiveTab(tabValue);
-    
-    // Update URL with tab parameter
-    const searchParams = new URLSearchParams(location.search);
-    searchParams.set('tab', tabValue);
-    navigate(`/dashboard?${searchParams.toString()}`, { replace: true });
-  }, [navigate, location.search]);
+  }, []);
 
-  const handleCreateContent = () => {
+  const handleCreateContent = useCallback(() => {
     navigate('/create');
-  };
+  }, [navigate]);
 
   return {
     activeTab,
