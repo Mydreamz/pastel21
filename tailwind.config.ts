@@ -58,7 +58,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Premium Dark Theme Colors
+				// Premium Light Theme Colors
 				cream: {
 					DEFAULT: '#F8F0E5',
 					50: '#FEFCF9',
@@ -88,7 +88,7 @@ export default {
 					900: '#4C1D95',
 					950: '#2E1065',
 				},
-				// Enhanced gray scale for dark theme
+				// Enhanced gray scale
 				gray: {
 					50: '#FAFAFA',
 					100: '#F4F4F5',

@@ -34,15 +34,6 @@
   transform: translateY(-1px);
 }
 
-.dark .btn-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark .btn-glass:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 /* Input Styles */
 .input-glass {
   background: rgba(255, 255, 255, 0.1);
@@ -61,15 +52,6 @@
   outline: none;
 }
 
-.dark .input-glass {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark .input-glass:focus {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 /* Card Styles */
 .card-premium {
   background: rgba(255, 255, 255, 0.1);
@@ -85,22 +67,11 @@
   box-shadow: 0 20px 40px rgba(139, 92, 246, 0.15);
 }
 
-.dark .card-premium {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-}
-
 /* Navigation Styles */
 .nav-glass {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .nav-glass {
-  background: rgba(0, 0, 0, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Content Area Styles */
@@ -109,10 +80,6 @@
   backdrop-filter: blur(10px);
   border-radius: 1rem;
   padding: 2rem;
-}
-
-.dark .content-area {
-  background: rgba(255, 255, 255, 0.02);
 }
 
 /* Mobile File Upload Styles */
