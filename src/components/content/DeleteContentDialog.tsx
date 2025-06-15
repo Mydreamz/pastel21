@@ -34,7 +34,7 @@ const DeleteContentDialog = ({
             Delete Content
           </AlertDialogTitle>
           <AlertDialogDescription className="text-gray-300">
-            Are you sure you want to delete "{contentTitle}"? This action cannot be undone.
+            Are you sure you want to delete "{contentTitle}"? The content will be archived and will no longer be visible. Associated transaction records will be preserved.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -45,7 +45,7 @@ const DeleteContentDialog = ({
             onClick={onConfirm}
             className="bg-red-500 hover:bg-red-600 text-white"
           >
-            Delete Permanently
+            Yes, Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

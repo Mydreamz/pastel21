@@ -50,51 +50,26 @@ const ContentActions = ({
 
   const handleDelete = async () => {
     try {
-      // First, check if there are any transactions related to this content
-      const { data: transactionData, error: transactionError } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('content_id', contentId)
-        .limit(1);
+      // Always soft-delete content by marking it as deleted.
+      // This preserves all associated records, like transactions.
+      const { error } = await supabase
+        .from('contents')
+        .update({ is_deleted: true })
+        .eq('id', contentId);
       
-      if (transactionError) {
-        console.error('Error checking for transactions:', transactionError);
-      }
+      if (error) throw error;
       
-      // If there are transactions, mark content as deleted instead of actually deleting it
-      if (transactionData && transactionData.length > 0) {
-        const { error } = await supabase
-          .from('contents')
-          .update({ is_deleted: true })
-          .eq('id', contentId);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Content archived",
-          description: "Your content has been archived as it has associated transactions"
-        });
-      } else {
-        // If no transactions exist, we can safely delete the content
-        const { error } = await supabase
-          .from('contents')
-          .delete()
-          .eq('id', contentId);
-        
-        if (error) throw error;
-        
-        toast({
-          title: "Content deleted",
-          description: "Your content has been permanently deleted"
-        });
-      }
+      toast({
+        title: "Content archived",
+        description: "Your content has been archived and will no longer be visible."
+      });
       
       navigate('/profile');
     } catch (error: any) {
-      console.error('Error deleting content:', error);
+      console.error('Error archiving content:', error);
       toast({
         title: "Error",
-        description: "Failed to delete content. Please try again.",
+        description: "Failed to archive content. Please try again.",
         variant: "destructive"
       });
     }
