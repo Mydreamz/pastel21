@@ -105,7 +105,8 @@ const AuthDialog = ({
         options: {
           data: {
             name: values.name
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard`
         }
       });
       

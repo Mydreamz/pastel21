@@ -20,6 +20,8 @@ import StarsBackground from '@/components/StarsBackground';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailed from '@/pages/PaymentFailed';
 import ContentSuccess from '@/pages/ContentSuccess';
+import AdminDashboard from '@/pages/AdminDashboard';
+import AdminRoute from '@/components/admin/AdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,14 @@ function App() {
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                   <Route path="/payment-failed" element={<PaymentFailed />} />
                   <Route path="/success" element={<ContentSuccess />} />
+                  <Route
+                    path="/admin/dashboard"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />

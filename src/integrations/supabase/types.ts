@@ -363,6 +363,24 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       withdrawal_details: {
         Row: {
           account_holder_name: string | null
@@ -539,12 +557,24 @@ export type Database = {
         Args: { user_id_param: string; content_id_param: string }
         Returns: boolean
       }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       reencrypt_column: {
         Args: { table_name: string; column_name: string }
         Returns: undefined
       }
     }
     Enums: {
+      app_role: "admin" | "user"
       payment_status_enum:
         | "pending"
         | "processing"
@@ -666,6 +696,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "user"],
       payment_status_enum: [
         "pending",
         "processing",

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowLeft, Download, Shield } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PlatformFee {
   id: string;
@@ -28,21 +28,11 @@ const AdminDashboard = () => {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { logout } = useAuth();
 
-  // Authentication check
   useEffect(() => {
-    const isAdmin = sessionStorage.getItem('adminAuthenticated') === 'true';
-    if (!isAdmin) {
-      toast({
-        title: "Authentication required",
-        description: "You must be logged in as an admin to view this page",
-        variant: "destructive"
-      });
-      navigate('/admin');
-    } else {
-      fetchPlatformFees();
-    }
-  }, [navigate]);
+    fetchPlatformFees();
+  }, []);
 
   const fetchPlatformFees = async () => {
     try {
@@ -77,13 +67,9 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('adminAuthenticated');
-    toast({
-      title: "Logged out",
-      description: "You have been logged out of the admin dashboard"
-    });
-    navigate('/admin');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   const formatDate = (dateString: string) => {

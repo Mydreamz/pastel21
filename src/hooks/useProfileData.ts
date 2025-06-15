@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -190,7 +189,7 @@ export const useProfileData = () => {
       await supabase.auth.signOut();
       
       // Clear any auth-related data from localStorage
-      localStorage.removeItem('auth');
+      // localStorage.removeItem('auth');
       
       toast({
         title: "Logged out successfully"

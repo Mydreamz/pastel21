@@ -7,6 +7,7 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
+  isAdmin: boolean;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
   signOut: () => Promise<void>; // Add signOut method
@@ -16,6 +17,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
+  isAdmin: false,
   refresh: async () => {},
   logout: async () => {},
   signOut: async () => {} // Add signOut to default context
@@ -27,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const isInitialized = useRef(false);
 
   // Function to refresh auth state manually if needed
@@ -69,17 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(newSession);
         setUser(newSession?.user || null);
         
-        // Store auth data in localStorage for persistence
-        if (newSession) {
-          const authData = {
-            isAuthenticated: true,
-            token: newSession.access_token,
-            user: newSession.user,
-          };
-          localStorage.setItem('auth', JSON.stringify(authData));
-        } else {
-          localStorage.removeItem('auth');
-        }
+        // REMOVED insecure storage of auth data in localStorage
       }
     );
     
@@ -104,10 +97,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase.rpc('is_admin');
+          if (error) {
+            console.error('Error checking admin status:', error);
+            setIsAdmin(false);
+          } else {
+            setIsAdmin(data);
+          }
+        } catch (e) {
+          console.error('Exception checking admin status', e);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    if (!isLoading) {
+      checkAdminStatus();
+    }
+  }, [user, isLoading]);
+
   const value = {
     session,
     user,
     isLoading,
+    isAdmin,
     refresh,
     logout,
     signOut // Include signOut in the context value
