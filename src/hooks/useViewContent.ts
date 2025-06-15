@@ -35,6 +35,15 @@ export const useViewContent = (id: string | undefined) => {
     isProcessing
   } = useContentUnlock(setIsUnlocked);
 
+  const refreshAccessStatus = useCallback(async () => {
+    if (content && user) {
+      console.log('[useViewContent] Refreshing access status...');
+      const hasAccess = await checkContentAccess(content, user.id);
+      setIsUnlocked(hasAccess);
+      console.log(`[useViewContent] Access status refreshed. Has access: ${hasAccess}`);
+    }
+  }, [content, user, checkContentAccess]);
+
   // Reset state when ID changes
   useEffect(() => {
     if (id !== undefined) {
@@ -49,16 +58,20 @@ export const useViewContent = (id: string | undefined) => {
     if (!id) return;
     
     const loadContentAndCheckPermissions = async () => {
-      const loadedContent = await handleContentLoad(id, user?.id);
+      // Pass content to avoid stale closures in the function
+      const loadedContent = content || (await handleContentLoad(id, user?.id));
       
       if (loadedContent && user) {
         const hasAccess = await checkContentAccess(loadedContent, user.id);
         setIsUnlocked(hasAccess);
+      } else if (!user && content && parseFloat(content.price) > 0) {
+        // Lock content if user logs out
+        setIsUnlocked(false);
       }
     };
     
     loadContentAndCheckPermissions();
-  }, [id, user, handleContentLoad, checkContentAccess]);
+  }, [id, user, handleContentLoad, checkContentAccess, content]);
 
   // Main unlock handler function
   const handleUnlock = useCallback(async () => {
@@ -82,6 +95,7 @@ export const useViewContent = (id: string | undefined) => {
     isUnlocked,
     handleUnlock,
     isAuthenticated: !!session,
-    isProcessing
+    isProcessing,
+    refreshAccessStatus
   };
 };

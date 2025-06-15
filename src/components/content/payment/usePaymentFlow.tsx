@@ -10,7 +10,8 @@ export const usePaymentFlow = (
   isCreator: boolean,
   isPurchased: boolean,
   refreshPermissions: () => void,
-  onUnlock: () => void
+  onUnlock: () => void,
+  onPurchaseSuccess: () => void
 ) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -30,10 +31,9 @@ export const usePaymentFlow = (
       content.price,
       content.title,
       () => {
-        console.log('[usePaymentFlow] Payment successful, calling onUnlock');
+        console.log('[usePaymentFlow] Payment successful, calling onPurchaseSuccess');
         setIsAlreadyPurchased(true);
-        refreshPermissions();
-        onUnlock();
+        onPurchaseSuccess();
       },
       refreshPermissions
     ) : { processPayment: async () => {}, isProcessing: false };

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import LockedContent from '../LockedContent';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +11,7 @@ interface PaymentFlowProps {
   isCreator: boolean;
   isPurchased: boolean;
   refreshPermissions: () => void;
+  onPurchaseSuccess: () => void;
 }
 
 const PaymentFlow: React.FC<PaymentFlowProps> = ({ 
@@ -17,7 +19,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
   onUnlock, 
   isCreator, 
   isPurchased,
-  refreshPermissions
+  refreshPermissions,
+  onPurchaseSuccess
 }) => {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
@@ -38,7 +41,8 @@ const PaymentFlow: React.FC<PaymentFlowProps> = ({
     isCreator,
     isPurchased,
     refreshPermissions,
-    onUnlock
+    onUnlock,
+    onPurchaseSuccess
   );
 
   // Handle unlock request including authentication check
