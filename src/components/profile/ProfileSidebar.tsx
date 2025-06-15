@@ -4,15 +4,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Wallet, Calendar, Mail, IndianRupee } from 'lucide-react';
+import { User, Wallet, Calendar, Mail, IndianRupee, RefreshCw } from 'lucide-react';
 
 interface ProfileSidebarProps {
   userData: any;
   balance: number;
   onLogout: () => void;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 }
 
-const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) => {
+const ProfileSidebar = ({ userData, balance, onLogout, onRefresh, isRefreshing }: ProfileSidebarProps) => {
   const userName = userData?.user_metadata?.name || 
                    userData?.email?.split('@')[0] || 
                    'User';
@@ -61,6 +63,15 @@ const ProfileSidebar = ({ userData, balance, onLogout }: ProfileSidebarProps) =>
                 <Wallet className="h-5 w-5 text-pastel-700 mr-2" />
                 <h3 className="font-medium text-gray-800">Wallet Balance</h3>
               </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onRefresh} 
+                disabled={isRefreshing}
+                className="h-7 w-7"
+              >
+                <RefreshCw className={`h-4 w-4 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
             <p className="text-2xl font-bold text-gray-800">
               <span className="flex items-center">

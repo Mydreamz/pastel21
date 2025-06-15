@@ -26,7 +26,7 @@
       "dest": "/$1"
     },
     {
-      "src": "/(create|view/.*|preview/.*|edit/.*|profile|success|search|forgot-password|login|signup|settings|content/.*|categories/.*|tags/.*|user/.*|features|pricing|contact|about|faq|help|dashboard|library|analytics|notifications)",
+      "src": "/(create|view/.*|preview/.*|edit/.*|profile|success|search|forgot-password|login|signup|settings|content/.*|categories/.*|tags/.*|user/.*|features|pricing|contact|about|faq|help|dashboard|library|analytics|notifications|admin)",
       "headers": {
         "cache-control": "public, s-maxage=1, stale-while-revalidate=59"
       },

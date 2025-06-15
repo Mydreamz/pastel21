@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +20,7 @@ const Profile = () => {
     userData, 
     userContents, 
     balance,
+    isLoading,
     fetchUserData, 
     handleLogout, 
     handleEditContent, 
@@ -59,6 +59,8 @@ const Profile = () => {
               userData={userData} 
               balance={balance} 
               onLogout={handleLogout}
+              onRefresh={fetchUserData}
+              isRefreshing={isLoading}
             />
           </div>
           

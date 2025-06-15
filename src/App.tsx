@@ -40,6 +40,7 @@ function App() {
                   <Route path="/edit/:id" element={<EditContent />} />
                   <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/success" element={<ContentSuccess />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />

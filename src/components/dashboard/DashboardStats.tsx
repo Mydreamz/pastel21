@@ -1,15 +1,27 @@
 
 import React from 'react';
 import { IndianRupee, MessageSquare, TrendingUp } from 'lucide-react';
+import { useProfileData } from '@/hooks/profile/useProfileData';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DashboardStats = () => {
+  const { profileData, isLoading } = useProfileData();
+
+  const totalEarnings = profileData?.total_earnings
+    ? parseFloat(profileData.total_earnings)
+    : 0;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
       <div className="glass-card p-4">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-black text-sm mb-1">Total Earnings</p>
-            <p className="text-2xl font-bold text-black">₹12,582</p>
+            {isLoading ? (
+              <Skeleton className="h-8 w-24 mt-1" />
+            ) : (
+              <p className="text-2xl font-bold text-black">₹{totalEarnings.toFixed(2)}</p>
+            )}
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-pastel-600" />
               <p className="text-xs text-pastel-600">+24% from last month</p>
