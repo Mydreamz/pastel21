@@ -1,27 +1,21 @@
 
-import { useEffect, memo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
 import ContentLoader from '@/components/content/ContentLoader';
 import ContentError from '@/components/content/ContentError';
 import ContentActions from '@/components/content/ContentActions';
 import { useViewContent } from '@/hooks/useViewContent';
-import { useContentPermissions } from '@/hooks/useContentPermissions';
 import { useContentSharing } from '@/hooks/useContentSharing';
 import { useRelatedContent } from '@/hooks/useRelatedContent';
-import { useToast } from '@/hooks/use-toast';
-import PaymentFlow from '@/components/content/payment/PaymentFlow';
-import DirectPurchaseButton from '@/components/content/DirectPurchaseButton';
 import ContentViewWrapper from '@/components/content/ContentViewWrapper';
 import RelatedContentList from '@/components/content/RelatedContentList';
+import LockedContent from '@/components/content/LockedContent';
 
-// Main content component with error handling fixes
 const ViewContent = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
+
   const { 
     content, 
     loading, 
@@ -31,61 +25,13 @@ const ViewContent = () => {
     secureFileError,
     handleUnlock,
     isUnlocked,
-    isAuthenticated,
-    isProcessing
+    isProcessing,
+    isCreator,
   } = useViewContent(id);
   
-  const { isCreator, isPurchased, refreshPermissions } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
 
-  console.log(`[ViewContent] Content state:`, { 
-    isLoading: loading,
-    contentLoaded: !!content,
-    isCreator,
-    isPurchased,
-    isUnlocked,
-    hasError: !!error,
-    isProcessingPayment: isProcessing,
-    contentPrice: content?.price
-  });
-
-  // Function to directly handle purchase from the ViewContent component
-  const handlePurchase = async () => {
-    console.log("[ViewContent] Purchase button clicked");
-    
-    if (!isAuthenticated) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to purchase this content",
-        variant: "destructive"
-      });
-      navigate('/');
-      return;
-    }
-    
-    if (isProcessing) {
-      toast({
-        title: "Processing",
-        description: "Your purchase is being processed",
-      });
-      return;
-    }
-    
-    if (content && handleUnlock) {
-      console.log("[ViewContent] Calling handleUnlock function");
-      await handleUnlock();
-    } else {
-      console.error("[ViewContent] Cannot process purchase: content or handleUnlock missing");
-      toast({
-        title: "Error",
-        description: "Unable to process your request. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Initialize share URL only once when content loads
   useEffect(() => {
     if (content) {
       initializeShareUrl();
@@ -96,15 +42,12 @@ const ViewContent = () => {
     return <ContentLoader />;
   }
 
-  // Fixed TypeScript error by ensuring error is always a string
   if (error || !content) {
-    const errorMessage = error || "Content not found";
-    return <ContentError error={errorMessage} />;
+    return <ContentError error={error || "Content not found"} />;
   }
 
-  // Strict access control for paid content
   const isPaidContent = parseFloat(content.price) > 0;
-  const canViewContent = isUnlocked || isCreator || isPurchased || !isPaidContent;
+  const canViewContent = isUnlocked || !isPaidContent;
 
   return (
     <ViewContentContainer>
@@ -127,36 +70,24 @@ const ViewContent = () => {
             isCreator={isCreator}
           />
 
-          {/* Always show payment flow for paid content if not unlocked */}
-          {isPaidContent && !canViewContent && (
-            <PaymentFlow
-              content={content}
-              onUnlock={handleUnlock}
-              isCreator={isCreator}
-              isPurchased={isPurchased}
-              refreshPermissions={refreshPermissions}
-            />
-          )}
-
-          {/* Display direct purchase button if needed */}
-          {isPaidContent && !canViewContent && !isProcessing && (
-            <DirectPurchaseButton 
+          {!canViewContent && isPaidContent ? (
+            <LockedContent 
               price={content.price}
+              onUnlock={handleUnlock}
+              contentTitle={content.title}
               isProcessing={isProcessing}
-              onPurchase={handlePurchase}
+            />
+          ) : (
+            <ContentViewWrapper 
+              content={content}
+              isCreator={isCreator}
+              isPurchased={isUnlocked} // Simplified
+              canViewContent={canViewContent}
+              secureFileUrl={secureFileUrl}
+              secureFileLoading={secureFileLoading}
+              secureFileError={secureFileError}
             />
           )}
-
-          {/* Only show content if unlocked or free */}
-          <ContentViewWrapper 
-            content={content}
-            isCreator={isCreator}
-            isPurchased={isPurchased}
-            canViewContent={canViewContent}
-            secureFileUrl={secureFileUrl}
-            secureFileLoading={secureFileLoading}
-            secureFileError={secureFileError}
-          />
 
           <RelatedContentList relatedContents={relatedContents} />
         </div>
@@ -165,4 +96,4 @@ const ViewContent = () => {
   );
 };
 
-export default memo(ViewContent);
+export default ViewContent;

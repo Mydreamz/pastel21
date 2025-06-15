@@ -2,45 +2,45 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useContentPermissions = (content: any) => {
+  const { user } = useAuth();
   const [isCreator, setIsCreator] = useState(false);
   const [isPurchased, setIsPurchased] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const { toast } = useToast();
 
-  // Function to check if content is purchased by the current user
   const checkPurchaseStatus = async () => {
-    setIsChecking(true);
-    
-    if (!content) {
+    if (!content || !user) {
       setIsChecking(false);
       return;
     }
-
+    
+    setIsChecking(true);
     try {
-      const auth = localStorage.getItem('auth');
-      if (auth) {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          // Check if user is the creator
-          setIsCreator(content.creatorId === parsedAuth.user.id);
-          
-          // Check if the content has been purchased by this user
-          const { data: transactions, error } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('content_id', content.id)
-            .eq('user_id', parsedAuth.user.id)
-            .eq('is_deleted', false)
-            .limit(1);
-            
-          if (error) {
-            console.error("Error checking purchase status:", error);
-          } else {
-            setIsPurchased(transactions && transactions.length > 0);
-          }
-        }
+      const creatorCheck = content.creatorId === user.id;
+      setIsCreator(creatorCheck);
+      
+      if (creatorCheck) {
+        setIsPurchased(true);
+        setIsChecking(false);
+        return;
+      }
+      
+      const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', content.id)
+        .eq('user_id', user.id)
+        .eq('is_deleted', false)
+        .limit(1);
+        
+      if (error) {
+        console.error("Error checking purchase status:", error);
+        toast({ title: "Error", description: "Could not verify purchase status.", variant: "destructive" });
+      } else {
+        setIsPurchased(transactions && transactions.length > 0);
       }
     } catch (e) {
       console.error("Permission checking error:", e);
@@ -49,14 +49,13 @@ export const useContentPermissions = (content: any) => {
     }
   };
 
-  // Function to refresh permissions after actions like purchasing
+  useEffect(() => {
+    checkPurchaseStatus();
+  }, [content, user]);
+  
   const refreshPermissions = () => {
     checkPurchaseStatus();
   };
-
-  useEffect(() => {
-    checkPurchaseStatus();
-  }, [content]);
 
   return { 
     isCreator, 

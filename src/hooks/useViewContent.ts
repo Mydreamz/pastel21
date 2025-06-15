@@ -1,80 +1,80 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Content } from '@/types/content';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
 import { useContentLoading } from './content/useContentLoading';
-import { useContentAccess } from './content/useContentAccess';
-import { useContentUnlock } from './content/useContentUnlock';
+import { useSecureFileUrl } from '@/hooks/useSecureFileUrl';
+import { calculateFees } from '@/utils/paymentUtils';
+import { useContentPermissions } from './useContentPermissions';
 
-/**
- * Main hook for viewing content with permissions handling and unlocking
- */
 export const useViewContent = (id: string | undefined) => {
   const { user, session } = useAuth();
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
   
-  // Use the refactored sub-hooks
-  const { 
-    content, 
-    loading, 
-    error, 
-    handleContentLoad, 
-    resetTrackingState 
-  } = useContentLoading(id);
-  
-  const { 
-    secureFileUrl, 
-    secureFileLoading, 
-    secureFileError,
-    checkContentAccess,
-    resetPermissionsState
-  } = useContentAccess();
-  
+  const { content, loading, error } = useContentLoading(id);
+  const { isCreator, isPurchased, isChecking, refreshPermissions } = useContentPermissions(content);
+
   const {
-    handleUnlock: handleContentUnlock,
-    isProcessing
-  } = useContentUnlock(setIsUnlocked);
+    secureUrl: secureFileUrl,
+    isLoading: secureFileLoading,
+    error: secureFileError,
+    getSecureFileUrl,
+  } = useSecureFileUrl();
 
-  // Reset state when ID changes
+  const isUnlocked = isCreator || isPurchased;
+
   useEffect(() => {
-    if (id !== undefined) {
-      resetTrackingState();
-      resetPermissionsState();
-      setIsUnlocked(false);
+    if (isUnlocked && content?.filePath) {
+      getSecureFileUrl(content.id, content.filePath);
     }
-  }, [id, resetTrackingState, resetPermissionsState]);
+  }, [isUnlocked, content, getSecureFileUrl]);
 
-  // Load content and check permissions
-  useEffect(() => {
-    if (!id) return;
-    
-    const loadContentAndCheckPermissions = async () => {
-      const loadedContent = await handleContentLoad(id, user?.id);
-      
-      if (loadedContent && user) {
-        const hasAccess = await checkContentAccess(loadedContent, user.id);
-        setIsUnlocked(hasAccess);
-      }
-    };
-    
-    loadContentAndCheckPermissions();
-  }, [id, user, handleContentLoad, checkContentAccess]);
-
-  // Main unlock handler function
   const handleUnlock = useCallback(async () => {
-    const userName = user?.user_metadata?.name || user?.email;
-    await handleContentUnlock(
-      content,
-      id,
-      user?.id,
-      userName,
-      content?.creatorId === user?.id
-    );
-  }, [content, id, user, handleContentUnlock]);
+    if (!user || !session) {
+      toast({ title: "Authentication Required", description: "Please sign in to purchase content.", variant: "destructive" });
+      return;
+    }
+    if (!content) {
+      toast({ title: "Error", description: "Content not available for purchase.", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const price = parseFloat(content.price);
+    if (isNaN(price) || price <= 0) {
+      toast({ title: "Error", description: "This content is not for sale.", variant: "destructive" });
+      setIsProcessing(false);
+      return;
+    }
+    
+    const { platformFee, creatorEarnings } = calculateFees(price);
+
+    const { error: transactionError } = await supabase.from('transactions').insert({
+      content_id: content.id,
+      user_id: user.id,
+      creator_id: content.creatorId,
+      amount: price,
+      platform_fee: platformFee,
+      creator_earnings: creatorEarnings,
+    });
+
+    if (transactionError) {
+      console.error('Transaction Error:', transactionError);
+      toast({ title: "Purchase Failed", description: transactionError.message, variant: "destructive" });
+    } else {
+      toast({ title: "Purchase Successful!", description: `You have purchased "${content.title}".` });
+      refreshPermissions();
+    }
+
+    setIsProcessing(false);
+  }, [content, user, session, toast, refreshPermissions]);
 
   return {
     content,
-    loading,
+    loading: loading || isChecking,
     error,
     secureFileUrl,
     secureFileLoading,
@@ -82,6 +82,9 @@ export const useViewContent = (id: string | undefined) => {
     isUnlocked,
     handleUnlock,
     isAuthenticated: !!session,
-    isProcessing
+    isProcessing,
+    isCreator,
+    isPurchased,
+    refreshPermissions
   };
 };

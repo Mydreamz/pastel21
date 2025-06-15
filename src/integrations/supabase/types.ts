@@ -157,78 +157,6 @@ export type Database = {
         }
         Relationships: []
       }
-      encryption_keys: {
-        Row: {
-          created_at: string | null
-          id: string
-          key_name: string
-          key_value: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          key_name: string
-          key_value: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          key_name?: string
-          key_value?: string
-        }
-        Relationships: []
-      }
-      payment_sessions: {
-        Row: {
-          amount: number
-          content_id: string
-          created_at: string
-          creator_id: string
-          expires_at: string
-          gateway_order_id: string | null
-          gateway_response: Json | null
-          gateway_transaction_id: string | null
-          id: string
-          payment_method: string
-          session_id: string
-          status: Database["public"]["Enums"]["payment_status_enum"] | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          content_id: string
-          created_at?: string
-          creator_id: string
-          expires_at?: string
-          gateway_order_id?: string | null
-          gateway_response?: Json | null
-          gateway_transaction_id?: string | null
-          id?: string
-          payment_method?: string
-          session_id: string
-          status?: Database["public"]["Enums"]["payment_status_enum"] | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          content_id?: string
-          created_at?: string
-          creator_id?: string
-          expires_at?: string
-          gateway_order_id?: string | null
-          gateway_response?: Json | null
-          gateway_transaction_id?: string | null
-          id?: string
-          payment_method?: string
-          session_id?: string
-          status?: Database["public"]["Enums"]["payment_status_enum"] | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       platform_fees: {
         Row: {
           amount: string
@@ -252,13 +180,6 @@ export type Database = {
           transaction_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "platform_fees_transaction_id_fkey"
-            columns: ["transaction_id"]
-            isOneToOne: true
-            referencedRelation: "processed_transactions"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "platform_fees_transaction_id_fkey"
             columns: ["transaction_id"]
@@ -313,13 +234,9 @@ export type Database = {
           content_id: string | null
           creator_earnings: string | null
           creator_id: string | null
-          gateway_response: Json | null
-          gateway_transaction_id: string | null
           id: string
           is_deleted: boolean
-          payment_method: string | null
           platform_fee: string | null
-          status: string | null
           timestamp: string
           user_id: string | null
         }
@@ -328,13 +245,9 @@ export type Database = {
           content_id?: string | null
           creator_earnings?: string | null
           creator_id?: string | null
-          gateway_response?: Json | null
-          gateway_transaction_id?: string | null
           id?: string
           is_deleted?: boolean
-          payment_method?: string | null
           platform_fee?: string | null
-          status?: string | null
           timestamp?: string
           user_id?: string | null
         }
@@ -343,13 +256,9 @@ export type Database = {
           content_id?: string | null
           creator_earnings?: string | null
           creator_id?: string | null
-          gateway_response?: Json | null
-          gateway_transaction_id?: string | null
           id?: string
           is_deleted?: boolean
-          payment_method?: string | null
           platform_fee?: string | null
-          status?: string | null
           timestamp?: string
           user_id?: string | null
         }
@@ -362,24 +271,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      user_roles: {
-        Row: {
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
       }
       withdrawal_details: {
         Row: {
@@ -488,63 +379,9 @@ export type Database = {
       }
     }
     Views: {
-      processed_transactions: {
-        Row: {
-          amount: string | null
-          content_id: string | null
-          creator_earnings: string | null
-          creator_id: string | null
-          id: string | null
-          is_deleted: boolean | null
-          platform_fee: string | null
-          status: string | null
-          timestamp: string | null
-          user_id: string | null
-        }
-        Insert: {
-          amount?: string | null
-          content_id?: string | null
-          creator_earnings?: never
-          creator_id?: string | null
-          id?: string | null
-          is_deleted?: boolean | null
-          platform_fee?: never
-          status?: never
-          timestamp?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          amount?: string | null
-          content_id?: string | null
-          creator_earnings?: never
-          creator_id?: string | null
-          id?: string | null
-          is_deleted?: boolean | null
-          platform_fee?: never
-          status?: never
-          timestamp?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "transactions_content_id_fkey"
-            columns: ["content_id"]
-            isOneToOne: false
-            referencedRelation: "contents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      decrypt_data: {
-        Args: { encrypted_data: string }
-        Returns: string
-      }
-      encrypt_data: {
-        Args: { data: string }
-        Returns: string
-      }
       get_pending_withdrawals: {
         Args: { user_id_param: string }
         Returns: number
@@ -557,30 +394,9 @@ export type Database = {
         Args: { user_id_param: string; content_id_param: string }
         Returns: boolean
       }
-      has_role: {
-        Args: {
-          _user_id: string
-          _role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: boolean
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      reencrypt_column: {
-        Args: { table_name: string; column_name: string }
-        Returns: undefined
-      }
     }
     Enums: {
-      app_role: "admin" | "user"
-      payment_status_enum:
-        | "pending"
-        | "processing"
-        | "completed"
-        | "failed"
-        | "cancelled"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -695,15 +511,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      app_role: ["admin", "user"],
-      payment_status_enum: [
-        "pending",
-        "processing",
-        "completed",
-        "failed",
-        "cancelled",
-      ],
-    },
+    Enums: {},
   },
 } as const
