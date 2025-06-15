@@ -11,6 +11,7 @@ import Profile from '@/pages/Profile';
 import CreateContent from '@/pages/CreateContent';
 import ViewContent from '@/pages/ViewContent';
 import EditContent from '@/pages/EditContent';
+import Marketplace from '@/pages/Marketplace';
 import NotFound from '@/pages/NotFound';
 import Footer from '@/components/navigation/Footer';
 import { Toaster } from '@/components/ui/toaster';
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/create" element={<CreateContent />} />
                   <Route path="/view/:id" element={<ViewContent />} />
                   <Route path="/edit/:id" element={<EditContent />} />
+                  <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                   <Route path="/payment-failed" element={<PaymentFailed />} />
                   <Route path="/success" element={<ContentSuccess />} />
