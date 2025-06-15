@@ -56,9 +56,9 @@ export const useViewContent = (id: string | undefined) => {
       content_id: content.id,
       user_id: user.id,
       creator_id: content.creatorId,
-      amount: price,
-      platform_fee: platformFee,
-      creator_earnings: creatorEarnings,
+      amount: price.toString(),
+      platform_fee: platformFee.toString(),
+      creator_earnings: creatorEarnings.toString(),
     });
 
     if (transactionError) {

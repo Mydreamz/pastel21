@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,13 +11,9 @@ import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
-import EarningsSummary from '@/components/profile/EarningsSummary';
-import { reconcileUserBalance } from '@/utils/balanceUtils';
-import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
   const { 
@@ -31,29 +28,10 @@ const Profile = () => {
   } = useProfileData();
 
   useEffect(() => {
-    // Force refresh user data when the profile page loads
     if (isAuthenticated && userData) {
-      console.log("Profile page mounted, refreshing user data including balance");
-      
-      // First reconcile the user's balance to ensure it's accurate
-      if (userData.id) {
-        reconcileUserBalance(userData.id).then(result => {
-          if (result.success) {
-            console.log("Balance reconciliation successful:", result);
-            // Now fetch the updated data to refresh the UI
-            fetchUserData();
-          } else {
-            console.error("Balance reconciliation failed:", result.error);
-            toast({
-              title: "Balance update issue",
-              description: "We encountered an issue updating your balance. Try refreshing the page.",
-              variant: "destructive"
-            });
-          }
-        });
-      }
+      fetchUserData();
     }
-  }, [isAuthenticated, userData, fetchUserData, toast]);
+  }, [isAuthenticated, userData, fetchUserData]);
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
@@ -85,12 +63,6 @@ const Profile = () => {
           </div>
           
           <div className="lg:col-span-2">
-            <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800 mb-6">
-              <CardContent className="pt-6">
-                <EarningsSummary userId={userData.id} />
-              </CardContent>
-            </Card>
-            
             <Card className="glass-card shadow-neumorphic border-pastel-200/50 text-gray-800">
               <CardHeader>
                 <CardTitle className="text-gray-800">Your Dashboard</CardTitle>

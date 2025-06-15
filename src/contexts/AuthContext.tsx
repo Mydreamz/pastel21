@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -7,20 +6,18 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  isAdmin: boolean;
   refresh: () => Promise<void>;
   logout: () => Promise<void>;
-  signOut: () => Promise<void>; // Add signOut method
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
-  isAdmin: false,
   refresh: async () => {},
   logout: async () => {},
-  signOut: async () => {} // Add signOut to default context
+  signOut: async () => {}
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -29,7 +26,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const isInitialized = useRef(false);
 
   // Function to refresh auth state manually if needed
@@ -97,39 +93,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (user) {
-        try {
-          const { data, error } = await supabase.rpc('is_admin');
-          if (error) {
-            console.error('Error checking admin status:', error);
-            setIsAdmin(false);
-          } else {
-            setIsAdmin(data);
-          }
-        } catch (e) {
-          console.error('Exception checking admin status', e);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-    };
-
-    if (!isLoading) {
-      checkAdminStatus();
-    }
-  }, [user, isLoading]);
-
   const value = {
     session,
     user,
     isLoading,
-    isAdmin,
     refresh,
     logout,
-    signOut // Include signOut in the context value
+    signOut
   };
 
   return (

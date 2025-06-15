@@ -5,7 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfileFetch } from './useProfileFetch';
 import { useProfileActions } from './useProfileActions';
-import { useProfileBalance } from './useProfileBalance';
 import { ProfileData } from '@/types/profile';
 
 /**
@@ -21,7 +20,6 @@ export const useProfileData = () => {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [fetchedData, setFetchedData] = useState(false);
   
-  // Use refs to track request state
   const hasFetchedRef = useRef(false);
 
   const { fetchUserProfileData, fetchUserContents } = useProfileFetch(
@@ -35,8 +33,6 @@ export const useProfileData = () => {
     toast, 
     setUserContents
   );
-  
-  const { refreshBalance } = useProfileBalance(user, session, toast);
 
   const fetchUserData = useCallback(async () => {
     if (!user) return;
@@ -46,10 +42,7 @@ export const useProfileData = () => {
     setIsLoadingData(true);
     
     try {
-      // Fetch profile data
       await fetchUserProfileData(user, session);
-      
-      // Fetch user contents
       await fetchUserContents(userId);
       
       setFetchedData(true);
@@ -65,7 +58,6 @@ export const useProfileData = () => {
     if (!isLoading && user && session && !hasFetchedRef.current) {
       fetchUserData();
     } else if (!isLoading && !session) {
-      // Only redirect if we've checked auth status and user is not logged in
       toast({
         title: "Authentication required",
         description: "Please sign in to access this page",
@@ -75,7 +67,6 @@ export const useProfileData = () => {
     }
   }, [user, session, isLoading, fetchUserData, navigate, toast]);
 
-  // Log the current balance value to help with debugging
   useEffect(() => {
     console.log("Current balance in useProfileData hook:", balance);
   }, [balance]);
@@ -93,6 +84,5 @@ export const useProfileData = () => {
     updateProfile,
     fetchedData,
     fetchUserData,
-    refreshBalance
   };
 };
