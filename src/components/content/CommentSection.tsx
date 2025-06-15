@@ -164,7 +164,9 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
               <p>No comments yet. Be the first to comment!</p>
             </div>
           ) : (
-            comments.map(comment => (
+            comments.map(comment => {
+              const containsHtml = /<[a-z][\s\S]*>/i.test(comment.text);
+              return (
               <div key={comment.id} className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
@@ -179,9 +181,19 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-200 pl-10" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.text) }} />
+                <div className="text-gray-200 pl-10">
+                  {containsHtml ? (
+                    <div 
+                      className="prose prose-sm prose-invert max-w-none prose-p:my-0"
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.text) }}
+                    />
+                  ) : (
+                    <p className="whitespace-pre-wrap">{comment.text}</p>
+                  )}
+                </div>
               </div>
-            ))
+              )
+            })
           )}
         </div>
       </CardContent>
