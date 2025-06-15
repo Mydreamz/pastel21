@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,7 +12,7 @@ export const useViewContent = (id: string | undefined) => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const { content, loading, error } = useContentLoading(id);
+  const { content, loading, error, handleContentLoad, resetTrackingState } = useContentLoading(id);
   const { isCreator, isPurchased, isChecking, refreshPermissions } = useContentPermissions(content);
 
   const {
@@ -24,6 +23,13 @@ export const useViewContent = (id: string | undefined) => {
   } = useSecureFileUrl();
 
   const isUnlocked = isCreator || isPurchased;
+
+  useEffect(() => {
+    if (id) {
+      resetTrackingState();
+      handleContentLoad(id, user?.id);
+    }
+  }, [id, user?.id, handleContentLoad, resetTrackingState]);
 
   useEffect(() => {
     if (isUnlocked && content?.filePath) {
