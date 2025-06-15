@@ -22,7 +22,7 @@ const ContentFormActions = ({
   secondaryText = "Cancel",
   onPrimaryAction,
   onSecondaryAction,
-  navigateTo
+  navigateTo = "/dashboard"
 }: ContentFormActionsProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -30,7 +30,7 @@ const ContentFormActions = ({
   const handleSecondaryClick = () => {
     if (onSecondaryAction) {
       onSecondaryAction();
-    } else if (navigateTo) {
+    } else {
       navigate(navigateTo);
     }
   };

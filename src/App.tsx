@@ -18,6 +18,7 @@ import { BackToTop } from '@/components/ui/back-to-top';
 import StarsBackground from '@/components/StarsBackground';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailed from '@/pages/PaymentFailed';
+import ContentSuccess from '@/pages/ContentSuccess';
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ function App() {
                   <Route path="/edit/:id" element={<EditContent />} />
                   <Route path="/payment-success" element={<PaymentSuccess />} />
                   <Route path="/payment-failed" element={<PaymentFailed />} />
+                  <Route path="/success" element={<ContentSuccess />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />

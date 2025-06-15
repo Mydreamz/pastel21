@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form } from "@/components/ui/form";
 import { ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import StarsBackground from '@/components/StarsBackground';
 import { useContentForm } from '@/hooks/useContentForm';
@@ -65,12 +64,12 @@ const CreateContent = () => {
         <div className="text-gray-800 text-center max-w-md p-8 glass-card shadow-neumorphic border-pastel-200/50">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold mb-4">Authentication Required</h2>
-          <p className="mb-6">You need to be signed in to create content. You'll be redirected to the home page.</p>
+          <p className="mb-6">You need to be signed in to create content. You'll be redirected to the dashboard.</p>
           <Button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="bg-pastel-500 hover:bg-pastel-600 text-white"
           >
-            Go to Home Page
+            Go to Dashboard
           </Button>
         </div>
       </div>
@@ -83,9 +82,9 @@ const CreateContent = () => {
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-3 sm:px-6 py-3 sm:py-6">
-        <button onClick={() => navigate('/')} className="mb-3 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
+        <button onClick={() => navigate('/dashboard')} className="mb-3 flex items-center text-gray-700 hover:text-pastel-700 transition-colors">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
+          Back to Dashboard
         </button>
         
         <div className={`grid ${isMobile ? 'grid-cols-1' : 'md:grid-cols-[2fr,1fr]'} gap-4`}>

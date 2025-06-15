@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,7 +43,7 @@ export const useContentForm = () => {
           description: "Please sign in to create content",
           variant: "destructive"
         });
-        navigate('/');
+        navigate('/dashboard');
         return;
       }
 
@@ -122,17 +121,22 @@ export const useContentForm = () => {
         title: values.scheduledFor ? "Content scheduled" : "Content created",
         description: values.scheduledFor
           ? `Your content will be published on ${new Date(values.scheduledFor).toLocaleDateString()} at ${values.scheduledTime}`
-          : "Your content has been published"
+          : "Your content has been published successfully"
       });
 
       setIsUploading(false);
-      navigate('/success', { state: { content: data } });
+      
+      // Navigate to dashboard instead of success page to keep users in the dashboard
+      setTimeout(() => {
+        navigate('/dashboard?tab=my-content', { replace: true });
+      }, 1000);
+      
     } catch (error: any) {
       setIsUploading(false);
       console.error("Error saving content:", error);
       toast({
         title: "Error creating content",
-        description: error.message || "There was a problem saving your content",
+        description: error.message || "There was a problem saving your content. Please try again.",
         variant: "destructive"
       });
     }
