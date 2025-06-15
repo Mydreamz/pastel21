@@ -1,14 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare, User } from 'lucide-react';
+import { MessageSquare, ThumbsUp, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import DOMPurify from 'dompurify';
 
 type Comment = {
   id: string;
@@ -39,9 +37,25 @@ const supabaseToComment = (row: any): Comment => ({
 const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
   const { toast } = useToast();
   const { addNotification } = useNotifications();
-  const { user, session } = useAuth();
+
+  useEffect(() => {
+    const auth = localStorage.getItem('auth');
+    if (auth) {
+      try {
+        const parsedAuth = JSON.parse(auth);
+        if (parsedAuth && parsedAuth.user) {
+          setIsAuthenticated(true);
+          setUserData(parsedAuth.user);
+        }
+      } catch (e) {
+        console.error("Auth parsing error", e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -63,7 +77,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   }, [contentId]);
 
   const handleSubmitComment = async () => {
-    if (!session || !user) {
+    if (!isAuthenticated) {
       toast({
         title: "Authentication required",
         description: "Please sign in to leave a comment",
@@ -80,12 +94,10 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       return;
     }
 
-    const userName = user.user_metadata?.name || user.email;
-
     const commentData = {
       content_id: contentId,
-      user_id: user.id,
-      user_name: userName,
+      user_id: userData.id,
+      user_name: userData.name,
       text: newComment.trim(),
       created_at: new Date().toISOString()
     };
@@ -97,10 +109,10 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       setComments(prev => [supabaseToComment(inserted), ...prev]);
       setNewComment('');
 
-      if (user.id !== creatorId) {
+      if (userData.id !== creatorId) {
         addNotification({
           title: 'New Comment',
-          message: `${userName} commented on your content`,
+          message: `${userData.name} commented on your content`,
           type: 'interaction',
           link: `/view/${contentId}`
         });
@@ -127,7 +139,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!!session ? (
+        {isAuthenticated ? (
           <div className="space-y-3">
             <Textarea 
               placeholder="Leave a comment..." 
@@ -148,11 +160,10 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
           <div className="text-center py-3 bg-white/5 rounded-md">
             <p className="text-gray-300 mb-2">Sign in to leave a comment</p>
             <Button 
-              asChild
               variant="outline" 
               className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
             >
-              <Link to="/">Sign In</Link>
+              Sign In
             </Button>
           </div>
         )}
@@ -164,9 +175,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
               <p>No comments yet. Be the first to comment!</p>
             </div>
           ) : (
-            comments.map(comment => {
-              const containsHtml = /<[a-z][\s\S]*>/i.test(comment.text);
-              return (
+            comments.map(comment => (
               <div key={comment.id} className="p-4 bg-white/5 border border-white/10 rounded-lg space-y-2">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
@@ -181,19 +190,9 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
                     </div>
                   </div>
                 </div>
-                <div className="text-gray-200 pl-10">
-                  {containsHtml ? (
-                    <div 
-                      className="prose prose-sm prose-invert max-w-none prose-p:my-0"
-                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.text) }}
-                    />
-                  ) : (
-                    <p className="whitespace-pre-wrap">{comment.text}</p>
-                  )}
-                </div>
+                <p className="text-gray-200 pl-10">{comment.text}</p>
               </div>
-              )
-            })
+            ))
           )}
         </div>
       </CardContent>

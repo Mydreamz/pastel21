@@ -1,4 +1,5 @@
-import { useEffect, memo, useCallback } from 'react';
+
+import { useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewContentContainer from '@/components/content/ViewContentContainer';
 import ViewContentHeader from '@/components/content/ViewContentHeader';
@@ -31,31 +32,23 @@ const ViewContent = () => {
     handleUnlock,
     isUnlocked,
     isAuthenticated,
-    isProcessing,
-    refreshAccessStatus
+    isProcessing
   } = useViewContent(id);
   
   const { isCreator, isPurchased, refreshPermissions } = useContentPermissions(content);
   const { shareUrl, handleShare, initializeShareUrl } = useContentSharing(id || '', content?.price || '0');
   const relatedContents = useRelatedContent(content, id || '');
 
-  console.log(`[ViewContent] Render State:`, { 
+  console.log(`[ViewContent] Content state:`, { 
     isLoading: loading,
     contentLoaded: !!content,
-    isCreator, isPurchased, isUnlocked,
+    isCreator,
+    isPurchased,
+    isUnlocked,
+    hasError: !!error,
     isProcessingPayment: isProcessing,
+    contentPrice: content?.price
   });
-
-  const handlePurchaseSuccess = useCallback(() => {
-    console.log('[ViewContent] Purchase successful. Refreshing all permissions.');
-    // Using setTimeout to allow DB transaction to settle before re-checking
-    setTimeout(() => {
-      refreshPermissions();
-      if (refreshAccessStatus) {
-        refreshAccessStatus();
-      }
-    }, 500); // 500ms delay
-  }, [refreshPermissions, refreshAccessStatus]);
 
   // Function to directly handle purchase from the ViewContent component
   const handlePurchase = async () => {
@@ -111,7 +104,7 @@ const ViewContent = () => {
 
   // Strict access control for paid content
   const isPaidContent = parseFloat(content.price) > 0;
-  const canViewContent = isUnlocked;
+  const canViewContent = isUnlocked || isCreator || isPurchased || !isPaidContent;
 
   return (
     <ViewContentContainer>
@@ -142,7 +135,6 @@ const ViewContent = () => {
               isCreator={isCreator}
               isPurchased={isPurchased}
               refreshPermissions={refreshPermissions}
-              onPurchaseSuccess={handlePurchaseSuccess}
             />
           )}
 
