@@ -45,7 +45,7 @@ const EditContentForm = ({
     try {
       setIsSaving(true);
       
-      let fileUrl, fileName, fileType, fileSize, filePath;
+      let filePath, fileName, fileType, fileSize;
       
       // Handle file upload if a new file is selected
       if (['image', 'video', 'audio', 'document'].includes(selectedContentType) && selectedFile) {
@@ -78,7 +78,6 @@ const EditContentForm = ({
           await deleteFileFromStorage(originalFilePath);
         }
         
-        fileUrl = uploadResult.url;
         filePath = uploadResult.path;
         fileName = selectedFile.name;
         fileType = selectedFile.type;
@@ -98,8 +97,8 @@ const EditContentForm = ({
       };
       
       // Only update file info if a new file was uploaded
-      if (fileUrl) {
-        payload.file_url = fileUrl;
+      if (filePath) {
+        payload.file_url = null; // We no longer use public file URLs
         payload.file_name = fileName;
         payload.file_type = fileType;
         payload.file_size = fileSize;
