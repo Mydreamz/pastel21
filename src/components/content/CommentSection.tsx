@@ -8,6 +8,7 @@ import { MessageSquare, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import DOMPurify from 'dompurify';
 
 type Comment = {
   id: string;
@@ -178,7 +179,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-200 pl-10">{comment.text}</p>
+                <p className="text-gray-200 pl-10" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment.text) }} />
               </div>
             ))
           )}
