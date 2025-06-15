@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -49,7 +48,7 @@ export const useContentForm = () => {
       }
 
       // Handle file upload if needed
-      let fileUrl, fileName, fileType, fileSize, filePath;
+      let fileName, fileType, fileSize, filePath;
       if (['image', 'video', 'audio', 'document'].includes(selectedContentType)) {
         if (!selectedFile) {
           toast({
@@ -74,7 +73,6 @@ export const useContentForm = () => {
           return;
         }
         
-        fileUrl = uploadResult.url;
         filePath = uploadResult.path;
         fileName = selectedFile.name;
         fileType = selectedFile.type;
@@ -94,13 +92,13 @@ export const useContentForm = () => {
         price: values.price,
         content: (selectedContentType === 'text' || selectedContentType === 'link') ? values.content : '',
         content_type: selectedContentType,
-        creator_id: userId,
+        creator_id: user.id,
         creator_name: userName,
         expiry: values.expiry || null,
         scheduled_for: values.scheduledFor ? (typeof values.scheduledFor === 'string' ? values.scheduledFor : values.scheduledFor.toISOString()) : null,
         scheduled_time: values.scheduledTime || null,
         status: values.scheduledFor ? 'scheduled' : 'published',
-        file_url: fileUrl,
+        file_url: null, // We no longer use public file URLs
         file_name: fileName,
         file_type: fileType,
         file_size: fileSize,
