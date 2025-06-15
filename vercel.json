@@ -1,15 +1,6 @@
 
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "vite.config.ts",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
   "rewrites": [
     {
       "source": "/:path((?!api/|assets/|favicon.ico|robots.txt|sitemap.xml|monitizelogo.jpg|placeholder.svg|lovable-uploads/.*).*)",
