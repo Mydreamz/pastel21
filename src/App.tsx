@@ -19,6 +19,9 @@ import { BackToTop } from '@/components/ui/back-to-top';
 import StarsBackground from '@/components/StarsBackground';
 import ContentSuccess from '@/pages/ContentSuccess';
 import AdminDashboard from '@/pages/AdminDashboard';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import Search from '@/pages/Search';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +44,9 @@ function App() {
                   <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/success" element={<ContentSuccess />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/search" element={<Search />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />
