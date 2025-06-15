@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import StarsBackground from '@/components/StarsBackground';
@@ -14,14 +14,12 @@ import AuthDialog from '@/components/auth/AuthDialog';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import { useContentCache } from '@/contexts/ContentCacheContext';
-import { useToast } from '@/hooks/use-toast';
 
 // Number of contents to load per page
 const PAGE_SIZE = 12;
 
 const Marketplace = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [filters, setFilters] = React.useState<string[]>([]);
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [loading, setLoading] = React.useState(true);
@@ -30,7 +28,6 @@ const Marketplace = () => {
   const [page, setPage] = useState(0);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  const [error, setError] = useState<string | null>(null);
   const { user, session } = useAuth();
   const { purchasedContentIds } = useContentCache();
   const isAuthenticated = !!session;
@@ -39,24 +36,16 @@ const Marketplace = () => {
   const fetchMarketplaceContents = useCallback(async (pageNumber: number) => {
     try {
       setLoading(true);
-      setError(null);
-      
-      console.log('Fetching marketplace contents, page:', pageNumber);
       
       // Query for marketplace contents with pagination
       const { data, error } = await supabase
         .from('contents')
-        .select('id, title, teaser, price, content_type, creator_id, creator_name, status, file_url, created_at')
+        .select('id, title, teaser, price, content_type, creator_id, creator_name, status, file_url')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .range(pageNumber * PAGE_SIZE, (pageNumber + 1) * PAGE_SIZE - 1);
         
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-      
-      console.log('Fetched contents:', data?.length || 0);
+      if (error) throw error;
       
       if (pageNumber === 0) {
         // First page, replace contents
@@ -68,22 +57,15 @@ const Marketplace = () => {
       
       // If we got fewer items than requested, we've reached the end
       setHasMore(data && data.length === PAGE_SIZE);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching marketplace contents:', error);
-      setError(error.message || 'Failed to load marketplace content');
-      toast({
-        title: "Error loading marketplace",
-        description: "There was a problem loading the marketplace content. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   // Fetch initial data
   useEffect(() => {
-    console.log('Marketplace component mounted, fetching data...');
     fetchMarketplaceContents(0);
   }, [fetchMarketplaceContents]);
   
@@ -106,13 +88,6 @@ const Marketplace = () => {
     } else {
       navigate('/');
     }
-  };
-
-  // Retry function for error state
-  const handleRetry = () => {
-    setError(null);
-    setPage(0);
-    fetchMarketplaceContents(0);
   };
 
   return (
@@ -145,48 +120,35 @@ const Marketplace = () => {
           )}
         </div>
         
-        {error ? (
-          <Card className="glass-card border-red-200/50 text-gray-800 mb-8">
-            <CardContent className="p-8 text-center">
-              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Error Loading Marketplace</h3>
-              <p className="text-gray-600 mb-4">{error}</p>
-              <Button onClick={handleRetry} className="bg-pastel-500 hover:bg-pastel-600">
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="glass-card border-white/10 text-gray-800 mb-8">
-            <CardContent className="p-0">
-              <DashboardSearch 
-                onFilter={setFilters}
+        <Card className="glass-card border-white/10 text-gray-800 mb-8">
+          <CardContent className="p-0">
+            <DashboardSearch 
+              onFilter={setFilters}
+              searchQuery={searchQuery}
+              onSearchChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="p-4">
+              <MarketplaceContent 
+                contents={contents}
+                loading={loading}
+                filters={filters}
                 searchQuery={searchQuery}
-                onSearchChange={(e) => setSearchQuery(e.target.value)}
               />
-              <div className="p-4">
-                <MarketplaceContent 
-                  contents={contents}
-                  loading={loading}
-                  filters={filters}
-                  searchQuery={searchQuery}
-                />
-                
-                {hasMore && !loading && !error && (
-                  <div className="flex justify-center mt-6">
-                    <Button 
-                      onClick={loadMore} 
-                      variant="outline"
-                      className="border-pastel-300 text-pastel-700 hover:bg-pastel-50"
-                    >
-                      Load More
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              
+              {hasMore && !loading && (
+                <div className="flex justify-center mt-6">
+                  <Button 
+                    onClick={loadMore} 
+                    variant="outline"
+                    className="border-pastel-300 text-pastel-700 hover:bg-pastel-50"
+                  >
+                    Load More
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </main>
       
       <MobileBottomNav openAuthDialog={openAuthDialog} />

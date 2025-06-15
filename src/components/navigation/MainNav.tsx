@@ -1,10 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, User, Menu } from 'lucide-react';
+import { LogIn, UserPlus, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface MainNavProps {
   openAuthDialog: (tab: 'login' | 'signup') => void;
@@ -13,7 +12,6 @@ interface MainNavProps {
 const MainNav = ({ openAuthDialog }: MainNavProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     try {
@@ -35,41 +33,30 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
             Monitize
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/dashboard')}
-                  className="glass-button text-sm px-3 py-2"
-                  size={isMobile ? "sm" : "default"}
+                  className="glass-button"
                 >
-                  {isMobile ? "Dashboard" : "Dashboard"}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate('/marketplace')}
-                  className="glass-button text-sm px-3 py-2"
-                  size={isMobile ? "sm" : "default"}
-                >
-                  {isMobile ? "Market" : "Marketplace"}
+                  Dashboard
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={() => navigate('/profile')}
-                  className="glass-button text-sm px-3 py-2"
-                  size={isMobile ? "sm" : "default"}
+                  className="glass-button"
                 >
-                  <User className="h-4 w-4" />
-                  {!isMobile && <span className="ml-2">Profile</span>}
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
                 </Button>
                 <Button 
                   variant="ghost" 
                   onClick={handleSignOut}
-                  className="glass-button text-sm px-3 py-2"
-                  size={isMobile ? "sm" : "default"}
+                  className="glass-button"
                 >
-                  {isMobile ? "Out" : "Sign Out"}
+                  Sign Out
                 </Button>
               </div>
             ) : (
@@ -78,18 +65,18 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
                   variant="ghost" 
                   size="sm" 
                   onClick={() => openAuthDialog('login')}
-                  className="glass-button text-sm px-3 py-2"
+                  className="glass-button"
                 >
-                  <LogIn className="h-4 w-4" />
-                  {!isMobile && <span className="ml-2">Sign In</span>}
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={() => openAuthDialog('signup')}
-                  className="btn-primary text-sm px-3 py-2"
+                  className="btn-primary"
                 >
-                  <UserPlus className="h-4 w-4" />
-                  {!isMobile && <span className="ml-2">Sign Up</span>}
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Sign Up
                 </Button>
               </div>
             )}
