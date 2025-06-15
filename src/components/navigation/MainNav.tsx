@@ -29,7 +29,7 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
             className="flex items-center cursor-pointer"
             onClick={() => navigate('/')}
           >
-            <img src="/lovable-uploads/f6ce36cc-aa0d-4b56-ba23-cf5c76121d00.png" alt="Monitize Logo" className="h-8 w-8 mr-2" />
+            <img src="/lovable-uploads/7b55e5bb-a598-4313-9550-445d7b069261.png" alt="Monitize Logo" className="h-8 w-8 mr-2" />
             <span className="text-2xl font-mooxy font-bold text-gradient">
               Monitize
             </span>
