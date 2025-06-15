@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { TransactionResult } from '@/types/transaction';
+import { TransactionResult, EarningsSummary } from '@/types/transaction';
 import { PaytmPaymentService } from './PaytmPaymentService';
 
 export class PaymentService {
@@ -122,6 +122,52 @@ export class PaymentService {
     } catch (error) {
       console.error('[PaymentService] Exception checking purchase:', error);
       return false;
+    }
+  }
+
+  /**
+   * Get creator earnings summary
+   */
+  static async getCreatorEarningsSummary(creatorId: string): Promise<EarningsSummary> {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('creator_earnings, status')
+        .eq('creator_id', creatorId)
+        .eq('is_deleted', false);
+
+      if (error) {
+        console.error('[PaymentService] Error fetching earnings:', error);
+        throw new Error('Failed to fetch earnings data');
+      }
+
+      const completedTransactions = data?.filter(t => t.status === 'completed') || [];
+      const totalEarnings = completedTransactions.reduce((sum, t) => sum + parseFloat(t.creator_earnings || '0'), 0);
+
+      // For now, we'll assume all earnings are available (no pending withdrawals logic yet)
+      return {
+        total_earnings: totalEarnings,
+        pending_withdrawals: 0,
+        available_balance: totalEarnings,
+        total_transactions: completedTransactions.length
+      };
+    } catch (error: any) {
+      console.error('[PaymentService] Error in getCreatorEarningsSummary:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reconcile user earnings (placeholder for now)
+   */
+  static async reconcileUserEarnings(userId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      // This would implement earnings reconciliation logic
+      console.log('[PaymentService] Reconciling earnings for user:', userId);
+      return { success: true };
+    } catch (error: any) {
+      console.error('[PaymentService] Error reconciling earnings:', error);
+      return { success: false, error: error.message };
     }
   }
 

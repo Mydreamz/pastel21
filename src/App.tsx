@@ -1,19 +1,20 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ContentCacheProvider } from '@/contexts/ContentCacheContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import Home from '@/pages/Home';
+import Home from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import Profile from '@/pages/Profile';
 import CreateContent from '@/pages/CreateContent';
 import ViewContent from '@/pages/ViewContent';
 import EditContent from '@/pages/EditContent';
 import NotFound from '@/pages/NotFound';
-import Footer from '@/components/Footer';
-import Toaster from '@/components/ui/toaster';
-import BackToTop from '@/components/BackToTop';
+import Footer from '@/components/navigation/Footer';
+import { Toaster } from '@/components/ui/toaster';
+import { BackToTop } from '@/components/ui/back-to-top';
 import StarsBackground from '@/components/StarsBackground';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentFailed from '@/pages/PaymentFailed';
