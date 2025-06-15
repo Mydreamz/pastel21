@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ContentFormActions from '@/components/content/ContentFormActions';
+import { Form } from "@/components/ui/form";
 
 const CreateContent = () => {
   const [showScheduler, setShowScheduler] = useState(false);
