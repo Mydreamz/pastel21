@@ -1,12 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare, ThumbsUp, User } from 'lucide-react';
+import { MessageSquare, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Comment = {
   id: string;
@@ -37,25 +38,9 @@ const supabaseToComment = (row: any): Comment => ({
 const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const { toast } = useToast();
   const { addNotification } = useNotifications();
-
-  useEffect(() => {
-    const auth = localStorage.getItem('auth');
-    if (auth) {
-      try {
-        const parsedAuth = JSON.parse(auth);
-        if (parsedAuth && parsedAuth.user) {
-          setIsAuthenticated(true);
-          setUserData(parsedAuth.user);
-        }
-      } catch (e) {
-        console.error("Auth parsing error", e);
-      }
-    }
-  }, []);
+  const { user, session } = useAuth();
 
   useEffect(() => {
     const loadComments = async () => {
@@ -77,7 +62,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
   }, [contentId]);
 
   const handleSubmitComment = async () => {
-    if (!isAuthenticated) {
+    if (!session || !user) {
       toast({
         title: "Authentication required",
         description: "Please sign in to leave a comment",
@@ -94,10 +79,12 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       return;
     }
 
+    const userName = user.user_metadata?.name || user.email;
+
     const commentData = {
       content_id: contentId,
-      user_id: userData.id,
-      user_name: userData.name,
+      user_id: user.id,
+      user_name: userName,
       text: newComment.trim(),
       created_at: new Date().toISOString()
     };
@@ -109,10 +96,10 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
       setComments(prev => [supabaseToComment(inserted), ...prev]);
       setNewComment('');
 
-      if (userData.id !== creatorId) {
+      if (user.id !== creatorId) {
         addNotification({
           title: 'New Comment',
-          message: `${userData.name} commented on your content`,
+          message: `${userName} commented on your content`,
           type: 'interaction',
           link: `/view/${contentId}`
         });
@@ -139,7 +126,7 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isAuthenticated ? (
+        {!!session ? (
           <div className="space-y-3">
             <Textarea 
               placeholder="Leave a comment..." 
@@ -160,10 +147,11 @@ const CommentSection = ({ contentId, creatorId }: CommentSectionProps) => {
           <div className="text-center py-3 bg-white/5 rounded-md">
             <p className="text-gray-300 mb-2">Sign in to leave a comment</p>
             <Button 
+              asChild
               variant="outline" 
               className="border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10"
             >
-              Sign In
+              <Link to="/">Sign In</Link>
             </Button>
           </div>
         )}
