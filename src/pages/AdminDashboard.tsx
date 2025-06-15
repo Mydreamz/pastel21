@@ -12,8 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Download, Shield } from 'lucide-react';
+import { ArrowLeft, Download, Shield, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileCache } from '@/hooks/profile/useProfileCache';
 
 interface PlatformFee {
   id: string;
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { logout } = useAuth();
+  const { clearAllCaches } = useProfileCache();
 
   useEffect(() => {
     fetchPlatformFees();
@@ -104,6 +106,17 @@ const AdminDashboard = () => {
     link.click();
   };
 
+  const handleResetCaches = () => {
+    clearAllCaches();
+    toast({
+      title: "Cache Cleared",
+      description: "Client-side caches cleared. The app will now reload.",
+    });
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pastel-800 to-pastel-900 text-white">
       <div className="container mx-auto py-8 px-4">
@@ -112,7 +125,7 @@ const AdminDashboard = () => {
             <Shield className="h-8 w-8 mr-2 text-pastel-500" />
             <h1 className="text-2xl font-bold">Admin Dashboard</h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button 
               variant="outline" 
               size="sm" 
@@ -121,6 +134,15 @@ const AdminDashboard = () => {
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to App
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetCaches}
+              className="border-yellow-500 text-yellow-300 hover:bg-yellow-500/10 hover:text-yellow-200"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Clear Caches
             </Button>
             <Button 
               variant="destructive" 

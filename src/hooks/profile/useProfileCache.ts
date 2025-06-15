@@ -1,10 +1,10 @@
 
-import { useCallback, useRef } from 'react';
+import { useCallback } from 'react';
 import { ProfileData } from '@/types/profile';
 
 // Global cache and in-flight request tracking
-const globalProfileCache: Record<string, { data: ProfileData | null, timestamp: number }> = {};
-const globalUserContentsCache: Record<string, { data: any[], timestamp: number }> = {};
+let globalProfileCache: Record<string, { data: ProfileData | null, timestamp: number }> = {};
+let globalUserContentsCache: Record<string, { data: any[], timestamp: number }> = {};
 const globalInFlightProfile: Record<string, Promise<ProfileData | null>> = {};
 const globalInFlightContents: Record<string, Promise<any[]>> = {};
 const CACHE_TIME = 5 * 60 * 1000; // 5 minutes
@@ -90,6 +90,16 @@ export const useProfileCache = () => {
       delete globalProfileCache[userId];
       console.log(`Profile cache cleared for user: ${userId}`);
     }
+    if (globalUserContentsCache[userId]) {
+      delete globalUserContentsCache[userId];
+      console.log(`Contents cache cleared for user: ${userId}`);
+    }
+  }, []);
+
+  const clearAllCaches = useCallback(() => {
+    globalProfileCache = {};
+    globalUserContentsCache = {};
+    console.log("All profile and content caches have been cleared.");
   }, []);
 
   return {
@@ -106,5 +116,6 @@ export const useProfileCache = () => {
     clearProfileInFlight,
     clearContentsInFlight,
     clearProfileCacheForUser,
+    clearAllCaches,
   };
 };
