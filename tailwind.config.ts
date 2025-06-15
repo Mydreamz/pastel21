@@ -23,6 +23,7 @@ export default {
 				'sans': ['Inter', 'system-ui', 'sans-serif'],
 				'display': ['Playfair Display', 'serif'],
 				'body': ['Inter', 'system-ui', 'sans-serif'],
+				'mooxy': ['"Mochiy Pop One"', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

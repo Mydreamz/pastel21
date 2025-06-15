@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { LogIn, UserPlus, User, LogOut, LayoutDashboard } from 'lucide-react';
@@ -27,10 +26,13 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div 
-            className="text-xl font-display font-bold text-gradient cursor-pointer"
+            className="flex items-center cursor-pointer"
             onClick={() => navigate('/')}
           >
-            Monitize
+            <img src="/lovable-uploads/f6ce36cc-aa0d-4b56-ba23-cf5c76121d00.png" alt="Monitize Logo" className="h-8 w-8 mr-2" />
+            <span className="text-2xl font-mooxy font-bold text-gradient">
+              Monitize
+            </span>
           </div>
           
           <div className="flex items-center gap-3">
