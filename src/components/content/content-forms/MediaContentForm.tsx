@@ -14,6 +14,8 @@ type MediaContentFormProps = {
 };
 
 const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaContentFormProps) => {
+  const { isSubmitting } = form.formState;
+
   const descriptionLabels = {
     image: 'Image caption/description',
     video: 'Video title/description',
@@ -50,6 +52,7 @@ const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaCo
                         form.setValue("file", file);
                       }
                     }}
+                    isUploading={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />

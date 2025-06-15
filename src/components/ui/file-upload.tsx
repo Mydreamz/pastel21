@@ -3,8 +3,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { getAcceptString, validateFile } from "@/lib/fileUtils";
 import FilePreview from "./file-preview";
-import { Upload, Camera } from "lucide-react";
+import { Upload, Camera, Loader2 } from "lucide-react";
 import { Button } from "./button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type FileUploadProps = {
   accept?: string;
@@ -13,21 +14,26 @@ type FileUploadProps = {
   onChange: (file: File | null) => void;
   className?: string;
   type: 'image' | 'video' | 'audio' | 'document';
+  isUploading?: boolean;
 };
 
 const FileUpload: React.FC<FileUploadProps> = ({
   accept,
-  maxSize = 50,
+  maxSize: maxSizeProp,
   value,
   onChange,
   className,
-  type
+  type,
+  isUploading = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+
+  const maxSize = maxSizeProp ?? (isMobile ? 10 : 50);
   const acceptTypes = accept || getAcceptString(type);
 
   // Reset file input when value is cleared
@@ -52,7 +58,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
       return;
     }
 
-    setIsUploading(true);
+    setIsProcessing(true);
     setError(null);
 
     // Add a small delay to show loading state
@@ -62,12 +68,12 @@ const FileUpload: React.FC<FileUploadProps> = ({
     
     if (!isValid) {
       setError(error);
-      setIsUploading(false);
+      setIsProcessing(false);
       return;
     }
 
     setError(null);
-    setIsUploading(false);
+    setIsProcessing(false);
     onChange(file);
   };
 
@@ -114,6 +120,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 
   // Check if device supports camera
   const supportsCamera = type === 'image' && 'mediaDevices' in navigator;
+  const showLoader = isUploading || isProcessing;
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -124,18 +131,23 @@ const FileUpload: React.FC<FileUploadProps> = ({
           isDragging 
             ? "border-primary bg-primary/5" 
             : "border-border hover:border-primary/50",
-          value ? "bg-card" : "",
+          value && !showLoader ? "bg-card" : "",
           "mobile-upload-area"
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={!value ? handleBrowseClick : undefined}
+        onClick={!value && !showLoader ? handleBrowseClick : undefined}
       >
-        {isUploading ? (
-          <div className="flex flex-col items-center gap-4">
-            <div className="loading-spinner"></div>
-            <p className="text-sm text-muted-foreground">Processing file...</p>
+        {showLoader ? (
+          <div className="flex flex-col items-center gap-4 text-center p-4">
+            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <p className="text-lg font-medium text-muted-foreground">
+              {isUploading ? 'Uploading...' : 'Processing file...'}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please wait, this may take a moment.
+            </p>
           </div>
         ) : !value ? (
           <div className="flex flex-col items-center gap-4 p-6 text-center">
@@ -150,6 +162,8 @@ const FileUpload: React.FC<FileUploadProps> = ({
               {acceptTypes && (
                 <p className="text-xs text-muted-foreground">
                   Supported: {acceptTypes.replace(/\./g, '').replace(/,/g, ', ')}
+                  <br />
+                  Max size: {maxSize}MB
                 </p>
               )}
             </div>
