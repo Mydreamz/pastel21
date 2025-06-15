@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { Lock, Check, IndianRupee, LogIn } from 'lucide-react';
 import AuthDialog from '@/components/auth/AuthDialog';
+import PaymentMethodSelector from './payment/PaymentMethodSelector';
 import { calculateFees, formatCurrency } from '@/utils/paymentUtils';
 import { useToast } from "@/hooks/use-toast";
 
 interface LockedContentProps {
   price: string;
-  onUnlock: () => void;
+  onUnlock: (paymentMethod?: 'internal' | 'paytm') => void;
   contentTitle?: string;
   isProcessing?: boolean;
   isPurchased?: boolean;
@@ -26,6 +27,7 @@ const LockedContent: React.FC<LockedContentProps> = ({
   const { toast } = useToast();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
+  const [showPaymentMethods, setShowPaymentMethods] = useState(false);
   
   // Calculate fees
   const priceNum = parseFloat(price);
@@ -50,12 +52,41 @@ const LockedContent: React.FC<LockedContentProps> = ({
           title: "Already Purchased",
           description: "You've already purchased this content",
         });
+        onUnlock();
+      } else {
+        console.log("[LockedContent] Showing payment method selection");
+        setShowPaymentMethods(true);
       }
-      console.log("[LockedContent] Calling onUnlock function directly");
-      // Ensuring onUnlock is called directly without any additional wrapping
-      onUnlock();
     }
   };
+
+  const handlePaymentMethodSelect = (method: 'internal' | 'paytm') => {
+    console.log("[LockedContent] Payment method selected:", method);
+    setShowPaymentMethods(false);
+    onUnlock(method);
+  };
+
+  if (showPaymentMethods && user && !isPurchased) {
+    return (
+      <div className="p-6 rounded-xl bg-gradient-to-br from-pastel-50/90 to-white/80 backdrop-blur-md border border-pastel-200/30 shadow-neumorphic hover:shadow-lg transition-all duration-300">
+        <PaymentMethodSelector
+          amount={priceNum}
+          onPaymentMethodSelect={handlePaymentMethodSelect}
+          isProcessing={isProcessing}
+        />
+        
+        <div className="mt-4 text-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowPaymentMethods(false)}
+            className="border-pastel-200 hover:bg-pastel-50 text-pastel-700"
+          >
+            Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="p-6 rounded-xl bg-gradient-to-br from-pastel-50/90 to-white/80 backdrop-blur-md border border-pastel-200/30 shadow-neumorphic hover:shadow-lg transition-all duration-300">

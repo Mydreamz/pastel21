@@ -43,22 +43,29 @@ export const usePaymentProcessor = (
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const processPayment = async () => {
+  const processPayment = async (paymentMethod: 'internal' | 'paytm' = 'internal') => {
     if (isProcessing) {
       console.log('[PaymentProcessor] Already processing payment, skipping');
       return;
     }
     
-    console.log('[PaymentProcessor] Starting payment process for:', contentId, userId, price);
+    console.log('[PaymentProcessor] Starting payment process:', {
+      contentId,
+      userId,
+      price,
+      paymentMethod
+    });
+    
     setIsProcessing(true);
     
     try {
-      // Use the simplified transaction processing approach
+      // Use the enhanced PaymentService with payment method support
       const result: TransactionResult = await PaymentService.processPayment(
         contentId,
         userId,
         creatorId,
-        parseFloat(price)
+        parseFloat(price),
+        paymentMethod
       );
 
       console.log('[PaymentProcessor] Payment result:', result);
@@ -78,26 +85,41 @@ export const usePaymentProcessor = (
         }
       } else {
         console.log('[PaymentProcessor] Payment successful');
-        // Refresh the permissions to update the UI
-        refreshPermissions();
-        onSuccess();
         
-        toast({
-          title: "Payment Successful",
-          description: `You've unlocked "${contentTitle}" and it's now in your library`,
-          variant: "default"
-        });
+        // For Paytm payments, the user will be redirected to the payment gateway
+        // The success callback will be handled by the return URL
+        if (paymentMethod === 'paytm') {
+          toast({
+            title: "Redirecting to Payment Gateway",
+            description: "You will be redirected to complete your payment securely.",
+            variant: "default"
+          });
+          // Note: User will be redirected, so we don't call onSuccess here
+        } else {
+          // For internal payments, proceed normally
+          refreshPermissions();
+          onSuccess();
+          
+          toast({
+            title: "Payment Successful",
+            description: `You've unlocked "${contentTitle}" and it's now in your library`,
+            variant: "default"
+          });
+        }
       }
     } catch (error: any) {
       console.error('[PaymentProcessor] Payment error:', error);
-      // Handle payment errors
       toast({
         title: "Payment Failed",
         description: error.message || "Unable to process your payment. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setIsProcessing(false);
+      // Only reset processing state for non-Paytm payments
+      // For Paytm, the user will be redirected
+      if (paymentMethod !== 'paytm') {
+        setIsProcessing(false);
+      }
     }
   };
 

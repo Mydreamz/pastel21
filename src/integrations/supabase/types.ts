@@ -178,6 +178,57 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_sessions: {
+        Row: {
+          amount: number
+          content_id: string
+          created_at: string
+          creator_id: string
+          expires_at: string
+          gateway_order_id: string | null
+          gateway_response: Json | null
+          gateway_transaction_id: string | null
+          id: string
+          payment_method: string
+          session_id: string
+          status: Database["public"]["Enums"]["payment_status_enum"] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          content_id: string
+          created_at?: string
+          creator_id: string
+          expires_at?: string
+          gateway_order_id?: string | null
+          gateway_response?: Json | null
+          gateway_transaction_id?: string | null
+          id?: string
+          payment_method?: string
+          session_id: string
+          status?: Database["public"]["Enums"]["payment_status_enum"] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          content_id?: string
+          created_at?: string
+          creator_id?: string
+          expires_at?: string
+          gateway_order_id?: string | null
+          gateway_response?: Json | null
+          gateway_transaction_id?: string | null
+          id?: string
+          payment_method?: string
+          session_id?: string
+          status?: Database["public"]["Enums"]["payment_status_enum"] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           amount: string
@@ -262,8 +313,11 @@ export type Database = {
           content_id: string | null
           creator_earnings: string | null
           creator_id: string | null
+          gateway_response: Json | null
+          gateway_transaction_id: string | null
           id: string
           is_deleted: boolean
+          payment_method: string | null
           platform_fee: string | null
           status: string | null
           timestamp: string
@@ -274,8 +328,11 @@ export type Database = {
           content_id?: string | null
           creator_earnings?: string | null
           creator_id?: string | null
+          gateway_response?: Json | null
+          gateway_transaction_id?: string | null
           id?: string
           is_deleted?: boolean
+          payment_method?: string | null
           platform_fee?: string | null
           status?: string | null
           timestamp?: string
@@ -286,8 +343,11 @@ export type Database = {
           content_id?: string | null
           creator_earnings?: string | null
           creator_id?: string | null
+          gateway_response?: Json | null
+          gateway_transaction_id?: string | null
           id?: string
           is_deleted?: boolean
+          payment_method?: string | null
           platform_fee?: string | null
           status?: string | null
           timestamp?: string
@@ -485,7 +545,12 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      payment_status_enum:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -600,6 +665,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      payment_status_enum: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+    },
   },
 } as const

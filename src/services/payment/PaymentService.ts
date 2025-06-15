@@ -1,115 +1,160 @@
 
-import { TransactionResult, EarningsSummary } from '@/types/transaction';
-import { TransactionProcessingService } from "./TransactionProcessingService";
-import { CreatorEarningsService } from "./CreatorEarningsService";
-import { EarningsSummaryService } from "./EarningsSummaryService";
+import { supabase } from '@/integrations/supabase/client';
+import { TransactionResult } from '@/types/transaction';
+import { PaytmPaymentService } from './PaytmPaymentService';
 
-/**
- * Main service for handling payment-related operations
- * Acts as a facade for specialized payment services
- */
 export class PaymentService {
-  private static PLATFORM_FEE_PERCENTAGE = 7;
+  /**
+   * Process payment with multiple payment methods
+   */
+  static async processPayment(
+    contentId: string,
+    userId: string,
+    creatorId: string,
+    amount: number,
+    paymentMethod: 'internal' | 'paytm' = 'internal'
+  ): Promise<TransactionResult> {
+    console.log(`[PaymentService] Processing ${paymentMethod} payment:`, {
+      contentId,
+      userId,
+      creatorId,
+      amount,
+      paymentMethod
+    });
+
+    // Check if already purchased first
+    const alreadyPurchased = await this.checkExistingPurchase(contentId, userId);
+    if (alreadyPurchased) {
+      console.log('[PaymentService] Content already purchased');
+      return {
+        success: true,
+        alreadyPurchased: true,
+        message: 'Content already purchased'
+      };
+    }
+
+    // Route to appropriate payment method
+    if (paymentMethod === 'paytm') {
+      return await PaytmPaymentService.initiatePayment({
+        contentId,
+        userId,
+        creatorId,
+        amount
+      });
+    } else {
+      return await this.processInternalPayment(contentId, userId, creatorId, amount);
+    }
+  }
 
   /**
-   * Process a payment, distributing funds between platform and creator
+   * Process internal/direct payment (existing logic)
    */
-  static async processPayment(contentId: string, userId: string, creatorId: string, amount: number): Promise<TransactionResult> {
+  private static async processInternalPayment(
+    contentId: string,
+    userId: string,
+    creatorId: string,
+    amount: number
+  ): Promise<TransactionResult> {
     try {
-      // Validate inputs
-      if (!contentId || !userId || !creatorId || amount <= 0) {
-        return {
-          success: false,
-          error: "Invalid payment parameters"
-        };
-      }
-      
-      console.log(`Processing payment - Content: ${contentId}, User: ${userId}, Creator: ${creatorId}, Amount: ${amount}`);
-      
-      // Process the transaction
-      const transactionResult = await TransactionProcessingService.processPurchaseTransaction(
-        contentId, 
-        userId, 
-        creatorId, 
-        amount, 
-        this.PLATFORM_FEE_PERCENTAGE
-      );
-      
-      // If transaction was successful and not already purchased, update creator earnings
-      if (transactionResult.success && !transactionResult.alreadyPurchased) {
-        try {
-          console.log(`Transaction successful, updating creator earnings for ${creatorId} with amount ${transactionResult.creatorEarnings || 0}`);
-          await CreatorEarningsService.updateCreatorEarnings(creatorId, transactionResult.creatorEarnings || 0);
-          
-          // Also store platform fee for the company account (optional)
-          await this.storePlatformFee(transactionResult.platformFee || 0, transactionResult.transactionId);
-        } catch (earningsError) {
-          console.error("Could not update creator earnings, but transaction was recorded:", earningsError);
-          
-          // Try to reconcile earnings as a fallback
-          try {
-            console.log("Attempting to reconcile earnings for creator:", creatorId);
-            await CreatorEarningsService.reconcileUserEarnings(creatorId);
-          } catch (reconcileError) {
-            console.error("Reconciliation also failed:", reconcileError);
-          }
-        }
+      // Calculate fees
+      const platformFee = amount * 0.07; // 7% platform fee
+      const creatorEarnings = amount - platformFee;
+
+      // Create transaction record
+      const { data: transaction, error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+          content_id: contentId,
+          user_id: userId,
+          creator_id: creatorId,
+          amount: amount.toString(),
+          platform_fee: platformFee.toString(),
+          creator_earnings: creatorEarnings.toString(),
+          payment_method: 'internal',
+          status: 'completed'
+        })
+        .select()
+        .single();
+
+      if (transactionError) {
+        console.error('[PaymentService] Transaction creation failed:', transactionError);
+        throw new Error('Failed to create transaction record');
       }
 
-      return transactionResult;
+      console.log('[PaymentService] Transaction created successfully:', transaction.id);
+
+      return {
+        success: true,
+        message: 'Payment processed successfully',
+        platformFee,
+        creatorEarnings,
+        transactionId: transaction.id
+      };
     } catch (error: any) {
-      console.error("Payment processing error:", error);
+      console.error('[PaymentService] Internal payment error:', error);
       return {
         success: false,
-        error: error.message || "Unknown payment error"
+        error: error.message || 'Payment processing failed'
       };
     }
   }
 
   /**
-   * Get a creator's earnings summary
+   * Check if user has already purchased the content
    */
-  static async getCreatorEarningsSummary(creatorId: string): Promise<EarningsSummary> {
-    return EarningsSummaryService.getCreatorEarningsSummary(creatorId);
-  }
-  
-  /**
-   * Reconcile a user's earnings by recalculating from transaction history
-   */
-  static async reconcileUserEarnings(userId: string) {
-    return CreatorEarningsService.reconcileUserEarnings(userId);
-  }
-  
-  /**
-   * Store platform fee for the company account
-   * This can be expanded to track company earnings separately
-   */
-  private static async storePlatformFee(fee: number, transactionId?: string) {
-    console.log(`Storing platform fee: ${fee} for transaction: ${transactionId || 'unknown'}`);
-    // This is a placeholder for company account tracking logic
-    // You would implement your company account tracking here
-    // For example, you could update a special "company" profile or a separate platform_fees table
-    
+  private static async checkExistingPurchase(contentId: string, userId: string): Promise<boolean> {
     try {
-      // This is where you could implement your company account logic
-      // For example, updating a "company" profile or record
-      // Or storing in a separate platform_fees table
-      
-      // Example of storing fee in a hypothetical platform_fees table:
-      // const { error } = await supabase
-      //   .from('platform_fees')
-      //   .insert({
-      //     transaction_id: transactionId,
-      //     amount: fee.toString(),
-      //     timestamp: new Date().toISOString()
-      //   });
-      
-      // if (error) throw error;
-      
-      // For now, we just log it
-      console.log('Platform fee recorded successfully');
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('id')
+        .eq('content_id', contentId)
+        .eq('user_id', userId)
+        .eq('status', 'completed')
+        .eq('is_deleted', false)
+        .limit(1);
+
+      if (error) {
+        console.error('[PaymentService] Error checking existing purchase:', error);
+        return false;
+      }
+
+      return data && data.length > 0;
     } catch (error) {
-      console.error('Error storing platform fee:', error);
+      console.error('[PaymentService] Exception checking purchase:', error);
+      return false;
     }
+  }
+
+  /**
+   * Verify payment status for any payment method
+   */
+  static async verifyPayment(
+    contentId: string,
+    userId: string,
+    transactionId?: string,
+    paymentMethod?: string
+  ): Promise<boolean> {
+    if (paymentMethod === 'paytm' && transactionId) {
+      return await PaytmPaymentService.verifyContentPurchase(contentId, userId);
+    }
+    
+    return await this.checkExistingPurchase(contentId, userId);
+  }
+
+  /**
+   * Handle payment callback/return from gateway
+   */
+  static async handlePaymentReturn(
+    paymentMethod: string,
+    urlParams: URLSearchParams
+  ): Promise<TransactionResult> {
+    if (paymentMethod === 'paytm') {
+      return await PaytmPaymentService.handlePaymentReturn(urlParams);
+    }
+    
+    return {
+      success: false,
+      error: 'Unknown payment method'
+    };
   }
 }

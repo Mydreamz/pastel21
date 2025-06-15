@@ -67,13 +67,14 @@ export const usePaymentFlow = (
     }
   }, [userId, content?.id, isPurchased, isAlreadyPurchased, hasCheckedPurchase, checkPurchaseStatus]);
   
-  const handleUnlock = async () => {
+  const handleUnlock = async (paymentMethod: 'internal' | 'paytm' = 'internal') => {
     console.log('[usePaymentFlow] handleUnlock called', {
       isProcessing,
       isCreator,
       isAlreadyPurchased,
       isPurchased,
-      contentPrice: content?.price
+      contentPrice: content?.price,
+      paymentMethod
     });
 
     if (isProcessing) {
@@ -109,9 +110,9 @@ export const usePaymentFlow = (
       return;
     }
 
-    // Process the payment
-    console.log('[usePaymentFlow] Processing payment for content:', content.id);
-    await processPayment();
+    // Process the payment with selected method
+    console.log('[usePaymentFlow] Processing payment for content:', content.id, 'Method:', paymentMethod);
+    await processPayment(paymentMethod);
   };
   
   return {

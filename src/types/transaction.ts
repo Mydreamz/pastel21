@@ -9,7 +9,27 @@ export interface Transaction {
   creator_earnings: string; // Changed to string to match Supabase
   timestamp: string;
   status: 'pending' | 'completed' | 'failed';
+  payment_method?: string; // Added payment method
+  gateway_transaction_id?: string; // Added gateway transaction ID
+  gateway_response?: any; // Added gateway response
   is_deleted?: boolean;
+}
+
+export interface PaymentSession {
+  id: string;
+  user_id: string;
+  content_id: string;
+  creator_id: string;
+  amount: number;
+  payment_method: string;
+  session_id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'cancelled';
+  gateway_order_id?: string;
+  gateway_transaction_id?: string;
+  gateway_response?: any;
+  expires_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface EarningsSummary {
@@ -45,6 +65,8 @@ export interface TransactionResult {
   platformFee?: number;
   creatorEarnings?: number;
   transactionId?: string; // Added transactionId field
+  paymentMethod?: string; // Added payment method
+  redirectUrl?: string; // Added redirect URL for gateway payments
 }
 
 // Updated interface for saved user withdrawal details

@@ -1,162 +1,55 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ContentCacheProvider } from '@/contexts/ContentCacheContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import Home from '@/pages/Home';
+import Dashboard from '@/pages/Dashboard';
+import Profile from '@/pages/Profile';
+import CreateContent from '@/pages/CreateContent';
+import ViewContent from '@/pages/ViewContent';
+import EditContent from '@/pages/EditContent';
+import NotFound from '@/pages/NotFound';
+import Footer from '@/components/Footer';
+import Toaster from '@/components/ui/toaster';
+import BackToTop from '@/components/BackToTop';
+import StarsBackground from '@/components/StarsBackground';
+import PaymentSuccess from '@/pages/PaymentSuccess';
+import PaymentFailed from '@/pages/PaymentFailed';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { NotificationProvider } from "@/contexts/NotificationContext";
-import { ThemeProvider } from "@/hooks/useTheme";
-import { useState, useEffect, lazy, Suspense } from "react";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { ContentCacheProvider } from "@/contexts/ContentCacheContext";
-import AdminRoute from "./components/admin/AdminRoute";
+const queryClient = new QueryClient();
 
-// Lazy-loaded components for better performance
-const Index = lazy(() => import("./pages/Index"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const CreateContent = lazy(() => import("./pages/CreateContent"));
-const ViewContent = lazy(() => import("./pages/ViewContent"));
-const EditContent = lazy(() => import("./pages/EditContent"));
-const Profile = lazy(() => import("./pages/Profile"));
-const ContentSuccess = lazy(() => import("./pages/ContentSuccess"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Search = lazy(() => import("./pages/Search"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Marketplace = lazy(() => import("./pages/Marketplace"));
-const AdminLogin = lazy(() => import("./pages/AdminLogin"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-
-// Loading component for suspense fallback
-const Loading = () => <div className="min-h-screen flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
-      <p>Loading...</p>
-    </div>
-  </div>;
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-      staleTime: 60000,
-      // 1 minute
-      // Updated to use gcTime instead of cacheTime
-      gcTime: 300000 // 5 minutes
-    }
-  }
-});
-
-// Protected route component to handle authentication
-interface ProtectedRouteProps {
-  children: JSX.Element;
-}
-const ProtectedRoute = ({
-  children
-}: ProtectedRouteProps) => {
-  const location = useLocation();
-  const {
-    isLoading,
-    session
-  } = useAuth();
-  if (isLoading) {
-    return <Loading />;
-  }
-  if (!session) {
-    // Redirect to home page if not authenticated
-    return <Navigate to="/" state={{
-      from: location
-    }} replace />;
-  }
-  return children;
-};
-
-// Component to handle home page redirection based on auth status
-const HomePageRoute = () => {
-  const {
-    isLoading,
-    session
-  } = useAuth();
-  if (isLoading) {
-    return <Loading />;
-  }
-
-  // Redirect to dashboard if user is logged in, otherwise show the landing page
-  if (session) {
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <Index />;
-};
-const App = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  useEffect(() => {
-    // Handle email confirmation from hash
-    const handleEmailConfirmation = async () => {
-      const hash = window.location.hash;
-      if (hash && hash.includes('access_token')) {
-        setIsInitialized(true); // Will be handled by AuthProvider
-        window.location.hash = '';
-      } else {
-        setIsInitialized(true);
-      }
-    };
-    handleEmailConfirmation();
-  }, []);
-  if (!isInitialized) {
-    return <Loading />;
-  }
-  return <AuthProvider>
-      <ContentCacheProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <ThemeProvider>
-              <NotificationProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ContentCacheProvider>
+          <NotificationProvider>
+            <Router>
+              <div className="min-h-screen bg-background">
+                <StarsBackground />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/create" element={<CreateContent />} />
+                  <Route path="/view/:id" element={<ViewContent />} />
+                  <Route path="/edit/:id" element={<EditContent />} />
+                  <Route path="/payment-success" element={<PaymentSuccess />} />
+                  <Route path="/payment-failed" element={<PaymentFailed />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Footer />
                 <Toaster />
-                <Sonner />
-                <BrowserRouter>
-                  <Suspense fallback={<Loading />}>
-                    <Routes>
-                      <Route path="/" element={<HomePageRoute />} />
-                      <Route path="/dashboard" element={<ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>} />
-                      <Route path="/create" element={<ProtectedRoute>
-                          <CreateContent />
-                        </ProtectedRoute>} />
-                      {/* Make view route public */}
-                      <Route path="/view/:id" element={<ViewContent />} />
-                      <Route path="/edit/:id" element={<ProtectedRoute>
-                          <EditContent />
-                        </ProtectedRoute>} />
-                      <Route path="/profile" element={<ProtectedRoute>
-                          <Profile />
-                        </ProtectedRoute>} />
-                      <Route path="/success" element={<ProtectedRoute>
-                          <ContentSuccess />
-                        </ProtectedRoute>} />
-                      <Route path="/search" element={<ProtectedRoute>
-                          <Search />
-                        </ProtectedRoute>} />
-                      {/* Make marketplace route public */}
-                      <Route path="/marketplace" element={<Marketplace />} />
-                      <Route path="/forgot-password" element={<ForgotPassword />} />
-                      <Route path="/reset-password" element={<ResetPassword />} />
-                      
-                      {/* Admin Routes - keeping these routes but removing UI buttons */}
-                      <Route path="/admin" element={<AdminLogin />} />
-                      <Route path="/admin/dashboard" element={<AdminRoute>
-                          <AdminDashboard />
-                        </AdminRoute>} />
-                      
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Suspense>
-                </BrowserRouter>
-              </NotificationProvider>
-            </ThemeProvider>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </ContentCacheProvider>
-    </AuthProvider>;
-};
+                <BackToTop />
+              </div>
+            </Router>
+          </NotificationProvider>
+        </ContentCacheProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
 export default App;
