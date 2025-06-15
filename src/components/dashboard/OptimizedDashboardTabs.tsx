@@ -1,4 +1,3 @@
-
 import React, { memo, Suspense, lazy } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, DollarSign, Store } from 'lucide-react';
@@ -18,6 +17,7 @@ interface OptimizedDashboardTabsProps {
   loading: boolean;
   filters: string[];
   searchQuery: string;
+  invalidateCache?: () => void;
 }
 
 const TabLoadingSpinner = memo(() => (
@@ -66,7 +66,8 @@ const OptimizedDashboardTabs = memo(({
   marketplaceContents,
   loading,
   filters,
-  searchQuery
+  searchQuery,
+  invalidateCache
 }: OptimizedDashboardTabsProps) => {
   const isMobile = useIsMobile();
   
