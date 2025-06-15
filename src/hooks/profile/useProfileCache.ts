@@ -85,6 +85,13 @@ export const useProfileCache = () => {
     delete globalInFlightContents[userId];
   }, []);
 
+  const clearProfileCacheForUser = useCallback((userId: string) => {
+    if (globalProfileCache[userId]) {
+      delete globalProfileCache[userId];
+      console.log(`Profile cache cleared for user: ${userId}`);
+    }
+  }, []);
+
   return {
     shouldRefreshProfileCache,
     shouldRefreshContentsCache,
@@ -97,6 +104,7 @@ export const useProfileCache = () => {
     getProfileInFlight,
     getContentsInFlight,
     clearProfileInFlight,
-    clearContentsInFlight
+    clearContentsInFlight,
+    clearProfileCacheForUser,
   };
 };

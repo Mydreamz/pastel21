@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -6,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfileFetch } from './useProfileFetch';
 import { useProfileActions } from './useProfileActions';
 import { ProfileData } from '@/types/profile';
+import { CreatorEarningsService } from '@/services/payment/CreatorEarningsService';
+import { useProfileCache } from './useProfileCache';
 
 /**
  * Main hook for profile data and functionality
@@ -21,6 +22,7 @@ export const useProfileData = () => {
   const [fetchedData, setFetchedData] = useState(false);
   
   const hasFetchedRef = useRef(false);
+  const { clearProfileCacheForUser } = useProfileCache();
 
   const { fetchUserProfileData, fetchUserContents } = useProfileFetch(
     setProfileData, 
@@ -42,6 +44,12 @@ export const useProfileData = () => {
     setIsLoadingData(true);
     
     try {
+      console.log(`Reconciling earnings for user ${userId}`);
+      await CreatorEarningsService.reconcileUserEarnings(userId);
+
+      // Clear the local cache to force a fresh fetch
+      clearProfileCacheForUser(userId);
+
       await fetchUserProfileData(user, session);
       await fetchUserContents(userId);
       
@@ -52,7 +60,7 @@ export const useProfileData = () => {
     } finally {
       setIsLoadingData(false);
     }
-  }, [user, session, fetchUserProfileData, fetchUserContents]);
+  }, [user, session, fetchUserProfileData, fetchUserContents, clearProfileCacheForUser]);
 
   useEffect(() => {
     if (!isLoading && user && session && !hasFetchedRef.current) {

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -122,7 +121,6 @@ export class CreatorEarningsService {
         .from('transactions')
         .select('creator_earnings')
         .eq('creator_id', userId)
-        .eq('status', 'completed')
         .eq('is_deleted', false);
         
       if (txError) {
