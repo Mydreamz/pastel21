@@ -1,3 +1,4 @@
+
 {
   "version": 2,
   "builds": [
@@ -5,80 +6,40 @@
       "src": "vite.config.ts",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "optimizeFonts": true,
-        "optimizeCss": true,
-        "optimizeImages": true
+        "distDir": "dist"
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    { 
-      "src": "/(.*\\.(js|css|jpg|jpeg|png|gif|svg|ico|json|webp|woff|woff2|ttf|otf)$)",
-      "headers": { 
-        "cache-control": "public, max-age=31536000, immutable" 
-      },
-      "dest": "/$1"
-    },
-    {
-      "src": "/(create|view/.*|edit/.*|profile|success|dashboard|marketplace|admin|forgot-password|reset-password|search)",
-      "headers": {
-        "cache-control": "public, s-maxage=1, stale-while-revalidate=59"
-      },
-      "dest": "/index.html"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/sitemap.xml"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "cache-control": "public, s-maxage=1, stale-while-revalidate=59"
-      },
-      "dest": "/index.html"
+      "source": "/:path((?!api/|assets/|favicon.ico|robots.txt|sitemap.xml|monitizelogo.jpg|placeholder.svg|lovable-uploads/.*).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
       ]
     },
     {
-      "source": "/_next/static/(.*)",
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/:path((?!api/|assets/|favicon.ico|robots.txt|sitemap.xml|monitizelogo.jpg|placeholder.svg|lovable-uploads/.*).*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, s-maxage=1, stale-while-revalidate=59"
         }
       ]
     }
