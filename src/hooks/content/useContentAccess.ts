@@ -34,29 +34,46 @@ export const useContentAccess = () => {
     permissionsCheckedRef.current = true;
     
     try {
-      // Use centralized purchase check
-      const hasAccess = await checkPurchaseStatus(content.id, userId);
+      const isCreator = content.creatorId === userId;
+      const isFree = parseFloat(content.price) === 0;
+
+      // Handle creator access
+      if (isCreator) {
+        console.log(`[useContentAccess] Access granted as creator.`);
+        setIsUnlocked(true);
+        if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType) && !secureUrlRequestedRef.current) {
+          secureUrlRequestedRef.current = true;
+          console.log(`[useContentAccess] Creator requesting secure URL for: ${content.filePath}`);
+          await getSecureFileUrl(content.id, content.filePath, userId);
+        }
+        return true;
+      }
+
+      // Handle free content
+      if (isFree) {
+        console.log(`[useContentAccess] Access granted as content is free.`);
+        setIsUnlocked(true);
+        // Free content should use public fileUrl, no secure URL needed unless filePath is present
+        // and we want to enforce secure access for free content too.
+        // For now, assuming public fileUrl is sufficient for free content.
+        return true;
+      }
       
+      // Handle paid content for non-creators
+      const hasAccess = await checkPurchaseStatus(content.id, userId);
+      console.log(`[useContentAccess] Purchase status for non-creator: ${hasAccess}`);
       setIsUnlocked(hasAccess);
       
       if (hasAccess) {
-        // Mark as purchased/owned in global cache
         setPurchasedContentId(content.id);
-        
-        // If has file path, get secure URL (only once)
-        if (content.filePath && 
-            ['image', 'video', 'audio', 'document'].includes(content.contentType) &&
-            !secureUrlRequestedRef.current) {
+        if (content.filePath && ['image', 'video', 'audio', 'document'].includes(content.contentType) && !secureUrlRequestedRef.current) {
           secureUrlRequestedRef.current = true;
-          console.log(`[useContentAccess] Requesting secure URL for: ${content.id}, ${content.filePath}`);
+          console.log(`[useContentAccess] Purchased user requesting secure URL for: ${content.filePath}`);
           await getSecureFileUrl(content.id, content.filePath, userId);
         }
-      } else if (parseFloat(content.price) === 0) {
-        // Free content is automatically unlocked
-        setIsUnlocked(true);
       }
 
-      return hasAccess || parseFloat(content.price) === 0;
+      return hasAccess;
     } catch (err: any) {
       console.error("[useContentAccess] Error checking permissions:", err);
       return false;

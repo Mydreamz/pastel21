@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4'
 
@@ -98,7 +97,7 @@ serve(async (req) => {
     if (cachedUrl && (Date.now() - cachedUrl.timestamp < URL_CACHE_TTL)) {
       console.log(`Using cached URL for ${urlCacheKey}`);
       return new Response(
-        JSON.stringify({ secureUrl: cachedUrl.url }),
+        JSON.stringify({ signedUrl: cachedUrl.url }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -169,7 +168,7 @@ serve(async (req) => {
     console.log('Secure URL generated successfully');
 
     return new Response(
-      JSON.stringify({ secureUrl: urlData.signedUrl }),
+      JSON.stringify({ signedUrl: urlData.signedUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
