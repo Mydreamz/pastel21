@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormField, FormItem, FormControl, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,9 +47,9 @@ const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaCo
                     value={selectedFile}
                     onChange={(file) => {
                       setSelectedFile(file);
-                      if (file) {
-                        form.setValue("file", file);
-                      }
+                      // Always set form value to keep state consistent,
+                      // especially when clearing an invalid file.
+                      form.setValue("file", file, { shouldValidate: true });
                     }}
                     isUploading={isSubmitting}
                   />

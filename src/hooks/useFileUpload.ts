@@ -37,29 +37,29 @@ export const useFileUpload = ({
     }
   }, [value]);
 
-  const validateAndSetFile = async (file: File | null) => {
+  const validateAndSetFile = (file: File | null) => {
     if (!file) {
       onChange(null);
       setError(null);
       return;
     }
 
-    setIsProcessing(true);
-    setError(null);
-
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    const { isValid, error } = validateFile(file, acceptTypes, maxSize);
-    
-    if (!isValid) {
-      setError(error);
-      setIsProcessing(false);
-      return;
-    }
-
-    setError(null);
-    setIsProcessing(false);
+    // Immediately set the file for an instant preview and clear any previous errors.
     onChange(file);
+    setError(null);
+    setIsProcessing(true); // Indicate that validation is in progress.
+
+    // Defer validation to a microtask to allow the UI to update with the preview first.
+    Promise.resolve().then(() => {
+      const { isValid, error } = validateFile(file, acceptTypes, maxSize);
+
+      if (!isValid) {
+        setError(error);
+        onChange(null); // Clear the file from the parent state if it's invalid.
+      }
+
+      setIsProcessing(false);
+    });
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
