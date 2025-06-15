@@ -36,6 +36,16 @@ export const useProfileData = () => {
     setUserContents
   );
 
+  // --- NEW: Helper to run after payment or transaction to force balance sync
+  const forceBalanceRefresh = useCallback(async () => {
+    if (user && user.id) {
+      clearProfileCacheForUser(user.id);
+      // Fetch new profile data after cache is cleared
+      await fetchUserProfileData(user, session);
+      await fetchUserContents(user.id);
+    }
+  }, [user, session, fetchUserProfileData, fetchUserContents, clearProfileCacheForUser]);
+
   const fetchUserData = useCallback(async () => {
     if (!user) return;
     const userId = user.id;
@@ -92,5 +102,6 @@ export const useProfileData = () => {
     updateProfile,
     fetchedData,
     fetchUserData,
+    forceBalanceRefresh, // export this so payment hooks/pages can use it
   };
 };

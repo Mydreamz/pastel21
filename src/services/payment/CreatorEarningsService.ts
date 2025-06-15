@@ -162,6 +162,13 @@ export class CreatorEarningsService {
       const availableBalance = Math.max(0, totalEarnings - totalWithdrawn);
       console.log(`Calculated available balance: ${availableBalance}`);
       
+      // LOGGING: Add more detail for debugging
+      if (typeof totalEarnings !== 'number' || typeof availableBalance !== 'number') {
+        console.error(
+          `Reconciliation produced non-numeric values: totalEarnings=${totalEarnings}, availableBalance=${availableBalance}`
+        );
+      }
+      
       // Update the profile with reconciled values
       const { error: updateError } = await supabase
         .from('profiles')

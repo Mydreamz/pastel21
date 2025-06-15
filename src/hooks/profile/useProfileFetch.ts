@@ -23,7 +23,8 @@ export const useProfileFetch = (
     getProfileInFlight,
     getContentsInFlight,
     clearProfileInFlight,
-    clearContentsInFlight
+    clearContentsInFlight,
+    clearProfileCacheForUser
   } = useProfileCache();
 
   // Fetch user profile data from API or cache
@@ -188,5 +189,6 @@ export const useProfileFetch = (
   return {
     fetchUserProfileData,
     fetchUserContents,
+    clearProfileCacheForUser
   };
 };

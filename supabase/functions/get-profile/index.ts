@@ -1,4 +1,5 @@
 
+// Enhanced version for correct profile fetching for ALL creators
 import { serve } from 'https://deno.land/std@0.131.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -18,16 +19,16 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
-
-    // Create an admin client to bypass RLS
+    // Admin for bypassing RLS
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify the user is authenticated
+    // Strictly require auth
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('Missing Authorization header');
       return new Response(
         JSON.stringify({ error: 'Missing Authorization header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -38,7 +39,11 @@ serve(async (req) => {
       authHeader.replace('Bearer ', '')
     );
 
-    if (authError || !user) {
+    if (authError) {
+      console.error('Auth error:', authError);
+    }
+    if (!user) {
+      console.error('User not found!');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -46,52 +51,52 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const requestData = await req.json();
-    const { action, profileData } = requestData;
-    
+    let requestData = {};
+    try {
+      requestData = await req.json();
+    } catch (err) {
+      // Empty body fallback for GET
+    }
+    const { action, profileData } = requestData as any;
+
     if (action === 'get') {
-      // Get profile data - use the admin client to bypass RLS
+      // Try fetch profile
       const { data, error } = await supabaseAdmin
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
-        
+        .maybeSingle();
+
       if (error) {
         console.error('Error fetching profile:', error);
-        // If the profile doesn't exist, create an empty one
-        if (error.code === 'PGRST116') {
-          const { data: newProfile, error: createError } = await supabaseAdmin
-            .from('profiles')
-            .insert([{ id: user.id, name: user.user_metadata?.name || '' }])
-            .select()
-            .single();
-            
-          if (createError) {
-            return new Response(
-              JSON.stringify({ error: createError.message }),
-              { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          }
-          
+      }
+      if (!data) {
+        // Create profile if missing
+        console.warn(`Profile for user ${user.id} not found - creating`);
+        const { data: newProfile, error: createError } = await supabaseAdmin
+          .from('profiles')
+          .insert([{ id: user.id, name: user.user_metadata?.name || '' }])
+          .select()
+          .maybeSingle();
+
+        if (createError) {
+          console.error('Failed to create new profile:', createError);
           return new Response(
-            JSON.stringify({ data: newProfile }),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: createError.message }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
-        
         return new Response(
-          JSON.stringify({ error: error.message }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ data: newProfile }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
       return new Response(
         JSON.stringify({ data }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } else if (action === 'update') {
-      // Update profile data
+      // Update profile
       const { error } = await supabaseAdmin
         .from('profiles')
         .upsert({
@@ -99,14 +104,14 @@ serve(async (req) => {
           ...profileData,
           updated_at: new Date().toISOString()
         }, { onConflict: 'id' });
-        
+
       if (error) {
+        console.error('Error updating profile:', error);
         return new Response(
           JSON.stringify({ error: error.message }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      
       return new Response(
         JSON.stringify({ success: true }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -125,3 +130,4 @@ serve(async (req) => {
     );
   }
 });
+
