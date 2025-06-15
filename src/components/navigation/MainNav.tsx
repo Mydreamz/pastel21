@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus, User } from 'lucide-react';
+import { LogIn, UserPlus, User, LogOut, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,28 +35,41 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
           
           <div className="flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Button 
                   variant="ghost" 
+                  size="sm"
                   onClick={() => navigate('/dashboard')}
-                  className="glass-button"
+                  className="glass-button hidden md:inline-flex"
                 >
                   Dashboard
                 </Button>
                 <Button 
                   variant="ghost" 
-                  onClick={() => navigate('/profile')}
-                  className="glass-button"
+                  size="icon"
+                  onClick={() => navigate('/dashboard')}
+                  className="glass-button md:hidden"
+                  aria-label="Dashboard"
                 >
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
+                  <LayoutDashboard className="h-5 w-5" />
                 </Button>
                 <Button 
                   variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate('/profile')}
+                  className="glass-button"
+                >
+                  <User className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Profile</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
                   onClick={handleSignOut}
                   className="glass-button"
                 >
-                  Sign Out
+                  <LogOut className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Sign Out</span>
                 </Button>
               </div>
             ) : (
@@ -67,16 +80,16 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
                   onClick={() => openAuthDialog('login')}
                   className="glass-button"
                 >
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
+                  <LogIn className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Sign In</span>
                 </Button>
                 <Button 
                   size="sm" 
                   onClick={() => openAuthDialog('signup')}
                   className="btn-primary"
                 >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Sign Up
+                  <UserPlus className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Sign Up</span>
                 </Button>
               </div>
             )}

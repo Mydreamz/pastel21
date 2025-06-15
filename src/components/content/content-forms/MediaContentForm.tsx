@@ -37,7 +37,7 @@ const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaCo
             name="file"
             render={() => (
               <FormItem>
-                <FormLabel className="text-gray-400 text-sm">
+                <FormLabel className="text-gray-600 text-sm">
                   Upload {type} ({supportedFormats[type]})
                 </FormLabel>
                 <FormControl>
@@ -64,13 +64,13 @@ const MediaContentForm = ({ form, type, selectedFile, setSelectedFile }: MediaCo
         name="content"
         render={({ field }) => (
           <FormItem>
-            <FormLabel className="text-gray-400 text-sm">
+            <FormLabel className="text-gray-600 text-sm">
               {descriptionLabels[type]} (optional)
             </FormLabel>
             <FormControl>
               <Textarea
                 placeholder={`Add a description for your ${type}...`}
-                className="bg-white/5 border-white/10 text-white h-16"
+                className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 h-16"
                 {...field}
               />
             </FormControl>
