@@ -15,7 +15,7 @@ const ContentSuccess = () => {
   // Use effect for navigation instead of triggering it during render
   useEffect(() => {
     if (!content) {
-      navigate('/', { replace: true });
+      navigate('/dashboard', { replace: true });
     }
   }, [content, navigate]);
   
@@ -33,22 +33,22 @@ const ContentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-white relative">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-x-hidden bg-[#EAEFFC]">
       <StarsBackground />
-      <div className="bg-grid absolute inset-0 opacity-[0.05] z-0"></div>
+      <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
       <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 md:px-6 py-8">
         <button 
-          onClick={() => navigate('/')} 
-          className="mb-6 flex items-center text-gray-200 hover:text-white transition-colors"
+          onClick={() => navigate('/dashboard')} 
+          className="mb-6 flex items-center text-gray-700 hover:text-pastel-700 transition-colors"
           type="button"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
+          Back to Dashboard
         </button>
         
-        <Card className="glass-card border-white/20 shadow-lg bg-gradient-to-br from-white/50 to-pastel-200/50">
-          <CardHeader className="border-b border-white/10 pb-4">
+        <Card className="glass-card border-pastel-200/50 shadow-neumorphic bg-white/60 text-gray-800">
+          <CardHeader className="border-b border-pastel-200/30 pb-4">
             <CardTitle className="text-2xl md:text-3xl font-bold text-center text-pastel-600">
               Content Created Successfully!
             </CardTitle>
@@ -78,7 +78,7 @@ const ContentSuccess = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
               <Button 
                 onClick={() => navigate(`/edit/${content.id}`)} 
-                className="text-white bg-pastel-700 hover:bg-pastel-600"
+                className="text-white bg-pastel-500 hover:bg-pastel-600"
                 type="button"
               >
                 <Edit className="mr-2 h-4 w-4" />
@@ -86,7 +86,7 @@ const ContentSuccess = () => {
               </Button>
               <Button 
                 onClick={() => navigate(`/view/${content.id}`)} 
-                className="text-white bg-pastel-800 hover:bg-pastel-700"
+                className="text-white bg-pastel-600 hover:bg-pastel-700"
                 type="button"
               >
                 <Eye className="mr-2 h-4 w-4" />

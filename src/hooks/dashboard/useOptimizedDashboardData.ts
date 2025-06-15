@@ -34,7 +34,7 @@ export const useOptimizedDashboardData = () => {
   const userId = useMemo(() => user?.id || '', [user?.id]);
   const hasFetchedRef = useRef(false);
 
-  // Optimized fetch function with better error handling
+  // Optimized fetch function with better error handling and proper sorting
   const fetchUserContents = useCallback(async () => {
     if (!userId || hasFetchedRef.current) return;
     
@@ -53,12 +53,13 @@ export const useOptimizedDashboardData = () => {
     setLoading(true);
 
     try {
-      // Fetch only essential data first
+      // Fetch only essential data first - sorted by created_at descending (latest first)
       const [publishedResult, transactionsResult] = await Promise.all([
         supabase
           .from('contents')
           .select('id, title, teaser, price, content_type, creator_name, created_at, status, views')
-          .eq('creator_id', userId),
+          .eq('creator_id', userId)
+          .order('created_at', { ascending: false }),
           
         supabase
           .from('transactions')
@@ -71,12 +72,13 @@ export const useOptimizedDashboardData = () => {
       
       const purchased = transactionsResult.data?.map(tx => tx.contents).filter(Boolean) || [];
       
-      // Fetch marketplace data separately and limit it
+      // Fetch marketplace data separately and limit it - sorted by created_at descending
       const marketplaceResult = await supabase
         .from('contents')
         .select('id, title, teaser, price, content_type, creator_name, created_at')
         .neq('creator_id', userId)
         .eq('status', 'published')
+        .order('created_at', { ascending: false })
         .limit(12); // Reduce initial load
       
       const data = {
@@ -105,6 +107,16 @@ export const useOptimizedDashboardData = () => {
     }
   }, [userId, toast]);
 
+  // Function to invalidate cache and refetch data
+  const invalidateCache = useCallback(() => {
+    const cacheKey = `dashboard_${userId}`;
+    cache.delete(cacheKey);
+    hasFetchedRef.current = false;
+    if (userId) {
+      fetchUserContents();
+    }
+  }, [userId, fetchUserContents]);
+
   useEffect(() => {
     if (userId) {
       fetchUserContents();
@@ -129,6 +141,7 @@ export const useOptimizedDashboardData = () => {
     publishedContents,
     purchasedContents,
     marketplaceContents,
-    fetchUserContents
+    fetchUserContents,
+    invalidateCache
   };
 };

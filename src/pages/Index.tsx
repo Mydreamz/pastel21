@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
 import StarsBackground from '@/components/StarsBackground';
@@ -14,17 +13,43 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { BackToTop } from '@/components/ui/back-to-top';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  const { user, session } = useAuth();
+  const { user, session, isLoading } = useAuth();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!isLoading && session && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [session, user, isLoading, navigate]);
 
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
     setShowAuthDialog(true);
   };
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#EAEFFC]">
+        <div className="text-gray-800 text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If authenticated, don't render the landing page (navigation will happen via useEffect)
+  if (session && user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden pb-16 md:pb-0">

@@ -26,7 +26,8 @@ const Dashboard = () => {
     loading,
     publishedContents,
     purchasedContents,
-    marketplaceContents
+    marketplaceContents,
+    invalidateCache
   } = useOptimizedDashboardData();
 
   const {
@@ -75,6 +76,7 @@ const Dashboard = () => {
             searchQuery={debouncedQuery}
             setActiveFilters={setActiveFilters}
             setSearchQuery={setSearchQuery}
+            invalidateCache={invalidateCache}
           />
         </div>
 

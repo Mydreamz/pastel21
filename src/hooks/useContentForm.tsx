@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -126,10 +127,11 @@ export const useContentForm = () => {
 
       setIsUploading(false);
       
-      // Navigate to dashboard instead of success page to keep users in the dashboard
-      setTimeout(() => {
-        navigate('/dashboard?tab=my-content', { replace: true });
-      }, 1000);
+      // Navigate to success page with content data for edit/share options
+      navigate('/success', { 
+        state: { content: data },
+        replace: true 
+      });
       
     } catch (error: any) {
       setIsUploading(false);

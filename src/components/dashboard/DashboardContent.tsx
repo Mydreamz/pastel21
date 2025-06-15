@@ -15,6 +15,7 @@ interface DashboardContentProps {
   searchQuery: string;
   setActiveFilters: (filters: string[]) => void;
   setSearchQuery: (query: string) => void;
+  invalidateCache?: () => void;
 }
 
 const DashboardContent = ({
@@ -27,7 +28,8 @@ const DashboardContent = ({
   activeFilters,
   searchQuery,
   setActiveFilters,
-  setSearchQuery
+  setSearchQuery,
+  invalidateCache
 }: DashboardContentProps) => {
   return (
     <Card className="glass-card border-white/10 text-gray-800 flex-1">
@@ -47,6 +49,7 @@ const DashboardContent = ({
           loading={loading}
           filters={activeFilters}
           searchQuery={searchQuery}
+          invalidateCache={invalidateCache}
         />
       </CardContent>
     </Card>
