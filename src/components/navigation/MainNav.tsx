@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { LogIn, UserPlus } from 'lucide-react';
+import { LogIn, UserPlus, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -42,6 +42,14 @@ const MainNav = ({ openAuthDialog }: MainNavProps) => {
                   className="glass-button"
                 >
                   Dashboard
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate('/profile')}
+                  className="glass-button"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
                 </Button>
                 <Button 
                   variant="ghost" 
