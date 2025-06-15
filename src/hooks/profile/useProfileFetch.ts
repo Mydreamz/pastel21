@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileCache } from './useProfileCache';
-import { PaymentService } from '@/services/payment/PaymentService';
 import { ProfileData } from '@/types/profile';
 
 /**
@@ -45,13 +44,6 @@ export const useProfileFetch = (
         const cachedBalance = parseFloat(cachedProfile.available_balance);
         console.log("Setting balance from cached profile:", cachedBalance);
         setBalance(cachedBalance);
-      }
-      
-      // Even with cached data, fetch latest earnings summary 
-      try {
-        await fetchEarningsSummary(userId);
-      } catch (e) {
-        console.error("Error fetching earnings with cached profile:", e);
       }
       
       return cachedProfile;
@@ -118,13 +110,6 @@ export const useProfileFetch = (
     
     // Clear the in-flight request
     clearProfileInFlight(userId);
-    
-    // Always fetch latest earnings summary
-    try {
-      await fetchEarningsSummary(userId);
-    } catch (e) {
-      console.error("Error fetching earnings with fresh profile:", e);
-    }
     
     return profileResult;
   }, [
@@ -200,30 +185,8 @@ export const useProfileFetch = (
     setUserContents
   ]);
 
-  // Fetch earnings summary from the service
-  const fetchEarningsSummary = useCallback(async (userId: string) => {
-    try {
-      console.log("Fetching earnings summary for user:", userId);
-      const earningsSummary = await PaymentService.getCreatorEarningsSummary(userId);
-      
-      if (earningsSummary) {
-        console.log("Earnings summary received:", earningsSummary);
-        // Update balance from earnings summary as it's the most accurate
-        console.log("Setting balance from earnings summary:", earningsSummary.available_balance);
-        setBalance(earningsSummary.available_balance);
-        return earningsSummary;
-      } else {
-        console.log("No earnings summary received");
-      }
-    } catch (e) {
-      console.error("Error fetching earnings summary:", e);
-    }
-    return null;
-  }, [setBalance]);
-
   return {
     fetchUserProfileData,
     fetchUserContents,
-    fetchEarningsSummary
   };
 };

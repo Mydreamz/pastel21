@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
-import { PaymentDistributionService } from '@/services/payment/PaymentDistributionService';
 
 // Define a ProfileData type to use throughout the application
 export interface ProfileData {
@@ -117,24 +116,6 @@ export const useProfileData = () => {
         const profileResult = await globalInFlightProfile[userId];
         setProfileData(profileResult);
         delete globalInFlightProfile[userId];
-      }
-      
-      // Always fetch the latest earnings summary to get the most accurate balance
-      try {
-        if (userId) {
-          console.log("Fetching earnings summary");
-          const earningsSummary = await PaymentDistributionService.getCreatorEarningsSummary(userId);
-          if (earningsSummary) {
-            console.log("Earnings summary received:", earningsSummary);
-            // Update balance from earnings summary as it's the most accurate
-            console.log("Setting balance from earnings summary:", earningsSummary.available_balance);
-            setBalance(earningsSummary.available_balance);
-          } else {
-            console.log("No earnings summary received");
-          }
-        }
-      } catch (e) {
-        console.error("Error fetching earnings summary:", e);
       }
       
       // User contents cache

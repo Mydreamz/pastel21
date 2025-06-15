@@ -17,11 +17,8 @@ import Footer from '@/components/navigation/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { BackToTop } from '@/components/ui/back-to-top';
 import StarsBackground from '@/components/StarsBackground';
-import PaymentSuccess from '@/pages/PaymentSuccess';
-import PaymentFailed from '@/pages/PaymentFailed';
 import ContentSuccess from '@/pages/ContentSuccess';
 import AdminDashboard from '@/pages/AdminDashboard';
-import AdminRoute from '@/components/admin/AdminRoute';
 
 const queryClient = new QueryClient();
 
@@ -42,17 +39,7 @@ function App() {
                   <Route path="/view/:id" element={<ViewContent />} />
                   <Route path="/edit/:id" element={<EditContent />} />
                   <Route path="/marketplace" element={<Marketplace />} />
-                  <Route path="/payment-success" element={<PaymentSuccess />} />
-                  <Route path="/payment-failed" element={<PaymentFailed />} />
                   <Route path="/success" element={<ContentSuccess />} />
-                  <Route
-                    path="/admin/dashboard"
-                    element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    }
-                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />
