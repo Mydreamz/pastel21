@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -8,17 +9,27 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row gap-6 text-center md:text-left">
           <div>
             <span className="font-medium">Contact us:</span>{' '}
-            <a href="mailto:monitizedotclub@gmail.com" className="hover:text-white transition-colors">
-              monitizedotclub@gmail.com
-            </a>
+            <Link to="/contact" className="hover:text-white transition-colors">
+              Contact Us
+            </Link>
           </div>
           <div>
             <span className="font-medium">Cancellation & Refund:</span>{' '}
-            <span>No refunds allowed</span>
+            <Link to="/refund-policy" className="hover:text-white transition-colors">
+              Refund Policy
+            </Link>
           </div>
           <div>
             <span className="font-medium">Privacy Policy:</span>{' '}
-            <span>We encrypt all data - only buyer and creator can see the content</span>
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+          <div>
+            <span className="font-medium">Terms:</span>{' '}
+            <Link to="/terms" className="hover:text-white transition-colors">
+              Terms of Service
+            </Link>
           </div>
         </div>
         <div className="text-gray-500 text-center">
