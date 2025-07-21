@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -59,49 +58,64 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Premium Light Theme Colors
+				// New Cream Color System
 				cream: {
-					DEFAULT: '#F8F0E5',
-					50: '#FEFCF9',
-					100: '#F8F0E5',
-					200: '#F2E5D5',
-					300: '#E8D5BC',
-					400: '#DFCAAE',
-					500: '#D6BFA0',
-					600: '#C9AF8B',
-					700: '#BCA077',
-					800: '#AE9064',
-					900: '#95794F',
-					950: '#7D6642',
+					DEFAULT: '37 20% 96%',    // #FAF7F2 - Very light cream
+					50: '37 25% 98%',         // #FEFCFA - Ultra light cream
+					100: '37 20% 96%',        // #FAF7F2 - Very light cream
+					200: '37 25% 94%',        // #F8F4EE - Light cream
+					300: '37 30% 90%',        // #F0EBE3 - Soft cream
+					400: '37 35% 85%',        // #E8E4DC - Cream border
+					500: '37 40% 80%',        // #E0D8CE - Medium cream
+					600: '37 45% 75%',        // #D6CCC0 - Deeper cream
+					700: '37 50% 70%',        // #CCC0B2 - Dark cream
+					800: '37 55% 65%',        // #C2B4A4 - Darker cream
+					900: '37 60% 60%',        // #B8A896 - Darkest cream
+					950: '37 65% 55%',        // #AE9C88 - Deep cream
 				},
-				// Premium accent color - sophisticated purple-blue
-				pastel: {
-					DEFAULT: '#8B5CF6',
-					50: '#F3F0FF',
-					100: '#E9E4FF',
-					200: '#D6CEFF',
-					300: '#B8A9FF',
-					400: '#9B7AFF',
-					500: '#8B5CF6',
-					600: '#7C3AED',
-					700: '#6D28D9',
-					800: '#5B21B6',
-					900: '#4C1D95',
-					950: '#2E1065',
+				// New Green Color System
+				green: {
+					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
+					50: '146 30% 85%',        // #D4E6D8 - Very light green
+					100: '146 30% 75%',       // #B8D9BE - Light green
+					200: '146 30% 65%',       // #9CCCA4 - Soft green
+					300: '146 30% 55%',       // #80BF8A - Medium light green
+					400: '146 30% 50%',       // #6B9080 - Sage green
+					500: '146 40% 40%',       // #5A8068 - Medium green
+					600: '146 50% 30%',       // #4A7C59 - Rich emerald
+					700: '146 60% 25%',       // #3D6849 - Deep green
+					800: '146 70% 20%',       // #2F5439 - Darker green
+					900: '146 80% 15%',       // #2D5016 - Deep forest green
+					950: '146 85% 12%',       // #1F3811 - Darkest green
 				},
-				// Enhanced gray scale
+				// Enhanced gray scale with warm tones
 				gray: {
-					50: '#FAFAFA',
-					100: '#F4F4F5',
-					200: '#E4E4E7',
-					300: '#D4D4D8',
-					400: '#A1A1AA',
-					500: '#71717A',
-					600: '#52525B',
-					700: '#3F3F46',
-					800: '#27272A',
-					900: '#18181B',
-					950: '#09090B',
+					50: '37 15% 98%',         // #FAFAFA - Very light warm gray
+					100: '37 15% 96%',        // #F4F4F5 - Light warm gray
+					200: '37 10% 90%',        // #E4E4E7 - Medium light gray
+					300: '37 10% 85%',        // #D4D4D8 - Medium gray
+					400: '210 10% 65%',       // #A1A1AA - Medium dark gray
+					500: '210 10% 45%',       // #71717A - Dark gray
+					600: '210 15% 35%',       // #52525B - Darker gray
+					700: '210 20% 25%',       // #3F3F46 - Very dark gray
+					800: '210 25% 15%',       // #27272A - Almost black
+					900: '210 30% 10%',       // #18181B - Near black
+					950: '210 35% 5%',        // #09090B - Black
+				},
+				// Update existing pastel to use green tones
+				pastel: {
+					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
+					50: '146 30% 85%',        // #D4E6D8 - Very light green
+					100: '146 30% 75%',       // #B8D9BE - Light green
+					200: '146 30% 65%',       // #9CCCA4 - Soft green
+					300: '146 30% 55%',       // #80BF8A - Medium light green
+					400: '146 30% 50%',       // #6B9080 - Sage green
+					500: '146 50% 30%',       // #4A7C59 - Rich emerald
+					600: '146 60% 25%',       // #3D6849 - Deep green
+					700: '146 70% 20%',       // #2F5439 - Darker green
+					800: '146 80% 15%',       // #2D5016 - Deep forest green
+					900: '146 85% 12%',       // #1F3811 - Darkest green
+					950: '146 90% 10%',       // #0F2008 - Ultra dark green
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -153,8 +167,8 @@ export default {
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				},
 				'glow': {
-					'0%, 100%': { boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)' },
-					'50%': { boxShadow: '0 0 30px rgba(139, 92, 246, 0.5)' }
+					'0%, 100%': { boxShadow: '0 0 20px hsl(146 50% 30% / 0.3)' },
+					'50%': { boxShadow: '0 0 30px hsl(146 50% 30% / 0.5)' }
 				}
 			},
 			animation: {
@@ -166,15 +180,21 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+				'glass-gradient': 'linear-gradient(135deg, rgba(248,244,238,0.7) 0%, rgba(240,235,227,0.5) 100%)',
+				'cream-gradient': 'linear-gradient(135deg, hsl(37 20% 96%), hsl(37 25% 92%))',
+				'green-gradient': 'linear-gradient(135deg, hsl(146 50% 30%), hsl(146 80% 15%))',
+				'cream-green-gradient': 'linear-gradient(135deg, hsl(37 20% 96%), hsl(146 30% 85%))',
+				'glow-green': 'radial-gradient(circle, hsl(146 50% 30% / 0.4) 0%, transparent 70%)',
 			},
 			backdropBlur: {
 				'xs': '2px',
 			},
 			boxShadow: {
-				'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-				'glass-lg': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-				'premium': '0 20px 40px rgba(139, 92, 246, 0.15)',
+				'glass': '0 8px 32px 0 rgba(74, 124, 89, 0.1)',
+				'glass-lg': '0 25px 50px -12px rgba(74, 124, 89, 0.15)',
+				'premium': '0 20px 40px rgba(74, 124, 89, 0.15)',
+				'neumorphic': '8px 8px 16px rgba(74, 124, 89, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8)',
+				'elevated': '0 20px 40px rgba(74, 124, 89, 0.2)',
 			}
 		}
 	},

@@ -37,22 +37,23 @@ const StarsBackground: React.FC = () => {
       {stars.map((star) => (
         <div
           key={star.id}
-          className="star"
+          className="star absolute rounded-full"
           style={{
             width: `${star.size}px`,
             height: `${star.size}px`,
             top: star.top,
             left: star.left,
             opacity: star.opacity,
-            boxShadow: `0 0 ${Math.round(star.size * 2)}px rgba(255, 255, 255, 0.8)`,
+            backgroundColor: 'hsl(146 50% 30%)',
+            boxShadow: `0 0 ${Math.round(star.size * 2)}px rgba(74, 124, 89, 0.8)`,
           }}
         />
       ))}
       
-      {/* Static background elements without animations */}
-      <div className="absolute top-1/4 -left-40 w-80 h-80 bg-glow-pastel rounded-full opacity-40" />
-      <div className="absolute top-3/4 -right-40 w-96 h-96 bg-glow-pastel rounded-full opacity-30" />
-      <div className="absolute bottom-0 left-1/3 w-[40rem] h-[40rem] bg-glow-pastel rounded-full opacity-20" />
+      {/* Static background elements with green glow */}
+      <div className="absolute top-1/4 -left-40 w-80 h-80 bg-glow-green rounded-full opacity-40" />
+      <div className="absolute top-3/4 -right-40 w-96 h-96 bg-glow-green rounded-full opacity-30" />
+      <div className="absolute bottom-0 left-1/3 w-[40rem] h-[40rem] bg-glow-green rounded-full opacity-20" />
     </div>
   );
 };

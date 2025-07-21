@@ -8,26 +8,26 @@
 
 @layer base {
   :root {
-    /* Light theme only */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
+    /* Light Cream & Rich Green Theme */
+    --background: 37 20% 96%;  /* #FAF7F2 - Very light cream */
+    --foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    --card: 37 25% 94%;        /* #F8F4EE - Light cream */
+    --card-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    --popover: 37 25% 94%;     /* #F8F4EE - Light cream */
+    --popover-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    --primary: 146 50% 30%;    /* #4A7C59 - Rich emerald */
+    --primary-foreground: 37 20% 96%; /* #FAF7F2 - Very light cream */
+    --secondary: 37 30% 90%;   /* #F0EBE3 - Soft cream */
+    --secondary-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    --muted: 37 30% 90%;       /* #F0EBE3 - Soft cream */
+    --muted-foreground: 210 10% 40%; /* #5D6D7E - Medium gray */
+    --accent: 146 30% 50%;     /* #6B9080 - Sage green */
+    --accent-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    --destructive: 0 84% 60%;  /* Keep existing destructive color */
+    --destructive-foreground: 0 0% 98%; /* Keep existing destructive foreground */
+    --border: 37 35% 85%;      /* #E8E4DC - Cream border */
+    --input: 37 35% 85%;       /* #E8E4DC - Cream border */
+    --ring: 146 50% 30%;       /* #4A7C59 - Rich emerald */
     --radius: 0.75rem;
   }
 }
@@ -39,6 +39,7 @@
   
   body {
     @apply bg-background text-foreground font-body antialiased;
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(37 25% 92%));
     font-feature-settings: "cv01", "cv02", "cv03", "cv04";
     line-height: 1.6;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -68,14 +69,14 @@
     @apply text-primary hover:text-primary/80 transition-colors;
   }
 
-  /* Glass morphism base styles */
+  /* Updated glass morphism with cream tones */
   .glass {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(248, 244, 238, 0.7);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(232, 228, 220, 0.5);
   }
 
-  /* Scrollbar styling */
+  /* Updated scrollbar styling */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -86,11 +87,11 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
+    @apply bg-primary/30 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
+    @apply bg-primary/50;
   }
 }
 

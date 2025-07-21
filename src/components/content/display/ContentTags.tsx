@@ -16,7 +16,7 @@ const ContentTags = ({ tags, category }: ContentTagsProps) => {
       {category && (
         <Badge 
           variant="outline" 
-          className="bg-pastel-500/20 text-pastel-700 border-pastel-500/30 cursor-pointer hover:bg-pastel-500/30 rounded-full"
+          className="bg-green-500/20 text-green-700 border-green-500/30 cursor-pointer hover:bg-green-500/30 rounded-full"
         >
           <Tag className="h-3 w-3 mr-1" />
           {category}
@@ -27,7 +27,7 @@ const ContentTags = ({ tags, category }: ContentTagsProps) => {
         <Badge 
           key={`tag-${tag}`}
           variant="outline" 
-          className="bg-white/50 hover:bg-white/70 cursor-pointer border-gray-200 text-gray-700 rounded-full"
+          className="bg-cream-200/50 hover:bg-cream-200/70 cursor-pointer border-cream-400/50 text-foreground rounded-full"
         >
           <Tag className="h-3 w-3 mr-1" />
           {tag}

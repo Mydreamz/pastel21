@@ -15,7 +15,7 @@ const ContentStats = ({ views, contentType, contentLength = 0 }: ContentStatsPro
     : '3 min';
   
   return (
-    <div className="mt-6 flex items-center gap-4 text-sm text-gray-600">
+    <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground">
       <div className="flex items-center gap-1">
         <Eye className="h-4 w-4" />
         <span>{views || Math.floor(Math.random() * 100) + 5} views</span>

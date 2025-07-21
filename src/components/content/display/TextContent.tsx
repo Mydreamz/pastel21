@@ -9,7 +9,7 @@ const TextContent = ({ content }: TextContentProps) => {
   if (!content) return null;
   
   return (
-    <div className="prose max-w-none text-gray-700">
+    <div className="prose max-w-none text-foreground">
       <p>{content}</p>
     </div>
   );
