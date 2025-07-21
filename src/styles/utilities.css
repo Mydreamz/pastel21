@@ -36,16 +36,70 @@
     transform: translateY(-1px);
   }
 
-  /* Text Effects - Updated for Green Theme */
+  /* Text Effects - Updated for Green Theme with Instrument Sans */
   .text-gradient {
     background: linear-gradient(135deg, hsl(146 50% 30%), hsl(146 80% 15%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   .glow-text {
     text-shadow: 0 0 20px rgba(74, 124, 89, 0.5);
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-weight: 600;
+  }
+
+  /* Typography utilities */
+  .font-display-large {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 60px;
+    line-height: 75px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-display-medium {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 48px;
+    line-height: 60px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-display-small {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 36px;
+    line-height: 45px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .font-body-large {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .font-body-medium {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .font-body-small {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: -0.01em;
   }
 
   /* Background Effects - Updated for Cream Theme */
@@ -106,6 +160,21 @@
     
     .interactive-card:hover {
       transform: none;
+    }
+    
+    .font-display-large {
+      font-size: 36px;
+      line-height: 45px;
+    }
+    
+    .font-display-medium {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    
+    .font-display-small {
+      font-size: 28px;
+      line-height: 35px;
     }
   }
 }

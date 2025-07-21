@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -19,10 +20,11 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
-				'display': ['Playfair Display', 'serif'],
-				'body': ['Inter', 'system-ui', 'sans-serif'],
+				'sans': ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
+				'display': ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
+				'body': ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
 				'mooxy': ['"Mochiy Pop One"', 'sans-serif'],
+				'playfair': ['"Playfair Display"', 'serif'], // Keep as optional for specific use cases
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -73,7 +75,6 @@ export default {
 					900: '37 60% 60%',        // #B8A896 - Darkest cream
 					950: '37 65% 55%',        // #AE9C88 - Deep cream
 				},
-				// New Green Color System
 				green: {
 					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
 					50: '146 30% 85%',        // #D4E6D8 - Very light green
@@ -102,7 +103,6 @@ export default {
 					900: '210 30% 10%',       // #18181B - Near black
 					950: '210 35% 5%',        // #09090B - Black
 				},
-				// Update existing pastel to use green tones
 				pastel: {
 					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
 					50: '146 30% 85%',        // #D4E6D8 - Very light green
@@ -139,6 +139,9 @@ export default {
 				'4xl': ['2.25rem', { lineHeight: '2.5rem' }],
 				'5xl': ['3rem', { lineHeight: '1' }],
 				'6xl': ['3.75rem', { lineHeight: '1' }],
+				'60': ['60px', { lineHeight: '75px' }], // Instrument Sans signature size
+				'display-sm': ['48px', { lineHeight: '60px' }], // Scaled for tablet
+				'display-xs': ['36px', { lineHeight: '45px' }], // Scaled for mobile
 			},
 			spacing: {
 				'18': '4.5rem',
