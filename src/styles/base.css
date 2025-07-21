@@ -8,26 +8,26 @@
 
 @layer base {
   :root {
-    /* Light Cream & Rich Green Theme */
-    --background: 37 20% 96%;  /* #FAF7F2 - Very light cream */
-    --foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
-    --card: 37 25% 94%;        /* #F8F4EE - Light cream */
-    --card-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
-    --popover: 37 25% 94%;     /* #F8F4EE - Light cream */
-    --popover-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
-    --primary: 146 50% 30%;    /* #4A7C59 - Rich emerald */
-    --primary-foreground: 37 20% 96%; /* #FAF7F2 - Very light cream */
-    --secondary: 37 30% 90%;   /* #F0EBE3 - Soft cream */
-    --secondary-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
-    --muted: 37 30% 90%;       /* #F0EBE3 - Soft cream */
-    --muted-foreground: 210 10% 40%; /* #5D6D7E - Medium gray */
-    --accent: 146 30% 50%;     /* #6B9080 - Sage green */
-    --accent-foreground: 210 22% 22%; /* #2C3E50 - Dark charcoal */
+    /* Darker Cream & Emerald Green Theme */
+    --background: 37 25% 92%;  /* #F4F0E8 - Darker cream */
+    --foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
+    --card: 37 30% 88%;        /* #ECE6DB - Medium cream */
+    --card-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
+    --popover: 37 30% 88%;     /* #ECE6DB - Medium cream */
+    --popover-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
+    --primary: 158 65% 25%;    /* #2D6B42 - Deep emerald */
+    --primary-foreground: 37 25% 92%; /* #F4F0E8 - Darker cream */
+    --secondary: 37 35% 82%;   /* #E0D7C7 - Darker soft cream */
+    --secondary-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
+    --muted: 37 35% 82%;       /* #E0D7C7 - Darker soft cream */
+    --muted-foreground: 210 15% 35%; /* #4A566B - Darker gray */
+    --accent: 158 45% 40%;     /* #4A8B5C - Rich emerald accent */
+    --accent-foreground: 37 25% 92%; /* #F4F0E8 - Darker cream */
     --destructive: 0 84% 60%;  /* Keep existing destructive color */
     --destructive-foreground: 0 0% 98%; /* Keep existing destructive foreground */
-    --border: 37 35% 85%;      /* #E8E4DC - Cream border */
-    --input: 37 35% 85%;       /* #E8E4DC - Cream border */
-    --ring: 146 50% 30%;       /* #4A7C59 - Rich emerald */
+    --border: 37 40% 78%;      /* #D6CAB8 - Darker cream border */
+    --input: 37 40% 78%;       /* #D6CAB8 - Darker cream border */
+    --ring: 158 65% 25%;       /* #2D6B42 - Deep emerald */
     --radius: 0.75rem;
   }
 }
@@ -39,7 +39,7 @@
   
   body {
     @apply bg-background text-foreground font-body antialiased;
-    background: linear-gradient(135deg, hsl(var(--background)), hsl(37 25% 92%));
+    background: linear-gradient(135deg, hsl(var(--background)), hsl(37 30% 85%));
     font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-feature-settings: "cv01", "cv02", "cv03", "cv04";
     font-weight: 400;
@@ -123,11 +123,11 @@
     letter-spacing: -0.02em;
   }
 
-  /* Updated glass morphism with cream tones */
+  /* Updated glass morphism with darker cream tones */
   .glass {
-    background: rgba(248, 244, 238, 0.7);
+    background: rgba(236, 230, 219, 0.8);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(232, 228, 220, 0.5);
+    border: 1px solid rgba(214, 202, 184, 0.6);
   }
 
   /* Updated scrollbar styling */

@@ -60,34 +60,34 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// New Cream Color System
+				// Darker Cream Color System
 				cream: {
-					DEFAULT: '37 20% 96%',    // #FAF7F2 - Very light cream
-					50: '37 25% 98%',         // #FEFCFA - Ultra light cream
-					100: '37 20% 96%',        // #FAF7F2 - Very light cream
-					200: '37 25% 94%',        // #F8F4EE - Light cream
-					300: '37 30% 90%',        // #F0EBE3 - Soft cream
-					400: '37 35% 85%',        // #E8E4DC - Cream border
-					500: '37 40% 80%',        // #E0D8CE - Medium cream
-					600: '37 45% 75%',        // #D6CCC0 - Deeper cream
-					700: '37 50% 70%',        // #CCC0B2 - Dark cream
-					800: '37 55% 65%',        // #C2B4A4 - Darker cream
-					900: '37 60% 60%',        // #B8A896 - Darkest cream
-					950: '37 65% 55%',        // #AE9C88 - Deep cream
+					DEFAULT: '37 25% 92%',    // #F4F0E8 - Darker cream
+					50: '37 30% 95%',         // #F9F6F1 - Light cream
+					100: '37 25% 92%',        // #F4F0E8 - Darker cream
+					200: '37 30% 88%',        // #ECE6DB - Medium cream
+					300: '37 35% 82%',        // #E0D7C7 - Soft cream
+					400: '37 40% 78%',        // #D6CAB8 - Cream border
+					500: '37 45% 72%',        // #C8BBA6 - Medium cream
+					600: '37 50% 68%',        // #BBAB96 - Deeper cream
+					700: '37 55% 62%',        // #AB9B84 - Dark cream
+					800: '37 60% 58%',        // #9C8B72 - Darker cream
+					900: '37 65% 52%',        // #8B7A60 - Darkest cream
+					950: '37 70% 48%',        // #7A694E - Deep cream
 				},
 				green: {
-					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
-					50: '146 30% 85%',        // #D4E6D8 - Very light green
-					100: '146 30% 75%',       // #B8D9BE - Light green
-					200: '146 30% 65%',       // #9CCCA4 - Soft green
-					300: '146 30% 55%',       // #80BF8A - Medium light green
-					400: '146 30% 50%',       // #6B9080 - Sage green
-					500: '146 40% 40%',       // #5A8068 - Medium green
-					600: '146 50% 30%',       // #4A7C59 - Rich emerald
-					700: '146 60% 25%',       // #3D6849 - Deep green
-					800: '146 70% 20%',       // #2F5439 - Darker green
-					900: '146 80% 15%',       // #2D5016 - Deep forest green
-					950: '146 85% 12%',       // #1F3811 - Darkest green
+					DEFAULT: '158 65% 25%',   // #2D6B42 - Deep emerald
+					50: '158 35% 80%',        // #B8DCC4 - Light emerald
+					100: '158 40% 70%',       // #8FC9A1 - Soft emerald
+					200: '158 45% 60%',       // #66B77E - Medium emerald
+					300: '158 50% 50%',       // #3DA55B - Bright emerald
+					400: '158 45% 40%',       // #4A8B5C - Rich emerald accent
+					500: '158 55% 35%',       // #3F7A4E - Medium emerald
+					600: '158 65% 25%',       // #2D6B42 - Deep emerald
+					700: '158 70% 20%',       // #245A36 - Darker emerald
+					800: '158 75% 15%',       // #1B482A - Deep forest emerald
+					900: '158 80% 12%',       // #143720 - Darkest emerald
+					950: '158 85% 8%',        // #0D2516 - Ultra dark emerald
 				},
 				// Enhanced gray scale with warm tones
 				gray: {
@@ -183,11 +183,11 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'glass-gradient': 'linear-gradient(135deg, rgba(248,244,238,0.7) 0%, rgba(240,235,227,0.5) 100%)',
-				'cream-gradient': 'linear-gradient(135deg, hsl(37 20% 96%), hsl(37 25% 92%))',
-				'green-gradient': 'linear-gradient(135deg, hsl(146 50% 30%), hsl(146 80% 15%))',
-				'cream-green-gradient': 'linear-gradient(135deg, hsl(37 20% 96%), hsl(146 30% 85%))',
-				'glow-green': 'radial-gradient(circle, hsl(146 50% 30% / 0.4) 0%, transparent 70%)',
+				'glass-gradient': 'linear-gradient(135deg, rgba(236,230,219,0.8) 0%, rgba(224,215,199,0.6) 100%)',
+				'cream-gradient': 'linear-gradient(135deg, hsl(37 25% 92%), hsl(37 30% 85%))',
+				'green-gradient': 'linear-gradient(135deg, hsl(158 65% 25%), hsl(158 80% 12%))',
+				'cream-green-gradient': 'linear-gradient(135deg, hsl(37 25% 92%), hsl(158 35% 80%))',
+				'glow-green': 'radial-gradient(circle, hsl(158 65% 25% / 0.4) 0%, transparent 70%)',
 			},
 			backdropBlur: {
 				'xs': '2px',
