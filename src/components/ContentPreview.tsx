@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -107,34 +108,34 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
 
   return (
     <>
-      <Card className="glass-card border-white/10 text-white overflow-hidden">
+      <Card className="glass-card border-border text-high-contrast overflow-hidden">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Lock className="h-5 w-5 text-emerald-500" /> {title}
+          <CardTitle className="flex items-center gap-2 text-xl text-high-contrast">
+            <Lock className="h-5 w-5 text-primary" /> {title}
             {scheduledFor && (
-              <span className="text-sm font-normal text-gray-400">
+              <span className="text-sm font-normal text-muted-foreground">
                 (Scheduled for {formatExpiryDate(scheduledFor.toISOString())})
               </span>
             )}
           </CardTitle>
-          <CardDescription className="text-gray-300">
+          <CardDescription className="text-readable">
             {teaser}
           </CardDescription>
         </CardHeader>
         
         <CardContent className="relative">
           {/* Blurred preview */}
-          <div className="h-48 flex items-center justify-center bg-white/5 rounded-md backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/50"></div>
+          <div className="h-48 flex items-center justify-center bg-muted/30 rounded-md backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-background/50"></div>
             <div className="relative z-10 text-center p-6">
-              <Lock className="h-12 w-12 text-emerald-500 mx-auto mb-4 opacity-80" />
-              <p className="text-white font-semibold">This content is locked</p>
-              <p className="text-gray-300 text-sm mt-2">Unlock to view the full content</p>
+              <Lock className="h-12 w-12 text-primary mx-auto mb-4 opacity-80" />
+              <p className="text-high-contrast font-semibold">This content is locked</p>
+              <p className="text-readable text-sm mt-2">Unlock to view the full content</p>
             </div>
           </div>
           
           {/* Price tag */}
-          <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
+          <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
             <IndianRupee className="h-3 w-3" />
             {priceDisplay}
           </div>
@@ -142,7 +143,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
         
         <CardFooter className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <Button 
-            className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white" 
+            className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground" 
             onClick={handleDirectPurchase}
           >
             {user ? (
@@ -159,7 +160,7 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
           </Button>
           
           {formattedExpiry && (
-            <div className="text-xs text-gray-400 flex items-center gap-1">
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
               <Info className="h-3 w-3" />
               Expires: {formattedExpiry}
             </div>
@@ -168,31 +169,31 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
       </Card>
       
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="glass-card border-white/10 text-white sm:max-w-md">
+        <DialogContent className="glass-card border-border text-high-contrast sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Unlock Premium Content</DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogTitle className="text-high-contrast">Unlock Premium Content</DialogTitle>
+            <DialogDescription className="text-readable">
               Complete your payment to access "{title}"
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
-            <div className="mb-4 p-4 bg-black/20 rounded-md border border-white/10">
-              <div className="flex justify-between items-center mb-2">
+            <div className="mb-4 p-4 bg-muted/20 rounded-md border border-border">
+              <div className="flex justify-between items-center mb-2 text-high-contrast">
                 <span>Content Price</span>
                 <span className="font-semibold">₹{priceDisplay}</span>
               </div>
-              <div className="flex justify-between items-center text-sm text-gray-400 border-t border-white/10 pt-2 mt-2">
+              <div className="flex justify-between items-center text-sm text-muted-foreground border-t border-border pt-2 mt-2">
                 <span>Platform Fee (7%)</span>
                 <span>₹{dialogFeeInfo.platformFee}</span>
               </div>
-              <div className="flex justify-between items-center text-sm text-emerald-400 border-t border-white/10 pt-2 mt-2">
+              <div className="flex justify-between items-center text-sm text-primary border-t border-border pt-2 mt-2">
                 <span>Creator Earnings</span>
                 <span>₹{dialogFeeInfo.creatorEarnings}</span>
               </div>
             </div>
             
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               By proceeding with payment, you agree to our terms of service and privacy policy.
             </p>
           </div>
@@ -201,13 +202,13 @@ const ContentPreview: React.FC<ContentPreviewProps> = ({
             <Button 
               variant="outline" 
               onClick={() => setShowPaymentDialog(false)}
-              className="border-gray-700 hover:border-gray-600 text-gray-300"
+              className="border-border hover:border-primary text-medium-contrast"
               disabled={isProcessing}
             >
               Cancel
             </Button>
             <Button 
-              className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
               onClick={handlePayment}
               disabled={isProcessing}
             >

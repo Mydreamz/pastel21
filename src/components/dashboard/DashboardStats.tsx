@@ -16,19 +16,19 @@ const DashboardStats = () => {
       <div className="glass-card p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-black text-sm mb-1">Total Earnings</p>
+            <p className="text-high-contrast text-sm mb-1">Total Earnings</p>
             {isLoading ? (
               <Skeleton className="h-8 w-24 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-black">₹{totalEarnings.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-high-contrast">₹{totalEarnings.toFixed(2)}</p>
             )}
             <div className="flex items-center gap-1 mt-1">
-              <TrendingUp className="h-3 w-3 text-pastel-600" />
-              <p className="text-xs text-pastel-600">+24% from last month</p>
+              <TrendingUp className="h-3 w-3 text-primary" />
+              <p className="text-xs text-primary">+24% from last month</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-pastel-500/20 flex items-center justify-center">
-            <IndianRupee className="h-5 w-5 text-pastel-600" />
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <IndianRupee className="h-5 w-5 text-primary" />
           </div>
         </div>
       </div>
@@ -36,15 +36,15 @@ const DashboardStats = () => {
       <div className="glass-card p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-black text-sm mb-1">Total Messages</p>
-            <p className="text-2xl font-bold text-black">8,429</p>
+            <p className="text-high-contrast text-sm mb-1">Total Messages</p>
+            <p className="text-2xl font-bold text-high-contrast">8,429</p>
             <div className="flex items-center gap-1 mt-1">
-              <TrendingUp className="h-3 w-3 text-pastel-600" />
-              <p className="text-xs text-pastel-600">+18% from last month</p>
+              <TrendingUp className="h-3 w-3 text-primary" />
+              <p className="text-xs text-primary">+18% from last month</p>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-pastel-500/20 flex items-center justify-center">
-            <MessageSquare className="h-5 w-5 text-pastel-600" />
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <MessageSquare className="h-5 w-5 text-primary" />
           </div>
         </div>
       </div>

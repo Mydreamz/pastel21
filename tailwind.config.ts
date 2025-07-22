@@ -60,6 +60,10 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Enhanced text contrast utilities
+				'high-contrast': 'hsl(var(--text-high-contrast))',
+				'medium-contrast': 'hsl(var(--text-medium-contrast))',
+				'readable': 'hsl(var(--text-readable))',
 				// Darker Cream Color System
 				cream: {
 					DEFAULT: '37 25% 92%',    // #F4F0E8 - Darker cream
@@ -89,19 +93,19 @@ export default {
 					900: '158 80% 12%',       // #143720 - Darkest emerald
 					950: '158 85% 8%',        // #0D2516 - Ultra dark emerald
 				},
-				// Enhanced gray scale with warm tones
+				// Enhanced gray scale with warm tones and better contrast
 				gray: {
 					50: '37 15% 98%',         // #FAFAFA - Very light warm gray
 					100: '37 15% 96%',        // #F4F4F5 - Light warm gray
 					200: '37 10% 90%',        // #E4E4E7 - Medium light gray
 					300: '37 10% 85%',        // #D4D4D8 - Medium gray
-					400: '210 10% 65%',       // #A1A1AA - Medium dark gray
-					500: '210 10% 45%',       // #71717A - Dark gray
-					600: '210 15% 35%',       // #52525B - Darker gray
-					700: '210 20% 25%',       // #3F3F46 - Very dark gray
-					800: '210 25% 15%',       // #27272A - Almost black
-					900: '210 30% 10%',       // #18181B - Near black
-					950: '210 35% 5%',        // #09090B - Black
+					400: '210 10% 60%',       // #999999 - Medium dark gray (improved contrast)
+					500: '210 10% 40%',       // #666666 - Dark gray (improved contrast)
+					600: '210 15% 30%',       // #4D4D4D - Darker gray (improved contrast)
+					700: '210 20% 20%',       // #333333 - Very dark gray (improved contrast)
+					800: '210 25% 15%',       // #262626 - Almost black (improved contrast)
+					900: '210 30% 10%',       // #1A1A1A - Near black (improved contrast)
+					950: '210 35% 5%',        // #0D0D0D - Black (improved contrast)
 				},
 				pastel: {
 					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
@@ -170,8 +174,13 @@ export default {
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				},
 				'glow': {
-					'0%, 100%': { boxShadow: '0 0 20px hsl(146 50% 30% / 0.3)' },
-					'50%': { boxShadow: '0 0 30px hsl(146 50% 30% / 0.5)' }
+					'0%, 100%': { boxShadow: '0 0 20px hsl(158 65% 25% / 0.3)' },
+					'50%': { boxShadow: '0 0 30px hsl(158 65% 25% / 0.5)' }
+				},
+				'heading-gradient': {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' }
 				}
 			},
 			animation: {
@@ -179,11 +188,12 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.5s ease-out forwards',
 				'slide-up': 'slide-up 0.6s ease-out forwards',
-				'glow': 'glow 2s ease-in-out infinite'
+				'glow': 'glow 2s ease-in-out infinite',
+				'heading-gradient': 'heading-gradient 3s ease infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'glass-gradient': 'linear-gradient(135deg, rgba(236,230,219,0.8) 0%, rgba(224,215,199,0.6) 100%)',
+				'glass-gradient': 'linear-gradient(135deg, rgba(244,240,232,0.9) 0%, rgba(224,215,199,0.8) 100%)',
 				'cream-gradient': 'linear-gradient(135deg, hsl(37 25% 92%), hsl(37 30% 85%))',
 				'green-gradient': 'linear-gradient(135deg, hsl(158 65% 25%), hsl(158 80% 12%))',
 				'cream-green-gradient': 'linear-gradient(135deg, hsl(37 25% 92%), hsl(158 35% 80%))',
@@ -193,11 +203,11 @@ export default {
 				'xs': '2px',
 			},
 			boxShadow: {
-				'glass': '0 8px 32px 0 rgba(74, 124, 89, 0.1)',
-				'glass-lg': '0 25px 50px -12px rgba(74, 124, 89, 0.15)',
-				'premium': '0 20px 40px rgba(74, 124, 89, 0.15)',
-				'neumorphic': '8px 8px 16px rgba(74, 124, 89, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8)',
-				'elevated': '0 20px 40px rgba(74, 124, 89, 0.2)',
+				'glass': '0 8px 32px 0 rgba(45, 107, 66, 0.1)',
+				'glass-lg': '0 25px 50px -12px rgba(45, 107, 66, 0.15)',
+				'premium': '0 20px 40px rgba(45, 107, 66, 0.15)',
+				'neumorphic': '8px 8px 16px rgba(45, 107, 66, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.8)',
+				'elevated': '0 20px 40px rgba(45, 107, 66, 0.2)',
 			}
 		}
 	},

@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import TutorialDialog from './Tutorial/TutorialDialog';
 import TutorialDrawer from './Tutorial/TutorialDrawer';
+import AnimatedHeading from './ui/animated-heading';
 
 interface HeroProps {
   openAuthDialog?: (tab: 'login' | 'signup') => void;
@@ -37,15 +38,15 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
     <div className="relative flex flex-col items-start gap-8 py-12 md:py-16 lg:py-20 w-full max-w-4xl">
       <div className="flex flex-col gap-6 max-w-3xl">
         <div className="space-y-4">
-          <h1 className="font-display font-bold text-gray-900 leading-tight">
+          <AnimatedHeading level={1} variant="gradient" className="leading-tight">
             Create, Share, and{' '}
-            <span className="bg-gradient-to-r from-pastel-600 to-pastel-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Monetize
             </span>{' '}
             Your Content
-          </h1>
+          </AnimatedHeading>
           
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
+          <p className="text-lg md:text-xl text-readable leading-relaxed max-w-2xl">
             The all-in-one platform for creators to build, grow, and monetize their audience with powerful insights and analytics.
           </p>
         </div>
@@ -53,7 +54,7 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
         <div className="flex flex-col sm:flex-row gap-4">
           <Button 
             size="lg"
-            className="bg-pastel-600 hover:bg-pastel-700 text-white shadow-elevated hover:shadow-lg transition-all duration-200 px-8 py-3"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elevated hover:shadow-lg transition-all duration-200 px-8 py-3"
             onClick={handleGetStarted}
           >
             Get Started Free
@@ -63,7 +64,7 @@ const Hero = ({ openAuthDialog }: HeroProps) => {
           <Button 
             variant="outline" 
             size="lg"
-            className="border-gray-300 hover:border-pastel-500 hover:bg-pastel-50 text-gray-700 px-8 py-3 transition-all duration-200"
+            className="border-border hover:border-primary hover:bg-primary/5 text-high-contrast px-8 py-3 transition-all duration-200"
             onClick={handleTutorialOpen}
           >
             See How It Works
