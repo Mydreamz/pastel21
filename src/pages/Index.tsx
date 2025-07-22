@@ -37,9 +37,9 @@ const Index = () => {
   // Show loading state while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-foreground text-center">
-          <div className="animate-spin h-8 w-8 border-t-2 border-primary border-r-2 rounded-full mx-auto mb-4"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#EAEFFC]">
+        <div className="text-gray-800 text-center">
+          <div className="animate-spin h-8 w-8 border-t-2 border-pastel-500 border-r-2 rounded-full mx-auto mb-4"></div>
           <p>Loading...</p>
         </div>
       </div>
@@ -52,7 +52,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-foreground relative overflow-hidden pb-16 md:pb-0">
+    <div className="min-h-screen flex flex-col antialiased text-gray-800 relative overflow-hidden pb-16 md:pb-0">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -75,10 +75,10 @@ const Index = () => {
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="font-display text-foreground">
+            <h2 className="font-display text-gray-900">
               Everything creators need to monetize
             </h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
+            <p className="text-gray-600 max-w-3xl mx-auto text-lg">
               All the tools you need to create, grow, and monetize your audience in one powerful platform.
             </p>
           </div>
@@ -101,36 +101,36 @@ const Index = () => {
                 icon: "💰"
               }
             ].map((feature, i) => (
-              <div key={i} className="glass-card shadow-lg backdrop-blur-xl bg-card/80 rounded-2xl p-8 hover:shadow-xl transition-all duration-300 border border-border">
+              <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/60 rounded-2xl p-8 hover:shadow-elevated transition-all duration-300">
                 <div className="text-4xl mb-6">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-4 text-foreground font-display">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-4 text-gray-900 font-display">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </section>
         
         <section id="pricing" className="py-16 md:py-24">
-          <div className="glass-card shadow-lg backdrop-blur-xl bg-card/80 rounded-3xl p-8 md:p-12 border border-border">
+          <div className="glass-card shadow-neumorphic backdrop-blur-xl bg-white/60 rounded-3xl p-8 md:p-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
-                <h2 className="font-display text-foreground">
+                <h2 className="font-display text-gray-900">
                   Ready to start monetizing your content?
                 </h2>
-                <p className="text-muted-foreground text-lg">Join thousands of creators who are earning more with our platform.</p>
+                <p className="text-gray-600 text-lg">Join thousands of creators who are earning more with our platform.</p>
                 
                 <ul className="space-y-4">
                   {["Free to get started", "No credit card required", "Cancel anytime"].map((item, i) => (
                     <li key={i} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-foreground">{item}</span>
+                      <CheckCircle className="h-5 w-5 text-pastel-600 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
                 
                 <Button 
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3"
+                  className="bg-pastel-600 hover:bg-pastel-700 text-white shadow-elevated hover:shadow-lg transition-all duration-200 px-8 py-3"
                   onClick={() => openAuthDialog('signup')}
                 >
                   Start for free
@@ -138,18 +138,18 @@ const Index = () => {
                 </Button>
               </div>
               
-              <div className="glass-card p-8 backdrop-blur-xl bg-card/90 rounded-2xl border border-border shadow-lg">
+              <div className="glass-card p-8 backdrop-blur-xl bg-white/80 rounded-2xl border border-gray-200/50 shadow-elevated">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-semibold text-foreground font-display">Pro Plan</h3>
-                  <div className="px-3 py-1 rounded-full bg-primary/20 text-primary text-sm font-medium">Popular</div>
+                  <h3 className="text-2xl font-semibold text-gray-900 font-display">Pro Plan</h3>
+                  <div className="px-3 py-1 rounded-full bg-pastel-100 text-pastel-700 text-sm font-medium">Popular</div>
                 </div>
                 
                 <div className="mb-8">
                   <div className="flex items-end gap-2">
-                    <span className="text-4xl font-bold text-foreground">₹1999</span>
-                    <span className="text-muted-foreground pb-1">/month</span>
+                    <span className="text-4xl font-bold text-gray-900">₹1999</span>
+                    <span className="text-gray-600 pb-1">/month</span>
                   </div>
-                  <p className="text-muted-foreground text-sm">Billed annually (₹23,988/year)</p>
+                  <p className="text-gray-500 text-sm">Billed annually (₹23,988/year)</p>
                 </div>
                 
                 <ul className="space-y-4 mb-8">
@@ -161,13 +161,13 @@ const Index = () => {
                     "Multiple payment methods"
                   ].map((feature, i) => (
                     <li key={i} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-foreground">{feature}</span>
+                      <CheckCircle className="h-5 w-5 text-pastel-600 flex-shrink-0" />
+                      <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+                <Button className="w-full bg-pastel-600 hover:bg-pastel-700 text-white shadow-lg">
                   Get Started
                 </Button>
               </div>
