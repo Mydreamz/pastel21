@@ -29,18 +29,18 @@ const ContentTypeSelector = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className={`${isMobile ? 'p-3' : 'p-4'} rounded-lg border border-pastel-200 bg-white/80 shadow-sm`}>
+    <div className={`${isMobile ? 'p-3' : 'p-4'} rounded-lg border border-gray-200 bg-white/90 shadow-sm`}>
       <div className="flex items-center gap-2">
         <h3 className="text-lg font-medium text-gray-800 flex items-center gap-2">
-          <Lock className="h-4 w-4 text-pastel-500" /> Locked Content
+          <Lock className="h-4 w-4 text-primary" /> Locked Content
         </h3>
-        <Separator className="flex-1 bg-pastel-200" />
+        <Separator className="flex-1 bg-gray-200" />
       </div>
       
       <Tabs defaultValue="text" value={selectedContentType} onValueChange={setSelectedContentType} className="w-full">
         <ContentTypeTabs />
         
-        <div className={`mt-3 ${isMobile ? 'p-3' : 'p-4'} border border-pastel-100 rounded-md bg-white`}>
+        <div className={`mt-3 ${isMobile ? 'p-3' : 'p-4'} border border-gray-200 rounded-md bg-white/95`}>
           <TextContentTab form={form} />
           <LinkContentTab form={form} />
           

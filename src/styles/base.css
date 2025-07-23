@@ -9,31 +9,31 @@
 @layer base {
   :root {
     /* Darker Cream & Emerald Green Theme */
-    --background: 37 25% 92%;  /* #F4F0E8 - Darker cream */
-    --foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
-    --card: 37 30% 88%;        /* #ECE6DB - Medium cream */
-    --card-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
-    --popover: 37 30% 88%;     /* #ECE6DB - Medium cream */
-    --popover-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
-    --primary: 158 65% 25%;    /* #2D6B42 - Deep emerald */
-    --primary-foreground: 37 25% 92%; /* #F4F0E8 - Darker cream */
-    --secondary: 37 35% 82%;   /* #E0D7C7 - Darker soft cream */
-    --secondary-foreground: 210 25% 18%; /* #252E3A - Deeper charcoal */
-    --muted: 37 35% 82%;       /* #E0D7C7 - Darker soft cream */
-    --muted-foreground: 210 15% 35%; /* #4A566B - Darker gray */
-    --accent: 158 45% 40%;     /* #4A8B5C - Rich emerald accent */
-    --accent-foreground: 37 25% 92%; /* #F4F0E8 - Darker cream */
-    --destructive: 0 84% 60%;  /* Keep existing destructive color */
-    --destructive-foreground: 0 0% 98%; /* Keep existing destructive foreground */
-    --border: 37 40% 78%;      /* #D6CAB8 - Darker cream border */
-    --input: 37 40% 78%;       /* #D6CAB8 - Darker cream border */
-    --ring: 158 65% 25%;       /* #2D6B42 - Deep emerald */
+    --background: 37 25% 92%;
+    --foreground: 210 25% 18%;
+    --card: 37 30% 88%;
+    --card-foreground: 210 25% 18%;
+    --popover: 37 30% 88%;
+    --popover-foreground: 210 25% 18%;
+    --primary: 158 65% 25%;
+    --primary-foreground: 37 25% 92%;
+    --secondary: 37 35% 82%;
+    --secondary-foreground: 210 25% 18%;
+    --muted: 37 35% 82%;
+    --muted-foreground: 210 15% 35%;
+    --accent: 158 45% 40%;
+    --accent-foreground: 37 25% 92%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 37 40% 78%;
+    --input: 37 40% 78%;
+    --ring: 158 65% 25%;
     --radius: 0.75rem;
     
-    /* High contrast text utilities */
-    --text-high-contrast: 210 25% 15%; /* Very dark charcoal */
-    --text-medium-contrast: 210 20% 25%; /* Medium dark */
-    --text-readable: 210 15% 30%; /* Readable dark */
+    /* Enhanced contrast text utilities */
+    --text-high-contrast: 210 30% 12%;
+    --text-medium-contrast: 210 25% 18%;
+    --text-readable: 210 20% 25%;
   }
 }
 
@@ -104,7 +104,7 @@
     font-weight: 500;
   }
 
-  /* Heading Animation Classes */
+  /* Enhanced Heading Animation Classes */
   .heading-animate {
     background: linear-gradient(90deg, hsl(var(--text-high-contrast)), hsl(var(--primary)));
     background-size: 200% 100%;
@@ -121,7 +121,7 @@
     text-shadow: 0 4px 20px hsl(var(--primary) / 0.3);
   }
 
-  /* Staggered letter animation */
+  /* Enhanced staggered letter animation */
   .heading-stagger {
     display: inline-block;
   }
@@ -145,6 +145,8 @@
   .heading-stagger span:nth-child(6) { transition-delay: 0.3s; }
   .heading-stagger span:nth-child(7) { transition-delay: 0.35s; }
   .heading-stagger span:nth-child(8) { transition-delay: 0.4s; }
+  .heading-stagger span:nth-child(9) { transition-delay: 0.45s; }
+  .heading-stagger span:nth-child(10) { transition-delay: 0.5s; }
 
   /* Display text utilities */
   .display-text {
@@ -171,14 +173,20 @@
     letter-spacing: -0.02em;
   }
 
-  /* Improved glass morphism with better contrast */
+  /* Enhanced glass morphism with better contrast */
   .glass {
-    background: rgba(244, 240, 232, 0.9);
+    background: rgba(244, 240, 232, 0.95);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(214, 202, 184, 0.8);
   }
 
-  /* High contrast text utilities */
+  .glass-form {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(214, 202, 184, 0.8);
+  }
+
+  /* Enhanced text utilities */
   .text-high-contrast {
     color: hsl(var(--text-high-contrast));
   }
@@ -226,7 +234,6 @@
       line-height: 35px;
     }
 
-    /* Disable complex animations on mobile for performance */
     .heading-animate:hover {
       transform: none;
     }
@@ -256,7 +263,6 @@
     letter-spacing: -0.01em;
   }
 
-  /* Tabular figures for numbers */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }

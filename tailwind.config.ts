@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,7 +23,7 @@ export default {
 				'display': ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
 				'body': ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"'],
 				'mooxy': ['"Mochiy Pop One"', 'sans-serif'],
-				'playfair': ['"Playfair Display"', 'serif'], // Keep as optional for specific use cases
+				'playfair': ['"Playfair Display"', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -60,66 +59,63 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Enhanced text contrast utilities
 				'high-contrast': 'hsl(var(--text-high-contrast))',
 				'medium-contrast': 'hsl(var(--text-medium-contrast))',
 				'readable': 'hsl(var(--text-readable))',
-				// Darker Cream Color System
 				cream: {
-					DEFAULT: '37 25% 92%',    // #F4F0E8 - Darker cream
-					50: '37 30% 95%',         // #F9F6F1 - Light cream
-					100: '37 25% 92%',        // #F4F0E8 - Darker cream
-					200: '37 30% 88%',        // #ECE6DB - Medium cream
-					300: '37 35% 82%',        // #E0D7C7 - Soft cream
-					400: '37 40% 78%',        // #D6CAB8 - Cream border
-					500: '37 45% 72%',        // #C8BBA6 - Medium cream
-					600: '37 50% 68%',        // #BBAB96 - Deeper cream
-					700: '37 55% 62%',        // #AB9B84 - Dark cream
-					800: '37 60% 58%',        // #9C8B72 - Darker cream
-					900: '37 65% 52%',        // #8B7A60 - Darkest cream
-					950: '37 70% 48%',        // #7A694E - Deep cream
+					DEFAULT: '37 25% 92%',
+					50: '37 30% 95%',
+					100: '37 25% 92%',
+					200: '37 30% 88%',
+					300: '37 35% 82%',
+					400: '37 40% 78%',
+					500: '37 45% 72%',
+					600: '37 50% 68%',
+					700: '37 55% 62%',
+					800: '37 60% 58%',
+					900: '37 65% 52%',
+					950: '37 70% 48%',
 				},
 				green: {
-					DEFAULT: '158 65% 25%',   // #2D6B42 - Deep emerald
-					50: '158 35% 80%',        // #B8DCC4 - Light emerald
-					100: '158 40% 70%',       // #8FC9A1 - Soft emerald
-					200: '158 45% 60%',       // #66B77E - Medium emerald
-					300: '158 50% 50%',       // #3DA55B - Bright emerald
-					400: '158 45% 40%',       // #4A8B5C - Rich emerald accent
-					500: '158 55% 35%',       // #3F7A4E - Medium emerald
-					600: '158 65% 25%',       // #2D6B42 - Deep emerald
-					700: '158 70% 20%',       // #245A36 - Darker emerald
-					800: '158 75% 15%',       // #1B482A - Deep forest emerald
-					900: '158 80% 12%',       // #143720 - Darkest emerald
-					950: '158 85% 8%',        // #0D2516 - Ultra dark emerald
+					DEFAULT: '158 65% 25%',
+					50: '158 35% 80%',
+					100: '158 40% 70%',
+					200: '158 45% 60%',
+					300: '158 50% 50%',
+					400: '158 45% 40%',
+					500: '158 55% 35%',
+					600: '158 65% 25%',
+					700: '158 70% 20%',
+					800: '158 75% 15%',
+					900: '158 80% 12%',
+					950: '158 85% 8%',
 				},
-				// Enhanced gray scale with warm tones and better contrast
 				gray: {
-					50: '37 15% 98%',         // #FAFAFA - Very light warm gray
-					100: '37 15% 96%',        // #F4F4F5 - Light warm gray
-					200: '37 10% 90%',        // #E4E4E7 - Medium light gray
-					300: '37 10% 85%',        // #D4D4D8 - Medium gray
-					400: '210 10% 60%',       // #999999 - Medium dark gray (improved contrast)
-					500: '210 10% 40%',       // #666666 - Dark gray (improved contrast)
-					600: '210 15% 30%',       // #4D4D4D - Darker gray (improved contrast)
-					700: '210 20% 20%',       // #333333 - Very dark gray (improved contrast)
-					800: '210 25% 15%',       // #262626 - Almost black (improved contrast)
-					900: '210 30% 10%',       // #1A1A1A - Near black (improved contrast)
-					950: '210 35% 5%',        // #0D0D0D - Black (improved contrast)
+					50: '37 15% 98%',
+					100: '37 15% 96%',
+					200: '37 10% 90%',
+					300: '37 10% 85%',
+					400: '210 10% 60%',
+					500: '210 10% 40%',
+					600: '210 15% 30%',
+					700: '210 20% 20%',
+					800: '210 25% 15%',
+					900: '210 30% 10%',
+					950: '210 35% 5%',
 				},
 				pastel: {
-					DEFAULT: '146 50% 30%',   // #4A7C59 - Rich emerald
-					50: '146 30% 85%',        // #D4E6D8 - Very light green
-					100: '146 30% 75%',       // #B8D9BE - Light green
-					200: '146 30% 65%',       // #9CCCA4 - Soft green
-					300: '146 30% 55%',       // #80BF8A - Medium light green
-					400: '146 30% 50%',       // #6B9080 - Sage green
-					500: '146 50% 30%',       // #4A7C59 - Rich emerald
-					600: '146 60% 25%',       // #3D6849 - Deep green
-					700: '146 70% 20%',       // #2F5439 - Darker green
-					800: '146 80% 15%',       // #2D5016 - Deep forest green
-					900: '146 85% 12%',       // #1F3811 - Darkest green
-					950: '146 90% 10%',       // #0F2008 - Ultra dark green
+					DEFAULT: 'hsl(var(--primary))',
+					50: 'hsl(158 35% 80%)',
+					100: 'hsl(158 40% 70%)',
+					200: 'hsl(158 45% 60%)',
+					300: 'hsl(158 50% 50%)',
+					400: 'hsl(158 45% 40%)',
+					500: 'hsl(var(--primary))',
+					600: 'hsl(158 70% 20%)',
+					700: 'hsl(158 75% 15%)',
+					800: 'hsl(158 80% 12%)',
+					900: 'hsl(158 85% 8%)',
+					950: 'hsl(158 90% 5%)',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -143,9 +139,9 @@ export default {
 				'4xl': ['2.25rem', { lineHeight: '2.5rem' }],
 				'5xl': ['3rem', { lineHeight: '1' }],
 				'6xl': ['3.75rem', { lineHeight: '1' }],
-				'60': ['60px', { lineHeight: '75px' }], // Instrument Sans signature size
-				'display-sm': ['48px', { lineHeight: '60px' }], // Scaled for tablet
-				'display-xs': ['36px', { lineHeight: '45px' }], // Scaled for mobile
+				'60': ['60px', { lineHeight: '75px' }],
+				'display-sm': ['48px', { lineHeight: '60px' }],
+				'display-xs': ['36px', { lineHeight: '45px' }],
 			},
 			spacing: {
 				'18': '4.5rem',

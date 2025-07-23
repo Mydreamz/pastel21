@@ -14,7 +14,7 @@ type MediaContentTabProps = {
 
 const MediaContentTab = ({ form, type, selectedFile, setSelectedFile }: MediaContentTabProps) => {
   return (
-    <TabsContent value={type} className="p-4 bg-white/5 border border-white/10 rounded-md">
+    <TabsContent value={type} className="p-4 bg-white/90 border border-gray-200 rounded-md">
       <MediaContentForm 
         form={form} 
         type={type} 

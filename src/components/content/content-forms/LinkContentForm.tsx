@@ -19,14 +19,14 @@ const LinkContentForm = ({ form }: LinkContentFormProps) => {
           <FormControl>
             <Input 
               placeholder="https://example.com/your-premium-link" 
-              className="bg-white/5 border-white/10 text-white" 
+              className="bg-white/90 border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-primary focus:ring-primary/20" 
               {...field} 
             />
           </FormControl>
-          <FormDescription className="text-gray-400">
+          <FormDescription className="text-gray-600">
             Enter the URL you want to share with paying users
           </FormDescription>
-          <FormMessage />
+          <FormMessage className="text-red-600" />
         </FormItem>
       )}
     />

@@ -19,11 +19,11 @@ const TextContentForm = ({ form }: TextContentFormProps) => {
           <FormControl>
             <Textarea 
               placeholder="Write your premium content here" 
-              className="h-40 bg-white/5 border-white/10 text-white" 
+              className="h-40 bg-white/90 border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-primary focus:ring-primary/20" 
               {...field} 
             />
           </FormControl>
-          <FormMessage />
+          <FormMessage className="text-red-600" />
         </FormItem>
       )}
     />
