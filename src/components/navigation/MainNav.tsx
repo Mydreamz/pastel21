@@ -26,7 +26,13 @@ const MainNav = ({
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/lovable-uploads/7b55e5bb-a598-4313-9550-445d7b069261.png" alt="Monitize Logo" className="h-8 w-8 mr-2" loading="eager" fetchPriority="high" />
+            <img 
+              src="/lovable-uploads/7b55e5bb-a598-4313-9550-445d7b069261.png" 
+              alt="Monitize Logo" 
+              className="h-8 w-8 mr-2 transition-all duration-300 hover:backdrop-blur-sm hover:bg-white/10 hover:border hover:border-white/20 hover:rounded-lg hover:p-1 hover:shadow-lg" 
+              loading="eager" 
+              fetchPriority="high" 
+            />
             <span className="font-mooxy font-bold text-gradient text-xl">Monitize.club</span>
           </div>
           
