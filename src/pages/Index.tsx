@@ -178,7 +178,7 @@ const Index = () => {
         </section>
       </main>
 
-      <Footer />
+      
       <MobileBottomNav openAuthDialog={openAuthDialog} />
       <BackToTop />
       
