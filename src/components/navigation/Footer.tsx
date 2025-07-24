@@ -31,6 +31,12 @@ const Footer = () => {
               Terms of Service
             </Link>
           </div>
+          <div>
+            <span className="font-medium">Shipping:</span>{' '}
+            <Link to="/shipping-policy" className="hover:text-white transition-colors">
+              Shipping Policy
+            </Link>
+          </div>
         </div>
         <div className="text-gray-500 text-center">
           © 2025 Monitize.club. All rights reserved.

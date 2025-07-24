@@ -26,6 +26,7 @@ import ContactUs from '@/pages/ContactUs';
 import RefundPolicy from '@/pages/RefundPolicy';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
+import ShippingPolicy from '@/pages/ShippingPolicy';
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ function App() {
                   <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/shipping-policy" element={<ShippingPolicy />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <Footer />
