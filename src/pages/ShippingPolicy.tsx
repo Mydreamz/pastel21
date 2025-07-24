@@ -1,154 +1,151 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Zap, Clock, Shield } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Zap, Clock, Shield } from 'lucide-react';
+import MainNav from '@/components/navigation/MainNav';
+import Footer from '@/components/navigation/Footer';
+import { useState } from 'react';
+import AuthDialog from '@/components/auth/AuthDialog';
 
 const ShippingPolicy = () => {
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
+
+  const openAuthDialog = (tab: 'login' | 'signup') => {
+    setAuthTab(tab);
+    setShowAuthDialog(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 md:px-6 py-8">
-        <div className="mb-8">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-        </div>
-
-        <div className="space-y-8">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Shipping Policy
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <MainNav openAuthDialog={openAuthDialog} />
+      
+      <main className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="glass-card p-8 rounded-2xl">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-foreground mb-4">Shipping Policy</h1>
+            <p className="text-muted-foreground text-lg">
               Digital content delivery information for Monitize.club
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="border-primary/20">
-              <CardHeader className="text-center">
-                <Zap className="h-8 w-8 text-primary mx-auto mb-2" />
-                <CardTitle className="text-lg">Instant Delivery</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+          <div className="space-y-8">
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <div className="text-center p-6 bg-muted/50 rounded-lg">
+                <Zap className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Instant Delivery</h3>
+                <p className="text-sm text-muted-foreground">
                   All digital products are delivered instantly upon successful payment
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20">
-              <CardHeader className="text-center">
-                <Clock className="h-8 w-8 text-primary mx-auto mb-2" />
-                <CardTitle className="text-lg">24/7 Access</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+              </div>
+              <div className="text-center p-6 bg-muted/50 rounded-lg">
+                <Clock className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">24/7 Access</h3>
+                <p className="text-sm text-muted-foreground">
                   Access your purchased content anytime from your dashboard
                 </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20">
-              <CardHeader className="text-center">
-                <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
-                <CardTitle className="text-lg">Secure Delivery</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-muted-foreground">
+              </div>
+              <div className="text-center p-6 bg-muted/50 rounded-lg">
+                <Shield className="h-8 w-8 text-primary mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Secure Delivery</h3>
+                <p className="text-sm text-muted-foreground">
                   All content is delivered through secure, encrypted channels
                 </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Digital Product Delivery</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-lg mb-2">How It Works</h3>
-                <p className="text-muted-foreground mb-4">
-                  Since Monitize.club exclusively offers digital products (documents, media files, digital content), 
-                  there is no physical shipping involved. All products are delivered electronically.
-                </p>
               </div>
+            </div>
 
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Delivery Process</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium text-primary">1.</span>
-                    Complete your purchase through our secure payment system
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium text-primary">2.</span>
-                    Receive instant access to your purchased content
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium text-primary">3.</span>
-                    Content appears immediately in your dashboard under "Purchased"
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="font-medium text-primary">4.</span>
-                    Download or view your content anytime with lifetime access
-                  </li>
-                </ul>
-              </div>
+            <div className="space-y-6">
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Digital Product Delivery</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>
+                    Since Monitize.club exclusively offers digital products (documents, media files, digital content), 
+                    there is no physical shipping involved. All products are delivered electronically.
+                  </p>
+                </div>
+              </section>
 
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Delivery Time</h3>
-                <p className="text-muted-foreground">
-                  All digital products are delivered <strong>instantly</strong> upon successful payment confirmation. 
-                  There are no shipping delays, processing times, or delivery windows to wait for.
-                </p>
-              </div>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">How It Works</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <h3 className="text-lg font-medium text-foreground">Delivery Process</h3>
+                  <ul className="list-disc list-inside space-y-2 ml-4">
+                    <li>Complete your purchase through our secure payment system</li>
+                    <li>Receive instant access to your purchased content</li>
+                    <li>Content appears immediately in your dashboard under "Purchased"</li>
+                    <li>Download or view your content anytime with lifetime access</li>
+                  </ul>
+                </div>
+              </section>
 
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Access & Downloads</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• Access your purchased content from any device with internet connection</li>
-                  <li>• Download files for offline viewing (where applicable)</li>
-                  <li>• No expiration dates on your purchased content</li>
-                  <li>• Re-download capability from your dashboard</li>
-                </ul>
-              </div>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Delivery Time</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>
+                    All digital products are delivered <strong>instantly</strong> upon successful payment confirmation. 
+                    There are no shipping delays, processing times, or delivery windows to wait for.
+                  </p>
+                </div>
+              </section>
 
-              <div>
-                <h3 className="font-semibold text-lg mb-2">Troubleshooting</h3>
-                <p className="text-muted-foreground mb-2">
-                  If you don't see your purchased content immediately:
-                </p>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• Check your dashboard under the "Purchased" tab</li>
-                  <li>• Ensure your payment was processed successfully</li>
-                  <li>• Refresh your browser or app</li>
-                  <li>• Contact our support team if issues persist</li>
-                </ul>
-              </div>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Access & Downloads</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Multi-Device Access:</strong> Access your purchased content from any device with internet connection</li>
+                    <li><strong>Offline Viewing:</strong> Download files for offline viewing (where applicable)</li>
+                    <li><strong>Lifetime Access:</strong> No expiration dates on your purchased content</li>
+                    <li><strong>Re-download:</strong> Re-download capability from your dashboard anytime</li>
+                  </ul>
+                </div>
+              </section>
 
-              <div className="border-t pt-4">
-                <h3 className="font-semibold text-lg mb-2">Contact Support</h3>
-                <p className="text-muted-foreground">
-                  For any delivery-related questions or technical issues, please{' '}
-                  <Link to="/contact" className="text-primary hover:underline">
-                    contact our support team
-                  </Link>
-                  . We're here to help ensure you receive your digital content promptly.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Troubleshooting</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>If you don't see your purchased content immediately:</p>
+                  <ul className="list-disc list-inside space-y-2 ml-4">
+                    <li>Check your dashboard under the "Purchased" tab</li>
+                    <li>Ensure your payment was processed successfully</li>
+                    <li>Refresh your browser or app</li>
+                    <li>Contact our support team if issues persist</li>
+                  </ul>
+                </div>
+              </section>
 
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Last updated: January 2025</p>
+              <section>
+                <h2 className="text-2xl font-semibold mb-4">Contact Support</h2>
+                <div className="space-y-4 text-muted-foreground">
+                  <p>
+                    For any delivery-related questions or technical issues, please contact our support team. 
+                    We're here to help ensure you receive your digital content promptly.
+                  </p>
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <p><strong>Email:</strong> <a href="mailto:monitizedotclub@gmail.com" className="text-primary hover:underline">monitizedotclub@gmail.com</a></p>
+                    <p><strong>Subject Line:</strong> Shipping Policy Inquiry</p>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div className="border-t pt-6">
+              <p className="text-sm text-muted-foreground">
+                This Shipping Policy was last updated on January 2025. We may update this policy from time to time. 
+                We will notify users of any significant changes via email or platform notifications.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      <Footer />
+      
+      <AuthDialog
+        showAuthDialog={showAuthDialog}
+        setShowAuthDialog={setShowAuthDialog}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+        setIsAuthenticated={() => {}}
+        setUserData={() => {}}
+      />
     </div>
   );
 };
