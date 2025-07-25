@@ -33,22 +33,6 @@ export default function UseCaseCarousel() {
   const USE_CASES: UseCaseSlide[] = [
     {
       id: 1,
-      title: "Fantasy Teams",
-      description: "Monetize your sports expertise with premium team selections",
-      icon: (props) => <Trophy {...props} />,
-      monetizationIcon: (props) => <IndianRupee {...props} />,
-      monetizationText: "Buy Now ₹99"
-    },
-    {
-      id: 2,
-      title: "Stock Market Analysis",
-      description: "Sell valuable market insights to eager investors",
-      icon: (props) => <TrendingUp {...props} />,
-      monetizationIcon: (props) => <Crown {...props} />,
-      monetizationText: "PREMIUM"
-    },
-    {
-      id: 3,
       title: "Online Courses",
       description: "Secure your knowledge behind a paywall",
       icon: (props) => <BookOpen {...props} />,
@@ -56,7 +40,7 @@ export default function UseCaseCarousel() {
       monetizationText: "Locked Content"
     },
     {
-      id: 4,
+      id: 2,
       title: "Instagram Reels",
       description: "Turn your video content into a revenue stream",
       icon: (props) => <Smartphone {...props} />,
@@ -64,7 +48,7 @@ export default function UseCaseCarousel() {
       monetizationText: "₹199"
     },
     {
-      id: 5,
+      id: 3,
       title: "Paid Meeting Links",
       description: "Get paid before granting meeting access",
       icon: (props) => <Calendar {...props} />,
@@ -82,16 +66,13 @@ export default function UseCaseCarousel() {
           <div
             key={useCase.id}
             className={cn(
-              "absolute inset-0 glass-card p-6 flex flex-col",
+              "absolute inset-0 glass-card p-6 flex flex-col transition-all duration-700 ease-in-out",
               {
                 "translate-x-0 opacity-100": index === activeSlide,
                 "translate-x-full opacity-0": index > activeSlide,
                 "-translate-x-full opacity-0": index < activeSlide
               }
             )}
-            style={{
-              transitionTimingFunction: "cubic-bezier(0.4, 0.0, 0.2, 1)"
-            }}
           >
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center justify-center w-16 h-16 bg-black/20 rounded-xl animate-float">
