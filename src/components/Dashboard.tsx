@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import DashboardStats from './dashboard/DashboardStats';
 import DashboardActiveUsers from './dashboard/DashboardActiveUsers';
 import UseCaseCarousel from './UseCaseCarousel';
+import moneyFallingBg from '@/assets/money-falling-background.jpg';
 
 const Dashboard = () => {
   const [mousePosition, setMousePosition] = useState({
@@ -105,6 +106,12 @@ const Dashboard = () => {
       style={parallaxStyle} 
       className="glass-card p-6 rounded-2xl w-full max-w-[560px] mx-auto lg:mx-0 animate-float-slow backdrop-blur-xl border border-pastel-200/60 shadow-neumorphic relative overflow-hidden"
     >
+      {/* Luxurious money falling background */}
+      <div 
+        className="absolute inset-0 opacity-30 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${moneyFallingBg})` }}
+      ></div>
+      
       {/* Decorative elements for visual interest */}
       <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pastel-400/20 rounded-full blur-3xl"></div>
       <div className="absolute -top-10 -left-10 w-32 h-32 bg-pastel-500/20 rounded-full blur-3xl"></div>
