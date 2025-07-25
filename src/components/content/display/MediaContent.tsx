@@ -67,13 +67,23 @@ const MediaContent = ({
     );
   }
 
-  // Show secure file error state
+  // Show secure file error state with better error handling
   if (secureFileError) {
+    const isFileNotFound = secureFileError.includes('File not found') || secureFileError.includes('404');
+    const isAccessDenied = secureFileError.includes('Access denied') || secureFileError.includes('403');
+    
     return (
       <Alert variant="destructive" className="mb-4 bg-red-50 border-red-200 text-red-700">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load secure content: {secureFileError}
+          {isFileNotFound ? (
+            "Content file not found. The file may have been removed or moved."
+          ) : isAccessDenied ? (
+            "Access denied. You don't have permission to view this content."
+          ) : (
+            `Failed to load secure content: ${secureFileError}`
+          )}
+          {isCreator && " Please check if the file still exists and re-upload if necessary."}
         </AlertDescription>
       </Alert>
     );

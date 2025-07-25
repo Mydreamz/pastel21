@@ -33,7 +33,7 @@ serve(async (req) => {
   try {
     console.log("Secure media function called")
     
-    // Create Supabase client
+    // Create Supabase client for auth verification
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -42,6 +42,12 @@ serve(async (req) => {
           headers: { Authorization: req.headers.get('Authorization')! },
         },
       }
+    )
+
+    // Create service role client for storage operations
+    const supabaseServiceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
     
     // Get user from auth header
@@ -66,14 +72,34 @@ serve(async (req) => {
       )
     }
 
-    // Parse request body
+    // Parse and validate request body
     let contentId, filePath;
     try {
       const body = await req.json();
       contentId = body.contentId;
       filePath = body.filePath;
+      
+      // Input validation
+      if (typeof contentId !== 'string' || !contentId.trim()) {
+        throw new Error('contentId must be a non-empty string');
+      }
+      if (typeof filePath !== 'string' || !filePath.trim()) {
+        throw new Error('filePath must be a non-empty string');
+      }
+      
+      // Validate UUID format for contentId
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(contentId)) {
+        throw new Error('contentId must be a valid UUID');
+      }
+      
+      // Sanitize filePath to prevent path traversal
+      if (filePath.includes('..') || filePath.includes('//') || filePath.startsWith('/')) {
+        throw new Error('Invalid file path format');
+      }
+      
     } catch (e) {
-      console.error("Error parsing request body:", e)
+      console.error("Error parsing/validating request body:", e)
       return new Response(
         JSON.stringify({ error: 'Invalid request body', details: e.message }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -144,9 +170,34 @@ serve(async (req) => {
       )
     }
 
-    // Get signed URL with short expiry
+    // Check if file exists before creating signed URL
+    console.log(`Checking if file exists: ${filePath}`)
+    const { data: fileData, error: fileCheckError } = await supabaseServiceClient
+      .storage
+      .from('content-media')
+      .list(filePath.substring(0, filePath.lastIndexOf('/')), {
+        search: filePath.substring(filePath.lastIndexOf('/') + 1)
+      })
+
+    if (fileCheckError) {
+      console.error('Error checking file existence:', fileCheckError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify file existence', details: fileCheckError.message }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      )
+    }
+
+    if (!fileData || fileData.length === 0) {
+      console.error(`File not found in storage: ${filePath}`)
+      return new Response(
+        JSON.stringify({ error: 'File not found in storage', filePath }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
+
+    // Get signed URL with short expiry using service role client
     console.log(`Creating signed URL for file: ${filePath}`)
-    const { data: urlData, error: urlError } = await supabaseClient
+    const { data: urlData, error: urlError } = await supabaseServiceClient
       .storage
       .from('content-media')
       .createSignedUrl(filePath, 300) // 5 minutes
