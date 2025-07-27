@@ -10,6 +10,8 @@ import ProfileSidebar from '@/components/profile/ProfileSidebar';
 import UserContentsList from '@/components/profile/UserContentsList';
 import AccountSettings from '@/components/profile/AccountSettings';
 import AnalyticsDashboard from '@/components/profile/AnalyticsDashboard';
+import WithdrawalForm from '@/components/profile/WithdrawalForm';
+import WithdrawalHistory from '@/components/profile/WithdrawalHistory';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const Profile = () => {
     userData, 
     userContents, 
     balance,
+    profileData,
     isLoading,
     fetchUserData, 
     handleLogout, 
@@ -74,14 +77,18 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="analytics">
-                  <TabsList className="grid grid-cols-3 bg-white/50 border border-pastel-200/50 p-1">
+                  <TabsList className="grid grid-cols-4 bg-white/50 border border-pastel-200/50 p-1">
                     <TabsTrigger value="analytics" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
                       <BarChart className="h-4 w-4 mr-2" />
                       Analytics
                     </TabsTrigger>
                     <TabsTrigger value="content" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
                       <FileText className="h-4 w-4 mr-2" />
-                      Your Content
+                      Content
+                    </TabsTrigger>
+                    <TabsTrigger value="withdrawals" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
+                      <BarChart className="h-4 w-4 mr-2" />
+                      Withdrawals
                     </TabsTrigger>
                     <TabsTrigger value="settings" className="data-[state=active]:bg-pastel-500 data-[state=active]:text-white text-gray-700">
                       <User className="h-4 w-4 mr-2" />
@@ -99,6 +106,14 @@ const Profile = () => {
                       onEditContent={handleEditContent} 
                       onDeleteContent={handleDeleteContent} 
                     />
+                  </TabsContent>
+                  
+                  <TabsContent value="withdrawals" className="space-y-6">
+                    <WithdrawalForm 
+                      availableBalance={parseFloat(profileData?.available_balance || '0')} 
+                      onWithdrawalSubmitted={fetchUserData}
+                    />
+                    <WithdrawalHistory />
                   </TabsContent>
                   
                   <TabsContent value="settings">
