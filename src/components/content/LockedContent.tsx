@@ -3,12 +3,15 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Lock, IndianRupee } from 'lucide-react';
 import { formatCurrency, calculateFees } from '@/utils/paymentUtils';
+import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LockedContentProps {
   price: string;
   onUnlock: () => void;
   contentTitle?: string;
   isProcessing?: boolean;
+  contentId?: string;
 }
 
 const LockedContent: React.FC<LockedContentProps> = ({
@@ -16,9 +19,30 @@ const LockedContent: React.FC<LockedContentProps> = ({
   onUnlock,
   contentTitle = "this content",
   isProcessing = false,
+  contentId,
 }) => {
   const priceNum = parseFloat(price);
   const { platformFee, creatorEarnings } = calculateFees(priceNum);
+  const { initiatePayment, isProcessing: razorpayProcessing } = useRazorpayPayment();
+  const { user } = useAuth();
+
+  const handlePayment = async () => {
+    if (!contentId) {
+      onUnlock(); // Fallback to original behavior
+      return;
+    }
+
+    await initiatePayment(
+      contentId,
+      priceNum,
+      contentTitle,
+      user?.email,
+      user?.user_metadata?.name,
+      () => {
+        onUnlock(); // Call the original unlock function after successful payment
+      }
+    );
+  };
 
   return (
     <div className="p-6 rounded-xl bg-gradient-to-br from-pastel-50/90 to-white/80 backdrop-blur-md border border-pastel-200/30 shadow-neumorphic">
@@ -52,11 +76,11 @@ const LockedContent: React.FC<LockedContentProps> = ({
       </div>
       
       <Button
-        onClick={onUnlock}
-        disabled={isProcessing}
+        onClick={handlePayment}
+        disabled={isProcessing || razorpayProcessing}
         className="w-full bg-gradient-to-r from-pastel-500 to-pastel-600 text-white shadow-md hover:shadow-lg"
       >
-        {isProcessing ? (
+        {(isProcessing || razorpayProcessing) ? (
           <span className="flex items-center justify-center">
             <span className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
             Processing...

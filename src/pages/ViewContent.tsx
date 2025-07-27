@@ -90,6 +90,7 @@ const ViewContent = () => {
                 onUnlock={handleUnlockAttempt}
                 contentTitle={content.title}
                 isProcessing={isProcessing}
+                contentId={content.id}
               />
             ) : (
               <ContentViewWrapper 

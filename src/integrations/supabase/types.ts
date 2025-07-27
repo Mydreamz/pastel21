@@ -162,6 +162,57 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          content_id: string | null
+          created_at: string
+          creator_earnings: number | null
+          creator_id: string | null
+          currency: string | null
+          expires_at: string | null
+          id: string
+          payment_attempts: number | null
+          platform_fee: number | null
+          razorpay_order_id: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          content_id?: string | null
+          created_at?: string
+          creator_earnings?: number | null
+          creator_id?: string | null
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_attempts?: number | null
+          platform_fee?: number | null
+          razorpay_order_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          content_id?: string | null
+          created_at?: string
+          creator_earnings?: number | null
+          creator_id?: string | null
+          currency?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_attempts?: number | null
+          platform_fee?: number | null
+          razorpay_order_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           amount: string
@@ -241,7 +292,12 @@ export type Database = {
           creator_id: string | null
           id: string
           is_deleted: boolean
+          payment_method: string | null
+          payment_status: string | null
           platform_fee: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
           timestamp: string
           user_id: string | null
         }
@@ -252,7 +308,12 @@ export type Database = {
           creator_id?: string | null
           id?: string
           is_deleted?: boolean
+          payment_method?: string | null
+          payment_status?: string | null
           platform_fee?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           timestamp?: string
           user_id?: string | null
         }
@@ -263,7 +324,12 @@ export type Database = {
           creator_id?: string | null
           id?: string
           is_deleted?: boolean
+          payment_method?: string | null
+          payment_status?: string | null
           platform_fee?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           timestamp?: string
           user_id?: string | null
         }
