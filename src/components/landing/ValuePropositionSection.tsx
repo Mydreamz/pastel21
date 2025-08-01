@@ -43,7 +43,7 @@ const ValuePropositionSection = () => {
   ];
 
   const comparisonData = [
-    { feature: "Platform Fee", us: "1-5%", others: "5-30%" },
+    { feature: "Platform Fee", us: "7%", others: "10-30%" },
     { feature: "Setup Time", us: "< 5 minutes", others: "Hours/Days" },
     { feature: "Content Types", us: "All formats", others: "Limited" },
     { feature: "Analytics", us: "Advanced", others: "Basic" },
@@ -152,15 +152,15 @@ const ValuePropositionSection = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-border">
                   <span className="text-readable">Course at ₹999</span>
-                  <span className="text-high-contrast font-medium">₹949*</span>
+                  <span className="text-high-contrast font-medium">₹929*</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-border">
                   <span className="text-readable">Monthly subscription ₹299</span>
-                  <span className="text-high-contrast font-medium">₹284*</span>
+                  <span className="text-high-contrast font-medium">₹278*</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-readable">Digital template ₹499</span>
-                  <span className="text-high-contrast font-medium">₹474*</span>
+                  <span className="text-high-contrast font-medium">₹464*</span>
                 </div>
               </div>
             </div>
@@ -172,7 +172,7 @@ const ValuePropositionSection = () => {
                 <div className="text-sm text-readable">Average creator earnings</div>
               </div>
               <div className="text-xs text-muted-foreground">
-                *Based on Creator plan (3% fee). Actual earnings may vary.
+                *Based on 7% platform fee. Actual earnings may vary.
               </div>
             </div>
           </div>

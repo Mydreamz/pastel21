@@ -8,7 +8,7 @@ import MobileBottomNav from '@/components/navigation/MobileBottomNav';
 import Footer from '@/components/navigation/Footer';
 import AuthDialog from '@/components/auth/AuthDialog';
 import RecentContent from '@/components/content/RecentContent';
-import PricingSection from '@/components/landing/PricingSection';
+
 import FAQSection from '@/components/landing/FAQSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import ValuePropositionSection from '@/components/landing/ValuePropositionSection';
@@ -80,8 +80,6 @@ const Index = () => {
         <ValuePropositionSection />
         
         <TestimonialsSection />
-        
-        <PricingSection openAuthDialog={openAuthDialog} />
         
         <FAQSection />
       </main>

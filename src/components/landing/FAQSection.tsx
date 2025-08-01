@@ -15,7 +15,7 @@ const FAQSection = () => {
     },
     {
       question: "What are the platform fees?",
-      answer: "We offer transparent pricing: Free plan has 5% platform fee, Creator plan has 3% fee (₹299/month), and Pro plan has just 1% fee (₹599/month). No hidden charges or setup fees."
+      answer: "We charge a simple 7% platform fee on all transactions. No hidden charges, no setup fees, no monthly subscriptions - you only pay when you earn."
     },
     {
       question: "How do withdrawals work?",
@@ -62,10 +62,10 @@ const FAQSection = () => {
               value={`item-${index}`}
               className="glass-card backdrop-blur-xl rounded-2xl border border-border px-6"
             >
-              <AccordionTrigger className="text-left text-high-contrast hover:text-primary transition-colors py-6">
+              <AccordionTrigger className="text-left text-high-contrast hover:text-primary transition-colors py-6 text-lg font-medium">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-readable pb-6 leading-relaxed">
+              <AccordionContent className="text-readable pb-6 leading-relaxed text-base">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
