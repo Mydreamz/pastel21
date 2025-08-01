@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Hero from '@/components/Hero';
 import Dashboard from '@/components/Dashboard';
@@ -16,21 +15,27 @@ import { useAuth } from '@/contexts/AuthContext';
 import { BackToTop } from '@/components/ui/back-to-top';
 import { useNavigate } from 'react-router-dom';
 import AnimatedHeading from '@/components/ui/animated-heading';
-
 const Index = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'signup'>('login');
-  const { user, session, isLoading } = useAuth();
+  const {
+    user,
+    session,
+    isLoading
+  } = useAuth();
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!isLoading && session && user) {
-      navigate('/dashboard', { replace: true });
+      navigate('/dashboard', {
+        replace: true
+      });
     }
   }, [session, user, isLoading, navigate]);
-
   const openAuthDialog = (tab: 'login' | 'signup') => {
     setAuthTab(tab);
     setShowAuthDialog(true);
@@ -38,23 +43,19 @@ const Index = () => {
 
   // Show loading state while checking auth
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+    return <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-high-contrast text-center">
           <div className="animate-spin h-8 w-8 border-t-2 border-primary border-r-2 rounded-full mx-auto mb-4"></div>
           <p>Loading...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // If authenticated, don't render the landing page (navigation will happen via useEffect)
   if (session && user) {
     return null;
   }
-
-  return (
-    <div className="min-h-screen flex flex-col antialiased text-high-contrast relative overflow-hidden pb-16 md:pb-0">
+  return <div className="min-h-screen flex flex-col antialiased text-high-contrast relative overflow-hidden pb-16 md:pb-0">
       <StarsBackground />
       <div className="bg-grid absolute inset-0 opacity-[0.02] z-0"></div>
       
@@ -70,10 +71,7 @@ const Index = () => {
           </div>
         </section>
 
-        <RecentContent 
-          isAuthenticated={!!session}
-          openAuthDialog={openAuthDialog}
-        />
+        <RecentContent isAuthenticated={!!session} openAuthDialog={openAuthDialog} />
         
         <section id="features" className="py-16 md:py-24">
           <div className="text-center mb-16 space-y-4">
@@ -86,95 +84,28 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Content Creation",
-                description: "Easily create and schedule content across multiple platforms from a single dashboard.",
-                icon: "📝"
-              },
-              {
-                title: "Audience Growth",
-                description: "Grow your audience with powerful analytics and targeted engagement strategies.",
-                icon: "📈"
-              },
-              {
-                title: "Monetization",
-                description: "Turn your passion into profit with multiple revenue streams and payment processing.",
-                icon: "💰"
-              }
-            ].map((feature, i) => (
-              <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl rounded-2xl p-8 hover:shadow-elevated transition-all duration-300">
+            {[{
+            title: "Content Creation",
+            description: "Easily create and schedule content across multiple platforms from a single dashboard.",
+            icon: "📝"
+          }, {
+            title: "Audience Growth",
+            description: "Grow your audience with powerful analytics and targeted engagement strategies.",
+            icon: "📈"
+          }, {
+            title: "Monetization",
+            description: "Turn your passion into profit with multiple revenue streams and payment processing.",
+            icon: "💰"
+          }].map((feature, i) => <div key={i} className="glass-card shadow-neumorphic backdrop-blur-xl rounded-2xl p-8 hover:shadow-elevated transition-all duration-300">
                 <div className="text-4xl mb-6">{feature.icon}</div>
                 <h3 className="text-xl font-semibold mb-4 text-high-contrast font-display">{feature.title}</h3>
                 <p className="text-readable leading-relaxed">{feature.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </section>
         
         <section id="pricing" className="py-16 md:py-24">
-          <div className="glass-card shadow-neumorphic backdrop-blur-xl rounded-3xl p-8 md:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <AnimatedHeading level={2} variant="stagger">
-                  Ready to start monetizing your content?
-                </AnimatedHeading>
-                <p className="text-readable text-lg">Join thousands of creators who are earning more with our platform.</p>
-                
-                <ul className="space-y-4">
-                  {["Free to get started", "No credit card required", "Cancel anytime"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-medium-contrast">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button 
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elevated hover:shadow-lg transition-all duration-200 px-8 py-3"
-                  onClick={() => openAuthDialog('signup')}
-                >
-                  Start for free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>
-              
-              <div className="glass-card p-8 backdrop-blur-xl rounded-2xl border border-border shadow-elevated">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-semibold text-high-contrast font-display">Pro Plan</h3>
-                  <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">Popular</div>
-                </div>
-                
-                <div className="mb-8">
-                  <div className="flex items-end gap-2">
-                    <span className="text-4xl font-bold text-high-contrast">₹1999</span>
-                    <span className="text-readable pb-1">/month</span>
-                  </div>
-                  <p className="text-muted-foreground text-sm">Billed annually (₹23,988/year)</p>
-                </div>
-                
-                <ul className="space-y-4 mb-8">
-                  {[
-                    "Unlimited content creation",
-                    "Advanced analytics",
-                    "Custom branding",
-                    "Priority support",
-                    "Multiple payment methods"
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-medium-contrast">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
-                  Get Started
-                </Button>
-              </div>
-            </div>
-          </div>
+          
         </section>
       </main>
 
@@ -182,16 +113,7 @@ const Index = () => {
       <MobileBottomNav openAuthDialog={openAuthDialog} />
       <BackToTop />
       
-      <AuthDialog
-        showAuthDialog={showAuthDialog}
-        setShowAuthDialog={setShowAuthDialog}
-        authTab={authTab}
-        setAuthTab={setAuthTab}
-        setIsAuthenticated={() => {}}
-        setUserData={() => {}}
-      />
-    </div>
-  );
+      <AuthDialog showAuthDialog={showAuthDialog} setShowAuthDialog={setShowAuthDialog} authTab={authTab} setAuthTab={setAuthTab} setIsAuthenticated={() => {}} setUserData={() => {}} />
+    </div>;
 };
-
 export default Index;
