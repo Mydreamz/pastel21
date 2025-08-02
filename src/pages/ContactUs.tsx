@@ -1,7 +1,7 @@
 import React from 'react';
 import { Mail } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
+
 import { useState } from 'react';
 import AuthDialog from '@/components/auth/AuthDialog';
 
@@ -90,7 +90,7 @@ const ContactUs = () => {
         </div>
       </main>
 
-      <Footer />
+      
       
       <AuthDialog
         showAuthDialog={showAuthDialog}

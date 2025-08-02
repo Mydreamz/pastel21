@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
+
 import { useState } from 'react';
 import AuthDialog from '@/components/auth/AuthDialog';
 
@@ -131,7 +131,7 @@ const RefundPolicy = () => {
         </div>
       </main>
 
-      <Footer />
+      
       
       <AuthDialog
         showAuthDialog={showAuthDialog}

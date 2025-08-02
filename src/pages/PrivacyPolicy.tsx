@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, Lock, Eye } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
+
 import { useState } from 'react';
 import AuthDialog from '@/components/auth/AuthDialog';
 
@@ -211,7 +211,7 @@ const PrivacyPolicy = () => {
         </div>
       </main>
 
-      <Footer />
+      
       
       <AuthDialog
         showAuthDialog={showAuthDialog}

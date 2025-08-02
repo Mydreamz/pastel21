@@ -1,7 +1,7 @@
 import React from 'react';
 import { Zap, Clock, Shield } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
+
 import { useState } from 'react';
 import AuthDialog from '@/components/auth/AuthDialog';
 
@@ -136,7 +136,7 @@ const ShippingPolicy = () => {
         </div>
       </main>
 
-      <Footer />
+      
       
       <AuthDialog
         showAuthDialog={showAuthDialog}

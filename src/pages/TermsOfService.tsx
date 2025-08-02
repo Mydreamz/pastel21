@@ -1,7 +1,7 @@
 import React from 'react';
 import { FileText, Users, CreditCard } from 'lucide-react';
 import MainNav from '@/components/navigation/MainNav';
-import Footer from '@/components/navigation/Footer';
+
 import { useState } from 'react';
 import AuthDialog from '@/components/auth/AuthDialog';
 
@@ -273,7 +273,7 @@ const TermsOfService = () => {
         </div>
       </main>
 
-      <Footer />
+      
       
       <AuthDialog
         showAuthDialog={showAuthDialog}

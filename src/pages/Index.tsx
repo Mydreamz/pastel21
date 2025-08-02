@@ -5,7 +5,7 @@ import StarsBackground from '@/components/StarsBackground';
 import { useToast } from "@/hooks/use-toast";
 import MainNav from '@/components/navigation/MainNav';
 import MobileBottomNav from '@/components/navigation/MobileBottomNav';
-import Footer from '@/components/navigation/Footer';
+
 import AuthDialog from '@/components/auth/AuthDialog';
 import RecentContent from '@/components/content/RecentContent';
 
@@ -84,7 +84,7 @@ const Index = () => {
         <FAQSection />
       </main>
 
-      <Footer />
+      
       
       <MobileBottomNav openAuthDialog={openAuthDialog} />
       <BackToTop />
