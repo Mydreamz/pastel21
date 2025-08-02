@@ -29,6 +29,7 @@ import RefundPolicy from '@/pages/RefundPolicy';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
 import ShippingPolicy from '@/pages/ShippingPolicy';
+import PreLaunchTest from '@/pages/PreLaunchTest';
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ function App() {
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                    <Route path="/pre-launch-test" element={<PreLaunchTest />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                   <Footer />
