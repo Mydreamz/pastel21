@@ -31,7 +31,7 @@ const MainNav = ({
               alt="Monitize Logo" 
               className="h-8 w-8 mr-2 rounded-md transition-all duration-300 hover:backdrop-blur-sm hover:bg-white/10 hover:border hover:border-white/20 hover:rounded-lg hover:p-1 hover:shadow-lg" 
               loading="eager" 
-              fetchpriority="high"
+              fetchPriority="high"
               decoding="async"
             />
             <span className="font-mooxy font-bold text-gradient text-xl">Monitize.club</span>
