@@ -7,7 +7,7 @@ const TestimonialsSection = () => {
     {
       name: "Priya Sharma",
       role: "Content Creator",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150&h=150&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=150&h=150&fit=crop&crop=face",
       content: "Monitize.club transformed my creative journey. I've earned ₹25,000+ in just 3 months by sharing my design tutorials. The platform is incredibly user-friendly!",
       earnings: "₹25,000+",
       rating: 5
