@@ -42,21 +42,22 @@ const ContentManagement = () => {
   const fetchContents = async () => {
     try {
       setIsLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
-        body: { action: 'get-contents' },
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
-        }
-      });
+      const { data, error } = await supabase
+        .from('contents')
+        .select(`
+          id,
+          title,
+          content_type,
+          price,
+          views,
+          creator_name,
+          status,
+          created_at
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      if (data.success) {
-        setContents(data.data || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch contents');
-      }
+      setContents(data || []);
     } catch (error) {
       console.error('Error fetching contents:', error);
       toast({

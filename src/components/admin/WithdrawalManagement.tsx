@@ -19,7 +19,6 @@ interface WithdrawalRequest {
   bank_name: string;
   upi_id: string;
   created_at: string;
-  updated_at: string;
 }
 
 const WithdrawalManagement = () => {
@@ -34,21 +33,25 @@ const WithdrawalManagement = () => {
   const fetchWithdrawals = async () => {
     try {
       setIsLoading(true);
-      
-      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
-        body: { action: 'get-withdrawals' },
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
-        }
-      });
+      const { data, error } = await supabase
+        .from('withdrawal_requests')
+        .select(`
+          id,
+          user_id,
+          amount,
+          payment_method,
+          status,
+          account_holder_name,
+          account_number,
+          ifsc_code,
+          bank_name,
+          upi_id,
+          created_at
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      if (data.success) {
-        setWithdrawals(data.data || []);
-      } else {
-        throw new Error(data.error || 'Failed to fetch withdrawals');
-      }
+      setWithdrawals(data || []);
     } catch (error) {
       console.error('Error fetching withdrawals:', error);
       toast({
