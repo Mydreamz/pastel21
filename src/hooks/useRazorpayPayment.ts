@@ -32,6 +32,7 @@ interface RazorpayOptions {
 
 export const useRazorpayPayment = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingPaymentIds, setProcessingPaymentIds] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const loadRazorpayScript = (): Promise<boolean> => {
@@ -71,7 +72,19 @@ export const useRazorpayPayment = () => {
   };
 
   const verifyPayment = async (paymentData: any) => {
+    const paymentId = paymentData.razorpay_payment_id;
+    
+    // Prevent duplicate verification calls
+    if (processingPaymentIds.has(paymentId)) {
+      console.log('Payment verification already in progress for:', paymentId);
+      throw new Error('Payment verification already in progress');
+    }
+    
+    setProcessingPaymentIds(prev => new Set(prev).add(paymentId));
+    
     try {
+      console.log('Verifying payment:', paymentData);
+      
       const { data, error } = await supabase.functions.invoke('verify-razorpay-payment', {
         body: {
           razorpay_order_id: paymentData.razorpay_order_id,
@@ -88,6 +101,12 @@ export const useRazorpayPayment = () => {
     } catch (error) {
       console.error('Error verifying payment:', error);
       throw error;
+    } finally {
+      setProcessingPaymentIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(paymentId);
+        return newSet;
+      });
     }
   };
 

@@ -97,6 +97,28 @@ serve(async (req) => {
 
     console.log("Payment signature verified successfully");
 
+    // Check if transaction already exists to prevent duplicates
+    const { data: existingTransaction } = await supabaseClient
+      .from('transactions')
+      .select('id, payment_status')
+      .eq('razorpay_payment_id', razorpay_payment_id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (existingTransaction) {
+      console.log("Transaction already exists:", existingTransaction.id);
+      if (existingTransaction.payment_status === 'success') {
+        return new Response(JSON.stringify({
+          success: true,
+          transactionId: existingTransaction.id,
+          message: "Payment already processed successfully"
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
     // Get order from database
     const { data: order, error: orderError } = await supabaseClient
       .from('orders')
@@ -110,6 +132,30 @@ serve(async (req) => {
     }
 
     console.log("Order found:", order.id);
+
+    // Check if order is already paid
+    if (order.status === 'paid') {
+      console.log("Order already marked as paid");
+      // Try to find the existing transaction
+      const { data: orderTransaction } = await supabaseClient
+        .from('transactions')
+        .select('id')
+        .eq('razorpay_order_id', razorpay_order_id)
+        .eq('user_id', user.id)
+        .eq('payment_status', 'success')
+        .single();
+      
+      if (orderTransaction) {
+        return new Response(JSON.stringify({
+          success: true,
+          transactionId: orderTransaction.id,
+          message: "Payment already processed successfully"
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
 
     // Update order status
     const { error: updateOrderError } = await supabaseClient
@@ -125,7 +171,7 @@ serve(async (req) => {
       throw new Error("Failed to update order status");
     }
 
-    // Create transaction record
+    // Create transaction record with duplicate prevention
     const { data: transaction, error: transactionError } = await supabaseClient
       .from('transactions')
       .insert({
@@ -146,6 +192,28 @@ serve(async (req) => {
       .single();
 
     if (transactionError) {
+      // If it's a unique constraint violation, the transaction already exists
+      if (transactionError.code === '23505') {
+        console.log("Transaction already exists (unique constraint violation)");
+        const { data: existingTxn } = await supabaseClient
+          .from('transactions')
+          .select('id')
+          .eq('razorpay_payment_id', razorpay_payment_id)
+          .eq('user_id', user.id)
+          .single();
+        
+        if (existingTxn) {
+          return new Response(JSON.stringify({
+            success: true,
+            transactionId: existingTxn.id,
+            message: "Payment already processed successfully"
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 200,
+          });
+        }
+      }
+      
       console.error("Error creating transaction:", transactionError);
       throw new Error("Failed to create transaction record");
     }
