@@ -29,7 +29,9 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const adminLogin = (id: string, password: string): boolean => {
     if (id === '7974613391' && password === 'aats21') {
       setIsAdminAuthenticated(true);
-      localStorage.setItem('admin-auth', 'true');
+      // Store a more secure token for API calls
+      const adminToken = `admin-${Date.now()}-${id}`;
+      localStorage.setItem('admin-auth', adminToken);
       return true;
     }
     return false;

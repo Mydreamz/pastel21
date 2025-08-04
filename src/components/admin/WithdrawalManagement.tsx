@@ -34,13 +34,21 @@ const WithdrawalManagement = () => {
   const fetchWithdrawals = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('withdrawal_requests')
-        .select('*')
-        .order('created_at', { ascending: false });
+      
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-withdrawals' },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
+        }
+      });
 
       if (error) throw error;
-      setWithdrawals(data || []);
+      
+      if (data.success) {
+        setWithdrawals(data.data || []);
+      } else {
+        throw new Error(data.error || 'Failed to fetch withdrawals');
+      }
     } catch (error) {
       console.error('Error fetching withdrawals:', error);
       toast({

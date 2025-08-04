@@ -37,13 +37,21 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('updated_at', { ascending: false });
+      
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-users' },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
+        }
+      });
 
       if (error) throw error;
-      setUsers(data || []);
+      
+      if (data.success) {
+        setUsers(data.data || []);
+      } else {
+        throw new Error(data.error || 'Failed to fetch users');
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({

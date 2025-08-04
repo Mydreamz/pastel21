@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Users, 
   FileText, 
@@ -13,21 +14,23 @@ import {
 interface StatsData {
   totalUsers: number;
   totalContent: number;
-  totalRevenue: number;
+  totalRevenue: string;
   totalViews: number;
   totalTransactions: number;
-  pendingWithdrawals: number;
+  pendingWithdrawals: string;
 }
 
 const AdminStats = () => {
   const [stats, setStats] = useState<StatsData>({
     totalUsers: 0,
     totalContent: 0,
-    totalRevenue: 0,
+    totalRevenue: '0.00',
     totalViews: 0,
     totalTransactions: 0,
-    pendingWithdrawals: 0
+    pendingWithdrawals: '0.00'
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchStats();
@@ -35,56 +38,31 @@ const AdminStats = () => {
 
   const fetchStats = async () => {
     try {
-      // Get total users count
-      const { count: usersCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-      // Get total content count
-      const { count: contentCount } = await supabase
-        .from('contents')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_deleted', false);
-
-      // Get total revenue from platform fees
-      const { data: platformFees } = await supabase
-        .from('platform_fees')
-        .select('amount')
-        .eq('is_deleted', false);
-
-      const totalRevenue = platformFees?.reduce((sum, fee) => 
-        sum + parseFloat(fee.amount || '0'), 0) || 0;
-
-      // Get total views
-      const { count: viewsCount } = await supabase
-        .from('content_views')
-        .select('*', { count: 'exact', head: true });
-
-      // Get total transactions
-      const { count: transactionsCount } = await supabase
-        .from('transactions')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_deleted', false);
-
-      // Get pending withdrawals
-      const { data: withdrawals } = await supabase
-        .from('withdrawal_requests')
-        .select('amount')
-        .in('status', ['pending', 'processing']);
-
-      const pendingWithdrawals = withdrawals?.reduce((sum, withdrawal) => 
-        sum + Number(withdrawal.amount), 0) || 0;
-
-      setStats({
-        totalUsers: usersCount || 0,
-        totalContent: contentCount || 0,
-        totalRevenue,
-        totalViews: viewsCount || 0,
-        totalTransactions: transactionsCount || 0,
-        pendingWithdrawals
+      setIsLoading(true);
+      
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-stats' },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
+        }
       });
+
+      if (error) throw error;
+      
+      if (data.success) {
+        setStats(data.data);
+      } else {
+        throw new Error(data.error || 'Failed to fetch stats');
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch statistics",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -103,7 +81,7 @@ const AdminStats = () => {
     },
     {
       title: 'Platform Revenue',
-      value: `₹${stats.totalRevenue.toFixed(2)}`,
+      value: `₹${stats.totalRevenue}`,
       icon: IndianRupee,
       color: 'text-yellow-500'
     },
@@ -121,7 +99,7 @@ const AdminStats = () => {
     },
     {
       title: 'Pending Withdrawals',
-      value: `₹${stats.pendingWithdrawals.toFixed(2)}`,
+      value: `₹${stats.pendingWithdrawals}`,
       icon: TrendingUp,
       color: 'text-red-500'
     }

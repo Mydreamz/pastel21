@@ -30,15 +30,21 @@ const TransactionHistory = () => {
   const fetchTransactions = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('is_deleted', false)
-        .order('timestamp', { ascending: false })
-        .limit(100);
+      
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-transactions' },
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth')}`
+        }
+      });
 
       if (error) throw error;
-      setTransactions(data || []);
+      
+      if (data.success) {
+        setTransactions(data.data || []);
+      } else {
+        throw new Error(data.error || 'Failed to fetch transactions');
+      }
     } catch (error) {
       console.error('Error fetching transactions:', error);
       toast({
