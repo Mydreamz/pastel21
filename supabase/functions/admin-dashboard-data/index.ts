@@ -15,21 +15,21 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify admin authentication from request
+    // Get request body
+    const body = await req.json();
+    const { action } = body;
+
+    // Simple admin auth check - verify the admin token format
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.startsWith('Bearer admin-')) {
       return new Response(
-        JSON.stringify({ error: 'Missing or invalid authorization header' }),
+        JSON.stringify({ error: 'Admin authentication required' }),
         { 
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 401 
         }
       );
     }
-
-    // For now, we'll use the simple admin auth check
-    // In production, you might want to verify the admin session more securely
-    const { action } = await req.json();
 
     switch (action) {
       case 'get-stats':
@@ -43,7 +43,7 @@ serve(async (req) => {
       case 'get-contents':
         return await getContents(supabaseAdmin);
       case 'update-withdrawal-status':
-        const { withdrawalId, status } = await req.json();
+        const { withdrawalId, status } = body;
         return await updateWithdrawalStatus(supabaseAdmin, withdrawalId, status);
       default:
         return new Response(

@@ -33,3 +33,6 @@ verify_jwt = true
 
 [edge_functions.verify-razorpay-payment]
 verify_jwt = true
+
+[edge_functions.admin-dashboard-data]
+verify_jwt = false
