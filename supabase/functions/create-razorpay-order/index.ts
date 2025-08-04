@@ -80,10 +80,23 @@ serve(async (req) => {
 
     // Create Razorpay order
     const razorpayAuth = btoa(`${razorpayKeyId}:${razorpayKeySecret}`);
+    
+    // Generate a short receipt (max 40 chars for Razorpay)
+    const timestamp = Date.now().toString().slice(-8); // Last 8 digits
+    const userHash = user.id.slice(0, 8); // First 8 chars of user ID
+    const contentHash = contentId.slice(0, 8); // First 8 chars of content ID
+    const receipt = `ord_${userHash}_${contentHash}_${timestamp}`; // ~35 chars
+    
+    console.log("Generated receipt:", receipt, "Length:", receipt.length);
+    
+    if (receipt.length > 40) {
+      throw new Error(`Receipt too long: ${receipt.length} chars`);
+    }
+    
     const orderData = {
       amount: Math.round(amount * 100), // Convert to paise
       currency: currency,
-      receipt: `order_${user.id}_${contentId}_${Date.now()}`,
+      receipt: receipt,
       notes: {
         content_id: contentId,
         user_id: user.id,
