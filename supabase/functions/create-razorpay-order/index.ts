@@ -20,10 +20,10 @@ serve(async (req) => {
   try {
     console.log("Creating Razorpay order...");
     
-    // Initialize Supabase client with service role for database operations
+    // Initialize Supabase client for user authentication
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
@@ -35,6 +35,13 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError || !userData.user) throw new Error("User authentication failed");
 
+    // Initialize service role client for database operations
+    const supabaseService = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
     const user = userData.user;
     console.log("User authenticated:", user.id);
 
@@ -43,7 +50,7 @@ serve(async (req) => {
     console.log("Order details:", { contentId, amount, currency });
 
     // Validate content exists and get creator info
-    const { data: content, error: contentError } = await supabaseClient
+    const { data: content, error: contentError } = await supabaseService
       .from('contents')
       .select('id, creator_id, title, price')
       .eq('id', contentId)
@@ -54,7 +61,7 @@ serve(async (req) => {
     }
 
     // Check if user already purchased this content
-    const { data: existingTransaction } = await supabaseClient
+    const { data: existingTransaction } = await supabaseService
       .from('transactions')
       .select('id')
       .eq('content_id', contentId)
@@ -124,7 +131,7 @@ serve(async (req) => {
     console.log("Razorpay order created:", razorpayOrder.id);
 
     // Store order in database
-    const { data: order, error: orderError } = await supabaseClient
+    const { data: order, error: orderError } = await supabaseService
       .from('orders')
       .insert({
         user_id: user.id,

@@ -27,7 +27,13 @@ const LockedContent: React.FC<LockedContentProps> = ({
   const { user } = useAuth();
 
   const handlePayment = async () => {
+    if (!user) {
+      onUnlock(); // Trigger auth dialog
+      return;
+    }
+
     if (!contentId) {
+      console.error('Content ID not provided for Razorpay payment');
       onUnlock(); // Fallback to original behavior
       return;
     }
@@ -39,7 +45,8 @@ const LockedContent: React.FC<LockedContentProps> = ({
       user?.email,
       user?.user_metadata?.name,
       () => {
-        onUnlock(); // Call the original unlock function after successful payment
+        // Refresh the page to show unlocked content
+        window.location.reload();
       }
     );
   };

@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useContentLoading } from './content/useContentLoading';
 import { useSecureFileUrl } from '@/hooks/useSecureFileUrl';
-import { calculateFees } from '@/utils/paymentUtils';
 import { useContentPermissions } from './useContentPermissions';
 
 export const useViewContent = (id: string | undefined) => {
   const { user, session } = useAuth();
   const { toast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing] = useState(false); // No longer used for payments
   
   const { content, loading, error, handleContentLoad, resetTrackingState } = useContentLoading(id);
   const { isCreator, isPurchased, isChecking, refreshPermissions } = useContentPermissions(content);
@@ -47,36 +45,11 @@ export const useViewContent = (id: string | undefined) => {
       return;
     }
 
-    setIsProcessing(true);
-
-    const price = parseFloat(content.price);
-    if (isNaN(price) || price <= 0) {
-      toast({ title: "Error", description: "This content is not for sale.", variant: "destructive" });
-      setIsProcessing(false);
-      return;
-    }
-    
-    const { platformFee, creatorEarnings } = calculateFees(price);
-
-    const { error: transactionError } = await supabase.from('transactions').insert({
-      content_id: content.id,
-      user_id: user.id,
-      creator_id: content.creatorId,
-      amount: price.toString(),
-      platform_fee: platformFee.toString(),
-      creator_earnings: creatorEarnings.toString(),
-    });
-
-    if (transactionError) {
-      console.error('Transaction Error:', transactionError);
-      toast({ title: "Purchase Failed", description: transactionError.message, variant: "destructive" });
-    } else {
-      toast({ title: "Purchase Successful!", description: `You have purchased "${content.title}".` });
-      refreshPermissions();
-    }
-
-    setIsProcessing(false);
-  }, [content, user, session, toast, refreshPermissions]);
+    // This function now only handles authentication check
+    // The actual payment is handled by Razorpay in LockedContent component
+    console.log('handleUnlock called - this should use Razorpay payment flow');
+    toast({ title: "Use Razorpay", description: "Please use the purchase button to buy content via Razorpay.", variant: "destructive" });
+  }, [content, user, session, toast]);
 
   return {
     content,
