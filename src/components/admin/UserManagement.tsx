@@ -9,12 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
   id: string;
-  email?: string;
-  name?: string;
-  total_earnings?: string;
-  available_balance?: string;
-  created_at?: string;
-  updated_at?: string;
+  name: string;
+  total_earnings: string;
+  available_balance: string;
+  updated_at: string;
 }
 
 const UserManagement = () => {
@@ -39,25 +37,25 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      
-      const adminToken = localStorage.getItem('admin-auth');
-      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
-        body: { action: 'get-users' },
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          name,
+          total_earnings,
+          available_balance,
+          updated_at
+        `)
+        .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      if (!data.success) throw new Error(data.error);
-
-      setUsers(data.data || []);
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
         title: "Error",
         description: "Failed to fetch users",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
@@ -114,11 +112,9 @@ const UserManagement = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-muted-foreground">User ID</TableHead>
-                  <TableHead className="text-muted-foreground">Email</TableHead>
                   <TableHead className="text-muted-foreground">Name</TableHead>
                   <TableHead className="text-muted-foreground">Total Earnings</TableHead>
                   <TableHead className="text-muted-foreground">Available Balance</TableHead>
-                  <TableHead className="text-muted-foreground">Created</TableHead>
                   <TableHead className="text-muted-foreground">Last Updated</TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,19 +125,13 @@ const UserManagement = () => {
                       {user.id.substring(0, 8)}...
                     </TableCell>
                     <TableCell className="text-foreground">
-                      {user.email || 'No email'}
-                    </TableCell>
-                    <TableCell className="text-foreground">
                       {user.name || 'No name set'}
                     </TableCell>
                     <TableCell className="text-foreground">
-                      {formatCurrency(user.total_earnings || '0')}
+                      {formatCurrency(user.total_earnings)}
                     </TableCell>
                     <TableCell className="text-foreground">
-                      {formatCurrency(user.available_balance || '0')}
-                    </TableCell>
-                    <TableCell className="text-foreground">
-                      {formatDate(user.created_at)}
+                      {formatCurrency(user.available_balance)}
                     </TableCell>
                     <TableCell className="text-foreground">
                       {formatDate(user.updated_at)}

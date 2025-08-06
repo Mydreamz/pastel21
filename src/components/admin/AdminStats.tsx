@@ -40,24 +40,40 @@ const AdminStats = () => {
     try {
       setIsLoading(true);
       
-      const adminToken = localStorage.getItem('admin-auth');
-      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
-        body: { action: 'get-stats' },
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
+      // Get all stats in parallel using direct queries
+      const [
+        { count: totalUsers },
+        { count: totalContent },
+        { data: platformFees },
+        { count: totalViews },
+        { count: totalTransactions },
+        { data: pendingWithdrawals }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('contents').select('*', { count: 'exact', head: true }),
+        supabase.from('platform_fees').select('amount').eq('is_deleted', false),
+        supabase.from('content_views').select('*', { count: 'exact', head: true }),
+        supabase.from('transactions').select('*', { count: 'exact', head: true }),
+        supabase.from('withdrawal_requests').select('amount').in('status', ['pending', 'processing'])
+      ]);
+
+      const totalRevenue = platformFees?.reduce((sum, fee) => sum + parseFloat(fee.amount || '0'), 0) || 0;
+      const totalPendingWithdrawals = pendingWithdrawals?.reduce((sum, req) => sum + parseFloat(req.amount?.toString() || '0'), 0) || 0;
+
+      setStats({
+        totalUsers: totalUsers || 0,
+        totalContent: totalContent || 0,
+        totalRevenue: totalRevenue.toFixed(2),
+        totalViews: totalViews || 0,
+        totalTransactions: totalTransactions || 0,
+        pendingWithdrawals: totalPendingWithdrawals.toFixed(2)
       });
-
-      if (error) throw error;
-      if (!data.success) throw new Error(data.error);
-
-      setStats(data.data);
     } catch (error) {
-      console.error('Error fetching admin stats:', error);
+      console.error('Error fetching stats:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch admin statistics",
-        variant: "destructive",
+        description: "Failed to fetch statistics",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
