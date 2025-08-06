@@ -30,29 +30,25 @@ const TransactionHistory = () => {
   const fetchTransactions = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          id,
-          amount,
-          platform_fee,
-          creator_earnings,
-          payment_status,
-          payment_method,
-          timestamp,
-          razorpay_payment_id
-        `)
-        .order('timestamp', { ascending: false })
-        .limit(100);
+      
+      const adminToken = localStorage.getItem('admin-auth');
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-transactions' },
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
 
       if (error) throw error;
-      setTransactions(data || []);
+      if (!data.success) throw new Error(data.error);
+
+      setTransactions(data.data || []);
     } catch (error) {
       console.error('Error fetching transactions:', error);
       toast({
         title: "Error",
         description: "Failed to fetch transactions",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

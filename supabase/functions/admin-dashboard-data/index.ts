@@ -71,16 +71,18 @@ serve(async (req) => {
 
 async function getAdminStats(supabaseAdmin: any) {
   try {
-    // Get all stats in parallel
+    // Get user count from auth.users table for accurate total
+    const { data: authUsersResponse } = await supabaseAdmin.auth.admin.listUsers();
+    const totalUsers = authUsersResponse?.users?.length || 0;
+
+    // Get all other stats in parallel
     const [
-      { count: totalUsers },
       { count: totalContent },
       { data: platformFees },
       { count: totalViews },
       { count: totalTransactions },
       { data: pendingWithdrawals }
     ] = await Promise.all([
-      supabaseAdmin.from('profiles').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('contents').select('*', { count: 'exact', head: true }),
       supabaseAdmin.from('platform_fees').select('amount').eq('is_deleted', false),
       supabaseAdmin.from('content_views').select('*', { count: 'exact', head: true }),
@@ -92,7 +94,7 @@ async function getAdminStats(supabaseAdmin: any) {
     const totalPendingWithdrawals = pendingWithdrawals?.reduce((sum: number, req: any) => sum + parseFloat(req.amount || '0'), 0) || 0;
 
     const stats = {
-      totalUsers: totalUsers || 0,
+      totalUsers,
       totalContent: totalContent || 0,
       totalRevenue: totalRevenue.toFixed(2),
       totalViews: totalViews || 0,
@@ -111,21 +113,33 @@ async function getAdminStats(supabaseAdmin: any) {
 
 async function getUsers(supabaseAdmin: any) {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .select(`
-        id,
-        name,
-        total_earnings,
-        available_balance,
-        updated_at
-      `)
-      .order('updated_at', { ascending: false });
+    // Get all users from auth.users and combine with profile data
+    const { data: authUsersResponse } = await supabaseAdmin.auth.admin.listUsers();
+    const authUsers = authUsersResponse?.users || [];
 
-    if (error) throw error;
+    // Get all profiles data
+    const { data: profiles, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('*');
+
+    if (profileError) throw profileError;
+
+    // Combine auth users with profile data
+    const users = authUsers.map(authUser => {
+      const profile = profiles?.find(p => p.id === authUser.id);
+      return {
+        id: authUser.id,
+        email: authUser.email,
+        name: profile?.name || authUser.user_metadata?.name || 'No name',
+        total_earnings: profile?.total_earnings || '0.0',
+        available_balance: profile?.available_balance || '0.0',
+        created_at: authUser.created_at,
+        updated_at: profile?.updated_at || authUser.updated_at
+      };
+    });
 
     return new Response(
-      JSON.stringify({ success: true, data }),
+      JSON.stringify({ success: true, data: users }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

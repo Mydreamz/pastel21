@@ -33,31 +33,25 @@ const WithdrawalManagement = () => {
   const fetchWithdrawals = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('withdrawal_requests')
-        .select(`
-          id,
-          user_id,
-          amount,
-          payment_method,
-          status,
-          account_holder_name,
-          account_number,
-          ifsc_code,
-          bank_name,
-          upi_id,
-          created_at
-        `)
-        .order('created_at', { ascending: false });
+      
+      const adminToken = localStorage.getItem('admin-auth');
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-withdrawals' },
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
 
       if (error) throw error;
-      setWithdrawals(data || []);
+      if (!data.success) throw new Error(data.error);
+
+      setWithdrawals(data.data || []);
     } catch (error) {
       console.error('Error fetching withdrawals:', error);
       toast({
         title: "Error",
         description: "Failed to fetch withdrawal requests",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);

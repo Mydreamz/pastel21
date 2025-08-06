@@ -42,28 +42,25 @@ const ContentManagement = () => {
   const fetchContents = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('contents')
-        .select(`
-          id,
-          title,
-          content_type,
-          price,
-          views,
-          creator_name,
-          status,
-          created_at
-        `)
-        .order('created_at', { ascending: false });
+      
+      const adminToken = localStorage.getItem('admin-auth');
+      const { data, error } = await supabase.functions.invoke('admin-dashboard-data', {
+        body: { action: 'get-contents' },
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      });
 
       if (error) throw error;
-      setContents(data || []);
+      if (!data.success) throw new Error(data.error);
+
+      setContents(data.data || []);
     } catch (error) {
       console.error('Error fetching contents:', error);
       toast({
         title: "Error",
         description: "Failed to fetch contents",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
