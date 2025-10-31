@@ -19,7 +19,7 @@ serve(async (req) => {
       }
     );
 
-    const { creatorId } = await req.json();
+    const { creatorId, contentId } = await req.json();
 
     if (!creatorId) {
       return new Response(
@@ -31,12 +31,17 @@ serve(async (req) => {
       );
     }
 
-    // Soft delete all content by this creator
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('contents')
       .update({ is_deleted: true })
-      .eq('creator_id', creatorId)
-      .select();
+      .eq('creator_id', creatorId);
+
+    // If contentId is provided, only delete that specific content
+    if (contentId) {
+      query = query.eq('id', contentId);
+    }
+
+    const { data, error } = await query.select();
 
     if (error) throw error;
 

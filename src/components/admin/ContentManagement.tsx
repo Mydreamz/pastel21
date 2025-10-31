@@ -5,8 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, RefreshCw, FileText, Eye } from 'lucide-react';
+import { Search, RefreshCw, FileText, Eye, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Content {
   id: string;
@@ -15,6 +25,7 @@ interface Content {
   price: string;
   views: number;
   creator_name: string;
+  creator_id: string;
   status: string;
   created_at: string;
 }
@@ -24,6 +35,9 @@ const ContentManagement = () => {
   const [filteredContents, setFilteredContents] = useState<Content[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [contentToDelete, setContentToDelete] = useState<{ id: string; creatorId: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -51,6 +65,7 @@ const ContentManagement = () => {
           price,
           views,
           creator_name,
+          creator_id,
           status,
           created_at
         `)
@@ -100,6 +115,46 @@ const ContentManagement = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const handleDeleteClick = (content: Content) => {
+    setContentToDelete({
+      id: content.id,
+      creatorId: content.creator_id,
+      title: content.title
+    });
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!contentToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const { data, error } = await supabase.functions.invoke('delete-user-content', {
+        body: { creatorId: contentToDelete.creatorId, contentId: contentToDelete.id }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Content "${contentToDelete.title}" has been deleted`,
+      });
+
+      await fetchContents();
+    } catch (error) {
+      console.error('Error deleting content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete content",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setContentToDelete(null);
+    }
+  };
+
   return (
     <Card className="bg-card border-border/50">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -144,6 +199,7 @@ const ContentManagement = () => {
                   <TableHead className="text-muted-foreground">Views</TableHead>
                   <TableHead className="text-muted-foreground">Status</TableHead>
                   <TableHead className="text-muted-foreground">Created</TableHead>
+                  <TableHead className="text-muted-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -175,6 +231,16 @@ const ContentManagement = () => {
                     <TableCell className="text-foreground">
                       {formatDate(content.created_at)}
                     </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(content)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -186,6 +252,27 @@ const ContentManagement = () => {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Content</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{contentToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
