@@ -36,3 +36,6 @@ verify_jwt = true
 
 [edge_functions.admin-dashboard-data]
 verify_jwt = false
+
+[edge_functions.delete-user-content]
+verify_jwt = false
