@@ -38,4 +38,4 @@ verify_jwt = true
 verify_jwt = false
 
 [edge_functions.delete-user-content]
-verify_jwt = false
+verify_jwt = true

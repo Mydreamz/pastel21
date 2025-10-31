@@ -69,6 +69,7 @@ const ContentManagement = () => {
           status,
           created_at
         `)
+        .eq('is_deleted', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
